@@ -1,0 +1,11 @@
+# Mac crap
+.DS_Store
+
+# xcode noise
+build/
+xcuserdata/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*~
