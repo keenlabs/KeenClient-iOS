@@ -78,8 +78,13 @@ static NSDictionary *clients;
 
 # pragma mark - Add events and upload them
 
-- (void) addEvent: (NSDictionary *) event ToCollection: (NSString *) collection {
+- (Boolean) addEvent: (NSDictionary *) event ToCollection: (NSString *) collection {
+    // don't do anything if event or collection are nil.
+    if (!event || !collection) {
+        return NO;
+    }
     
+    return YES;    
 }
 
 - (void) upload {

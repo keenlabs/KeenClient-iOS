@@ -23,8 +23,9 @@
  @param event      An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.
                    Nested NSDictionaries or NSArrays are acceptable.
  @param collection The collection you want to put this event into.
+ @return YES if the event was added, NO if it was not.
  */
-- (void) addEvent: (NSDictionary *) event ToCollection: (NSString *) collection;
+- (Boolean) addEvent: (NSDictionary *) event ToCollection: (NSString *) collection;
 
 /**
  Call this whenever you want to upload all the events captured so far.  This will spawn a low
