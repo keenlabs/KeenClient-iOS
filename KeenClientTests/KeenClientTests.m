@@ -28,8 +28,14 @@
     KeenClient *client = [KeenClient getClientForAuthToken:@"some_token"];
     STAssertNotNil(client, @"Expected getClient with non-nil token to return non-nil client.");
     
+    KeenClient *client2 = [KeenClient getClientForAuthToken:@"some_token"];
+    STAssertEqualObjects(client, client2, @"getClient on the same token twice should return the same instance twice.");
+        
     client = [KeenClient getClientForAuthToken:nil];
     STAssertNil(client, @"Expected getClient with nil token to return nil client.");
+    
+    client = [KeenClient getClientForAuthToken:@"some_other_token"];
+    STAssertFalse(client == client2, @"getClient on two different tokens should return two difference instances.");
 }
 
 @end
