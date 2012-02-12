@@ -8,6 +8,7 @@
 
 #import "KeenClientTests.h"
 #import "KeenClient.h"
+#import <OCMock/OCMock.h>
 
 
 @interface KeenClientTests () {}

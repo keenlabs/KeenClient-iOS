@@ -28,6 +28,13 @@
 		01BA1A6E14E76E7C00CF9F84 /* CDataScanner_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1A6A14E76E7C00CF9F84 /* CDataScanner_Extensions.m */; };
 		01BA1A6F14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1A6B14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h */; };
 		01BA1A7014E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1A6C14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m */; };
+		01BA1ADE14E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
+		01BA1ADF14E77DC600CF9F84 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
+		01BA1AE014E77DC600CF9F84 /* OCMConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */; };
+		01BA1AE114E77DC600CF9F84 /* OCMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADA14E77DC600CF9F84 /* OCMock.h */; };
+		01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
+		01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
+		01BA1AE414E77DC600CF9F84 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +73,13 @@
 		01BA1A6A14E76E7C00CF9F84 /* CDataScanner_Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDataScanner_Extensions.m; sourceTree = "<group>"; };
 		01BA1A6B14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSDictionary_JSONExtensions.h; sourceTree = "<group>"; };
 		01BA1A6C14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionary_JSONExtensions.m; sourceTree = "<group>"; };
+		01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
+		01BA1AD814E77DC600CF9F84 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
+		01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
+		01BA1ADA14E77DC600CF9F84 /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
+		01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
+		01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
+		01BA1ADD14E77DC600CF9F84 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +88,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */,
+				01BA1AE414E77DC600CF9F84 /* libOCMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,6 +109,7 @@
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
+				01BA1AD414E77DC600CF9F84 /* Library */,
 				01BA1A5314E76DB800CF9F84 /* TouchJSON */,
 				017EE12314E30C96000F3868 /* KeenClient */,
 				017EE13714E30C96000F3868 /* KeenClientTests */,
@@ -196,6 +212,36 @@
 			path = TouchJSON/Source/Extensions;
 			sourceTree = "<group>";
 		};
+		01BA1AD414E77DC600CF9F84 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				01BA1AD514E77DC600CF9F84 /* Headers */,
+				01BA1ADD14E77DC600CF9F84 /* libOCMock.a */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		01BA1AD514E77DC600CF9F84 /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				01BA1AD614E77DC600CF9F84 /* OCMock */,
+			);
+			path = Headers;
+			sourceTree = "<group>";
+		};
+		01BA1AD614E77DC600CF9F84 /* OCMock */ = {
+			isa = PBXGroup;
+			children = (
+				01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */,
+				01BA1AD814E77DC600CF9F84 /* OCMArg.h */,
+				01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */,
+				01BA1ADA14E77DC600CF9F84 /* OCMock.h */,
+				01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */,
+				01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */,
+			);
+			path = OCMock;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -210,6 +256,12 @@
 				01BA1A6714E76E6100CF9F84 /* JSONRepresentation.h in Headers */,
 				01BA1A6D14E76E7C00CF9F84 /* CDataScanner_Extensions.h in Headers */,
 				01BA1A6F14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h in Headers */,
+				01BA1ADE14E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h in Headers */,
+				01BA1ADF14E77DC600CF9F84 /* OCMArg.h in Headers */,
+				01BA1AE014E77DC600CF9F84 /* OCMConstraint.h in Headers */,
+				01BA1AE114E77DC600CF9F84 /* OCMock.h in Headers */,
+				01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */,
+				01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -397,6 +449,10 @@
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Library\"",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -409,6 +465,10 @@
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Library\"",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -424,7 +484,9 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/**";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
+				"OTHER_LDFLAGS[arch=*]" = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
 			};
@@ -439,7 +501,9 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/**";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
+				"OTHER_LDFLAGS[arch=*]" = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = octest;
 			};
