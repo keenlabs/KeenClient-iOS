@@ -35,6 +35,8 @@
 		01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
 		01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
 		01BA1AE414E77DC600CF9F84 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
+		01BA1AFD14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AFB14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h */; };
+		01BA1AFE14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1AFC14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +82,8 @@
 		01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
 		01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
 		01BA1ADD14E77DC600CF9F84 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
+		01BA1AFB14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+JSONDataRepresentation.h"; sourceTree = "<group>"; };
+		01BA1AFC14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+JSONDataRepresentation.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -207,6 +211,8 @@
 				01BA1A6A14E76E7C00CF9F84 /* CDataScanner_Extensions.m */,
 				01BA1A6B14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h */,
 				01BA1A6C14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m */,
+				01BA1AFB14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h */,
+				01BA1AFC14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m */,
 			);
 			name = Extensions;
 			path = TouchJSON/Source/Extensions;
@@ -263,6 +269,7 @@
 				01BA1AE114E77DC600CF9F84 /* OCMock.h in Headers */,
 				01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */,
 				01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */,
+				01BA1AFD14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -371,6 +378,7 @@
 				01BA1A6614E76E6100CF9F84 /* CJSONSerializer.m in Sources */,
 				01BA1A6E14E76E7C00CF9F84 /* CDataScanner_Extensions.m in Sources */,
 				01BA1A7014E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m in Sources */,
+				01BA1AFE14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

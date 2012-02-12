@@ -8,6 +8,7 @@
 
 #import "KeenClientTests.h"
 #import "KeenClient.h"
+#import "CJSONDeserializer.h"
 #import <OCMock/OCMock.h>
 
 
@@ -79,10 +80,12 @@
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
     NSString *path = [contents objectAtIndex:0];
     NSString *fullPath = [[self getEventDirectoryForCollection:@"foo"] stringByAppendingPathComponent:path];
-    NSDictionary *deserializedDict = [NSDictionary dictionaryWithContentsOfFile:fullPath];
+    NSData *data = [NSData dataWithContentsOfFile:fullPath];
+    NSError *error = nil;
+    NSDictionary *deserializedDict = [[CJSONDeserializer deserializer] deserialize:data error:&error];
     // make sure timestamp was added
     STAssertNotNil(deserializedDict, @"The event should have been written to disk.");
-    STAssertNotNil([deserializedDict objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added.");
+    STAssertNotNil([deserializedDict objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
     STAssertEqualObjects(@"apple", [deserializedDict objectForKey:@"a"], @"Value for key 'a' is wrong.");
     STAssertEqualObjects(@"bapple", [deserializedDict objectForKey:@"b"], @"Value for key 'b' is wrong.");
     STAssertEqualObjects(@"capple", [deserializedDict objectForKey:@"c"], @"Value for key 'c' is wrong.");
@@ -108,8 +111,14 @@
 }
 
 - (void) testUpload {
+    // add an event
     KeenClient *client = [KeenClient getClientForAuthToken:@"a"];
+    [client addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
     
+    // and upload it
+    [client upload];
+    
+    // make sure the file was deleted locally
 }
 
 - (NSString *) getCacheDirectory {

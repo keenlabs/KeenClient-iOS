@@ -43,6 +43,10 @@ static NSDictionary *clients;
  */
 - (NSString *) getKeenDirectory;
 
+// TODO comment
+- (NSArray *) getKeenSubDirectories;
+- (NSArray *) getContentsAtPath: (NSString *) path;
+
 /**
  Returns the directory for a particular collection where events exist.
  @param collection The collection.
@@ -57,6 +61,10 @@ static NSDictionary *clients;
  @returns An NSString* that is a path to the event to be written.
  */
 - (NSString *) getPathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp;
+
+// TODO comment
+- (Boolean) createDirectoryIfItDoesNotExist: (NSString *) dirPath;
+- (Boolean) writeNSData: (NSData *) data toFile: (NSString *) file;
     
 @end
 
@@ -135,37 +143,27 @@ static NSDictionary *clients;
         eventToWrite = event;
     }
     
-    // get a file manager so we can interact with the file system.
-    NSFileManager *fileManager = [NSFileManager defaultManager];
+    // serialize event to JSON
+    NSError *error = nil;
+    NSData *jsonData = [[CJSONSerializer serializer] serializeDictionary:eventToWrite error:&error];
+    if (error) {
+        NSLog(@"An error occurred when serializing event to JSON: %@", [error localizedDescription]);
+        return NO;
+    }
     
     // make sure the directory we want to write the file to exists
     NSString *dirPath = [self getEventDirectoryForCollection:collection];
     // if the directory doesn't exist, create it.
-    if (![fileManager fileExistsAtPath:dirPath]) {
-        NSError *error = nil;
-        Boolean success = [fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:&error];
-        if (error) {
-            NSLog(@"An error occurred when creating directory (%@). Message: %@", dirPath, [error localizedDescription]);
-            return NO;
-        } else if (!success) {
-            NSLog(@"Failed to create directory (%@) but no error was returned.", dirPath);
-            return NO;
-        }        
+    Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
+    if (!success) {
+        return NO;
     }
     
     // now figure out the correct filename.
     NSString *fileName = [self getPathForEventInCollection:collection WithTimestamp:timestamp];
     
-    // write file atomically so we don't ever have a partial event to worry about.
-    Boolean success = [eventToWrite writeToFile:fileName atomically:YES];
-    if (!success) {
-        NSLog(@"Error when writing event to file: %@", fileName);
-        return NO;
-    } else {
-        NSLog(@"Successfully wrote event to file: %@", fileName);
-    }
-    
-    return YES;    
+    // write JSON to file system
+    return [self writeNSData:jsonData toFile:fileName];
 }
 
 - (void) upload {
@@ -173,24 +171,15 @@ static NSDictionary *clients;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
     // list all the directories under Keen
+    NSArray *directories = [self getKeenSubDirectories];
     NSString *rootPath = [self getKeenDirectory];
-    NSError *error = nil;
-    NSArray *directories = [fileManager contentsOfDirectoryAtPath:rootPath error:&error];
-    if (error) {
-        NSLog(@"An error occurred when listing keen root directory contents: %@", [error localizedDescription]);
-        return;
-    }
     
     // iterate through each directory
     for (NSString *dirName in directories) {
         // list contents of each directory
         NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
-        error = nil;
-        NSArray *files = [fileManager contentsOfDirectoryAtPath:dirPath error:&error];
-        if (error) {
-            NSLog(@"An error occurred when listing directory (%@) contents: %@", dirPath, [error localizedDescription]);
-            continue;
-        }
+        NSError *error = nil;
+        NSArray *files = [self getContentsAtPath:dirPath];
         
         for (NSString *fileName in files) {
             NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
@@ -217,6 +206,7 @@ static NSDictionary *clients;
             [request setHTTPMethod:@"POST"];
             [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
             [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+            [request setValue:self.token forHTTPHeaderField:@"Authorization"];
             // TODO check if setHTTPBody also sets content-length
             [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
             [request setHTTPBody:data];
@@ -281,6 +271,21 @@ static NSDictionary *clients;
     return [[self getCacheDirectory] stringByAppendingPathComponent:@"keen"];
 }
 
+- (NSArray *) getKeenSubDirectories {
+    return [self getContentsAtPath:[self getKeenDirectory]];
+}
+
+- (NSArray *) getContentsAtPath: (NSString *) path {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
+    if (error) {
+        NSLog(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
+        return nil;
+    }
+    return files;
+}
+
 - (NSString *) getEventDirectoryForCollection: (NSString *) collection {
     return [[self getKeenDirectory] stringByAppendingPathComponent:collection];
 }
@@ -310,6 +315,35 @@ static NSDictionary *clients;
     }    
     
     return path;
+}
+
+- (Boolean) createDirectoryIfItDoesNotExist: (NSString *) dirPath {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    // if the directory doesn't exist, create it.
+    if (![fileManager fileExistsAtPath:dirPath]) {
+        NSError *error = nil;
+        Boolean success = [fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:&error];
+        if (error) {
+            NSLog(@"An error occurred when creating directory (%@). Message: %@", dirPath, [error localizedDescription]);
+            return NO;
+        } else if (!success) {
+            NSLog(@"Failed to create directory (%@) but no error was returned.", dirPath);
+            return NO;
+        }        
+    }
+    return YES;
+}
+
+- (Boolean) writeNSData: (NSData *) data toFile: (NSString *) file {
+    // write file atomically so we don't ever have a partial event to worry about.    
+    Boolean success = [data writeToFile:file atomically:YES];
+    if (!success) {
+        NSLog(@"Error when writing event to file: %@", file);
+        return NO;
+    } else {
+        NSLog(@"Successfully wrote event to file: %@", file);
+    }
+    return YES;
 }
 
 @end
