@@ -183,20 +183,8 @@ static NSDictionary *clients;
         
         for (NSString *fileName in files) {
             NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
-            // for each file, deserialize the dictionary into memory.
-            NSDictionary *event = [NSDictionary dictionaryWithContentsOfFile:filePath];
-            if (!event) {
-                NSLog(@"Couldn't deserialize file (%@). Deleting it.", filePath);
-                [fileManager removeItemAtPath:filePath error:&error];
-            }
-            
-            // then serialize the dictionary to json.
-            error = nil;
-            NSData *data = [[CJSONSerializer serializer] serializeDictionary:event error:&error];
-            if (error) {
-                NSLog(@"Couldn't serialize %@ to JSON.", event);
-                [fileManager removeItemAtPath:filePath error:&error];
-            }
+            // for each file, grab the JSON blob
+            NSData *data = [NSData dataWithContentsOfFile:filePath];
             
             // and then make an http request to the keen server.
             // TODO get project ID in there
