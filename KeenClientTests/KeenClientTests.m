@@ -77,21 +77,25 @@
     // now go find the file we wrote to disk
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
     NSString *path = [contents objectAtIndex:0];
-    NSDictionary *deserializedDict = [NSDictionary dictionaryWithContentsOfFile:path];
+    NSString *fullPath = [[self getEventDirectoryForCollection:@"foo"] stringByAppendingPathComponent:path];
+    NSDictionary *deserializedDict = [NSDictionary dictionaryWithContentsOfFile:fullPath];
     // make sure timestamp was added
     STAssertNotNil(deserializedDict, @"The event should have been written to disk.");
     STAssertNotNil([deserializedDict objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added.");
-    // TODO this will need to be changed...
-    STAssertEqualObjects(deserializedDict, event, 
-                         @"The event written to disk and the event in memory don't match. Disk: %@\nMemory: %@", 
-                         deserializedDict, event);
+    STAssertEqualObjects(@"apple", [deserializedDict objectForKey:@"a"], @"Value for key 'a' is wrong.");
+    STAssertEqualObjects(@"bapple", [deserializedDict objectForKey:@"b"], @"Value for key 'b' is wrong.");
+    STAssertEqualObjects(@"capple", [deserializedDict objectForKey:@"c"], @"Value for key 'c' is wrong.");
     
     // dict with NSDate should work
     keys = [NSArray arrayWithObjects:@"a", @"b", @"a_date", nil];
     values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSDate date], nil];
     event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
     response = [client addEvent:event ToCollection:@"foo"];
-    STAssertTrue(response, @"an event with a date should return YES");    
+    STAssertTrue(response, @"an event with a date should return YES"); 
+    
+    // now there should be two files
+    contents = [self contentsOfDirectoryForCollection:@"foo"];
+    STAssertTrue([contents count] == 2, @"There should be two files written.");
     
     // dict with non-serializable value should do nothing
     keys = [NSArray arrayWithObjects:@"a", @"b", @"bad_key", nil];

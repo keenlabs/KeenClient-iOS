@@ -15,18 +15,53 @@ static NSDictionary *clients;
 // The authorization token for this particular project.
 @property (nonatomic, retain) NSString *token;
 
+// The timestamp for the previous event.
+@property (nonatomic, retain) NSDate *prevTimestamp;
+
+// How many times the previous timestamp has been used.
+@property (nonatomic) NSInteger numTimesTimestampUsed;
+
 /**
  Initializes a KeenClient with the given authToken.
  @param authToken The auth token corresponding to the keen.io project.
  @returns an instance of KeenClient, or nil if authToken is nil or otherwise invalid.
  */
 - (id) initWithAuthToken: (NSString *) authToken;
+
+/**
+ Returns the app's documents directory.
+ @returns An NSString* that is a path to the app's documents directory.
+ */
+- (NSString *) getDocumentsDirectory;
+
+/**
+ Returns the root keen directory where collection sub-directories exist.
+ @returns An NSString* that is a path to the keen root directory.
+ */
+- (NSString *) getKeenDirectory;
+
+/**
+ Returns the directory for a particular collection where events exist.
+ @param collection The collection.
+ @returns An NSString* that is a path to the collection directory.
+ */
+- (NSString *) getEventDirectoryForCollection: (NSString *) collection;
+
+/**
+ Returns the full path to write an event to.
+ @param collection The collection name.
+ @param timestamp  The timestamp of the event.
+ @returns An NSString* that is a path to the event to be written.
+ */
+- (NSString *) getPathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp;
     
 @end
 
 @implementation KeenClient
 
 @synthesize token=_token;
+@synthesize prevTimestamp=_prevTimestamp;
+@synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
 
 # pragma mark - Class lifecycle
 
@@ -42,6 +77,7 @@ static NSDictionary *clients;
     if (self) {
         NSLog(@"Called init on KeenClient for token: %@", authToken);
         self.token = authToken;
+        self.prevTimestamp = nil;
     }
     
     return self;
@@ -49,6 +85,7 @@ static NSDictionary *clients;
 
 - (void) dealloc {
     self.token = nil;
+    self.prevTimestamp = nil;
     [super dealloc];
 }
 
@@ -84,11 +121,95 @@ static NSDictionary *clients;
         return NO;
     }
     
+    NSDictionary *eventToWrite = nil;
+    // if there's no timestamp in the event, stamp it automatically.
+    NSDate *timestamp = [event objectForKey:@"timestamp"];
+    if (!timestamp) {
+        eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
+        timestamp = [NSDate date];
+        [eventToWrite setValue:timestamp forKey:@"timestamp"];
+    } else {
+        eventToWrite = event;
+    }
+    
+    // get a file manager so we can interact with the file system.
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    // make sure the directory we want to write the file to exists
+    NSString *dirPath = [self getEventDirectoryForCollection:collection];
+    // if the directory doesn't exist, create it.
+    if (![fileManager fileExistsAtPath:dirPath]) {
+        NSError *error = nil;
+        Boolean success = [fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:&error];
+        if (error) {
+            NSLog(@"An error occurred when creating directory (%@). Message: %@", dirPath, [error localizedDescription]);
+            return NO;
+        } else if (!success) {
+            NSLog(@"Failed to create directory (%@) but no error was returned.", dirPath);
+            return NO;
+        }        
+    }
+    
+    // now figure out the correct filename.
+    NSString *fileName = [self getPathForEventInCollection:collection WithTimestamp:timestamp];
+    
+    // write file atomically so we don't ever have a partial event to worry about.
+    Boolean success = [eventToWrite writeToFile:fileName atomically:YES];
+    if (!success) {
+        NSLog(@"Error when writing event to file: %@", fileName);
+        return NO;
+    } else {
+        NSLog(@"Successfully wrote event to file: %@", fileName);
+    }
+    
     return YES;    
 }
 
 - (void) upload {
     
+}
+
+# pragma mark - Directory/path management
+
+- (NSString *) getDocumentsDirectory {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    return documentsDirectory;
+}
+
+- (NSString *) getKeenDirectory {
+    return [[self getDocumentsDirectory] stringByAppendingPathComponent:@"keen"];
+}
+
+- (NSString *) getEventDirectoryForCollection: (NSString *) collection {
+    return [[self getKeenDirectory] stringByAppendingPathComponent:collection];
+}
+
+- (NSString *) getPathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp {
+    // get a file manager.
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    // determine the root of the filename.
+    NSString *name = [NSString stringWithFormat:@"%d", (long) [timestamp timeIntervalSince1970]];
+    // get the path to the directory where the file will be written
+    NSString *directory = [self getEventDirectoryForCollection:collection];
+    // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
+    // we'll be able to handle it.
+    uint count = 0;
+    
+    // declare a tiny helper block to get the next path based on the counter.
+    NSString * (^getNextPath)(uint count) = ^(uint count) {
+        return [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%i", name, count]];
+    };
+    
+    // starting with our root filename.0, see if a file exists.  if it doesn't, great.  but if it does, then go
+    // on to filename.1, filename.2, etc.
+    NSString *path = getNextPath(count);
+    while ([fileManager fileExistsAtPath:path]) {
+        count++;
+        path = getNextPath(count);
+    }    
+    
+    return path;
 }
 
 @end
