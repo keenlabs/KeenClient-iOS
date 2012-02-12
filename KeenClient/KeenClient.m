@@ -7,6 +7,9 @@
 //
 
 #import "KeenClient.h"
+#import "CJSONSerializer.h"
+#import "CJSONDeserializer.h"
+
 
 static NSDictionary *clients;
 
@@ -195,18 +198,74 @@ static NSDictionary *clients;
             NSDictionary *event = [NSDictionary dictionaryWithContentsOfFile:filePath];
             if (!event) {
                 NSLog(@"Couldn't deserialize file (%@). Deleting it.", filePath);
-                error = nil;
                 [fileManager removeItemAtPath:filePath error:&error];
             }
             
             // then serialize the dictionary to json.
+            error = nil;
+            NSData *data = [[CJSONSerializer serializer] serializeDictionary:event error:&error];
+            if (error) {
+                NSLog(@"Couldn't serialize %@ to JSON.", event);
+                [fileManager removeItemAtPath:filePath error:&error];
+            }
             
-        }
+            // and then make an http request to the keen server.
+            // TODO get project ID in there
+            NSString *urlString = [NSString stringWithFormat:@"http://api.keen.io/v1.0/projects/%@/%@", nil, dirName];
+            NSURL *url = [NSURL URLWithString:urlString];
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+            [request setHTTPMethod:@"POST"];
+            [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+            [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+            // TODO check if setHTTPBody also sets content-length
+            [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
+            [request setHTTPBody:data];
+            NSURLResponse *response = nil;
+            error = nil;
+            NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
         
-        // and then make an http request to the keen server.
-        // if the request succeeded, delete the event from the local file system.
-        // if the request failed because the event was malformed, delete the event from the local file system.
-        // if the request failed because the server was down, keep the event on the local file system for later upload.
+            if (error) {
+                // if the request failed because the server was down, keep the event on the local file system for later upload.
+                NSLog(@"An error occurred when sending HTTP request: %@", [error localizedDescription]);
+                continue;
+            }
+            
+            if (!responseData) {
+                NSLog(@"responseData was nil for some reason.  That's not great.");
+                continue;
+            }
+            
+            // if the request failed because the event was malformed, delete the event from the local file system.
+            error = nil;
+            NSDictionary *responseDict = [[CJSONDeserializer deserializer] deserializeAsDictionary:responseData error:&error];
+            if (error) {
+                NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+                NSLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
+                [responseString release];
+                continue;
+            }
+            NSString *errorCode = [responseDict objectForKey:@"error_code"];
+            if ([errorCode isEqualToString:@"InvalidCollectionNameError"] ||
+                [errorCode isEqualToString:@"InvalidPropertyNameError"] ||
+                [errorCode isEqualToString:@"InvalidPropertyValueError"]) {
+                error = nil;
+                [fileManager removeItemAtPath:filePath error:&error];
+                if (error) {
+                    NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", filePath, [error localizedDescription]);
+                    continue;
+                }
+            }
+                        
+            // if the request succeeded, delete the event from the local file system.
+            if ([((NSHTTPURLResponse *)response) statusCode] == 201) {
+                error = nil;
+                [fileManager removeItemAtPath:filePath error:&error];
+                if (error) {
+                    NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", filePath, [error localizedDescription]);
+                    continue;
+                }
+            }
+        }
     }    
 }
 
