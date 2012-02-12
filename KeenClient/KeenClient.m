@@ -29,10 +29,10 @@ static NSDictionary *clients;
 - (id) initWithAuthToken: (NSString *) authToken;
 
 /**
- Returns the app's documents directory.
+ Returns the path to the app's library/cache directory.
  @returns An NSString* that is a path to the app's documents directory.
  */
-- (NSString *) getDocumentsDirectory;
+- (NSString *) getCacheDirectory;
 
 /**
  Returns the root keen directory where collection sub-directories exist.
@@ -212,14 +212,14 @@ static NSDictionary *clients;
 
 # pragma mark - Directory/path management
 
-- (NSString *) getDocumentsDirectory {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+- (NSString *) getCacheDirectory {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     return documentsDirectory;
 }
 
 - (NSString *) getKeenDirectory {
-    return [[self getDocumentsDirectory] stringByAppendingPathComponent:@"keen"];
+    return [[self getCacheDirectory] stringByAppendingPathComponent:@"keen"];
 }
 
 - (NSString *) getEventDirectoryForCollection: (NSString *) collection {

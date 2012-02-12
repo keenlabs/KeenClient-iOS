@@ -12,7 +12,7 @@
 
 @interface KeenClientTests () {}
 
-- (NSString *) getDocumentsDirectory;
+- (NSString *) getCacheDirectory;
 - (NSString *) getKeenDirectory;
 - (NSString *) getEventDirectoryForCollection: (NSString *) collection;
 - (NSArray *) contentsOfDirectoryForCollection: (NSString *) collection;
@@ -106,14 +106,14 @@
     STAssertFalse(response, @"an event that can't be serialized should return NO");
 }
 
-- (NSString *) getDocumentsDirectory {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+- (NSString *) getCacheDirectory {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     return documentsDirectory;
 }
 
 - (NSString *) getKeenDirectory {
-    return [[self getDocumentsDirectory] stringByAppendingPathComponent:@"keen"];
+    return [[self getCacheDirectory] stringByAppendingPathComponent:@"keen"];
 }
 
 - (NSString *) getEventDirectoryForCollection: (NSString *) collection {
