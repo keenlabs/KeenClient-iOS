@@ -107,6 +107,11 @@
     STAssertFalse(response, @"an event that can't be serialized should return NO");
 }
 
+- (void) testUpload {
+    KeenClient *client = [KeenClient getClientForAuthToken:@"a"];
+    
+}
+
 - (NSString *) getCacheDirectory {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];

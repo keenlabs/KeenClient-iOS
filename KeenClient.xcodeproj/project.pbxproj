@@ -110,7 +110,6 @@
 			isa = PBXGroup;
 			children = (
 				01BA1AD414E77DC600CF9F84 /* Library */,
-				01BA1A5314E76DB800CF9F84 /* TouchJSON */,
 				017EE12314E30C96000F3868 /* KeenClient */,
 				017EE13714E30C96000F3868 /* KeenClientTests */,
 				017EE12014E30C96000F3868 /* Frameworks */,
@@ -183,6 +182,7 @@
 				01BA1A5714E76E6100CF9F84 /* JSON */,
 			);
 			name = TouchJSON;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		01BA1A5714E76E6100CF9F84 /* JSON */ = {
@@ -215,6 +215,7 @@
 		01BA1AD414E77DC600CF9F84 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				01BA1A5314E76DB800CF9F84 /* TouchJSON */,
 				01BA1AD514E77DC600CF9F84 /* Headers */,
 				01BA1ADD14E77DC600CF9F84 /* libOCMock.a */,
 			);
