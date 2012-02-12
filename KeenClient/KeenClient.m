@@ -65,6 +65,9 @@ static NSDictionary *clients;
 // TODO comment
 - (Boolean) createDirectoryIfItDoesNotExist: (NSString *) dirPath;
 - (Boolean) writeNSData: (NSData *) data toFile: (NSString *) file;
+
+- (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error;
+
     
 @end
 
@@ -187,20 +190,9 @@ static NSDictionary *clients;
             NSData *data = [NSData dataWithContentsOfFile:filePath];
             
             // and then make an http request to the keen server.
-            // TODO get project ID in there
-            NSString *urlString = [NSString stringWithFormat:@"http://api.keen.io/v1.0/projects/%@/%@", nil, dirName];
-            NSURL *url = [NSURL URLWithString:urlString];
-            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-            [request setHTTPMethod:@"POST"];
-            [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-            [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-            [request setValue:self.token forHTTPHeaderField:@"Authorization"];
-            // TODO check if setHTTPBody also sets content-length
-            [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
-            [request setHTTPBody:data];
             NSURLResponse *response = nil;
             error = nil;
-            NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+            NSData *responseData = [self sendEvent:data OnCollection:dirName returningResponse:&response error:&error];
         
             if (error) {
                 // if the request failed because the server was down, keep the event on the local file system for later upload.
@@ -332,6 +324,24 @@ static NSDictionary *clients;
         NSLog(@"Successfully wrote event to file: %@", file);
     }
     return YES;
+}
+
+# pragma mark - HTTP request/response management
+
+- (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error {
+    // TODO get project ID in there
+    NSString *urlString = [NSString stringWithFormat:@"http://api.keen.io/v1.0/projects/%@/%@", nil, collection];
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:self.token forHTTPHeaderField:@"Authorization"];
+    // TODO check if setHTTPBody also sets content-length
+    [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:data];
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+    return responseData;
 }
 
 @end
