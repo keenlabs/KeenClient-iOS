@@ -166,7 +166,48 @@ static NSDictionary *clients;
 }
 
 - (void) upload {
+    // get a file manager
+    NSFileManager *fileManager = [NSFileManager defaultManager];
     
+    // list all the directories under Keen
+    NSString *rootPath = [self getKeenDirectory];
+    NSError *error = nil;
+    NSArray *directories = [fileManager contentsOfDirectoryAtPath:rootPath error:&error];
+    if (error) {
+        NSLog(@"An error occurred when listing keen root directory contents: %@", [error localizedDescription]);
+        return;
+    }
+    
+    // iterate through each directory
+    for (NSString *dirName in directories) {
+        // list contents of each directory
+        NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
+        error = nil;
+        NSArray *files = [fileManager contentsOfDirectoryAtPath:dirPath error:&error];
+        if (error) {
+            NSLog(@"An error occurred when listing directory (%@) contents: %@", dirPath, [error localizedDescription]);
+            continue;
+        }
+        
+        for (NSString *fileName in files) {
+            NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
+            // for each file, deserialize the dictionary into memory.
+            NSDictionary *event = [NSDictionary dictionaryWithContentsOfFile:filePath];
+            if (!event) {
+                NSLog(@"Couldn't deserialize file (%@). Deleting it.", filePath);
+                error = nil;
+                [fileManager removeItemAtPath:filePath error:&error];
+            }
+            
+            // then serialize the dictionary to json.
+            
+        }
+        
+        // and then make an http request to the keen server.
+        // if the request succeeded, delete the event from the local file system.
+        // if the request failed because the event was malformed, delete the event from the local file system.
+        // if the request failed because the server was down, keep the event on the local file system for later upload.
+    }    
 }
 
 # pragma mark - Directory/path management
