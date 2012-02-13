@@ -10,3 +10,4 @@
 
 NSString * const KeenServerAddress = @"http://api.keen.io";
 NSString * const KeenApiVersion = @"1.0";
+NSString * const KeenErrorCodeParam = @"error_code";

@@ -7,6 +7,7 @@
 //
 
 #import "KeenClient.h"
+#import "KeenConstants.h"
 #import "CJSONSerializer.h"
 #import "CJSONDeserializer.h"
 
@@ -43,8 +44,17 @@ static NSDictionary *clients;
  */
 - (NSString *) getKeenDirectory;
 
-// TODO comment
+/**
+ Returns the direct child sub-directories of the root keen directory.
+ @returns An NSArray* of NSStrings* that are names of sub-directories.
+ */
 - (NSArray *) getKeenSubDirectories;
+
+/**
+ Returns all the files and directories that are children of the argument path.
+ @param path An NSString* that's a fully qualified path to a directory on the file system.
+ @returns An NSArray* of NSStrings* that are names of sub-files or directories.
+ */
 - (NSArray *) getContentsAtPath: (NSString *) path;
 
 /**
@@ -62,10 +72,24 @@ static NSDictionary *clients;
  */
 - (NSString *) getPathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp;
 
-// TODO comment
+/**
+ Creates a directory if it doesn't exist.
+ @param dirPath The fully qualfieid path to a directory.
+ @returns YES if the directory exists at the end of this operation, NO otherwise.
+ */
 - (Boolean) createDirectoryIfItDoesNotExist: (NSString *) dirPath;
+
+/**
+ Writes a particular blob to the given file.
+ @param data The data blob to write.
+ @param file The fully qualified path to a file.
+ @returns YES if the file was successfully written, NO otherwise.
+ */
 - (Boolean) writeNSData: (NSData *) data toFile: (NSString *) file;
 
+/**
+ Sends an event to the server. Internal impl.
+ */
 - (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error;
 
     
@@ -227,7 +251,7 @@ static NSDictionary *clients;
                     [responseString release];
                     continue;
                 }
-                NSString *errorCode = [responseDict objectForKey:@"error_code"];
+                NSString *errorCode = [responseDict objectForKey:KeenErrorCodeParam];
                 if ([errorCode isEqualToString:@"InvalidCollectionNameError"] ||
                     [errorCode isEqualToString:@"InvalidPropertyNameError"] ||
                     [errorCode isEqualToString:@"InvalidPropertyValueError"]) {
@@ -338,7 +362,7 @@ static NSDictionary *clients;
 
 - (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error {
     // TODO get project ID in there
-    NSString *urlString = [NSString stringWithFormat:@"http://api.keen.io/v1.0/projects/%@/%@", nil, collection];
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/%@", KeenServerAddress, KeenApiVersion, nil, collection];
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];

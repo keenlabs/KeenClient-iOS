@@ -10,3 +10,4 @@
 
 extern NSString * const KeenServerAddress;
 extern NSString * const KeenApiVersion;
+extern NSString * const KeenErrorCodeParam;
