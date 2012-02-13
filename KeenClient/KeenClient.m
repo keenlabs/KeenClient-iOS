@@ -10,6 +10,7 @@
 #import "KeenConstants.h"
 #import "CJSONSerializer.h"
 #import "CJSONDeserializer.h"
+#import "NSDate+JSONDataRepresentation.h"
 
 
 static NSDictionary *clients;
@@ -222,7 +223,7 @@ static NSDictionary *clients;
         
             if (error) {
                 // if the request failed because the server was down, keep the event on the local file system for later upload.
-                NSLog(@"An error occurred when sending HTTP request: %@", [error localizedDescription]);
+                NSLog(@"An error occurred when sending HTTP request to %@: %@", KeenServerAddress, [error localizedDescription]);
                 continue;
             }
             
@@ -362,7 +363,7 @@ static NSDictionary *clients;
 
 - (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error {
     // TODO get project ID in there
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/%@", KeenServerAddress, KeenApiVersion, nil, collection];
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/%@", KeenServerAddress, KeenApiVersion, @"abc", collection];
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];

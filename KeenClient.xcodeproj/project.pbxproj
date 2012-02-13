@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE12814E30C96000F3868 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12F14E30C96000F3868 /* SenTestingKit.framework */; };
@@ -35,13 +36,20 @@
 		01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
 		01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
 		01BA1AE414E77DC600CF9F84 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
-		01BA1AFD14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AFB14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h */; };
+		01BA1AFD14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AFB14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01BA1AFE14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1AFC14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m */; };
 		01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0105EE9014E9A4960048D871 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0105EE5D14E9A4940048D871;
+			remoteInfo = KeenClientExample;
+		};
 		017EE13414E30C96000F3868 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
@@ -52,6 +60,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenClientExample.xcodeproj; path = KeenClientExample/KeenClientExample.xcodeproj; sourceTree = "<group>"; };
 		017EE11E14E30C96000F3868 /* libKeenClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKeenClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		017EE12114E30C96000F3868 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		017EE12514E30C96000F3868 /* KeenClient-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KeenClient-Prefix.pch"; sourceTree = "<group>"; };
@@ -114,9 +123,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0105EE8D14E9A4940048D871 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0105EE9114E9A4960048D871 /* KeenClientExample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
+				0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */,
 				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE12314E30C96000F3868 /* KeenClient */,
 				017EE13714E30C96000F3868 /* KeenClientTests */,
@@ -215,10 +233,10 @@
 			children = (
 				01BA1A6914E76E7C00CF9F84 /* CDataScanner_Extensions.h */,
 				01BA1A6A14E76E7C00CF9F84 /* CDataScanner_Extensions.m */,
-				01BA1A6B14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h */,
-				01BA1A6C14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m */,
 				01BA1AFB14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h */,
 				01BA1AFC14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m */,
+				01BA1A6B14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h */,
+				01BA1A6C14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m */,
 			);
 			name = Extensions;
 			path = TouchJSON/Source/Extensions;
@@ -262,6 +280,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
+				01BA1AFD14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h in Headers */,
 				01BA1A5F14E76E6100CF9F84 /* CDataScanner.h in Headers */,
 				01BA1A6114E76E6100CF9F84 /* CJSONDeserializer.h in Headers */,
 				01BA1A6314E76E6100CF9F84 /* CJSONScanner.h in Headers */,
@@ -275,7 +295,6 @@
 				01BA1AE114E77DC600CF9F84 /* OCMock.h in Headers */,
 				01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */,
 				01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */,
-				01BA1AFD14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -338,6 +357,12 @@
 			mainGroup = 017EE11314E30C95000F3868;
 			productRefGroup = 017EE11F14E30C96000F3868 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0105EE8D14E9A4940048D871 /* Products */;
+					ProjectRef = 0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				017EE11D14E30C96000F3868 /* KeenClient */,
@@ -345,6 +370,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		0105EE9114E9A4960048D871 /* KeenClientExample.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = KeenClientExample.app;
+			remoteRef = 0105EE9014E9A4960048D871 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		017EE12B14E30C96000F3868 /* Resources */ = {

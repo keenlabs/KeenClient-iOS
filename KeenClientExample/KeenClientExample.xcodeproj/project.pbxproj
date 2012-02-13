@@ -1,0 +1,330 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0105EE6214E9A4940048D871 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0105EE6114E9A4940048D871 /* UIKit.framework */; };
+		0105EE6414E9A4940048D871 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0105EE6314E9A4940048D871 /* Foundation.framework */; };
+		0105EE6614E9A4940048D871 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0105EE6514E9A4940048D871 /* CoreGraphics.framework */; };
+		0105EE6C14E9A4940048D871 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE6A14E9A4940048D871 /* InfoPlist.strings */; };
+		0105EE6E14E9A4940048D871 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EE6D14E9A4940048D871 /* main.m */; };
+		0105EE7214E9A4940048D871 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EE7114E9A4940048D871 /* AppDelegate.m */; };
+		0105EE7514E9A4940048D871 /* FirstViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EE7414E9A4940048D871 /* FirstViewController.m */; };
+		0105EE7714E9A4940048D871 /* first.png in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE7614E9A4940048D871 /* first.png */; };
+		0105EE7914E9A4940048D871 /* first@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE7814E9A4940048D871 /* first@2x.png */; };
+		0105EE7C14E9A4940048D871 /* SecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EE7B14E9A4940048D871 /* SecondViewController.m */; };
+		0105EE7E14E9A4940048D871 /* second.png in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE7D14E9A4940048D871 /* second.png */; };
+		0105EE8014E9A4940048D871 /* second@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE7F14E9A4940048D871 /* second@2x.png */; };
+		0105EE8314E9A4940048D871 /* FirstViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE8114E9A4940048D871 /* FirstViewController.xib */; };
+		0105EE8614E9A4940048D871 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE8414E9A4940048D871 /* SecondViewController.xib */; };
+		0105EE9D14E9AA490048D871 /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0105EE9C14E9AA490048D871 /* libKeenClient.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0105EE5D14E9A4940048D871 /* KeenClientExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenClientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0105EE6114E9A4940048D871 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		0105EE6314E9A4940048D871 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		0105EE6514E9A4940048D871 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		0105EE6914E9A4940048D871 /* KeenClientExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "KeenClientExample-Info.plist"; sourceTree = "<group>"; };
+		0105EE6B14E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		0105EE6D14E9A4940048D871 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		0105EE6F14E9A4940048D871 /* KeenClientExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KeenClientExample-Prefix.pch"; sourceTree = "<group>"; };
+		0105EE7014E9A4940048D871 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		0105EE7114E9A4940048D871 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		0105EE7314E9A4940048D871 /* FirstViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FirstViewController.h; sourceTree = "<group>"; };
+		0105EE7414E9A4940048D871 /* FirstViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FirstViewController.m; sourceTree = "<group>"; };
+		0105EE7614E9A4940048D871 /* first.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = first.png; sourceTree = "<group>"; };
+		0105EE7814E9A4940048D871 /* first@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "first@2x.png"; sourceTree = "<group>"; };
+		0105EE7A14E9A4940048D871 /* SecondViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SecondViewController.h; sourceTree = "<group>"; };
+		0105EE7B14E9A4940048D871 /* SecondViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SecondViewController.m; sourceTree = "<group>"; };
+		0105EE7D14E9A4940048D871 /* second.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = second.png; sourceTree = "<group>"; };
+		0105EE7F14E9A4940048D871 /* second@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "second@2x.png"; sourceTree = "<group>"; };
+		0105EE8214E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/FirstViewController.xib; sourceTree = "<group>"; };
+		0105EE8514E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/SecondViewController.xib; sourceTree = "<group>"; };
+		0105EE9C14E9AA490048D871 /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libKeenClient.a; path = "../build/Release-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
+		0105EE9E14E9AA800048D871 /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeenClient.h; path = ../KeenClient/KeenClient.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0105EE5A14E9A4940048D871 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0105EE9D14E9AA490048D871 /* libKeenClient.a in Frameworks */,
+				0105EE6214E9A4940048D871 /* UIKit.framework in Frameworks */,
+				0105EE6414E9A4940048D871 /* Foundation.framework in Frameworks */,
+				0105EE6614E9A4940048D871 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0105EE5214E9A4930048D871 = {
+			isa = PBXGroup;
+			children = (
+				0105EE9C14E9AA490048D871 /* libKeenClient.a */,
+				0105EE9414E9A70A0048D871 /* Dependent Headers */,
+				0105EE6714E9A4940048D871 /* KeenClientExample */,
+				0105EE6014E9A4940048D871 /* Frameworks */,
+				0105EE5E14E9A4940048D871 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0105EE5E14E9A4940048D871 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0105EE5D14E9A4940048D871 /* KeenClientExample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0105EE6014E9A4940048D871 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0105EE6114E9A4940048D871 /* UIKit.framework */,
+				0105EE6314E9A4940048D871 /* Foundation.framework */,
+				0105EE6514E9A4940048D871 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		0105EE6714E9A4940048D871 /* KeenClientExample */ = {
+			isa = PBXGroup;
+			children = (
+				0105EE7014E9A4940048D871 /* AppDelegate.h */,
+				0105EE7114E9A4940048D871 /* AppDelegate.m */,
+				0105EE7314E9A4940048D871 /* FirstViewController.h */,
+				0105EE7414E9A4940048D871 /* FirstViewController.m */,
+				0105EE7614E9A4940048D871 /* first.png */,
+				0105EE7814E9A4940048D871 /* first@2x.png */,
+				0105EE7A14E9A4940048D871 /* SecondViewController.h */,
+				0105EE7B14E9A4940048D871 /* SecondViewController.m */,
+				0105EE7D14E9A4940048D871 /* second.png */,
+				0105EE7F14E9A4940048D871 /* second@2x.png */,
+				0105EE8114E9A4940048D871 /* FirstViewController.xib */,
+				0105EE8414E9A4940048D871 /* SecondViewController.xib */,
+				0105EE6814E9A4940048D871 /* Supporting Files */,
+			);
+			path = KeenClientExample;
+			sourceTree = "<group>";
+		};
+		0105EE6814E9A4940048D871 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0105EE6914E9A4940048D871 /* KeenClientExample-Info.plist */,
+				0105EE6A14E9A4940048D871 /* InfoPlist.strings */,
+				0105EE6D14E9A4940048D871 /* main.m */,
+				0105EE6F14E9A4940048D871 /* KeenClientExample-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0105EE9414E9A70A0048D871 /* Dependent Headers */ = {
+			isa = PBXGroup;
+			children = (
+				0105EE9E14E9AA800048D871 /* KeenClient.h */,
+			);
+			name = "Dependent Headers";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0105EE5C14E9A4940048D871 /* KeenClientExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0105EE8914E9A4940048D871 /* Build configuration list for PBXNativeTarget "KeenClientExample" */;
+			buildPhases = (
+				0105EE5914E9A4940048D871 /* Sources */,
+				0105EE5A14E9A4940048D871 /* Frameworks */,
+				0105EE5B14E9A4940048D871 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KeenClientExample;
+			productName = KeenClientExample;
+			productReference = 0105EE5D14E9A4940048D871 /* KeenClientExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0105EE5414E9A4930048D871 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+				ORGANIZATIONNAME = "Keen Labs";
+			};
+			buildConfigurationList = 0105EE5714E9A4930048D871 /* Build configuration list for PBXProject "KeenClientExample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 0105EE5214E9A4930048D871;
+			productRefGroup = 0105EE5E14E9A4940048D871 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0105EE5C14E9A4940048D871 /* KeenClientExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0105EE5B14E9A4940048D871 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0105EE6C14E9A4940048D871 /* InfoPlist.strings in Resources */,
+				0105EE7714E9A4940048D871 /* first.png in Resources */,
+				0105EE7914E9A4940048D871 /* first@2x.png in Resources */,
+				0105EE7E14E9A4940048D871 /* second.png in Resources */,
+				0105EE8014E9A4940048D871 /* second@2x.png in Resources */,
+				0105EE8314E9A4940048D871 /* FirstViewController.xib in Resources */,
+				0105EE8614E9A4940048D871 /* SecondViewController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0105EE5914E9A4940048D871 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0105EE6E14E9A4940048D871 /* main.m in Sources */,
+				0105EE7214E9A4940048D871 /* AppDelegate.m in Sources */,
+				0105EE7514E9A4940048D871 /* FirstViewController.m in Sources */,
+				0105EE7C14E9A4940048D871 /* SecondViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		0105EE6A14E9A4940048D871 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0105EE6B14E9A4940048D871 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		0105EE8114E9A4940048D871 /* FirstViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0105EE8214E9A4940048D871 /* en */,
+			);
+			name = FirstViewController.xib;
+			sourceTree = "<group>";
+		};
+		0105EE8414E9A4940048D871 /* SecondViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0105EE8514E9A4940048D871 /* en */,
+			);
+			name = SecondViewController.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		0105EE8714E9A4940048D871 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		0105EE8814E9A4940048D871 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		0105EE8A14E9A4940048D871 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "KeenClientExample/KeenClientExample-Prefix.pch";
+				INFOPLIST_FILE = "KeenClientExample/KeenClientExample-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		0105EE8B14E9A4940048D871 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "KeenClientExample/KeenClientExample-Prefix.pch";
+				INFOPLIST_FILE = "KeenClientExample/KeenClientExample-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0105EE5714E9A4930048D871 /* Build configuration list for PBXProject "KeenClientExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0105EE8714E9A4940048D871 /* Debug */,
+				0105EE8814E9A4940048D871 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0105EE8914E9A4940048D871 /* Build configuration list for PBXNativeTarget "KeenClientExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0105EE8A14E9A4940048D871 /* Debug */,
+				0105EE8B14E9A4940048D871 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0105EE5414E9A4930048D871 /* Project object */;
+}
