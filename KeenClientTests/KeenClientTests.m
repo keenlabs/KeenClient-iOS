@@ -32,6 +32,7 @@
 
 - (void) tearDown {
     // Tear-down code here.
+    NSLog(@"\n");
     
     // delete all collections and their events.
     NSError *error = nil;
@@ -123,8 +124,9 @@
     NSDictionary *result = [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithBool:success]
                                                               forKey:@"success"];
     if (!success) {
-        [result setValue:errorCode forKey:@"name"];
-        [result setValue:description forKey:@"description"];
+        NSDictionary *error = [NSDictionary dictionaryWithObjectsAndKeys:errorCode, @"name",
+                               description, @"description", nil];
+        [result setValue:error forKey:@"error"];
     }
     return result;
 }
@@ -230,6 +232,55 @@
     NSDictionary *result1 = [self buildResultWithSuccess:YES 
                                             AndErrorCode:nil 
                                           AndDescription:nil];
+    NSDictionary *result2 = [self buildResultWithSuccess:YES
+                                            AndErrorCode:nil 
+                                          AndDescription:nil];
+    NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
+                                                       forKey:@"foo"];
+    id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
+    
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] ToCollection:@"foo"];
+    
+    // and "upload" it
+    [mock upload];
+    
+    // make sure the file were deleted locally
+    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
+    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
+}
+
+- (void) testUploadMultipleEventsDifferentCollectionSuccess {
+    NSDictionary *result1 = [self buildResultWithSuccess:YES 
+                                            AndErrorCode:nil 
+                                          AndDescription:nil];
+    NSDictionary *result2 = [self buildResultWithSuccess:YES
+                                            AndErrorCode:nil 
+                                          AndDescription:nil];
+    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
+                            [NSArray arrayWithObject:result1], @"foo", 
+                            [NSArray arrayWithObject:result2], @"bar", nil];
+    id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
+    
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] ToCollection:@"bar"];
+    
+    // and "upload" it
+    [mock upload];
+    
+    // make sure the files were deleted locally
+    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
+    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
+    contents = [self contentsOfDirectoryForCollection:@"bar"];
+    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
+}
+
+- (void) testUploadMultipleEventsSameCollectionOneFails {
+    NSDictionary *result1 = [self buildResultWithSuccess:YES 
+                                            AndErrorCode:nil 
+                                          AndDescription:nil];
     NSDictionary *result2 = [self buildResultWithSuccess:NO
                                             AndErrorCode:@"InvalidCollectionNameError" 
                                           AndDescription:@"something"];
@@ -249,7 +300,7 @@
     STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
 }
 
-- (void) testUploadMultipleEventsDifferentCollectionSuccess {
+- (void) testUploadMultipleEventsDifferentCollectionsOneFails {
     NSDictionary *result1 = [self buildResultWithSuccess:YES 
                                             AndErrorCode:nil 
                                           AndDescription:nil];
@@ -275,10 +326,30 @@
     STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
 }
 
-- (void) testUploadMultipleEventsSameCollectionOneFails {
-}
-
-- (void) testUploadMultipleEventsDifferentCollectionsOneFails {
+- (void) testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
+    NSDictionary *result1 = [self buildResultWithSuccess:YES 
+                                            AndErrorCode:nil 
+                                          AndDescription:nil];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO
+                                            AndErrorCode:@"barf" 
+                                          AndDescription:@"something"];
+    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
+                            [NSArray arrayWithObject:result1], @"foo", 
+                            [NSArray arrayWithObject:result2], @"bar", nil];
+    id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
+    
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] ToCollection:@"bar"];
+    
+    // and "upload" it
+    [mock upload];
+    
+    // make sure the files were deleted locally
+    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
+    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
+    contents = [self contentsOfDirectoryForCollection:@"bar"];
+    STAssertTrue([contents count] == 1, @"There should be a file after a failed upload.");
 }
 
 - (NSString *) getCacheDirectory {

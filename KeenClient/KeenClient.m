@@ -323,6 +323,10 @@ static KeenClient *lastClient;
                         [errorCode isEqualToString:@"InvalidPropertyValueError"]) {
                         NSLog(@"An invalid event was found.  Deleting it.  Error: %@", errorDescription);
                         deleteFile = YES;
+                    } else {
+                        NSLog(@"The event could not be inserted for some reason.  Error name and description: %@, %@", 
+                              errorCode, errorDescription);
+                        deleteFile = NO;
                     }
                 }
                 // delete the file if we need to
