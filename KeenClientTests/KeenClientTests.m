@@ -222,7 +222,9 @@
 }
 
 - (void) testUploadMultipleEventsSameCollectionOneFails {
-    
+}
+
+- (void) testUploadMultipleEventsDifferentCollectionsOneFails {
 }
 
 - (NSString *) getCacheDirectory {
