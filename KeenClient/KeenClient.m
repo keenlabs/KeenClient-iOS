@@ -179,12 +179,14 @@ static NSDictionary *clients;
     
     // iterate through each directory
     for (NSString *dirName in directories) {
+        NSLog(@"Found directory: %@", dirName);
         // list contents of each directory
         NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
         NSError *error = nil;
         NSArray *files = [self getContentsAtPath:dirPath];
         
         for (NSString *fileName in files) {
+            NSLog(@"Found file: %@/%@", dirName, fileName);
             NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
             // for each file, grab the JSON blob
             NSData *data = [NSData dataWithContentsOfFile:filePath];
@@ -205,34 +207,36 @@ static NSDictionary *clients;
                 continue;
             }
             
-            // if the request failed because the event was malformed, delete the event from the local file system.
-            error = nil;
-            NSDictionary *responseDict = [[CJSONDeserializer deserializer] deserializeAsDictionary:responseData error:&error];
-            if (error) {
-                NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-                NSLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
-                [responseString release];
-                continue;
-            }
-            NSString *errorCode = [responseDict objectForKey:@"error_code"];
-            if ([errorCode isEqualToString:@"InvalidCollectionNameError"] ||
-                [errorCode isEqualToString:@"InvalidPropertyNameError"] ||
-                [errorCode isEqualToString:@"InvalidPropertyValueError"]) {
+            NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
+            
+            // if the request succeeded, delete the event from the local file system.
+            if (responseCode == 201) {
                 error = nil;
                 [fileManager removeItemAtPath:filePath error:&error];
                 if (error) {
                     NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", filePath, [error localizedDescription]);
                     continue;
                 }
-            }
-                        
-            // if the request succeeded, delete the event from the local file system.
-            if ([((NSHTTPURLResponse *)response) statusCode] == 201) {
+            } else if (responseCode == 400) {
+                // if the request failed because the event was malformed, delete the event from the local file system.
                 error = nil;
-                [fileManager removeItemAtPath:filePath error:&error];
+                NSDictionary *responseDict = [[CJSONDeserializer deserializer] deserializeAsDictionary:responseData error:&error];
                 if (error) {
-                    NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", filePath, [error localizedDescription]);
+                    NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+                    NSLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
+                    [responseString release];
                     continue;
+                }
+                NSString *errorCode = [responseDict objectForKey:@"error_code"];
+                if ([errorCode isEqualToString:@"InvalidCollectionNameError"] ||
+                    [errorCode isEqualToString:@"InvalidPropertyNameError"] ||
+                    [errorCode isEqualToString:@"InvalidPropertyValueError"]) {
+                    error = nil;
+                    [fileManager removeItemAtPath:filePath error:&error];
+                    if (error) {
+                        NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", filePath, [error localizedDescription]);
+                        continue;
+                    }
                 }
             }
         }

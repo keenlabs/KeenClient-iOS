@@ -110,15 +110,30 @@
     STAssertFalse(response, @"an event that can't be serialized should return NO");
 }
 
-- (void) testUpload {
+- (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error {
+    // for some reason without this method, testUpload has compile warnings. this should never actually be invoked.
+    // pretty annoying.
+    return nil;
+}
+
+- (void) testUploadSuccess {
     // add an event
     KeenClient *client = [KeenClient getClientForAuthToken:@"a"];
-    [client addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
+    id mock = [OCMockObject partialMockForObject:client];
     
+    NSHTTPURLResponse *response = [[[NSHTTPURLResponse alloc] initWithURL:nil statusCode:201 HTTPVersion:nil headerFields:nil] autorelease];
+    
+    [[[mock stub] andReturn:[@"{}" dataUsingEncoding:NSUTF8StringEncoding]] 
+     sendEvent:[OCMArg any] OnCollection:[OCMArg any] returningResponse:[OCMArg setTo:response] error:[OCMArg setTo:nil]];
+
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
+
     // and upload it
-    [client upload];
+    [mock upload];
     
     // make sure the file was deleted locally
+    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
+    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
 }
 
 - (NSString *) getCacheDirectory {
