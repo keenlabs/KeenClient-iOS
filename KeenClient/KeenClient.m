@@ -294,7 +294,8 @@ static KeenClient *lastClient;
 }
 
 - (NSString *) getKeenDirectory {
-    return [[self getCacheDirectory] stringByAppendingPathComponent:@"keen"];
+    NSString *keenDirPath = [[self getCacheDirectory] stringByAppendingPathComponent:@"keen"];
+    return [keenDirPath stringByAppendingPathComponent:self.projectId];
 }
 
 - (NSArray *) getKeenSubDirectories {

@@ -238,7 +238,8 @@
 }
 
 - (NSString *) getEventDirectoryForCollection: (NSString *) collection {
-    return [[self getKeenDirectory] stringByAppendingPathComponent:collection];
+    NSString *projectDir = [[self getKeenDirectory] stringByAppendingPathComponent:@"id"];
+    return [projectDir stringByAppendingPathComponent:collection];
 }
 
 - (NSArray *) contentsOfDirectoryForCollection: (NSString *) collection {
