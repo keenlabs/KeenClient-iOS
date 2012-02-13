@@ -9,6 +9,7 @@
 #import "KeenClientTests.h"
 #import "KeenClient.h"
 #import "CJSONDeserializer.h"
+#import "CJSONSerializer.h"
 #import <OCMock/OCMock.h>
 
 
@@ -110,13 +111,39 @@
     STAssertFalse(response, @"an event that can't be serialized should return NO");
 }
 
-- (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error {
+- (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error {
     // for some reason without this method, testUpload has compile warnings. this should never actually be invoked.
     // pretty annoying.
     return nil;
 }
 
-- (id) uploadTestHelperWithData: (NSString *) data AndStatusCode: (NSInteger) code {
+- (NSDictionary *) buildResultWithSuccess: (Boolean) success 
+                             AndErrorCode: (NSString *) errorCode 
+                           AndDescription: (NSString *) description {
+    NSDictionary *result = [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithBool:success]
+                                                              forKey:@"success"];
+    if (!success) {
+        [result setValue:errorCode forKey:@"name"];
+        [result setValue:description forKey:@"description"];
+    }
+    return result;
+}
+
+- (NSDictionary *) buildResponseJsonWithSuccess: (Boolean) success 
+                                   AndErrorCode: (NSString *) errorCode 
+                                 AndDescription: (NSString *) description {
+    NSDictionary *result = [self buildResultWithSuccess:success 
+                                           AndErrorCode:errorCode 
+                                         AndDescription:description];
+    NSArray *array = [NSArray arrayWithObject:result];
+    return [NSDictionary dictionaryWithObject:array forKey:@"foo"];
+}
+
+- (id) uploadTestHelperWithData: (id) data AndStatusCode: (NSInteger) code {
+    if (!data) {
+        data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
+    }
+    
     // set up the partial mock
     KeenClient *client = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
     id mock = [OCMockObject partialMockForObject:client];
@@ -124,9 +151,16 @@
     // set up the response we're faking out
     NSHTTPURLResponse *response = [[[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil] autorelease];
     
+    // serialize the faked out response data
+    NSData *serializedData = [[CJSONSerializer serializer] serializeObject:data error:nil];
+    NSString *json = [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];
+    NSLog(@"created json: %@", json);
+    [json release];
+    
     // set up the response data we're faking out
-    [[[mock stub] andReturn:[data dataUsingEncoding:NSUTF8StringEncoding]] 
-     sendEvent:[OCMArg any] OnCollection:[OCMArg any] returningResponse:[OCMArg setTo:response] error:[OCMArg setTo:nil]];
+    [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any] 
+                                     returningResponse:[OCMArg setTo:response] 
+                                                 error:[OCMArg setTo:nil]];
     
     return mock;
 }
@@ -140,7 +174,7 @@
 }
 
 - (void) testUploadSuccess {
-    id mock = [self uploadTestHelperWithData:@"" AndStatusCode:201];
+    id mock = [self uploadTestHelperWithData:nil AndStatusCode:200];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -170,17 +204,20 @@
 }
 
 - (void) testUploadFailedBadRequest {
-    id mock = [self uploadTestHelperWithData:@"{\"error_code\": \"InvalidCollectionNameError\"}" AndStatusCode:400];
+    id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
+                                                                   AndErrorCode:@"InvalidCollectionNameError" 
+                                                                 AndDescription:@"anything"] 
+                               AndStatusCode:200];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file was deleted locally
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-    STAssertTrue([contents count] == 0, @"An invalid event should be deleted after an upload attempt.");     
+    STAssertTrue([contents count] == 0, @"An invalid event should be deleted after an upload attempt.");
 }
 
 - (void) testUploadFailedBadRequestUnknownError {
-    id mock = [self uploadTestHelperWithData:@"{\"error_code\": \"UnknownError\"}" AndStatusCode:400];
+    id mock = [self uploadTestHelperWithData:@"doesn't matter" AndStatusCode:400];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -190,7 +227,15 @@
 }
 
 - (void) testUploadMultipleEventsSameCollectionSuccess {
-    id mock = [self uploadTestHelperWithData:@"" AndStatusCode:201];
+    NSDictionary *result1 = [self buildResultWithSuccess:YES 
+                                            AndErrorCode:nil 
+                                          AndDescription:nil];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO
+                                            AndErrorCode:@"InvalidCollectionNameError" 
+                                          AndDescription:@"something"];
+    NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
+                                                       forKey:@"foo"];
+    id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
@@ -205,7 +250,16 @@
 }
 
 - (void) testUploadMultipleEventsDifferentCollectionSuccess {
-    id mock = [self uploadTestHelperWithData:@"" AndStatusCode:201];
+    NSDictionary *result1 = [self buildResultWithSuccess:YES 
+                                            AndErrorCode:nil 
+                                          AndDescription:nil];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO
+                                            AndErrorCode:@"InvalidCollectionNameError" 
+                                          AndDescription:@"something"];
+    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
+                            [NSArray arrayWithObject:result1], @"foo", 
+                            [NSArray arrayWithObject:result2], @"bar", nil];
+    id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
@@ -238,16 +292,20 @@
 }
 
 - (NSString *) getEventDirectoryForCollection: (NSString *) collection {
+    // TODO parameterize the project ID here?
     NSString *projectDir = [[self getKeenDirectory] stringByAppendingPathComponent:@"id"];
     return [projectDir stringByAppendingPathComponent:collection];
 }
 
 - (NSArray *) contentsOfDirectoryForCollection: (NSString *) collection {
+    NSString *path = [self getEventDirectoryForCollection:collection];
+    NSLog(@"path: %@", path);
     NSFileManager *manager = [NSFileManager defaultManager];
     NSError *error = nil;
-    NSArray *contents = [manager contentsOfDirectoryAtPath:[self getEventDirectoryForCollection:collection] error:&error];
+    NSArray *contents = [manager contentsOfDirectoryAtPath:path error:&error];
     if (error) {
-        STFail(@"Error when listing contents of directory for collection %@: %@", collection, [error localizedDescription]);
+        STFail(@"Error when listing contents of directory for collection %@: %@", 
+               collection, [error localizedDescription]);
     }
     return contents;
 }

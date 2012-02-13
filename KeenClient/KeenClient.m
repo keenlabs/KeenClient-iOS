@@ -94,7 +94,7 @@ static KeenClient *lastClient;
 /**
  Sends an event to the server. Internal impl.
  */
-- (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error;
+- (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
 
     
 @end
@@ -215,73 +215,137 @@ static KeenClient *lastClient;
     NSArray *directories = [self getKeenSubDirectories];
     NSString *rootPath = [self getKeenDirectory];
     
+    // set up the request dictionary we'll send out.
+    NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
+    
+    // declare an error object
+    NSError *error = nil;
+    
+    // create a structure that will hold corresponding paths to all the files
+    NSMutableDictionary *fileDict = [NSMutableDictionary dictionary];
+    
     // iterate through each directory
     for (NSString *dirName in directories) {
         NSLog(@"Found directory: %@", dirName);
         // list contents of each directory
         NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
-        NSError *error = nil;
         NSArray *files = [self getContentsAtPath:dirPath];
+        
+        // set up the array of events that will be used in the request
+        NSMutableArray *requestArray = [NSMutableArray array];
+        // set up the array of file paths
+        NSMutableArray *fileArray = [NSMutableArray array];
         
         for (NSString *fileName in files) {
             NSLog(@"Found file: %@/%@", dirName, fileName);
             NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
             // for each file, grab the JSON blob
             NSData *data = [NSData dataWithContentsOfFile:filePath];
-            
-            // and then make an http request to the keen server.
-            NSURLResponse *response = nil;
+            // deserialize it
             error = nil;
-            NSData *responseData = [self sendEvent:data OnCollection:dirName returningResponse:&response error:&error];
-        
+            NSDictionary *eventDict = [[CJSONDeserializer deserializer] deserializeAsDictionary:data error:&error];
             if (error) {
-                // if the request failed because the server was down, keep the event on the local file system for later upload.
-                NSLog(@"An error occurred when sending HTTP request to %@: %@", KeenServerAddress, [error localizedDescription]);
+                NSLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
             }
-            
-            if (!responseData) {
-                NSLog(@"responseData was nil for some reason.  That's not great.");
-                continue;
-            }
-            
-            NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
-            
-            // if the request succeeded, delete the event from the local file system.
-            if (responseCode == 201) {
-                error = nil;
-                [fileManager removeItemAtPath:filePath error:&error];
-                if (error) {
-                    NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", filePath, [error localizedDescription]);
-                    continue;
-                }
-            } else if (responseCode == 400) {
-                // if the request failed because the event was malformed, delete the event from the local file system.
-                error = nil;
-                NSDictionary *responseDict = [[CJSONDeserializer deserializer] deserializeAsDictionary:responseData error:&error];
-                if (error) {
-                    NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-                    NSLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
-                    [responseString release];
-                    continue;
-                }
-                NSString *errorCode = [responseDict objectForKey:KeenErrorCodeParam];
-                if ([errorCode isEqualToString:@"InvalidCollectionNameError"] ||
-                    [errorCode isEqualToString:@"InvalidPropertyNameError"] ||
-                    [errorCode isEqualToString:@"InvalidPropertyValueError"]) {
-                    error = nil;
-                    [fileManager removeItemAtPath:filePath error:&error];
-                    if (error) {
-                        NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", filePath, [error localizedDescription]);
-                        continue;
+            // and then add it to the array of events
+            [requestArray addObject:eventDict];
+            // and also to the array of paths
+            [fileArray addObject:filePath];
+        }
+        // and then add the array back to the overall request
+        [requestDict setObject:requestArray forKey:dirName];
+        // and also to the dictionary of paths
+        [fileDict setObject:fileArray forKey:dirName];
+    }
+    
+    // now take the request dict and use it to make an HTTP request to the server
+    
+    // first serialize the request dict back to a json string
+    error = nil;
+    NSData *data = [[CJSONSerializer serializer] serializeDictionary:requestDict error:&error];
+    if (error) {
+        NSLog(@"An error occurred when serializing the final request data back to JSON: %@", 
+              [error localizedDescription]);
+        // can't do much here.
+        return;
+    }
+                
+    // and then make an http request to the keen server.
+    NSURLResponse *response = nil;
+    error = nil;
+    NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
+
+    /*
+    if (error) {
+        // if the request failed because the server was down, keep the events on the local file system for later upload.
+        NSLog(@"An error occurred when sending HTTP request to %@: %@", KeenServerAddress, [error localizedDescription]);
+        return;
+    }
+     */
+    
+    if (!responseData) {
+        NSLog(@"responseData was nil for some reason.  That's not great.");
+        return;
+    }
+    
+    NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
+    // if the request succeeded, dig into the response to figure out which events succeeded and which failed
+    if (responseCode == 200) {
+        // deserialize the response
+        error = nil;
+        NSDictionary *responseDict = [[CJSONDeserializer deserializer] 
+                                      deserializeAsDictionary:responseData error:&error];
+        if (error) {
+            NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+            NSLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
+            [responseString release];
+            return;
+        }
+        // now iterate through the keys of the response, which represent collection names
+        NSArray *collectionNames = [responseDict allKeys];
+        for (NSString *collectionName in collectionNames) {
+            // grab the results for this collection
+            NSArray *results = [responseDict objectForKey:collectionName];
+            // go through and delete any successes and failures because of user error
+            // (making sure to keep any failures due to server error)
+            NSUInteger count = 0;
+            for (NSDictionary *result in results) {
+                Boolean deleteFile = YES;
+                Boolean success = [[result objectForKey:@"success"] boolValue];
+                if (!success) {
+                    // grab error code and description
+                    NSDictionary *errorDict = [result objectForKey:@"error"];
+                    NSString *errorCode = [errorDict objectForKey:@"name"];
+                    NSString *errorDescription = [errorDict objectForKey:@"description"];
+                    if ([errorCode isEqualToString:@"InvalidCollectionNameError"] ||
+                        [errorCode isEqualToString:@"InvalidPropertyNameError"] ||
+                        [errorCode isEqualToString:@"InvalidPropertyValueError"]) {
+                        NSLog(@"An invalid event was found.  Deleting it.  Error: %@", errorDescription);
+                        deleteFile = YES;
                     }
                 }
-            } else {
-                NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-                NSLog(@"HTTP request failed with status code %d and body: %@", responseCode, responseString);
-                [responseString release];
+                // delete the file if we need to
+                if (deleteFile) {
+                    NSString *path = [[fileDict objectForKey:collectionName] objectAtIndex:count];
+                    error = nil;
+                    [fileManager removeItemAtPath:path error:&error];
+                    if (error) {
+                        NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
+                              [error localizedDescription]);
+                    } else {
+                        NSLog(@"Successfully deleted file: %@", path);
+                    }
+                }
+                count++;
             }
         }
+    } else {
+        // response code was NOT 200, which means something else happened. log this.
+        NSLog(@"Response code was NOT 200. It was: %d", responseCode);
+        NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+        NSLog(@"Response body was: %@", responseString);
+        [responseString release];
     }    
 }
 
@@ -375,9 +439,9 @@ static KeenClient *lastClient;
 
 # pragma mark - HTTP request/response management
 
-- (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error {
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/%@", 
-                           KeenServerAddress, KeenApiVersion, self.projectId, collection];
+- (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error {
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
+                           KeenServerAddress, KeenApiVersion, self.projectId];
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];
