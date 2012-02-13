@@ -46,21 +46,21 @@
 }
 
 - (void) testGetClientForAuthToken {
-    KeenClient *client = [KeenClient getClientForAuthToken:@"some_token"];
+    KeenClient *client = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
     STAssertNotNil(client, @"Expected getClient with non-nil token to return non-nil client.");
     
-    KeenClient *client2 = [KeenClient getClientForAuthToken:@"some_token"];
+    KeenClient *client2 = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
     STAssertEqualObjects(client, client2, @"getClient on the same token twice should return the same instance twice.");
-        
-    client = [KeenClient getClientForAuthToken:nil];
+    
+    client = [KeenClient clientForProject:@"id" WithAuthToken:nil];
     STAssertNil(client, @"Expected getClient with nil token to return nil client.");
     
-    client = [KeenClient getClientForAuthToken:@"some_other_token"];
+    client = [KeenClient clientForProject:@"id" WithAuthToken:@"some_other_token"];
     STAssertFalse(client == client2, @"getClient on two different tokens should return two difference instances.");
 }
 
 - (void) testAddEvent {
-    KeenClient *client = [KeenClient getClientForAuthToken:@"a"];
+    KeenClient *client = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
     
     // nil dict should should do nothing
     Boolean response = [client addEvent:nil ToCollection:@"foo"];
@@ -118,7 +118,7 @@
 
 - (id) uploadTestHelperWithData: (NSString *) data AndStatusCode: (NSInteger) code {
     // set up the partial mock
-    KeenClient *client = [KeenClient getClientForAuthToken:@"a"];
+    KeenClient *client = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out

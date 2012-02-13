@@ -10,12 +10,15 @@
 #import "KeenConstants.h"
 #import "CJSONSerializer.h"
 #import "CJSONDeserializer.h"
-#import "NSDate+JSONDataRepresentation.h"
 
 
 static NSDictionary *clients;
+static KeenClient *lastClient;
 
 @interface KeenClient () {}
+
+// The project ID for this particular client.
+@property (nonatomic, retain) NSString *projectId;
 
 // The authorization token for this particular project.
 @property (nonatomic, retain) NSString *token;
@@ -31,7 +34,7 @@ static NSDictionary *clients;
  @param authToken The auth token corresponding to the keen.io project.
  @returns an instance of KeenClient, or nil if authToken is nil or otherwise invalid.
  */
-- (id) initWithAuthToken: (NSString *) authToken;
+- (id) initWithProject: (NSString *) projectId AuthToken: (NSString *) authToken;
 
 /**
  Returns the path to the app's library/cache directory.
@@ -98,6 +101,7 @@ static NSDictionary *clients;
 
 @implementation KeenClient
 
+@synthesize projectId=_projectId;
 @synthesize token=_token;
 @synthesize prevTimestamp=_prevTimestamp;
 @synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
@@ -111,10 +115,11 @@ static NSDictionary *clients;
     }
 }
 
-- (id) initWithAuthToken:(NSString *)authToken {
+- (id) initWithProject: (NSString *) projectId AuthToken: (NSString *) authToken {
     self = [super init];
     if (self) {
         NSLog(@"Called init on KeenClient for token: %@", authToken);
+        self.projectId = projectId;
         self.token = authToken;
         self.prevTimestamp = nil;
     }
@@ -123,6 +128,7 @@ static NSDictionary *clients;
 }
 
 - (void) dealloc {
+    self.projectId = nil;
     self.token = nil;
     self.prevTimestamp = nil;
     [super dealloc];
@@ -130,9 +136,9 @@ static NSDictionary *clients;
 
 # pragma mark - Get a client
 
-+ (KeenClient *) getClientForAuthToken: (NSString *) authToken {
-    // validate that auth token is acceptable
-    if (!authToken) {
++ (KeenClient *) clientForProject: (NSString *) projectId WithAuthToken: (NSString *) authToken {
+    // validate that project id and auth token are acceptable
+    if (!projectId || !authToken) {
         return nil;
     }
     
@@ -141,15 +147,22 @@ static NSDictionary *clients;
         KeenClient *client = [clients objectForKey:authToken];
         // if it's null, then create a new instance.
         if (!client) {
-            // new instance
-            client = [[KeenClient alloc] initWithAuthToken:authToken];
+            // create a new instance
+            client = [[KeenClient alloc] initWithProject:projectId AuthToken:authToken];
             // cache it
             [clients setValue:client forKey:authToken];
             // release it
             [client release];
         }
+        KeenClient *temp = lastClient;
+        lastClient = [client retain];
+        [temp release];
         return client;
     }
+}
+
++ (KeenClient *) client {
+    return lastClient;
 }
 
 # pragma mark - Add events and upload them
@@ -362,8 +375,8 @@ static NSDictionary *clients;
 # pragma mark - HTTP request/response management
 
 - (NSData *) sendEvent: (NSData *) data OnCollection: (NSString *) collection returningResponse: (NSURLResponse **) response error: (NSError **) error {
-    // TODO get project ID in there
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/%@", KeenServerAddress, KeenApiVersion, @"abc", collection];
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/%@", 
+                           KeenServerAddress, KeenApiVersion, self.projectId, collection];
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];

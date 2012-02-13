@@ -13,10 +13,19 @@
 
 /**
  Call this with your project's authorization token to get a managed instance of KeenClient.
+ @param projectId The ID of your project.
  @param authToken The authorization token for your project.
  @returns A managed instance of KeenClient, or nil if authToken is nil or otherwise invalid.
  */
-+ (KeenClient *) getClientForAuthToken: (NSString *) authToken;
++ (KeenClient *) clientForProject: (NSString *) projectId WithAuthToken: (NSString *) authToken;
+
+/**
+ Call this once you've called clientForProject:WithAuthToken to retrieve the client that was
+ created last.  This is a convenience method to support not having to keep specifying projectId
+ and authToken whenever asking for a client.
+ @returns A managed instance of KeenClient, or nil if clientForProject hasn't been called yet.
+ */
++ (KeenClient *) client;
 
 /**
  Call this any time you want to add an event that will eventually be sent to the keen.io server.
