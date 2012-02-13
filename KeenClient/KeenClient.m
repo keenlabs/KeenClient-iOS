@@ -238,6 +238,10 @@ static NSDictionary *clients;
                         continue;
                     }
                 }
+            } else {
+                NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+                NSLog(@"HTTP request failed with status code %d and body: %@", responseCode, responseString);
+                [responseString release];
             }
         }
     }    
