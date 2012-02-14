@@ -11,6 +11,9 @@
 @interface KeenClient : NSObject {
 }
 
+// If we're running tests.
+@property (nonatomic) Boolean isRunningTests;
+
 /**
  Call this with your project's authorization token to get a managed instance of KeenClient.
  @param projectId The ID of your project.

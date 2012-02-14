@@ -105,6 +105,7 @@ static KeenClient *lastClient;
 @synthesize token=_token;
 @synthesize prevTimestamp=_prevTimestamp;
 @synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
+@synthesize isRunningTests=_isRunningTests;
 
 # pragma mark - Class lifecycle
 
@@ -207,7 +208,7 @@ static KeenClient *lastClient;
     return [self writeNSData:jsonData toFile:fileName];
 }
 
-- (void) upload {
+- (void) uploadHelper {
     // get a file manager
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -270,18 +271,18 @@ static KeenClient *lastClient;
         // can't do much here.
         return;
     }
-                
+    
     // and then make an http request to the keen server.
     NSURLResponse *response = nil;
     error = nil;
     NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
-
+    
     /*
-    if (error) {
-        // if the request failed because the server was down, keep the events on the local file system for later upload.
-        NSLog(@"An error occurred when sending HTTP request to %@: %@", KeenServerAddress, [error localizedDescription]);
-        return;
-    }
+     if (error) {
+     // if the request failed because the server was down, keep the events on the local file system for later upload.
+     NSLog(@"An error occurred when sending HTTP request to %@: %@", KeenServerAddress, [error localizedDescription]);
+     return;
+     }
      */
     
     if (!responseData) {
@@ -350,7 +351,17 @@ static KeenClient *lastClient;
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         NSLog(@"Response body was: %@", responseString);
         [responseString release];
-    }    
+    }        
+}
+
+- (void) upload {
+    if (self.isRunningTests) {
+        // run upload in same thread if we're in tests
+        [self uploadHelper];
+    } else {
+        // otherwise do it in the background to not interfere with UI operations
+        [self performSelectorInBackground:@selector(uploadHelper) withObject:nil];
+    }
 }
 
 # pragma mark - Directory/path management

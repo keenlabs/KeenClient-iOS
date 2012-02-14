@@ -148,6 +148,7 @@
     
     // set up the partial mock
     KeenClient *client = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
+    client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
