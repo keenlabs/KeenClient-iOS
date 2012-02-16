@@ -14,6 +14,7 @@
 
 static NSDictionary *clients;
 static KeenClient *lastClient;
+static ISO8601DateFormatter *dateFormatter;
 
 @interface KeenClient () {}
 
@@ -119,6 +120,11 @@ static KeenClient *lastClient;
     // initialize the dictionary used to cache clients exactly once.
     if (!clients) {
         clients = [[NSMutableDictionary dictionary] retain];
+    }
+    if (!dateFormatter) {
+        dateFormatter = [[ISO8601DateFormatter alloc] init];
+        [dateFormatter setIncludeTime:YES];
+        [dateFormatter setDefaultTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
     }
 }
 
@@ -491,12 +497,7 @@ static KeenClient *lastClient;
 # pragma mark - NSDate => NSString
                     
 - (id) convertDate: (id) date {
-    // TODO cache this
-    ISO8601DateFormatter *formatter = [[ISO8601DateFormatter alloc] init];
-    [formatter setDefaultTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
-    NSString *dateString = [formatter stringFromDate:date];
-    [formatter release];
-    return dateString;
+    return [dateFormatter stringFromDate:date];
 }
 
 @end
