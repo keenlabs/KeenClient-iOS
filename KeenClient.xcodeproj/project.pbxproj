@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0105EEA714EDAA470048D871 /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEA414EDAA470048D871 /* JSONKit.h */; };
+		0105EEA814EDAA470048D871 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
+		0105EEAC14EDAFF70048D871 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
+		0105EEAD14EDAFF70048D871 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
 		017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE12814E30C96000F3868 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12F14E30C96000F3868 /* SenTestingKit.framework */; };
@@ -16,19 +20,6 @@
 		017EE13614E30C96000F3868 /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE11E14E30C96000F3868 /* libKeenClient.a */; };
 		017EE13C14E30C96000F3868 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 017EE13A14E30C96000F3868 /* InfoPlist.strings */; };
 		017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE13E14E30C96000F3868 /* KeenClientTests.m */; };
-		01BA1A5F14E76E6100CF9F84 /* CDataScanner.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1A5514E76E6100CF9F84 /* CDataScanner.h */; };
-		01BA1A6014E76E6100CF9F84 /* CDataScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1A5614E76E6100CF9F84 /* CDataScanner.m */; };
-		01BA1A6114E76E6100CF9F84 /* CJSONDeserializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1A5814E76E6100CF9F84 /* CJSONDeserializer.h */; };
-		01BA1A6214E76E6100CF9F84 /* CJSONDeserializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1A5914E76E6100CF9F84 /* CJSONDeserializer.m */; };
-		01BA1A6314E76E6100CF9F84 /* CJSONScanner.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1A5A14E76E6100CF9F84 /* CJSONScanner.h */; };
-		01BA1A6414E76E6100CF9F84 /* CJSONScanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1A5B14E76E6100CF9F84 /* CJSONScanner.m */; };
-		01BA1A6514E76E6100CF9F84 /* CJSONSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1A5C14E76E6100CF9F84 /* CJSONSerializer.h */; };
-		01BA1A6614E76E6100CF9F84 /* CJSONSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1A5D14E76E6100CF9F84 /* CJSONSerializer.m */; };
-		01BA1A6714E76E6100CF9F84 /* JSONRepresentation.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1A5E14E76E6100CF9F84 /* JSONRepresentation.h */; };
-		01BA1A6D14E76E7C00CF9F84 /* CDataScanner_Extensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1A6914E76E7C00CF9F84 /* CDataScanner_Extensions.h */; };
-		01BA1A6E14E76E7C00CF9F84 /* CDataScanner_Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1A6A14E76E7C00CF9F84 /* CDataScanner_Extensions.m */; };
-		01BA1A6F14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1A6B14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h */; };
-		01BA1A7014E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1A6C14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m */; };
 		01BA1ADE14E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
 		01BA1ADF14E77DC600CF9F84 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
 		01BA1AE014E77DC600CF9F84 /* OCMConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */; };
@@ -36,7 +27,6 @@
 		01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
 		01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
 		01BA1AE414E77DC600CF9F84 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
-		01BA1AFE14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1AFC14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m */; };
 		01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 /* End PBXBuildFile section */
@@ -60,6 +50,10 @@
 
 /* Begin PBXFileReference section */
 		0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenClientExample.xcodeproj; path = KeenClientExample/KeenClientExample.xcodeproj; sourceTree = "<group>"; };
+		0105EEA414EDAA470048D871 /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
+		0105EEA514EDAA470048D871 /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
+		0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ISO8601DateFormatter.h; path = "iso-8601-parser-unparser/ISO8601DateFormatter.h"; sourceTree = SOURCE_ROOT; };
+		0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ISO8601DateFormatter.m; path = "iso-8601-parser-unparser/ISO8601DateFormatter.m"; sourceTree = SOURCE_ROOT; };
 		017EE11E14E30C96000F3868 /* libKeenClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKeenClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		017EE12114E30C96000F3868 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		017EE12514E30C96000F3868 /* KeenClient-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KeenClient-Prefix.pch"; sourceTree = "<group>"; };
@@ -72,19 +66,6 @@
 		017EE13B14E30C96000F3868 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		017EE13D14E30C96000F3868 /* KeenClientTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenClientTests.h; sourceTree = "<group>"; };
 		017EE13E14E30C96000F3868 /* KeenClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KeenClientTests.m; sourceTree = "<group>"; };
-		01BA1A5514E76E6100CF9F84 /* CDataScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CDataScanner.h; path = TouchJSON/Source/CDataScanner.h; sourceTree = "<group>"; };
-		01BA1A5614E76E6100CF9F84 /* CDataScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CDataScanner.m; path = TouchJSON/Source/CDataScanner.m; sourceTree = "<group>"; };
-		01BA1A5814E76E6100CF9F84 /* CJSONDeserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONDeserializer.h; sourceTree = "<group>"; };
-		01BA1A5914E76E6100CF9F84 /* CJSONDeserializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONDeserializer.m; sourceTree = "<group>"; };
-		01BA1A5A14E76E6100CF9F84 /* CJSONScanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONScanner.h; sourceTree = "<group>"; };
-		01BA1A5B14E76E6100CF9F84 /* CJSONScanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONScanner.m; sourceTree = "<group>"; };
-		01BA1A5C14E76E6100CF9F84 /* CJSONSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CJSONSerializer.h; sourceTree = "<group>"; };
-		01BA1A5D14E76E6100CF9F84 /* CJSONSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CJSONSerializer.m; sourceTree = "<group>"; };
-		01BA1A5E14E76E6100CF9F84 /* JSONRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONRepresentation.h; sourceTree = "<group>"; };
-		01BA1A6914E76E7C00CF9F84 /* CDataScanner_Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDataScanner_Extensions.h; sourceTree = "<group>"; };
-		01BA1A6A14E76E7C00CF9F84 /* CDataScanner_Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDataScanner_Extensions.m; sourceTree = "<group>"; };
-		01BA1A6B14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSDictionary_JSONExtensions.h; sourceTree = "<group>"; };
-		01BA1A6C14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSDictionary_JSONExtensions.m; sourceTree = "<group>"; };
 		01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
 		01BA1AD814E77DC600CF9F84 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
 		01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
@@ -92,8 +73,6 @@
 		01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
 		01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
 		01BA1ADD14E77DC600CF9F84 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
-		01BA1AFB14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+JSONDataRepresentation.h"; sourceTree = "<group>"; };
-		01BA1AFC14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+JSONDataRepresentation.m"; sourceTree = "<group>"; };
 		01BA1B0314E895BC00CF9F84 /* KeenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenConstants.h; sourceTree = "<group>"; };
 		01BA1B0414E895BC00CF9F84 /* KeenConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenConstants.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -128,6 +107,24 @@
 				0105EE9114E9A4960048D871 /* KeenClientExample.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		0105EEA214EDAA470048D871 /* JSONKit */ = {
+			isa = PBXGroup;
+			children = (
+				0105EEA414EDAA470048D871 /* JSONKit.h */,
+				0105EEA514EDAA470048D871 /* JSONKit.m */,
+			);
+			path = JSONKit;
+			sourceTree = SOURCE_ROOT;
+		};
+		0105EEA914EDAFDF0048D871 /* iso-8601-parser-unparser */ = {
+			isa = PBXGroup;
+			children = (
+				0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */,
+				0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */,
+			);
+			name = "iso-8601-parser-unparser";
 			sourceTree = "<group>";
 		};
 		017EE11314E30C95000F3868 = {
@@ -200,51 +197,11 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		01BA1A5314E76DB800CF9F84 /* TouchJSON */ = {
-			isa = PBXGroup;
-			children = (
-				01BA1A5514E76E6100CF9F84 /* CDataScanner.h */,
-				01BA1A5614E76E6100CF9F84 /* CDataScanner.m */,
-				01BA1A6814E76E7C00CF9F84 /* Extensions */,
-				01BA1A5714E76E6100CF9F84 /* JSON */,
-			);
-			name = TouchJSON;
-			path = ..;
-			sourceTree = "<group>";
-		};
-		01BA1A5714E76E6100CF9F84 /* JSON */ = {
-			isa = PBXGroup;
-			children = (
-				01BA1A5814E76E6100CF9F84 /* CJSONDeserializer.h */,
-				01BA1A5914E76E6100CF9F84 /* CJSONDeserializer.m */,
-				01BA1A5A14E76E6100CF9F84 /* CJSONScanner.h */,
-				01BA1A5B14E76E6100CF9F84 /* CJSONScanner.m */,
-				01BA1A5C14E76E6100CF9F84 /* CJSONSerializer.h */,
-				01BA1A5D14E76E6100CF9F84 /* CJSONSerializer.m */,
-				01BA1A5E14E76E6100CF9F84 /* JSONRepresentation.h */,
-			);
-			name = JSON;
-			path = TouchJSON/Source/JSON;
-			sourceTree = "<group>";
-		};
-		01BA1A6814E76E7C00CF9F84 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				01BA1A6914E76E7C00CF9F84 /* CDataScanner_Extensions.h */,
-				01BA1A6A14E76E7C00CF9F84 /* CDataScanner_Extensions.m */,
-				01BA1AFB14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.h */,
-				01BA1AFC14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m */,
-				01BA1A6B14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h */,
-				01BA1A6C14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m */,
-			);
-			name = Extensions;
-			path = TouchJSON/Source/Extensions;
-			sourceTree = "<group>";
-		};
 		01BA1AD414E77DC600CF9F84 /* Library */ = {
 			isa = PBXGroup;
 			children = (
-				01BA1A5314E76DB800CF9F84 /* TouchJSON */,
+				0105EEA914EDAFDF0048D871 /* iso-8601-parser-unparser */,
+				0105EEA214EDAA470048D871 /* JSONKit */,
 				01BA1AD514E77DC600CF9F84 /* Headers */,
 				01BA1ADD14E77DC600CF9F84 /* libOCMock.a */,
 			);
@@ -280,13 +237,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
-				01BA1A5F14E76E6100CF9F84 /* CDataScanner.h in Headers */,
-				01BA1A6114E76E6100CF9F84 /* CJSONDeserializer.h in Headers */,
-				01BA1A6314E76E6100CF9F84 /* CJSONScanner.h in Headers */,
-				01BA1A6514E76E6100CF9F84 /* CJSONSerializer.h in Headers */,
-				01BA1A6714E76E6100CF9F84 /* JSONRepresentation.h in Headers */,
-				01BA1A6D14E76E7C00CF9F84 /* CDataScanner_Extensions.h in Headers */,
-				01BA1A6F14E76E7C00CF9F84 /* NSDictionary_JSONExtensions.h in Headers */,
 				01BA1ADE14E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h in Headers */,
 				01BA1ADF14E77DC600CF9F84 /* OCMArg.h in Headers */,
 				01BA1AE014E77DC600CF9F84 /* OCMConstraint.h in Headers */,
@@ -294,6 +244,8 @@
 				01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */,
 				01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
+				0105EEA714EDAA470048D871 /* JSONKit.h in Headers */,
+				0105EEAC14EDAFF70048D871 /* ISO8601DateFormatter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,14 +364,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				017EE12814E30C96000F3868 /* KeenClient.m in Sources */,
-				01BA1A6014E76E6100CF9F84 /* CDataScanner.m in Sources */,
-				01BA1A6214E76E6100CF9F84 /* CJSONDeserializer.m in Sources */,
-				01BA1A6414E76E6100CF9F84 /* CJSONScanner.m in Sources */,
-				01BA1A6614E76E6100CF9F84 /* CJSONSerializer.m in Sources */,
-				01BA1A6E14E76E7C00CF9F84 /* CDataScanner_Extensions.m in Sources */,
-				01BA1A7014E76E7C00CF9F84 /* NSDictionary_JSONExtensions.m in Sources */,
-				01BA1AFE14E78B5700CF9F84 /* NSDate+JSONDataRepresentation.m in Sources */,
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
+				0105EEA814EDAA470048D871 /* JSONKit.m in Sources */,
+				0105EEAD14EDAFF70048D871 /* ISO8601DateFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

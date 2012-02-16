@@ -8,9 +8,8 @@
 
 #import "KeenClientTests.h"
 #import "KeenClient.h"
-#import "CJSONDeserializer.h"
-#import "CJSONSerializer.h"
 #import <OCMock/OCMock.h>
+#import "JSONKit.h"
 
 
 @interface KeenClientTests () {}
@@ -83,8 +82,7 @@
     NSString *path = [contents objectAtIndex:0];
     NSString *fullPath = [[self getEventDirectoryForCollection:@"foo"] stringByAppendingPathComponent:path];
     NSData *data = [NSData dataWithContentsOfFile:fullPath];
-    NSError *error = nil;
-    NSDictionary *deserializedDict = [[CJSONDeserializer deserializer] deserialize:data error:&error];
+    NSDictionary *deserializedDict = [data objectFromJSONData];
     // make sure timestamp was added
     STAssertNotNil(deserializedDict, @"The event should have been written to disk.");
     STAssertNotNil([deserializedDict objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
@@ -155,7 +153,7 @@
     NSHTTPURLResponse *response = [[[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil] autorelease];
     
     // serialize the faked out response data
-    NSData *serializedData = [[CJSONSerializer serializer] serializeObject:data error:nil];
+    NSData *serializedData = [data JSONData];
     NSString *json = [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];
     NSLog(@"created json: %@", json);
     [json release];

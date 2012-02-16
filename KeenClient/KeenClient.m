@@ -8,8 +8,8 @@
 
 #import "KeenClient.h"
 #import "KeenConstants.h"
-#import "CJSONSerializer.h"
-#import "CJSONDeserializer.h"
+#import "JSONKit.h"
+#import "ISO8601DateFormatter.h"
 
 
 static NSDictionary *clients;
@@ -96,6 +96,12 @@ static KeenClient *lastClient;
  */
 - (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
 
+/**
+ Converts an NSDate* instance into a correctly formatted ISO-8601 compatible string.
+ @param date The NSData* instance to convert.
+ @returns An ISO-8601 compatible string representation of the date parameter.
+ */
+- (id) convertDate: (id) date;
     
 @end
 
@@ -185,9 +191,11 @@ static KeenClient *lastClient;
         eventToWrite = event;
     }
     
-    // serialize event to JSON
     NSError *error = nil;
-    NSData *jsonData = [[CJSONSerializer serializer] serializeDictionary:eventToWrite error:&error];
+    NSData *jsonData = [eventToWrite JSONDataWithOptions:JKSerializeOptionNone 
+                serializeUnsupportedClassesUsingDelegate:self 
+                                                selector:@selector(convertDate:) 
+                                                   error:&error];
     if (error) {
         NSLog(@"An error occurred when serializing event to JSON: %@", [error localizedDescription]);
         return NO;
@@ -244,7 +252,8 @@ static KeenClient *lastClient;
             NSData *data = [NSData dataWithContentsOfFile:filePath];
             // deserialize it
             error = nil;
-            NSDictionary *eventDict = [[CJSONDeserializer deserializer] deserializeAsDictionary:data error:&error];
+            NSDictionary *eventDict = [data objectFromJSONDataWithParseOptions:JKParseOptionNone 
+                                                                         error:&error];
             if (error) {
                 NSLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
@@ -270,7 +279,10 @@ static KeenClient *lastClient;
     
     // first serialize the request dict back to a json string
     error = nil;
-    NSData *data = [[CJSONSerializer serializer] serializeDictionary:requestDict error:&error];
+    NSData *data = [requestDict JSONDataWithOptions:JKSerializeOptionNone 
+           serializeUnsupportedClassesUsingDelegate:self
+                                           selector:@selector(convertDate:) 
+                                              error:&error];
     if (error) {
         NSLog(@"An error occurred when serializing the final request data back to JSON: %@", 
               [error localizedDescription]);
@@ -301,8 +313,8 @@ static KeenClient *lastClient;
     if (responseCode == 200) {
         // deserialize the response
         error = nil;
-        NSDictionary *responseDict = [[CJSONDeserializer deserializer] 
-                                      deserializeAsDictionary:responseData error:&error];
+        NSDictionary *responseDict = [responseData objectFromJSONDataWithParseOptions:JKParseOptionNone 
+                                                                                 error:&error];
         if (error) {
             NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
             NSLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
@@ -474,6 +486,17 @@ static KeenClient *lastClient;
     [request setHTTPBody:data];
     NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
     return responseData;
+}
+                    
+# pragma mark - NSDate => NSString
+                    
+- (id) convertDate: (id) date {
+    // TODO cache this
+    ISO8601DateFormatter *formatter = [[ISO8601DateFormatter alloc] init];
+    [formatter setDefaultTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+    NSString *dateString = [formatter stringFromDate:date];
+    [formatter release];
+    return dateString;
 }
 
 @end
