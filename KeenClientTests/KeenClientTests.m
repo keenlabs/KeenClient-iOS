@@ -48,35 +48,35 @@
 }
 
 - (void) testGetClientForAuthToken {
-    KeenClient *client = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
+    KeenClient *client = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
     STAssertNotNil(client, @"Expected getClient with non-nil token to return non-nil client.");
     
-    KeenClient *client2 = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
+    KeenClient *client2 = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
     STAssertEqualObjects(client, client2, @"getClient on the same token twice should return the same instance twice.");
     
-    client = [KeenClient clientForProject:@"id" WithAuthToken:nil];
+    client = [KeenClient clientForProject:@"id" andAuthToken:nil];
     STAssertNil(client, @"Expected getClient with nil token to return nil client.");
     
-    client = [KeenClient clientForProject:@"id" WithAuthToken:@"some_other_token"];
+    client = [KeenClient clientForProject:@"id" andAuthToken:@"some_other_token"];
     STAssertFalse(client == client2, @"getClient on two different tokens should return two difference instances.");
 }
 
 - (void) testAddEvent {
-    KeenClient *client = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
+    KeenClient *client = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
     
     // nil dict should should do nothing
-    Boolean response = [client addEvent:nil ToCollection:@"foo"];
+    Boolean response = [client addEvent:nil toCollection:@"foo"];
     STAssertFalse(response, @"nil dict should return NO");
     
     // nil collection should do nothing
-    response = [client addEvent:[NSDictionary dictionary] ToCollection:nil];
+    response = [client addEvent:[NSDictionary dictionary] toCollection:nil];
     STAssertFalse(response, @"nil collection should return NO");
     
     // basic dict should work
     NSArray *keys = [NSArray arrayWithObjects:@"a", @"b", @"c", nil];
     NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", @"capple", nil];
     NSDictionary *event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
-    response = [client addEvent:event ToCollection:@"foo"];
+    response = [client addEvent:event toCollection:@"foo"];
     STAssertTrue(response, @"an okay event should return YES");
     // now go find the file we wrote to disk
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
@@ -96,7 +96,7 @@
     keys = [NSArray arrayWithObjects:@"a", @"b", @"a_date", nil];
     values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSDate date], nil];
     event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
-    response = [client addEvent:event ToCollection:@"foo"];
+    response = [client addEvent:event toCollection:@"foo"];
     STAssertTrue(response, @"an event with a date should return YES"); 
     
     // now there should be two files
@@ -108,7 +108,7 @@
     NSError *badValue = [[NSError alloc] init];
     values = [NSArray arrayWithObjects:@"apple", @"bapple", badValue, nil];
     event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
-    response = [client addEvent:event ToCollection:@"foo"];
+    response = [client addEvent:event toCollection:@"foo"];
     STAssertFalse(response, @"an event that can't be serialized should return NO");
 }
 
@@ -147,7 +147,7 @@
     }
     
     // set up the partial mock
-    KeenClient *client = [KeenClient clientForProject:@"id" WithAuthToken:@"auth"];
+    KeenClient *client = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -170,7 +170,7 @@
 
 - (void) addSimpleEventAndUploadWithMock: (id) mock {
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
     
     // and "upload" it
     [mock upload];
@@ -241,8 +241,8 @@
     id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] ToCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toCollection:@"foo"];
     
     // and "upload" it
     [mock upload];
@@ -265,8 +265,8 @@
     id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] ToCollection:@"bar"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
     
     // and "upload" it
     [mock upload];
@@ -290,8 +290,8 @@
     id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] ToCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toCollection:@"foo"];
     
     // and "upload" it
     [mock upload];
@@ -314,8 +314,8 @@
     id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] ToCollection:@"bar"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
     
     // and "upload" it
     [mock upload];
@@ -340,8 +340,8 @@
     id mock = [self uploadTestHelperWithData:result AndStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] ToCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] ToCollection:@"bar"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
     
     // and "upload" it
     [mock upload];
