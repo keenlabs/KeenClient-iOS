@@ -20,15 +20,15 @@
  @param authToken The authorization token for your project.
  @returns A managed instance of KeenClient, or nil if authToken is nil or otherwise invalid.
  */
-+ (KeenClient *) clientForProject: (NSString *) projectId WithAuthToken: (NSString *) authToken;
++ (KeenClient *) clientForProject: (NSString *) projectId andAuthToken: (NSString *) authToken;
 
 /**
  Call this once you've called clientForProject:WithAuthToken to retrieve the client that was
  created last.  This is a convenience method to support not having to keep specifying projectId
  and authToken whenever asking for a client.
- @returns A managed instance of KeenClient, or nil if clientForProject hasn't been called yet.
+ @returns A managed instance of KeenClient, or nil if clientForProject:andAuthToken hasn't been called yet.
  */
-+ (KeenClient *) client;
++ (KeenClient *) lastRequestedClient;
 
 /**
  Call this any time you want to add an event that will eventually be sent to the keen.io server.
@@ -37,7 +37,7 @@
  @param collection The collection you want to put this event into.
  @return YES if the event was added, NO if it was not.
  */
-- (Boolean) addEvent: (NSDictionary *) event ToCollection: (NSString *) collection;
+- (Boolean) addEvent: (NSDictionary *) event toCollection: (NSString *) collection;
 
 /**
  Call this whenever you want to upload all the events captured so far.  This will spawn a low

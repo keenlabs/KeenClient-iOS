@@ -34,39 +34,39 @@ static KeenClient *lastClient;
  @param authToken The auth token corresponding to the keen.io project.
  @returns an instance of KeenClient, or nil if authToken is nil or otherwise invalid.
  */
-- (id) initWithProject: (NSString *) projectId AuthToken: (NSString *) authToken;
+- (id) initWithProject: (NSString *) projectId andAuthToken: (NSString *) authToken;
 
 /**
  Returns the path to the app's library/cache directory.
  @returns An NSString* that is a path to the app's documents directory.
  */
-- (NSString *) getCacheDirectory;
+- (NSString *) cacheDirectory;
 
 /**
  Returns the root keen directory where collection sub-directories exist.
  @returns An NSString* that is a path to the keen root directory.
  */
-- (NSString *) getKeenDirectory;
+- (NSString *) keenDirectory;
 
 /**
  Returns the direct child sub-directories of the root keen directory.
  @returns An NSArray* of NSStrings* that are names of sub-directories.
  */
-- (NSArray *) getKeenSubDirectories;
+- (NSArray *) keenSubDirectories;
 
 /**
  Returns all the files and directories that are children of the argument path.
  @param path An NSString* that's a fully qualified path to a directory on the file system.
  @returns An NSArray* of NSStrings* that are names of sub-files or directories.
  */
-- (NSArray *) getContentsAtPath: (NSString *) path;
+- (NSArray *) contentsAtPath: (NSString *) path;
 
 /**
  Returns the directory for a particular collection where events exist.
  @param collection The collection.
  @returns An NSString* that is a path to the collection directory.
  */
-- (NSString *) getEventDirectoryForCollection: (NSString *) collection;
+- (NSString *) eventDirectoryForCollection: (NSString *) collection;
 
 /**
  Returns the full path to write an event to.
@@ -74,7 +74,7 @@ static KeenClient *lastClient;
  @param timestamp  The timestamp of the event.
  @returns An NSString* that is a path to the event to be written.
  */
-- (NSString *) getPathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp;
+- (NSString *) pathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp;
 
 /**
  Creates a directory if it doesn't exist.
@@ -116,7 +116,7 @@ static KeenClient *lastClient;
     }
 }
 
-- (id) initWithProject: (NSString *) projectId AuthToken: (NSString *) authToken {
+- (id) initWithProject: (NSString *) projectId andAuthToken: (NSString *) authToken {
     self = [super init];
     if (self) {
         NSLog(@"Called init on KeenClient for token: %@", authToken);
@@ -137,7 +137,7 @@ static KeenClient *lastClient;
 
 # pragma mark - Get a client
 
-+ (KeenClient *) clientForProject: (NSString *) projectId WithAuthToken: (NSString *) authToken {
++ (KeenClient *) clientForProject: (NSString *) projectId andAuthToken: (NSString *) authToken {
     // validate that project id and auth token are acceptable
     if (!projectId || !authToken) {
         return nil;
@@ -149,7 +149,7 @@ static KeenClient *lastClient;
         // if it's null, then create a new instance.
         if (!client) {
             // create a new instance
-            client = [[KeenClient alloc] initWithProject:projectId AuthToken:authToken];
+            client = [[KeenClient alloc] initWithProject:projectId andAuthToken:authToken];
             // cache it
             [clients setValue:client forKey:authToken];
             // release it
@@ -162,13 +162,13 @@ static KeenClient *lastClient;
     }
 }
 
-+ (KeenClient *) client {
++ (KeenClient *) lastRequestedClient {
     return lastClient;
 }
 
 # pragma mark - Add events and upload them
 
-- (Boolean) addEvent: (NSDictionary *) event ToCollection: (NSString *) collection {
+- (Boolean) addEvent: (NSDictionary *) event toCollection: (NSString *) collection {
     // don't do anything if event or collection are nil.
     if (!event || !collection) {
         return NO;
@@ -194,7 +194,7 @@ static KeenClient *lastClient;
     }
     
     // make sure the directory we want to write the file to exists
-    NSString *dirPath = [self getEventDirectoryForCollection:collection];
+    NSString *dirPath = [self eventDirectoryForCollection:collection];
     // if the directory doesn't exist, create it.
     Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
     if (!success) {
@@ -202,7 +202,7 @@ static KeenClient *lastClient;
     }
     
     // now figure out the correct filename.
-    NSString *fileName = [self getPathForEventInCollection:collection WithTimestamp:timestamp];
+    NSString *fileName = [self pathForEventInCollection:collection WithTimestamp:timestamp];
     
     // write JSON to file system
     return [self writeNSData:jsonData toFile:fileName];
@@ -213,8 +213,8 @@ static KeenClient *lastClient;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
     // list all the directories under Keen
-    NSArray *directories = [self getKeenSubDirectories];
-    NSString *rootPath = [self getKeenDirectory];
+    NSArray *directories = [self keenSubDirectories];
+    NSString *rootPath = [self keenDirectory];
     
     // set up the request dictionary we'll send out.
     NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
@@ -230,7 +230,7 @@ static KeenClient *lastClient;
         NSLog(@"Found directory: %@", dirName);
         // list contents of each directory
         NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
-        NSArray *files = [self getContentsAtPath:dirPath];
+        NSArray *files = [self contentsAtPath:dirPath];
         
         // set up the array of events that will be used in the request
         NSMutableArray *requestArray = [NSMutableArray array];
@@ -372,22 +372,22 @@ static KeenClient *lastClient;
 
 # pragma mark - Directory/path management
 
-- (NSString *) getCacheDirectory {
+- (NSString *) cacheDirectory {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     return documentsDirectory;
 }
 
-- (NSString *) getKeenDirectory {
-    NSString *keenDirPath = [[self getCacheDirectory] stringByAppendingPathComponent:@"keen"];
+- (NSString *) keenDirectory {
+    NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
     return [keenDirPath stringByAppendingPathComponent:self.projectId];
 }
 
-- (NSArray *) getKeenSubDirectories {
-    return [self getContentsAtPath:[self getKeenDirectory]];
+- (NSArray *) keenSubDirectories {
+    return [self contentsAtPath:[self keenDirectory]];
 }
 
-- (NSArray *) getContentsAtPath: (NSString *) path {
+- (NSArray *) contentsAtPath: (NSString *) path {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
     NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
@@ -398,17 +398,17 @@ static KeenClient *lastClient;
     return files;
 }
 
-- (NSString *) getEventDirectoryForCollection: (NSString *) collection {
-    return [[self getKeenDirectory] stringByAppendingPathComponent:collection];
+- (NSString *) eventDirectoryForCollection: (NSString *) collection {
+    return [[self keenDirectory] stringByAppendingPathComponent:collection];
 }
 
-- (NSString *) getPathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp {
+- (NSString *) pathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp {
     // get a file manager.
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // determine the root of the filename.
     NSString *name = [NSString stringWithFormat:@"%d", (long) [timestamp timeIntervalSince1970]];
     // get the path to the directory where the file will be written
-    NSString *directory = [self getEventDirectoryForCollection:collection];
+    NSString *directory = [self eventDirectoryForCollection:collection];
     // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
     // we'll be able to handle it.
     uint count = 0;
