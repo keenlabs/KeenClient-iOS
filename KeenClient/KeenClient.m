@@ -262,6 +262,12 @@ static KeenClient *lastClient;
     
     // now take the request dict and use it to make an HTTP request to the server
     
+    // end early if there are no events
+    if ([requestDict count] == 0) {
+        NSLog(@"Upload called when no events were present, ending early.");
+        return;
+    }
+    
     // first serialize the request dict back to a json string
     error = nil;
     NSData *data = [[CJSONSerializer serializer] serializeDictionary:requestDict error:&error];
