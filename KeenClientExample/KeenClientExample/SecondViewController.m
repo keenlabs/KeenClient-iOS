@@ -48,7 +48,7 @@
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"second view", @"view_name", 
                            @"going to", @"action", nil];
-    [[KeenClient getClientForAuthToken:@"123"] addEvent:event ToCollection:@"tab_views"];
+    [[KeenClient client] addEvent:event toCollection:@"tab_views"];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -62,7 +62,7 @@
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"second view", @"view_name", 
                            @"leaving from", @"action", nil];
-    [[KeenClient getClientForAuthToken:@"123"] addEvent:event ToCollection:@"tab_views"];
+    [[KeenClient client] addEvent:event toCollection:@"tab_views"];
 }
 
 - (void)viewDidDisappear:(BOOL)animated
