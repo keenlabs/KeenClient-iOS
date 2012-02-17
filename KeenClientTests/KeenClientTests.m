@@ -171,7 +171,7 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
     
     // and "upload" it
-    [mock upload];
+    [mock uploadWithFinishedBlock:nil];
 }
 
 - (void) testUploadSuccess {
@@ -243,7 +243,7 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toCollection:@"foo"];
     
     // and "upload" it
-    [mock upload];
+    [mock uploadWithFinishedBlock:nil];
     
     // make sure the file were deleted locally
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
@@ -267,7 +267,7 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
     
     // and "upload" it
-    [mock upload];
+    [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
@@ -292,7 +292,7 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toCollection:@"foo"];
     
     // and "upload" it
-    [mock upload];
+    [mock uploadWithFinishedBlock:nil];
     
     // make sure the file were deleted locally
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
@@ -316,7 +316,7 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
     
     // and "upload" it
-    [mock upload];
+    [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
@@ -342,7 +342,7 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
     
     // and "upload" it
-    [mock upload];
+    [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];

@@ -47,7 +47,8 @@
  
  If a particular event is invalid, the event will be dropped from the queue and the failure message
  will be logged.
+ @param block The block to be executed once uploading is finished, regardless of whether or not the upload succeeded.
  */
-- (void) upload;
+- (void) uploadWithFinishedBlock: (void (^)()) block;
 
 @end

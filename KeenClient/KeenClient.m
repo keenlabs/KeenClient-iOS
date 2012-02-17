@@ -35,7 +35,8 @@ static ISO8601DateFormatter *dateFormatter;
  @param authToken The auth token corresponding to the keen.io project.
  @returns an instance of KeenClient, or nil if authToken is nil or otherwise invalid.
  */
-- (id) initWithProject: (NSString *) projectId andAuthToken: (NSString *) authToken;
+- (id) initWithProject: (NSString *) projectId 
+          andAuthToken: (NSString *) authToken;
 
 /**
  Returns the path to the app's library/cache directory.
@@ -75,7 +76,8 @@ static ISO8601DateFormatter *dateFormatter;
  @param timestamp  The timestamp of the event.
  @returns An NSString* that is a path to the event to be written.
  */
-- (NSString *) pathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp;
+- (NSString *) pathForEventInCollection: (NSString *) collection 
+                          WithTimestamp: (NSDate *) timestamp;
 
 /**
  Creates a directory if it doesn't exist.
@@ -90,12 +92,32 @@ static ISO8601DateFormatter *dateFormatter;
  @param file The fully qualified path to a file.
  @returns YES if the file was successfully written, NO otherwise.
  */
-- (Boolean) writeNSData: (NSData *) data toFile: (NSString *) file;
+- (Boolean) writeNSData: (NSData *) data 
+                 toFile: (NSString *) file;
 
 /**
  Sends an event to the server. Internal impl.
  */
-- (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
+- (NSData *) sendEvents: (NSData *) data 
+      returningResponse: (NSURLResponse **) response 
+                  error: (NSError **) error;
+
+/**
+ Harvests local file system for any events to send to keen service and prepares the payload
+ for the API request.
+ @param jsonData If successful, this will be filled with the correct JSON data.  Otherwise it is untouched.
+ @param eventPaths If successful, this will be filled with a dictionary that maps event types to their paths on the local filesystem.
+ */
+- (void) prepareJSONData: (NSData **) jsonData 
+           andEventPaths: (NSMutableDictionary **) eventPaths;
+
+/**
+ Handles the HTTP response from the keen API.  This involves deserializing the JSON response
+ and then removing any events from the local filesystem that have been handled by the keen API.
+ */
+- (void) handleAPIResponse: (NSURLResponse *) response 
+                   andData: (NSData *) responseData 
+             forEventPaths: (NSDictionary *) eventPaths;
 
 /**
  Converts an NSDate* instance into a correctly formatted ISO-8601 compatible string.
@@ -178,7 +200,7 @@ static ISO8601DateFormatter *dateFormatter;
     return lastClient;
 }
 
-# pragma mark - Add events and upload them
+# pragma mark - Add events
 
 - (Boolean) addEvent: (NSDictionary *) event toCollection: (NSString *) collection {
     // don't do anything if event or collection are nil.
@@ -222,10 +244,47 @@ static ISO8601DateFormatter *dateFormatter;
     return [self writeNSData:jsonData toFile:fileName];
 }
 
-- (void) uploadHelper {
-    // get a file manager
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
+# pragma mark - Uploading
+
+- (void) uploadHelperWithFinishedBlock: (void (^)()) block {
+    // only one thread should be doing an upload at a time.
+    @synchronized(self) {        
+        // get data for the API request we'll make
+        NSData *data = nil;
+        NSMutableDictionary *eventPaths = nil;
+        [self prepareJSONData:&data andEventPaths:&eventPaths];
+        if (!data || !eventPaths) {
+            return;
+        }
+        
+        // then make an http request to the keen server.
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
+        
+        // then parse the http response and deal with it appropriately
+        [self handleAPIResponse:response andData:responseData forEventPaths:eventPaths];
+        
+        // finally, run the user-specific block (if there is one)
+        if (block) {
+            block();
+            Block_release(block);
+        }
+    }
+}
+
+- (void) uploadWithFinishedBlock: (void (^)()) block {
+    id copiedBlock = Block_copy(block);
+    if (self.isRunningTests) {
+        // run upload in same thread if we're in tests
+        [self uploadHelperWithFinishedBlock:copiedBlock];
+    } else {
+        // otherwise do it in the background to not interfere with UI operations
+        [self performSelectorInBackground:@selector(uploadHelperWithFinishedBlock:) withObject:copiedBlock];
+    }
+}
+
+- (void) prepareJSONData: (NSData **) jsonData andEventPaths: (NSMutableDictionary **) eventPaths {
     // list all the directories under Keen
     NSArray *directories = [self keenSubDirectories];
     NSString *rootPath = [self keenDirectory];
@@ -275,13 +334,13 @@ static ISO8601DateFormatter *dateFormatter;
         [fileDict setObject:fileArray forKey:dirName];
     }
     
-    // now take the request dict and use it to make an HTTP request to the server
-    
     // end early if there are no events
     if ([requestDict count] == 0) {
         NSLog(@"Upload called when no events were present, ending early.");
         return;
     }
+    
+    // now take the request dict and serialize it to JSON
     
     // first serialize the request dict back to a json string
     error = nil;
@@ -296,19 +355,13 @@ static ISO8601DateFormatter *dateFormatter;
         return;
     }
     
-    // and then make an http request to the keen server.
-    NSURLResponse *response = nil;
-    error = nil;
-    NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
-    
-    /*
-     if (error) {
-     // if the request failed because the server was down, keep the events on the local file system for later upload.
-     NSLog(@"An error occurred when sending HTTP request to %@: %@", KeenServerAddress, [error localizedDescription]);
-     return;
-     }
-     */
-    
+    *jsonData = data;
+    *eventPaths = fileDict;
+}
+
+- (void) handleAPIResponse: (NSURLResponse *) response 
+                   andData: (NSData *) responseData 
+             forEventPaths: (NSDictionary *) eventPaths {
     if (!responseData) {
         NSLog(@"responseData was nil for some reason.  That's not great.");
         return;
@@ -318,9 +371,9 @@ static ISO8601DateFormatter *dateFormatter;
     // if the request succeeded, dig into the response to figure out which events succeeded and which failed
     if (responseCode == 200) {
         // deserialize the response
-        error = nil;
+        NSError *error = nil;
         NSDictionary *responseDict = [responseData objectFromJSONDataWithParseOptions:JKParseOptionNone 
-                                                                                 error:&error];
+                                                                                error:&error];
         if (error) {
             NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
             NSLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
@@ -356,8 +409,12 @@ static ISO8601DateFormatter *dateFormatter;
                 }
                 // delete the file if we need to
                 if (deleteFile) {
-                    NSString *path = [[fileDict objectForKey:collectionName] objectAtIndex:count];
+                    NSString *path = [[eventPaths objectForKey:collectionName] objectAtIndex:count];
                     error = nil;
+                    
+                    // get a file manager
+                    NSFileManager *fileManager = [NSFileManager defaultManager];
+                    
                     [fileManager removeItemAtPath:path error:&error];
                     if (error) {
                         NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
@@ -375,17 +432,25 @@ static ISO8601DateFormatter *dateFormatter;
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         NSLog(@"Response body was: %@", responseString);
         [responseString release];
-    }        
+    }            
 }
 
-- (void) upload {
-    if (self.isRunningTests) {
-        // run upload in same thread if we're in tests
-        [self uploadHelper];
-    } else {
-        // otherwise do it in the background to not interfere with UI operations
-        [self performSelectorInBackground:@selector(uploadHelper) withObject:nil];
-    }
+# pragma mark - HTTP request/response management
+
+- (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error {
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
+                           KeenServerAddress, KeenApiVersion, self.projectId];
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:self.token forHTTPHeaderField:@"Authorization"];
+    // TODO check if setHTTPBody also sets content-length
+    [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:data];
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+    return responseData;
 }
 
 # pragma mark - Directory/path management
@@ -474,24 +539,6 @@ static ISO8601DateFormatter *dateFormatter;
         NSLog(@"Successfully wrote event to file: %@", file);
     }
     return YES;
-}
-
-# pragma mark - HTTP request/response management
-
-- (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error {
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
-                           KeenServerAddress, KeenApiVersion, self.projectId];
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    [request setHTTPMethod:@"POST"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:self.token forHTTPHeaderField:@"Authorization"];
-    // TODO check if setHTTPBody also sets content-length
-    [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
-    [request setHTTPBody:data];
-    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
-    return responseData;
 }
                     
 # pragma mark - NSDate => NSString

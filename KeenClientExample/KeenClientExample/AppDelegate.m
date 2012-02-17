@@ -54,7 +54,13 @@
      If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
      */
     
-    [[KeenClient client] upload];
+    UIBackgroundTaskIdentifier taskId = [application beginBackgroundTaskWithExpirationHandler:^(void) {
+        [application endBackgroundTask:taskId];
+    }];
+    
+    [[KeenClient lastRequestedClient] uploadWithFinishedBlock:^(void) {
+        [application endBackgroundTask:taskId];
+    }];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -69,7 +75,7 @@
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    [KeenClient clientForProject:@"abc" toCollection:@"123"];
+    [KeenClient clientForProject:@"abc" andAuthToken:@"123"];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
@@ -79,8 +85,6 @@
      Save data if appropriate.
      See also applicationDidEnterBackground:.
      */
-    
-    [[KeenClient client] upload];
 }
 
 /*
