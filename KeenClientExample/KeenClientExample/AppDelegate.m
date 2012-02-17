@@ -55,7 +55,7 @@
      */
     
     UIBackgroundTaskIdentifier taskId = [application beginBackgroundTaskWithExpirationHandler:^(void) {
-        [application endBackgroundTask:taskId];
+        NSLog(@"Background task is being expired.");
     }];
     
     [[KeenClient lastRequestedClient] uploadWithFinishedBlock:^(void) {
