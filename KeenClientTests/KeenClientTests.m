@@ -14,9 +14,9 @@
 
 @interface KeenClientTests () {}
 
-- (NSString *) getCacheDirectory;
-- (NSString *) getKeenDirectory;
-- (NSString *) getEventDirectoryForCollection: (NSString *) collection;
+- (NSString *) cacheDirectory;
+- (NSString *) keenDirectory;
+- (NSString *) eventDirectoryForCollection: (NSString *) collection;
 - (NSArray *) contentsOfDirectoryForCollection: (NSString *) collection;
 
 @end
@@ -36,8 +36,8 @@
     // delete all collections and their events.
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:[self getKeenDirectory]]) {
-        [fileManager removeItemAtPath:[self getKeenDirectory] error:&error];
+    if ([fileManager fileExistsAtPath:[self keenDirectory]]) {
+        [fileManager removeItemAtPath:[self keenDirectory] error:&error];
         if (error) {
             STFail(@"No error should be thrown when cleaning up: %@", [error localizedDescription]);
         }
@@ -80,7 +80,7 @@
     // now go find the file we wrote to disk
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
     NSString *path = [contents objectAtIndex:0];
-    NSString *fullPath = [[self getEventDirectoryForCollection:@"foo"] stringByAppendingPathComponent:path];
+    NSString *fullPath = [[self eventDirectoryForCollection:@"foo"] stringByAppendingPathComponent:path];
     NSData *data = [NSData dataWithContentsOfFile:fullPath];
     NSDictionary *deserializedDict = [data objectFromJSONData];
     // make sure timestamp was added
@@ -351,24 +351,24 @@
     STAssertTrue([contents count] == 1, @"There should be a file after a failed upload.");
 }
 
-- (NSString *) getCacheDirectory {
+# pragma mark - test filesystem utility methods
+
+- (NSString *) cacheDirectory {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     return documentsDirectory;
 }
 
-- (NSString *) getKeenDirectory {
-    return [[self getCacheDirectory] stringByAppendingPathComponent:@"keen"];
+- (NSString *) keenDirectory {
+    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:@"id"];
 }
 
-- (NSString *) getEventDirectoryForCollection: (NSString *) collection {
-    // TODO parameterize the project ID here?
-    NSString *projectDir = [[self getKeenDirectory] stringByAppendingPathComponent:@"id"];
-    return [projectDir stringByAppendingPathComponent:collection];
+- (NSString *) eventDirectoryForCollection: (NSString *) collection {
+    return [[self keenDirectory] stringByAppendingPathComponent:collection];
 }
 
 - (NSArray *) contentsOfDirectoryForCollection: (NSString *) collection {
-    NSString *path = [self getEventDirectoryForCollection:collection];
+    NSString *path = [self eventDirectoryForCollection:collection];
     NSLog(@"path: %@", path);
     NSFileManager *manager = [NSFileManager defaultManager];
     NSError *error = nil;
