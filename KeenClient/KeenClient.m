@@ -390,15 +390,15 @@ static ISO8601DateFormatter *dateFormatter;
             NSUInteger count = 0;
             for (NSDictionary *result in results) {
                 Boolean deleteFile = YES;
-                Boolean success = [[result objectForKey:@"success"] boolValue];
+                Boolean success = [[result objectForKey:KeenSuccessParam] boolValue];
                 if (!success) {
                     // grab error code and description
-                    NSDictionary *errorDict = [result objectForKey:@"error"];
-                    NSString *errorCode = [errorDict objectForKey:@"name"];
-                    NSString *errorDescription = [errorDict objectForKey:@"description"];
-                    if ([errorCode isEqualToString:@"InvalidCollectionNameError"] ||
-                        [errorCode isEqualToString:@"InvalidPropertyNameError"] ||
-                        [errorCode isEqualToString:@"InvalidPropertyValueError"]) {
+                    NSDictionary *errorDict = [result objectForKey:KeenErrorParam];
+                    NSString *errorCode = [errorDict objectForKey:KeenNameParam];
+                    NSString *errorDescription = [errorDict objectForKey:KeenDescriptionParam];
+                    if ([errorCode isEqualToString:KeenInvalidCollectionNameError] ||
+                        [errorCode isEqualToString:KeenInvalidPropertyNameError] ||
+                        [errorCode isEqualToString:KeenInvalidPropertyValueError]) {
                         NSLog(@"An invalid event was found.  Deleting it.  Error: %@", errorDescription);
                         deleteFile = YES;
                     } else {

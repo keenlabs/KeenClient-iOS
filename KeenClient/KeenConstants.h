@@ -11,3 +11,12 @@
 extern NSString * const KeenServerAddress;
 extern NSString * const KeenApiVersion;
 extern NSString * const KeenErrorCodeParam;
+
+extern NSString * const KeenNameParam;
+extern NSString * const KeenDescriptionParam;
+extern NSString * const KeenSuccessParam;
+extern NSString * const KeenErrorParam;
+extern NSString * const KeenErrorCodeParam;
+extern NSString * const KeenInvalidCollectionNameError;
+extern NSString * const KeenInvalidPropertyNameError;
+extern NSString * const KeenInvalidPropertyValueError;

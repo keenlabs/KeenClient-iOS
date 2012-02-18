@@ -11,4 +11,14 @@
 //NSString * const KeenServerAddress = @"http://api.keen.io";
 NSString * const KeenServerAddress = @"http://localhost:8888";
 NSString * const KeenApiVersion = @"1.0";
+
+// Keen API constants
+
+NSString * const KeenNameParam = @"name";
+NSString * const KeenDescriptionParam = @"description";
+NSString * const KeenSuccessParam = @"success";
+NSString * const KeenErrorParam = @"error";
 NSString * const KeenErrorCodeParam = @"error_code";
+NSString * const KeenInvalidCollectionNameError = @"InvalidCollectionNameError";
+NSString * const KeenInvalidPropertyNameError = @"InvalidPropertyNameError";
+NSString * const KeenInvalidPropertyValueError = @"InvalidPropertyValueError";
