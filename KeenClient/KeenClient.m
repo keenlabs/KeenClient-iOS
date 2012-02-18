@@ -31,7 +31,8 @@ static ISO8601DateFormatter *dateFormatter;
 @property (nonatomic) NSInteger numTimesTimestampUsed;
 
 /**
- Initializes a KeenClient with the given authToken.
+ Initializes a KeenClient with the given project ID and authToken.
+ @param projectId The project ID corresponding to the keen.io project.
  @param authToken The auth token corresponding to the keen.io project.
  @returns an instance of KeenClient, or nil if authToken is nil or otherwise invalid.
  */
@@ -97,6 +98,9 @@ static ISO8601DateFormatter *dateFormatter;
 
 /**
  Sends an event to the server. Internal impl.
+ @param data The data to send.
+ @param response The response being returned.
+ @param error If an error occurred, filled in.  Otherwise nil.
  */
 - (NSData *) sendEvents: (NSData *) data 
       returningResponse: (NSURLResponse **) response 
@@ -114,6 +118,9 @@ static ISO8601DateFormatter *dateFormatter;
 /**
  Handles the HTTP response from the keen API.  This involves deserializing the JSON response
  and then removing any events from the local filesystem that have been handled by the keen API.
+ @param response The response from the server.
+ @param responseData The data returned from the server.
+ @param eventPaths A dictionary that maps events to their paths on the file system.
  */
 - (void) handleAPIResponse: (NSURLResponse *) response 
                    andData: (NSData *) responseData 
