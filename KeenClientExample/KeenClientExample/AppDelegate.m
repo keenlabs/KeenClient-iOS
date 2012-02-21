@@ -75,7 +75,7 @@
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    [KeenClient clientForProject:@"abc" andAuthToken:@"123"];
+    [KeenClient clientForProject:@"4f4335253ba3017246000000" andAuthToken:@"320f97b19c8148ee9e84a0d27e2d0b85"];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

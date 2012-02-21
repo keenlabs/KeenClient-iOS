@@ -21,7 +21,7 @@
 		0105EE8014E9A4940048D871 /* second@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE7F14E9A4940048D871 /* second@2x.png */; };
 		0105EE8314E9A4940048D871 /* FirstViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE8114E9A4940048D871 /* FirstViewController.xib */; };
 		0105EE8614E9A4940048D871 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE8414E9A4940048D871 /* SecondViewController.xib */; };
-		0105EE9D14E9AA490048D871 /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0105EE9C14E9AA490048D871 /* libKeenClient.a */; };
+		01F90AF714F36C3600DD3DE2 /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01F90AF614F36C3600DD3DE2 /* libKeenClient.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,8 +45,8 @@
 		0105EE7F14E9A4940048D871 /* second@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "second@2x.png"; sourceTree = "<group>"; };
 		0105EE8214E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/FirstViewController.xib; sourceTree = "<group>"; };
 		0105EE8514E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/SecondViewController.xib; sourceTree = "<group>"; };
-		0105EE9C14E9AA490048D871 /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libKeenClient.a; path = "../build/Release-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
-		0105EE9E14E9AA800048D871 /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeenClient.h; path = ../KeenClient/KeenClient.h; sourceTree = "<group>"; };
+		01F90AF514F36C2800DD3DE2 /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeenClient.h; path = ../KeenClient/KeenClient.h; sourceTree = "<group>"; };
+		01F90AF614F36C3600DD3DE2 /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKeenClient.a; path = "../../../../../Library/Developer/Xcode/DerivedData/KeenClient-fbrempmyzeejllfqycmnmewgbkyt/Build/Products/Debug-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,7 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0105EE9D14E9AA490048D871 /* libKeenClient.a in Frameworks */,
+				01F90AF714F36C3600DD3DE2 /* libKeenClient.a in Frameworks */,
 				0105EE6214E9A4940048D871 /* UIKit.framework in Frameworks */,
 				0105EE6414E9A4940048D871 /* Foundation.framework in Frameworks */,
 				0105EE6614E9A4940048D871 /* CoreGraphics.framework in Frameworks */,
@@ -67,7 +67,7 @@
 		0105EE5214E9A4930048D871 = {
 			isa = PBXGroup;
 			children = (
-				0105EE9C14E9AA490048D871 /* libKeenClient.a */,
+				01F90AF614F36C3600DD3DE2 /* libKeenClient.a */,
 				0105EE9414E9A70A0048D871 /* Dependent Headers */,
 				0105EE6714E9A4940048D871 /* KeenClientExample */,
 				0105EE6014E9A4940048D871 /* Frameworks */,
@@ -127,7 +127,7 @@
 		0105EE9414E9A70A0048D871 /* Dependent Headers */ = {
 			isa = PBXGroup;
 			children = (
-				0105EE9E14E9AA800048D871 /* KeenClient.h */,
+				01F90AF514F36C2800DD3DE2 /* KeenClient.h */,
 			);
 			name = "Dependent Headers";
 			sourceTree = "<group>";
@@ -286,8 +286,14 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClientExample/KeenClientExample-Prefix.pch";
 				INFOPLIST_FILE = "KeenClientExample/KeenClientExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/KeenClient-fbrempmyzeejllfqycmnmewgbkyt/Build/Products/Debug-iphoneos\"",
+				);
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -298,8 +304,14 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClientExample/KeenClientExample-Prefix.pch";
 				INFOPLIST_FILE = "KeenClientExample/KeenClientExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/KeenClient-fbrempmyzeejllfqycmnmewgbkyt/Build/Products/Debug-iphoneos\"",
+				);
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -323,6 +335,7 @@
 				0105EE8B14E9A4940048D871 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -6,12 +6,58 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		0111015614EF71FB009794A5 /* KeenClient-Aggregate */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 0111015714EF71FB009794A5 /* Build configuration list for PBXAggregateTarget "KeenClient-Aggregate" */;
+			buildPhases = (
+				0111015A14EF720D009794A5 /* ShellScript */,
+			);
+			dependencies = (
+				0111015C14EF7487009794A5 /* PBXTargetDependency */,
+				0111015E14EF7489009794A5 /* PBXTargetDependency */,
+			);
+			name = "KeenClient-Aggregate";
+			productName = "KeenClient-Aggregate";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0105EEA714EDAA470048D871 /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEA414EDAA470048D871 /* JSONKit.h */; };
 		0105EEA814EDAA470048D871 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		0105EEAC14EDAFF70048D871 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
 		0105EEAD14EDAFF70048D871 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
+		0111011E14EF709A009794A5 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
+		0111011F14EF709A009794A5 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
+		0111012014EF709A009794A5 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
+		0111012114EF709A009794A5 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
+		0111012314EF709A009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
+		0111012414EF709A009794A5 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
+		0111012614EF709A009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0111012714EF709A009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
+		0111012814EF709A009794A5 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
+		0111012914EF709A009794A5 /* OCMConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */; };
+		0111012A14EF709A009794A5 /* OCMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADA14E77DC600CF9F84 /* OCMock.h */; };
+		0111012B14EF709A009794A5 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
+		0111012C14EF709A009794A5 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
+		0111012D14EF709A009794A5 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
+		0111012F14EF709A009794A5 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
+		0111013614EF70AB009794A5 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
+		0111013714EF70AB009794A5 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
+		0111013814EF70AB009794A5 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
+		0111013914EF70AB009794A5 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
+		0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
+		0111013C14EF70AB009794A5 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
+		0111013E14EF70AB009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0111013F14EF70AB009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
+		0111014014EF70AB009794A5 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
+		0111014114EF70AB009794A5 /* OCMConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */; };
+		0111014214EF70AB009794A5 /* OCMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADA14E77DC600CF9F84 /* OCMock.h */; };
+		0111014314EF70AB009794A5 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
+		0111014414EF70AB009794A5 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
+		0111014514EF70AB009794A5 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
+		0111014714EF70AB009794A5 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
 		017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE12814E30C96000F3868 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12F14E30C96000F3868 /* SenTestingKit.framework */; };
@@ -39,6 +85,20 @@
 			remoteGlobalIDString = 0105EE5D14E9A4940048D871;
 			remoteInfo = KeenClientExample;
 		};
+		0111015B14EF7487009794A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0111011C14EF709A009794A5;
+			remoteInfo = "KeenClient-Simulator";
+		};
+		0111015D14EF7489009794A5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0111013414EF70AB009794A5;
+			remoteInfo = "KeenClient-Device";
+		};
 		017EE13414E30C96000F3868 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
@@ -54,6 +114,8 @@
 		0105EEA514EDAA470048D871 /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
 		0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ISO8601DateFormatter.h; path = "iso-8601-parser-unparser/ISO8601DateFormatter.h"; sourceTree = SOURCE_ROOT; };
 		0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ISO8601DateFormatter.m; path = "iso-8601-parser-unparser/ISO8601DateFormatter.m"; sourceTree = SOURCE_ROOT; };
+		0111013314EF709A009794A5 /* libKeenClient-Simulator.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libKeenClient-Simulator.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0111014B14EF70AB009794A5 /* libKeenClient-Device.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libKeenClient-Device.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		017EE11E14E30C96000F3868 /* libKeenClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKeenClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		017EE12114E30C96000F3868 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		017EE12514E30C96000F3868 /* KeenClient-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KeenClient-Prefix.pch"; sourceTree = "<group>"; };
@@ -78,6 +140,24 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0111012214EF709A009794A5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0111012314EF709A009794A5 /* Foundation.framework in Frameworks */,
+				0111012414EF709A009794A5 /* libOCMock.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0111013A14EF70AB009794A5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */,
+				0111013C14EF70AB009794A5 /* libOCMock.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		017EE11B14E30C96000F3868 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -144,6 +224,8 @@
 			children = (
 				017EE11E14E30C96000F3868 /* libKeenClient.a */,
 				017EE12E14E30C96000F3868 /* KeenClientTests.octest */,
+				0111013314EF709A009794A5 /* libKeenClient-Simulator.a */,
+				0111014B14EF70AB009794A5 /* libKeenClient-Device.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -232,6 +314,38 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		0111012514EF709A009794A5 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0111012614EF709A009794A5 /* KeenClient.h in Headers */,
+				0111012714EF709A009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */,
+				0111012814EF709A009794A5 /* OCMArg.h in Headers */,
+				0111012914EF709A009794A5 /* OCMConstraint.h in Headers */,
+				0111012A14EF709A009794A5 /* OCMock.h in Headers */,
+				0111012B14EF709A009794A5 /* OCMockObject.h in Headers */,
+				0111012C14EF709A009794A5 /* OCMockRecorder.h in Headers */,
+				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
+				0111012F14EF709A009794A5 /* ISO8601DateFormatter.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0111013D14EF70AB009794A5 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0111013E14EF70AB009794A5 /* KeenClient.h in Headers */,
+				0111013F14EF70AB009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */,
+				0111014014EF70AB009794A5 /* OCMArg.h in Headers */,
+				0111014114EF70AB009794A5 /* OCMConstraint.h in Headers */,
+				0111014214EF70AB009794A5 /* OCMock.h in Headers */,
+				0111014314EF70AB009794A5 /* OCMockObject.h in Headers */,
+				0111014414EF70AB009794A5 /* OCMockRecorder.h in Headers */,
+				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
+				0111014714EF70AB009794A5 /* ISO8601DateFormatter.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		017EE11C14E30C96000F3868 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -252,6 +366,40 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		0111011C14EF709A009794A5 /* KeenClient-Simulator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0111013014EF709A009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Simulator" */;
+			buildPhases = (
+				0111011D14EF709A009794A5 /* Sources */,
+				0111012214EF709A009794A5 /* Frameworks */,
+				0111012514EF709A009794A5 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KeenClient-Simulator";
+			productName = KeenClient;
+			productReference = 0111013314EF709A009794A5 /* libKeenClient-Simulator.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		0111013414EF70AB009794A5 /* KeenClient-Device */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0111014814EF70AB009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Device" */;
+			buildPhases = (
+				0111013514EF70AB009794A5 /* Sources */,
+				0111013A14EF70AB009794A5 /* Frameworks */,
+				0111013D14EF70AB009794A5 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KeenClient-Device";
+			productName = KeenClient;
+			productReference = 0111014B14EF70AB009794A5 /* libKeenClient-Device.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		017EE11D14E30C96000F3868 /* KeenClient */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 017EE14214E30C96000F3868 /* Build configuration list for PBXNativeTarget "KeenClient" */;
@@ -317,6 +465,9 @@
 			targets = (
 				017EE11D14E30C96000F3868 /* KeenClient */,
 				017EE12D14E30C96000F3868 /* KeenClientTests */,
+				0111011C14EF709A009794A5 /* KeenClient-Simulator */,
+				0111013414EF70AB009794A5 /* KeenClient-Device */,
+				0111015614EF71FB009794A5 /* KeenClient-Aggregate */,
 			);
 		};
 /* End PBXProject section */
@@ -343,6 +494,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0111015A14EF720D009794A5 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"";
+		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -359,6 +523,28 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0111011D14EF709A009794A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
+				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
+				0111012014EF709A009794A5 /* JSONKit.m in Sources */,
+				0111012114EF709A009794A5 /* ISO8601DateFormatter.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0111013514EF70AB009794A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
+				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
+				0111013814EF70AB009794A5 /* JSONKit.m in Sources */,
+				0111013914EF70AB009794A5 /* ISO8601DateFormatter.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		017EE11A14E30C96000F3868 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -381,6 +567,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0111015C14EF7487009794A5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0111011C14EF709A009794A5 /* KeenClient-Simulator */;
+			targetProxy = 0111015B14EF7487009794A5 /* PBXContainerItemProxy */;
+		};
+		0111015E14EF7489009794A5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0111013414EF70AB009794A5 /* KeenClient-Device */;
+			targetProxy = 0111015D14EF7489009794A5 /* PBXContainerItemProxy */;
+		};
 		017EE13514E30C96000F3868 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 017EE11D14E30C96000F3868 /* KeenClient */;
@@ -400,6 +596,92 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		0111013114EF709A009794A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/KeenClient.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Library\"",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "KeenClient-Simulator";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = iphonesimulator;
+				VALID_ARCHS = "armv6 armv7";
+			};
+			name = Debug;
+		};
+		0111013214EF709A009794A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/KeenClient.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Library\"",
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "KeenClient-Simulator";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = iphonesimulator;
+				VALID_ARCHS = "armv6 armv7";
+			};
+			name = Release;
+		};
+		0111014914EF70AB009794A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/KeenClient.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Library\"",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "KeenClient-Device";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = iphoneos;
+			};
+			name = Debug;
+		};
+		0111014A14EF70AB009794A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/KeenClient.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Library\"",
+				);
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "KeenClient-Device";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = iphoneos;
+			};
+			name = Release;
+		};
+		0111015814EF71FB009794A5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0111015914EF71FB009794A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		017EE14014E30C96000F3868 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -509,6 +791,33 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0111013014EF709A009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Simulator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0111013114EF709A009794A5 /* Debug */,
+				0111013214EF709A009794A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0111014814EF70AB009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Device" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0111014914EF70AB009794A5 /* Debug */,
+				0111014A14EF70AB009794A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0111015714EF71FB009794A5 /* Build configuration list for PBXAggregateTarget "KeenClient-Aggregate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0111015814EF71FB009794A5 /* Debug */,
+				0111015914EF71FB009794A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		017EE11814E30C95000F3868 /* Build configuration list for PBXProject "KeenClient" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

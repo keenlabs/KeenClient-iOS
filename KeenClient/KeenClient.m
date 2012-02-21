@@ -371,6 +371,8 @@ static ISO8601DateFormatter *dateFormatter;
              forEventPaths: (NSDictionary *) eventPaths {
     if (!responseData) {
         NSLog(@"responseData was nil for some reason.  That's not great.");
+        NSHTTPURLResponse *httpUrlResponse = (NSHTTPURLResponse *) response;
+        NSLog(@"response status code: %d", [httpUrlResponse statusCode]);
         return;
     }
     
@@ -447,6 +449,7 @@ static ISO8601DateFormatter *dateFormatter;
 - (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
                            KeenServerAddress, KeenApiVersion, self.projectId];
+    NSLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];
