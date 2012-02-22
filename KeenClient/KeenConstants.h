@@ -20,3 +20,6 @@ extern NSString * const KeenErrorCodeParam;
 extern NSString * const KeenInvalidCollectionNameError;
 extern NSString * const KeenInvalidPropertyNameError;
 extern NSString * const KeenInvalidPropertyValueError;
+
+extern NSUInteger const KeenMaxEventsPerCollection;
+extern NSUInteger const KeenNumberEventsToForget;

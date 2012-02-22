@@ -22,3 +22,10 @@ NSString * const KeenErrorCodeParam = @"error_code";
 NSString * const KeenInvalidCollectionNameError = @"InvalidCollectionNameError";
 NSString * const KeenInvalidPropertyNameError = @"InvalidPropertyNameError";
 NSString * const KeenInvalidPropertyValueError = @"InvalidPropertyValueError";
+
+// Keen constants related to how much data we'll cache on the device before aging it out
+
+// how many events can be stored for a single collection before aging them out
+NSUInteger const KeenMaxEventsPerCollection = 10000;
+// how many events to drop when aging out
+NSUInteger const KeenNumberEventsToForget = 100;

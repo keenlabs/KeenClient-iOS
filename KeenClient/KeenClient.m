@@ -30,6 +30,12 @@ static ISO8601DateFormatter *dateFormatter;
 // How many times the previous timestamp has been used.
 @property (nonatomic) NSInteger numTimesTimestampUsed;
 
+// The max number of events per collection.
+@property (nonatomic, readonly) NSUInteger maxEventsPerCollection;
+
+// The number of events to drop when aging out a collection.
+@property (nonatomic, readonly) NSUInteger numberEventsToForget;
+
 /**
  Initializes a KeenClient with the given project ID and authToken.
  @param projectId The project ID corresponding to the keen.io project.
@@ -160,7 +166,7 @@ static ISO8601DateFormatter *dateFormatter;
 - (id) initWithProject: (NSString *) projectId andAuthToken: (NSString *) authToken {
     self = [super init];
     if (self) {
-        NSLog(@"Called init on KeenClient for token: %@", authToken);
+        //NSLog(@"Called init on KeenClient for token: %@", authToken);
         self.projectId = projectId;
         self.token = authToken;
         self.prevTimestamp = nil;
@@ -215,6 +221,33 @@ static ISO8601DateFormatter *dateFormatter;
         return NO;
     }
     
+    // make sure the directory we want to write the file to exists
+    NSString *dirPath = [self eventDirectoryForCollection:collection];
+    // if the directory doesn't exist, create it.
+    Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
+    if (!success) {
+        return NO;
+    }
+    // now make sure that we haven't hit the max number of events in this collection already
+    NSArray *eventsArray = [self contentsAtPath:dirPath];
+    if ([eventsArray count] >= self.maxEventsPerCollection) {
+        // need to age out old data so the cache doesn't grow too large
+        NSLog(@"Too many events in cache for %@, aging out old data.", collection);
+        NSLog(@"Count: %d and Max: %d", [eventsArray count], self.maxEventsPerCollection);
+        
+        NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+        // delete the eldest
+        for (int i=0; i<self.numberEventsToForget; i++) {
+            NSString *fileName = [sortedEventsArray objectAtIndex:i];
+            NSString *fullPath = [dirPath stringByAppendingPathComponent:fileName];
+            NSError *error = nil;
+            [[NSFileManager defaultManager] removeItemAtPath:fullPath error:&error];
+            if (error) {
+                NSLog(@"Couldn't delete %@ when aging events out of cache!", [error localizedDescription]);
+            }
+        }
+    }
+    
     NSDictionary *eventToWrite = nil;
     // if there's no timestamp in the event, stamp it automatically.
     NSDate *timestamp = [event objectForKey:@"timestamp"];
@@ -233,14 +266,6 @@ static ISO8601DateFormatter *dateFormatter;
                                                    error:&error];
     if (error) {
         NSLog(@"An error occurred when serializing event to JSON: %@", [error localizedDescription]);
-        return NO;
-    }
-    
-    // make sure the directory we want to write the file to exists
-    NSString *dirPath = [self eventDirectoryForCollection:collection];
-    // if the directory doesn't exist, create it.
-    Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
-    if (!success) {
         return NO;
     }
     
@@ -307,7 +332,7 @@ static ISO8601DateFormatter *dateFormatter;
     
     // iterate through each directory
     for (NSString *dirName in directories) {
-        NSLog(@"Found directory: %@", dirName);
+        //NSLog(@"Found directory: %@", dirName);
         // list contents of each directory
         NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
         NSArray *files = [self contentsAtPath:dirPath];
@@ -318,7 +343,7 @@ static ISO8601DateFormatter *dateFormatter;
         NSMutableArray *fileArray = [NSMutableArray array];
         
         for (NSString *fileName in files) {
-            NSLog(@"Found file: %@/%@", dirName, fileName);
+            //NSLog(@"Found file: %@/%@", dirName, fileName);
             NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
             // for each file, grab the JSON blob
             NSData *data = [NSData dataWithContentsOfFile:filePath];
@@ -429,7 +454,7 @@ static ISO8601DateFormatter *dateFormatter;
                         NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
                               [error localizedDescription]);
                     } else {
-                        NSLog(@"Successfully deleted file: %@", path);
+                        //NSLog(@"Successfully deleted file: %@", path);
                     }
                 }
                 count++;
@@ -546,7 +571,7 @@ static ISO8601DateFormatter *dateFormatter;
         NSLog(@"Error when writing event to file: %@", file);
         return NO;
     } else {
-        NSLog(@"Successfully wrote event to file: %@", file);
+        //NSLog(@"Successfully wrote event to file: %@", file);
     }
     return YES;
 }
@@ -555,6 +580,22 @@ static ISO8601DateFormatter *dateFormatter;
                     
 - (id) convertDate: (id) date {
     return [dateFormatter stringFromDate:date];
+}
+
+# pragma mark - To make testing easier
+
+- (NSUInteger) maxEventsPerCollection {
+    if (self.isRunningTests) {
+        return 5;
+    }
+    return KeenMaxEventsPerCollection;
+}
+
+- (NSUInteger) numberEventsToForget {
+    if (self.isRunningTests) {
+        return 2;
+    }
+    return KeenNumberEventsToForget;
 }
 
 @end

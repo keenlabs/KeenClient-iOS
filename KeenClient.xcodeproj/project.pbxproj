@@ -24,7 +24,7 @@
 
 /* Begin PBXBuildFile section */
 		0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0105EEA714EDAA470048D871 /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEA414EDAA470048D871 /* JSONKit.h */; };
+		0105EEA714EDAA470048D871 /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEA414EDAA470048D871 /* JSONKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0105EEA814EDAA470048D871 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		0105EEAC14EDAFF70048D871 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
 		0105EEAD14EDAFF70048D871 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
@@ -351,6 +351,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
+				0105EEA714EDAA470048D871 /* JSONKit.h in Headers */,
 				01BA1ADE14E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h in Headers */,
 				01BA1ADF14E77DC600CF9F84 /* OCMArg.h in Headers */,
 				01BA1AE014E77DC600CF9F84 /* OCMConstraint.h in Headers */,
@@ -358,7 +359,6 @@
 				01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */,
 				01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
-				0105EEA714EDAA470048D871 /* JSONKit.h in Headers */,
 				0105EEAC14EDAFF70048D871 /* ISO8601DateFormatter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

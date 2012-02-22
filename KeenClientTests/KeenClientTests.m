@@ -10,6 +10,7 @@
 #import "KeenClient.h"
 #import <OCMock/OCMock.h>
 #import "JSONKit.h"
+#import "KeenConstants.h"
 
 
 @interface KeenClientTests () {}
@@ -349,6 +350,25 @@
     STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
     contents = [self contentsOfDirectoryForCollection:@"bar"];
     STAssertTrue([contents count] == 1, @"There should be a file after a failed upload.");
+}
+
+- (void) testTooManyEventsCached {
+    KeenClient *client = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
+    client.isRunningTests = YES;
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
+    // create 5 events
+    for (int i=0; i<5; i++) {
+        [client addEvent:event toCollection:@"something"];
+        NSLog(@"Added event %d", i);
+    }
+    // should be 5 events now
+    NSArray *contentsBefore = [self contentsOfDirectoryForCollection:@"something"];
+    STAssertTrue([contentsBefore count] == 5, @"There should be exactly five events.");
+    // now do one more, should age out 2 old ones
+    [client addEvent:event toCollection:@"something"];
+    // so now there should be 4 left (5 - 2 + 1)
+    NSArray *contentsAfter = [self contentsOfDirectoryForCollection:@"something"];
+    STAssertTrue([contentsAfter count] == 4, @"There should be exactly four events.");
 }
 
 # pragma mark - test filesystem utility methods
