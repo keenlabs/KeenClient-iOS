@@ -147,6 +147,17 @@ static ISO8601DateFormatter *dateFormatter;
 
 + (void) initialize {
     // initialize the dictionary used to cache clients exactly once.
+    
+    if(self != [KeenClient class]) {
+        /*
+         Without this extra check, your initializations could run twice if you ever have a subclass that
+         doesn't implement its own +initialize method. This is not just a theoretical concern, even if
+         you don't write any subclasses. Apple's Key-Value Observing creates dynamic subclasses which
+         don't override +initialize.
+         */
+        return;
+    }
+    
     if (!clients) {
         clients = [[NSMutableDictionary dictionary] retain];
     }
