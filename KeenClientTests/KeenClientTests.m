@@ -20,7 +20,7 @@
 
 @end
 
-@interface KeenClientTests () {}
+@interface KeenClientTests ()
 
 - (NSString *) cacheDirectory;
 - (NSString *) keenDirectory;

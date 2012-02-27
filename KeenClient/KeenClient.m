@@ -16,7 +16,7 @@ static NSDictionary *clients;
 static KeenClient *lastClient;
 static ISO8601DateFormatter *dateFormatter;
 
-@interface KeenClient () {}
+@interface KeenClient ()
 
 // The project ID for this particular client.
 @property (nonatomic, retain) NSString *projectId;
