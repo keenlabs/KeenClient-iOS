@@ -36,6 +36,9 @@ static ISO8601DateFormatter *dateFormatter;
 // The number of events to drop when aging out a collection.
 @property (nonatomic, readonly) NSUInteger numberEventsToForget;
 
+// If we're running tests.
+@property (nonatomic) Boolean isRunningTests;
+
 /**
  Initializes a KeenClient with the given project ID and authToken.
  @param projectId The project ID corresponding to the keen.io project.
@@ -154,7 +157,7 @@ static ISO8601DateFormatter *dateFormatter;
 + (void) initialize {
     // initialize the dictionary used to cache clients exactly once.
     
-    if(self != [KeenClient class]) {
+    if (self != [KeenClient class]) {
         /*
          Without this extra check, your initializations could run twice if you ever have a subclass that
          doesn't implement its own +initialize method. This is not just a theoretical concern, even if

@@ -13,6 +13,13 @@
 #import "KeenConstants.h"
 
 
+@interface KeenClient (testability)
+
+// If we're running tests.
+@property (nonatomic) Boolean isRunningTests;
+
+@end
+
 @interface KeenClientTests () {}
 
 - (NSString *) cacheDirectory;

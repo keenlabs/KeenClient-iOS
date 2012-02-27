@@ -12,11 +12,7 @@
  KeenClient has class methods to return managed instances of itself and instance methods
  to collect new events and upload them through the keen API.
  */
-@interface KeenClient : NSObject {
-}
-
-// If we're running tests.
-@property (nonatomic) Boolean isRunningTests;
+@interface KeenClient : NSObject
 
 /**
  Call this with your project's authorization token to get a managed instance of KeenClient.
