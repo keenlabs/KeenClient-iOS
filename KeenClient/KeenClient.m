@@ -45,33 +45,33 @@ static ISO8601DateFormatter *dateFormatter;
  Returns the path to the app's library/cache directory.
  @returns An NSString* that is a path to the app's documents directory.
  */
-- (NSString *) cacheDirectory;
+- (NSString *)cacheDirectory;
 
 /**
  Returns the root keen directory where collection sub-directories exist.
  @returns An NSString* that is a path to the keen root directory.
  */
-- (NSString *) keenDirectory;
+- (NSString *)keenDirectory;
 
 /**
  Returns the direct child sub-directories of the root keen directory.
  @returns An NSArray* of NSStrings* that are names of sub-directories.
  */
-- (NSArray *) keenSubDirectories;
+- (NSArray *)keenSubDirectories;
 
 /**
  Returns all the files and directories that are children of the argument path.
  @param path An NSString* that's a fully qualified path to a directory on the file system.
  @returns An NSArray* of NSStrings* that are names of sub-files or directories.
  */
-- (NSArray *) contentsAtPath: (NSString *) path;
+- (NSArray *)contentsAtPath:(NSString *)path;
 
 /**
  Returns the directory for a particular collection where events exist.
  @param collection The collection.
  @returns An NSString* that is a path to the collection directory.
  */
-- (NSString *) eventDirectoryForCollection: (NSString *) collection;
+- (NSString *)eventDirectoryForCollection:(NSString *)collection;
 
 /**
  Returns the full path to write an event to.
@@ -79,15 +79,15 @@ static ISO8601DateFormatter *dateFormatter;
  @param timestamp  The timestamp of the event.
  @returns An NSString* that is a path to the event to be written.
  */
-- (NSString *) pathForEventInCollection: (NSString *) collection 
-                          WithTimestamp: (NSDate *) timestamp;
+- (NSString *)pathForEventInCollection:(NSString *)collection 
+                         WithTimestamp:(NSDate *)timestamp;
 
 /**
  Creates a directory if it doesn't exist.
  @param dirPath The fully qualfieid path to a directory.
  @returns YES if the directory exists at the end of this operation, NO otherwise.
  */
-- (Boolean) createDirectoryIfItDoesNotExist: (NSString *) dirPath;
+- (BOOL)createDirectoryIfItDoesNotExist:(NSString *)dirPath;
 
 /**
  Writes a particular blob to the given file.
@@ -95,8 +95,8 @@ static ISO8601DateFormatter *dateFormatter;
  @param file The fully qualified path to a file.
  @returns YES if the file was successfully written, NO otherwise.
  */
-- (Boolean) writeNSData: (NSData *) data 
-                 toFile: (NSString *) file;
+- (BOOL)writeNSData:(NSData *)data 
+             toFile:(NSString *)file;
 
 /**
  Sends an event to the server. Internal impl.
@@ -104,9 +104,9 @@ static ISO8601DateFormatter *dateFormatter;
  @param response The response being returned.
  @param error If an error occurred, filled in.  Otherwise nil.
  */
-- (NSData *) sendEvents: (NSData *) data 
-      returningResponse: (NSURLResponse **) response 
-                  error: (NSError **) error;
+- (NSData *)sendEvents:(NSData *)data 
+     returningResponse:(NSURLResponse **)response 
+                 error:(NSError **)error;
 
 /**
  Harvests local file system for any events to send to keen service and prepares the payload
@@ -114,8 +114,8 @@ static ISO8601DateFormatter *dateFormatter;
  @param jsonData If successful, this will be filled with the correct JSON data.  Otherwise it is untouched.
  @param eventPaths If successful, this will be filled with a dictionary that maps event types to their paths on the local filesystem.
  */
-- (void) prepareJSONData: (NSData **) jsonData 
-           andEventPaths: (NSMutableDictionary **) eventPaths;
+- (void)prepareJSONData:(NSData **)jsonData 
+          andEventPaths:(NSMutableDictionary **)eventPaths;
 
 /**
  Handles the HTTP response from the keen API.  This involves deserializing the JSON response
@@ -124,16 +124,16 @@ static ISO8601DateFormatter *dateFormatter;
  @param responseData The data returned from the server.
  @param eventPaths A dictionary that maps events to their paths on the file system.
  */
-- (void) handleAPIResponse: (NSURLResponse *) response 
-                   andData: (NSData *) responseData 
-             forEventPaths: (NSDictionary *) eventPaths;
+- (void)handleAPIResponse:(NSURLResponse *)response 
+                  andData:(NSData *)responseData 
+            forEventPaths:(NSDictionary *)eventPaths;
 
 /**
  Converts an NSDate* instance into a correctly formatted ISO-8601 compatible string.
  @param date The NSData* instance to convert.
  @returns An ISO-8601 compatible string representation of the date parameter.
  */
-- (id) convertDate: (id) date;
+- (id)convertDate:(id)date;
     
 @end
 
@@ -146,7 +146,7 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - Class lifecycle
 
-+ (void) initialize {
++ (void)initialize {
     // initialize the dictionary used to cache clients exactly once.
     
     if (self != [KeenClient class]) {
@@ -191,7 +191,7 @@ static ISO8601DateFormatter *dateFormatter;
     return self;
 }
 
-- (void) dealloc {
+- (void)dealloc {
     self.projectId = nil;
     self.token = nil;
     [super dealloc];
@@ -215,7 +215,7 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - Add events
 
-- (Boolean) addEvent: (NSDictionary *) event toCollection: (NSString *) collection {
+- (BOOL)addEvent:(NSDictionary *)event toCollection:(NSString *)collection {
     // don't do anything if event or collection are nil.
     if (!event || !collection) {
         return NO;
@@ -278,7 +278,7 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - Uploading
 
-- (void) uploadHelperWithFinishedBlock: (void (^)()) block {
+- (void)uploadHelperWithFinishedBlock:(void (^)()) block {
     // only one thread should be doing an upload at a time.
     @synchronized(self) {        
         // get data for the API request we'll make
@@ -305,7 +305,7 @@ static ISO8601DateFormatter *dateFormatter;
     }
 }
 
-- (void) uploadWithFinishedBlock: (void (^)()) block {
+- (void)uploadWithFinishedBlock:(void (^)()) block {
     id copiedBlock = Block_copy(block);
     if (self.isRunningTests) {
         // run upload in same thread if we're in tests
@@ -316,7 +316,7 @@ static ISO8601DateFormatter *dateFormatter;
     }
 }
 
-- (void) prepareJSONData: (NSData **) jsonData andEventPaths: (NSMutableDictionary **) eventPaths {
+- (void)prepareJSONData:(NSData **)jsonData andEventPaths:(NSMutableDictionary **)eventPaths {
     // list all the directories under Keen
     NSArray *directories = [self keenSubDirectories];
     NSString *rootPath = [self keenDirectory];
@@ -391,9 +391,9 @@ static ISO8601DateFormatter *dateFormatter;
     *eventPaths = fileDict;
 }
 
-- (void) handleAPIResponse: (NSURLResponse *) response 
-                   andData: (NSData *) responseData 
-             forEventPaths: (NSDictionary *) eventPaths {
+- (void)handleAPIResponse:(NSURLResponse *)response 
+                  andData:(NSData *)responseData 
+            forEventPaths:(NSDictionary *)eventPaths {
     if (!responseData) {
         NSLog(@"responseData was nil for some reason.  That's not great.");
         NSHTTPURLResponse *httpUrlResponse = (NSHTTPURLResponse *) response;
@@ -471,7 +471,7 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - HTTP request/response management
 
-- (NSData *) sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error {
+-(NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
                            KeenServerAddress, KeenApiVersion, self.projectId];
     NSLog(@"Sending request to: %@", urlString);
@@ -490,22 +490,22 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - Directory/path management
 
-- (NSString *) cacheDirectory {
+-(NSString *)cacheDirectory {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     return documentsDirectory;
 }
 
-- (NSString *) keenDirectory {
+-(NSString *)keenDirectory {
     NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
     return [keenDirPath stringByAppendingPathComponent:self.projectId];
 }
 
-- (NSArray *) keenSubDirectories {
+-(NSArray *)keenSubDirectories {
     return [self contentsAtPath:[self keenDirectory]];
 }
 
-- (NSArray *) contentsAtPath: (NSString *) path {
+-(NSArray *)contentsAtPath:(NSString *) path {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
     NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
@@ -516,11 +516,11 @@ static ISO8601DateFormatter *dateFormatter;
     return files;
 }
 
-- (NSString *) eventDirectoryForCollection: (NSString *) collection {
+-(NSString *)eventDirectoryForCollection:(NSString *)collection {
     return [[self keenDirectory] stringByAppendingPathComponent:collection];
 }
 
-- (NSString *) pathForEventInCollection: (NSString *) collection WithTimestamp: (NSDate *) timestamp {
+-(NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
     // get a file manager.
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // determine the root of the filename.
@@ -547,7 +547,7 @@ static ISO8601DateFormatter *dateFormatter;
     return path;
 }
 
-- (Boolean) createDirectoryIfItDoesNotExist: (NSString *) dirPath {
+-(BOOL)createDirectoryIfItDoesNotExist:(NSString *)dirPath {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // if the directory doesn't exist, create it.
     if (![fileManager fileExistsAtPath:dirPath]) {
@@ -564,7 +564,7 @@ static ISO8601DateFormatter *dateFormatter;
     return YES;
 }
 
-- (Boolean) writeNSData: (NSData *) data toFile: (NSString *) file {
+-(BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
     // write file atomically so we don't ever have a partial event to worry about.    
     Boolean success = [data writeToFile:file atomically:YES];
     if (!success) {
@@ -578,20 +578,20 @@ static ISO8601DateFormatter *dateFormatter;
                     
 # pragma mark - NSDate => NSString
                     
-- (id) convertDate: (id) date {
+-(id)convertDate:(id)date {
     return [dateFormatter stringFromDate:date];
 }
 
 # pragma mark - To make testing easier
 
-- (NSUInteger) maxEventsPerCollection {
+-(NSUInteger)maxEventsPerCollection {
     if (self.isRunningTests) {
         return 5;
     }
     return KeenMaxEventsPerCollection;
 }
 
-- (NSUInteger) numberEventsToForget {
+-(NSUInteger)numberEventsToForget {
     if (self.isRunningTests) {
         return 2;
     }

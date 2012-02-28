@@ -65,7 +65,7 @@
  @param collection The collection you want to put this event into.
  @return YES if the event was added, NO if it was not.
  */
-- (Boolean) addEvent: (NSDictionary *) event toCollection: (NSString *) collection;
+- (BOOL)addEvent:(NSDictionary *)event toCollection:(NSString *)collection;
 
 /**
  Call this whenever you want to upload all the events captured so far.  This will spawn a low
@@ -78,6 +78,6 @@
  
  @param block The block to be executed once uploading is finished, regardless of whether or not the upload succeeded.
  */
-- (void) uploadWithFinishedBlock: (void (^)()) block;
+- (void)uploadWithFinishedBlock:(void (^)())block;
 
 @end
