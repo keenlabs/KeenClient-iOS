@@ -12,8 +12,7 @@
 #import "ISO8601DateFormatter.h"
 
 
-static NSDictionary *clients;
-static KeenClient *lastClient;
+static KeenClient *sharedClient;
 static ISO8601DateFormatter *dateFormatter;
 
 @interface KeenClient ()
@@ -23,9 +22,6 @@ static ISO8601DateFormatter *dateFormatter;
 
 // The authorization token for this particular project.
 @property (nonatomic, retain) NSString *token;
-
-// The timestamp for the previous event.
-@property (nonatomic, retain) NSDate *prevTimestamp;
 
 // How many times the previous timestamp has been used.
 @property (nonatomic) NSInteger numTimesTimestampUsed;
@@ -40,13 +36,10 @@ static ISO8601DateFormatter *dateFormatter;
 @property (nonatomic) Boolean isRunningTests;
 
 /**
- Initializes a KeenClient with the given project ID and authToken.
- @param projectId The project ID corresponding to the keen.io project.
- @param authToken The auth token corresponding to the keen.io project.
- @returns an instance of KeenClient, or nil if authToken is nil or otherwise invalid.
+ Initializes KeenClient without setting its project ID or auth token.
+ @returns An instance of KeenClient.
  */
-- (id) initWithProject: (NSString *) projectId 
-          andAuthToken: (NSString *) authToken;
+- (id)init;
 
 /**
  Returns the path to the app's library/cache directory.
@@ -148,7 +141,6 @@ static ISO8601DateFormatter *dateFormatter;
 
 @synthesize projectId=_projectId;
 @synthesize token=_token;
-@synthesize prevTimestamp=_prevTimestamp;
 @synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
 @synthesize isRunningTests=_isRunningTests;
 
@@ -167,8 +159,8 @@ static ISO8601DateFormatter *dateFormatter;
         return;
     }
     
-    if (!clients) {
-        clients = [[NSMutableDictionary dictionary] retain];
+    if (!sharedClient) {
+        sharedClient = [[KeenClient alloc] init];
     }
     if (!dateFormatter) {
         dateFormatter = [[ISO8601DateFormatter alloc] init];
@@ -177,13 +169,23 @@ static ISO8601DateFormatter *dateFormatter;
     }
 }
 
-- (id) initWithProject: (NSString *) projectId andAuthToken: (NSString *) authToken {
+- (id)init {
+    self = [super init];
+    return self;
+}
+
+- (id)initWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
+    // TODO dedupe this
+    // validate that project id and auth token are acceptable
+    if (!projectId || !authToken) {
+        return nil;
+    }
+    
     self = [super init];
     if (self) {
         //NSLog(@"Called init on KeenClient for token: %@", authToken);
         self.projectId = projectId;
         self.token = authToken;
-        self.prevTimestamp = nil;
     }
     
     return self;
@@ -192,39 +194,23 @@ static ISO8601DateFormatter *dateFormatter;
 - (void) dealloc {
     self.projectId = nil;
     self.token = nil;
-    self.prevTimestamp = nil;
     [super dealloc];
 }
 
-# pragma mark - Get a client
+# pragma mark - Get a shared client
 
-+ (KeenClient *) clientForProject: (NSString *) projectId andAuthToken: (NSString *) authToken {
++ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
     // validate that project id and auth token are acceptable
     if (!projectId || !authToken) {
         return nil;
     }
-    
-    @synchronized(self) {
-        // grab whatever's in the cache.
-        KeenClient *client = [clients objectForKey:authToken];
-        // if it's null, then create a new instance.
-        if (!client) {
-            // create a new instance
-            client = [[KeenClient alloc] initWithProject:projectId andAuthToken:authToken];
-            // cache it
-            [clients setValue:client forKey:authToken];
-            // release it
-            [client release];
-        }
-        KeenClient *temp = lastClient;
-        lastClient = [client retain];
-        [temp release];
-        return client;
-    }
+    sharedClient.projectId = projectId;
+    sharedClient.token = authToken;
+    return sharedClient;
 }
 
-+ (KeenClient *) lastRequestedClient {
-    return lastClient;
++ (KeenClient *)sharedClient {
+    return sharedClient;
 }
 
 # pragma mark - Add events

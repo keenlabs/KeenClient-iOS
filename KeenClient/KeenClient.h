@@ -11,30 +11,49 @@
 /**
  KeenClient has class methods to return managed instances of itself and instance methods
  to collect new events and upload them through the keen API.
+ 
+ Example usage:
+ 
+ [[KeenClient sharedClient] setProjectId:@"my_id" andAuthToken:@"my_token"];
+ NSDictionary *myEvent = [NSDictionary dictionary];
+ [[KeenClient sharedClient] addEvent:myEvent toCollection:@"purchases"];
+ [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
  */
 @interface KeenClient : NSObject
 
 /**
- Call this with your project's authorization token to get a managed instance of KeenClient.
+ Call this to retrieve the managed instance of KeenClient and set its project ID and auth token
+ to the given parameters.
  
- You don't have to worry about retaining or releasing any KeenClient instances returned from this.
+ You'll generally want to call this the first time you ask for the shared client.  Once you've called
+ this, you can simply call [KeenClient sharedClient] afterwards.
  
  @param projectId The ID of your project.
  @param authToken The authorization token for your project.
- @returns A managed instance of KeenClient, or nil if authToken is nil or otherwise invalid.
+ @returns A managed instance of KeenClient.
  */
-+ (KeenClient *) clientForProject: (NSString *) projectId andAuthToken: (NSString *) authToken;
++ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
 
 /**
- Call this once you've called clientForProject:WithAuthToken to retrieve the client that was
- created last.  
+ Call this to retrieve the managed instance of KeenClient.
  
- This is a convenience method to support not having to keep specifying projectId
- and authToken whenever asking for a client.
+ If you only have to use a single Keen project, just use this.
  
- @returns A managed instance of KeenClient, or nil if clientForProject:andAuthToken hasn't been called yet.
+ @returns A managed instance of KeenClient.
  */
-+ (KeenClient *) lastRequestedClient;
++ (KeenClient *)sharedClient;
+
+/**
+ Call this if your code needs to use more than one Keen project and auth token.  By convention, if you
+ call this, you're responsible for releasing the returned instance once you're finished with it.
+ 
+ Otherwise, just use [KeenClient sharedClient].
+ 
+ @param projectId The ID of your project.
+ @param authToken The authorization token for your project.
+ @returns An initialized instance of KeenClient.
+ */
+- (id)initWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
 
 /**
  Call this any time you want to add an event that will eventually be sent to the keen.io server.

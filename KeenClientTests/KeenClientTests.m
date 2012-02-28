@@ -15,6 +15,12 @@
 
 @interface KeenClient (testability)
 
+// The project ID for this particular client.
+@property (nonatomic, retain) NSString *projectId;
+
+// The authorization token for this particular project.
+@property (nonatomic, retain) NSString *token;
+
 // If we're running tests.
 @property (nonatomic) Boolean isRunningTests;
 
@@ -35,6 +41,8 @@
     [super setUp];
     
     // Set-up code here.
+    [[KeenClient sharedClient] setProjectId:nil];
+    [[KeenClient sharedClient] setToken:nil];
 }
 
 - (void) tearDown {
@@ -54,22 +62,52 @@
     [super tearDown];
 }
 
-- (void) testGetClientForAuthToken {
-    KeenClient *client = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
-    STAssertNotNil(client, @"Expected getClient with non-nil token to return non-nil client.");
+- (void) testInitWithProjectIdAndAuthToken {
+    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"something" andAuthToken:@"anything"];
+    STAssertEqualObjects(@"something", client.projectId, @"init with a valid project ID should work");
+    STAssertEqualObjects(@"anything", client.token, @"init with a valid token should work");
     
-    KeenClient *client2 = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
-    STAssertEqualObjects(client, client2, @"getClient on the same token twice should return the same instance twice.");
+    KeenClient *client2 = [[KeenClient alloc] initWithProjectId:@"another" andAuthToken:@"again"];
+    STAssertTrue(client != client2, @"Another init should return a separate instance");
     
-    client = [KeenClient clientForProject:@"id" andAuthToken:nil];
-    STAssertNil(client, @"Expected getClient with nil token to return nil client.");
+    [client release];
+    [client2 release];
     
-    client = [KeenClient clientForProject:@"id" andAuthToken:@"some_other_token"];
-    STAssertFalse(client == client2, @"getClient on two different tokens should return two difference instances.");
+    client = [[KeenClient alloc] initWithProjectId:nil andAuthToken:@"valid"];
+    STAssertNil(client, @"init with a nil project ID should return nil");
+    
+    client = [[KeenClient alloc] initWithProjectId:@"valid" andAuthToken:nil];
+    STAssertNil(client, @"init with a nil auth token should return nil");
+}
+
+- (void) testSharedClientWithProjectIdAndAuthToken {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    STAssertEquals(@"id", client.projectId, 
+                   @"sharedClientWithProjectIdAndAuthToken with a non-nil project ID should work.");
+    STAssertEquals(@"auth", client.token, 
+                   @"sharedClientWithProjectIdAndAuthToken with a non-nil token should work");
+    
+    KeenClient *client2 = [KeenClient sharedClientWithProjectId:@"other" andAuthToken:@"another"];
+    STAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
+    
+    client = [KeenClient sharedClientWithProjectId:nil andAuthToken:@"valid"];
+    STAssertNil(client, @"sharedClient with an invalid project ID should return nil");
+    
+    client = [KeenClient sharedClientWithProjectId:@"valid" andAuthToken:nil];
+    STAssertNil(client, @"sharedClient with an invalid auth token should return nil");
+}
+
+- (void) testSharedClient {
+    KeenClient *client = [KeenClient sharedClient];
+    STAssertNil(client.projectId, @"a client's project ID should be nil at first");
+    STAssertNil(client.token, @"a client's token should be nil at first");
+    
+    KeenClient *client2 = [KeenClient sharedClient];
+    STAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
 }
 
 - (void) testAddEvent {
-    KeenClient *client = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
     
     // nil dict should should do nothing
     Boolean response = [client addEvent:nil toCollection:@"foo"];
@@ -153,7 +191,7 @@
     }
     
     // set up the partial mock
-    KeenClient *client = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -360,7 +398,7 @@
 }
 
 - (void) testTooManyEventsCached {
-    KeenClient *client = [KeenClient clientForProject:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
     client.isRunningTests = YES;
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
     // create 5 events
