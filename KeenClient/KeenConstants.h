@@ -8,18 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString * const KeenServerAddress;
-extern NSString * const KeenApiVersion;
-extern NSString * const KeenErrorCodeParam;
+extern NSString * const kKeenServerAddress;
+extern NSString * const kKeenApiVersion;
 
-extern NSString * const KeenNameParam;
-extern NSString * const KeenDescriptionParam;
-extern NSString * const KeenSuccessParam;
-extern NSString * const KeenErrorParam;
-extern NSString * const KeenErrorCodeParam;
-extern NSString * const KeenInvalidCollectionNameError;
-extern NSString * const KeenInvalidPropertyNameError;
-extern NSString * const KeenInvalidPropertyValueError;
+extern NSString * const kKeenNameParam;
+extern NSString * const kKeenDescriptionParam;
+extern NSString * const kKeenSuccessParam;
+extern NSString * const kKeenErrorParam;
+extern NSString * const kKeenErrorCodeParam;
+extern NSString * const kKeenInvalidCollectionNameError;
+extern NSString * const kKeenInvalidPropertyNameError;
+extern NSString * const kKeenInvalidPropertyValueError;
 
-extern NSUInteger const KeenMaxEventsPerCollection;
-extern NSUInteger const KeenNumberEventsToForget;
+extern NSUInteger const kKeenMaxEventsPerCollection;
+extern NSUInteger const kKeenNumberEventsToForget;

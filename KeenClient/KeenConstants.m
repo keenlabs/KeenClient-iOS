@@ -8,24 +8,24 @@
 
 #import "KeenConstants.h"
 
-NSString * const KeenServerAddress = @"http://api.keen.io";
-//NSString * const KeenServerAddress = @"http://localhost:8888";
-NSString * const KeenApiVersion = @"1.0";
+NSString * const kKeenServerAddress = @"http://api.keen.io";
+//NSString * const kKeenServerAddress = @"http://localhost:8888";
+NSString * const kKeenApiVersion = @"1.0";
 
 // Keen API constants
 
-NSString * const KeenNameParam = @"name";
-NSString * const KeenDescriptionParam = @"description";
-NSString * const KeenSuccessParam = @"success";
-NSString * const KeenErrorParam = @"error";
-NSString * const KeenErrorCodeParam = @"error_code";
-NSString * const KeenInvalidCollectionNameError = @"InvalidCollectionNameError";
-NSString * const KeenInvalidPropertyNameError = @"InvalidPropertyNameError";
-NSString * const KeenInvalidPropertyValueError = @"InvalidPropertyValueError";
+NSString * const kKeenNameParam = @"name";
+NSString * const kKeenDescriptionParam = @"description";
+NSString * const kKeenSuccessParam = @"success";
+NSString * const kKeenErrorParam = @"error";
+NSString * const kKeenErrorCodeParam = @"error_code";
+NSString * const kKeenInvalidCollectionNameError = @"InvalidCollectionNameError";
+NSString * const kKeenInvalidPropertyNameError = @"InvalidPropertyNameError";
+NSString * const kKeenInvalidPropertyValueError = @"InvalidPropertyValueError";
 
 // Keen constants related to how much data we'll cache on the device before aging it out
 
 // how many events can be stored for a single collection before aging them out
-NSUInteger const KeenMaxEventsPerCollection = 10000;
+NSUInteger const kKeenMaxEventsPerCollection = 10000;
 // how many events to drop when aging out
-NSUInteger const KeenNumberEventsToForget = 100;
+NSUInteger const kKeenNumberEventsToForget = 100;

@@ -424,15 +424,15 @@ static ISO8601DateFormatter *dateFormatter;
             NSUInteger count = 0;
             for (NSDictionary *result in results) {
                 Boolean deleteFile = YES;
-                Boolean success = [[result objectForKey:KeenSuccessParam] boolValue];
+                Boolean success = [[result objectForKey:kKeenSuccessParam] boolValue];
                 if (!success) {
                     // grab error code and description
-                    NSDictionary *errorDict = [result objectForKey:KeenErrorParam];
-                    NSString *errorCode = [errorDict objectForKey:KeenNameParam];
-                    NSString *errorDescription = [errorDict objectForKey:KeenDescriptionParam];
-                    if ([errorCode isEqualToString:KeenInvalidCollectionNameError] ||
-                        [errorCode isEqualToString:KeenInvalidPropertyNameError] ||
-                        [errorCode isEqualToString:KeenInvalidPropertyValueError]) {
+                    NSDictionary *errorDict = [result objectForKey:kKeenErrorParam];
+                    NSString *errorCode = [errorDict objectForKey:kKeenNameParam];
+                    NSString *errorDescription = [errorDict objectForKey:kKeenDescriptionParam];
+                    if ([errorCode isEqualToString:kKeenInvalidCollectionNameError] ||
+                        [errorCode isEqualToString:kKeenInvalidPropertyNameError] ||
+                        [errorCode isEqualToString:kKeenInvalidPropertyValueError]) {
                         NSLog(@"An invalid event was found.  Deleting it.  Error: %@", errorDescription);
                         deleteFile = YES;
                     } else {
@@ -473,7 +473,7 @@ static ISO8601DateFormatter *dateFormatter;
 
 -(NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
-                           KeenServerAddress, KeenApiVersion, self.projectId];
+                           kKeenServerAddress, kKeenApiVersion, self.projectId];
     NSLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
@@ -588,14 +588,14 @@ static ISO8601DateFormatter *dateFormatter;
     if (self.isRunningTests) {
         return 5;
     }
-    return KeenMaxEventsPerCollection;
+    return kKeenMaxEventsPerCollection;
 }
 
 -(NSUInteger)numberEventsToForget {
     if (self.isRunningTests) {
         return 2;
     }
-    return KeenNumberEventsToForget;
+    return kKeenNumberEventsToForget;
 }
 
 @end
