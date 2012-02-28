@@ -14,7 +14,7 @@
  
  Example usage:
  
-    [[KeenClient sharedClient] setProjectId:@"my_id" andAuthToken:@"my_token"];
+    [KeenClient sharedClientWithProjectId:@"my_id" andAuthToken:@"my_token"];
     NSDictionary *myEvent = [NSDictionary dictionary];
     [[KeenClient sharedClient] addEvent:myEvent toCollection:@"purchases"];
     [[KeenClient sharedClient] uploadWithFinishedBlock:nil];

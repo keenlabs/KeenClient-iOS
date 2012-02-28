@@ -471,7 +471,7 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - HTTP request/response management
 
--(NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
+- (NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
                            kKeenServerAddress, kKeenApiVersion, self.projectId];
     NSLog(@"Sending request to: %@", urlString);
@@ -490,22 +490,22 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - Directory/path management
 
--(NSString *)cacheDirectory {
+- (NSString *)cacheDirectory {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     return documentsDirectory;
 }
 
--(NSString *)keenDirectory {
+- (NSString *)keenDirectory {
     NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
     return [keenDirPath stringByAppendingPathComponent:self.projectId];
 }
 
--(NSArray *)keenSubDirectories {
+- (NSArray *)keenSubDirectories {
     return [self contentsAtPath:[self keenDirectory]];
 }
 
--(NSArray *)contentsAtPath:(NSString *) path {
+- (NSArray *)contentsAtPath:(NSString *) path {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
     NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
@@ -516,11 +516,11 @@ static ISO8601DateFormatter *dateFormatter;
     return files;
 }
 
--(NSString *)eventDirectoryForCollection:(NSString *)collection {
+- (NSString *)eventDirectoryForCollection:(NSString *)collection {
     return [[self keenDirectory] stringByAppendingPathComponent:collection];
 }
 
--(NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
+- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
     // get a file manager.
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // determine the root of the filename.
@@ -547,7 +547,7 @@ static ISO8601DateFormatter *dateFormatter;
     return path;
 }
 
--(BOOL)createDirectoryIfItDoesNotExist:(NSString *)dirPath {
+- (BOOL)createDirectoryIfItDoesNotExist:(NSString *)dirPath {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // if the directory doesn't exist, create it.
     if (![fileManager fileExistsAtPath:dirPath]) {
@@ -564,7 +564,7 @@ static ISO8601DateFormatter *dateFormatter;
     return YES;
 }
 
--(BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
+- (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
     // write file atomically so we don't ever have a partial event to worry about.    
     Boolean success = [data writeToFile:file atomically:YES];
     if (!success) {
@@ -578,20 +578,20 @@ static ISO8601DateFormatter *dateFormatter;
                     
 # pragma mark - NSDate => NSString
                     
--(id)convertDate:(id)date {
+- (id)convertDate:(id)date {
     return [dateFormatter stringFromDate:date];
 }
 
 # pragma mark - To make testing easier
 
--(NSUInteger)maxEventsPerCollection {
+- (NSUInteger)maxEventsPerCollection {
     if (self.isRunningTests) {
         return 5;
     }
     return kKeenMaxEventsPerCollection;
 }
 
--(NSUInteger)numberEventsToForget {
+- (NSUInteger)numberEventsToForget {
     if (self.isRunningTests) {
         return 2;
     }

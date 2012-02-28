@@ -24,22 +24,22 @@
 // If we're running tests.
 @property (nonatomic) Boolean isRunningTests;
 
--(NSData *)sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
+- (NSData *)sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
 
 @end
 
 @interface KeenClientTests ()
 
--(NSString *)cacheDirectory;
--(NSString *)keenDirectory;
--(NSString *)eventDirectoryForCollection:(NSString *)collection;
--(NSArray *)contentsOfDirectoryForCollection:(NSString *)collection;
+- (NSString *)cacheDirectory;
+- (NSString *)keenDirectory;
+- (NSString *)eventDirectoryForCollection:(NSString *)collection;
+- (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection;
 
 @end
 
 @implementation KeenClientTests
 
--(void)setUp {
+- (void)setUp {
     [super setUp];
     
     // Set-up code here.
@@ -47,7 +47,7 @@
     [[KeenClient sharedClient] setToken:nil];
 }
 
--(void)tearDown {
+- (void)tearDown {
     // Tear-down code here.
     NSLog(@"\n");
     
@@ -64,7 +64,7 @@
     [super tearDown];
 }
 
--(void)testInitWithProjectIdAndAuthToken{
+- (void)testInitWithProjectIdAndAuthToken{
     KeenClient *client = [[KeenClient alloc] initWithProjectId:@"something" andAuthToken:@"anything"];
     STAssertEqualObjects(@"something", client.projectId, @"init with a valid project ID should work");
     STAssertEqualObjects(@"anything", client.token, @"init with a valid token should work");
@@ -82,7 +82,7 @@
     STAssertNil(client, @"init with a nil auth token should return nil");
 }
 
--(void)testSharedClientWithProjectIdAndAuthToken{
+- (void)testSharedClientWithProjectIdAndAuthToken{
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
     STAssertEquals(@"id", client.projectId, 
                    @"sharedClientWithProjectIdAndAuthToken with a non-nil project ID should work.");
@@ -99,7 +99,7 @@
     STAssertNil(client, @"sharedClient with an invalid auth token should return nil");
 }
 
--(void)testSharedClient {
+- (void)testSharedClient {
     KeenClient *client = [KeenClient sharedClient];
     STAssertNil(client.projectId, @"a client's project ID should be nil at first");
     STAssertNil(client.token, @"a client's token should be nil at first");
@@ -108,7 +108,7 @@
     STAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
 }
 
--(void)testAddEvent {
+- (void)testAddEvent {
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
     
     // nil dict should should do nothing
@@ -158,7 +158,7 @@
     STAssertFalse(response, @"an event that can't be serialized should return NO");
 }
 
--(NSDictionary *)buildResultWithSuccess:(Boolean)success 
+- (NSDictionary *)buildResultWithSuccess:(Boolean)success 
                             andErrorCode:(NSString *)errorCode 
                           andDescription:(NSString *)description {
     NSDictionary *result = [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithBool:success]
@@ -171,7 +171,7 @@
     return result;
 }
 
--(NSDictionary *)buildResponseJsonWithSuccess:(Boolean)success 
+- (NSDictionary *)buildResponseJsonWithSuccess:(Boolean)success 
                                  AndErrorCode:(NSString *)errorCode 
                                AndDescription:(NSString *)description {
     NSDictionary *result = [self buildResultWithSuccess:success 
@@ -181,7 +181,7 @@
     return [NSDictionary dictionaryWithObject:array forKey:@"foo"];
 }
 
--(id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code {
+- (id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code {
     if (!data) {
         data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
     }
@@ -208,7 +208,7 @@
     return mock;
 }
 
--(void)addSimpleEventAndUploadWithMock:(id)mock {
+- (void)addSimpleEventAndUploadWithMock:(id)mock {
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
     
@@ -216,7 +216,7 @@
     [mock uploadWithFinishedBlock:nil];
 }
 
--(void)testUploadSuccess {
+- (void)testUploadSuccess {
     id mock = [self uploadTestHelperWithData:nil andStatusCode:200];
     
     [self addSimpleEventAndUploadWithMock:mock];
@@ -226,7 +226,7 @@
     STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
 }
 
--(void)testUploadFailedServerDown {
+- (void)testUploadFailedServerDown {
     id mock = [self uploadTestHelperWithData:@"" andStatusCode:500];
     
     [self addSimpleEventAndUploadWithMock:mock];
@@ -236,7 +236,7 @@
     STAssertTrue([contents count] == 1, @"There should be one file after a failed upload.");    
 }
 
--(void)testUploadFailedServerDownNonJsonResponse {
+- (void)testUploadFailedServerDownNonJsonResponse {
     id mock = [self uploadTestHelperWithData:@"bad data" andStatusCode:500];
     
     [self addSimpleEventAndUploadWithMock:mock];
@@ -246,7 +246,7 @@
     STAssertTrue([contents count] == 1, @"There should be one file after a failed upload.");    
 }
 
--(void)testUploadFailedBadRequest {
+- (void)testUploadFailedBadRequest {
     id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
                                                                    AndErrorCode:@"InvalidCollectionNameError" 
                                                                  AndDescription:@"anything"] 
@@ -259,7 +259,7 @@
     STAssertTrue([contents count] == 0, @"An invalid event should be deleted after an upload attempt.");
 }
 
--(void)testUploadFailedBadRequestUnknownError {
+- (void)testUploadFailedBadRequestUnknownError {
     id mock = [self uploadTestHelperWithData:@"doesn't matter" andStatusCode:400];
     
     [self addSimpleEventAndUploadWithMock:mock];
@@ -269,7 +269,7 @@
     STAssertTrue([contents count] == 1, @"An upload that results in an unexpected error should not delete the event.");     
 }
 
--(void)testUploadMultipleEventsSameCollectionSuccess {
+- (void)testUploadMultipleEventsSameCollectionSuccess {
     NSDictionary *result1 = [self buildResultWithSuccess:YES 
                                             andErrorCode:nil 
                                           andDescription:nil];
@@ -292,7 +292,7 @@
     STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
 }
 
--(void)testUploadMultipleEventsDifferentCollectionSuccess {
+- (void)testUploadMultipleEventsDifferentCollectionSuccess {
     NSDictionary *result1 = [self buildResultWithSuccess:YES 
                                             andErrorCode:nil 
                                           andDescription:nil];
@@ -318,7 +318,7 @@
     STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
 }
 
--(void)testUploadMultipleEventsSameCollectionOneFails {
+- (void)testUploadMultipleEventsSameCollectionOneFails {
     NSDictionary *result1 = [self buildResultWithSuccess:YES 
                                             andErrorCode:nil 
                                           andDescription:nil];
@@ -341,7 +341,7 @@
     STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
 }
 
--(void)testUploadMultipleEventsDifferentCollectionsOneFails {
+- (void)testUploadMultipleEventsDifferentCollectionsOneFails {
     NSDictionary *result1 = [self buildResultWithSuccess:YES 
                                             andErrorCode:nil 
                                           andDescription:nil];
@@ -367,7 +367,7 @@
     STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
 }
 
--(void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
+- (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
     NSDictionary *result1 = [self buildResultWithSuccess:YES 
                                             andErrorCode:nil 
                                           andDescription:nil];
@@ -393,7 +393,7 @@
     STAssertTrue([contents count] == 1, @"There should be a file after a failed upload.");
 }
 
--(void)testTooManyEventsCached {
+- (void)testTooManyEventsCached {
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
     client.isRunningTests = YES;
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
@@ -414,21 +414,21 @@
 
 # pragma mark - test filesystem utility methods
 
--(NSString *)cacheDirectory {
+- (NSString *)cacheDirectory {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     return documentsDirectory;
 }
 
--(NSString *)keenDirectory {
+- (NSString *)keenDirectory {
     return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:@"id"];
 }
 
--(NSString *)eventDirectoryForCollection:(NSString *)collection {
+- (NSString *)eventDirectoryForCollection:(NSString *)collection {
     return [[self keenDirectory] stringByAppendingPathComponent:collection];
 }
 
--(NSArray *)contentsOfDirectoryForCollection:(NSString *)collection {
+- (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection {
     NSString *path = [self eventDirectoryForCollection:collection];
     NSLog(@"path: %@", path);
     NSFileManager *manager = [NSFileManager defaultManager];
