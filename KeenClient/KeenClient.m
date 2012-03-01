@@ -250,11 +250,11 @@ static ISO8601DateFormatter *dateFormatter;
     
     NSDictionary *eventToWrite = nil;
     // if there's no timestamp in the event, stamp it automatically.
-    NSDate *timestamp = [event objectForKey:@"timestamp"];
+    NSDate *timestamp = [event objectForKey:@"_timestamp"];
     if (!timestamp) {
         eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
         timestamp = [NSDate date];
-        [eventToWrite setValue:timestamp forKey:@"timestamp"];
+        [eventToWrite setValue:timestamp forKey:@"_timestamp"];
     } else {
         eventToWrite = event;
     }

@@ -133,7 +133,7 @@
     NSDictionary *deserializedDict = [data objectFromJSONData];
     // make sure timestamp was added
     STAssertNotNil(deserializedDict, @"The event should have been written to disk.");
-    STAssertNotNil([deserializedDict objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
+    STAssertNotNil([deserializedDict objectForKey:@"_timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
     STAssertEqualObjects(@"apple", [deserializedDict objectForKey:@"a"], @"Value for key 'a' is wrong.");
     STAssertEqualObjects(@"bapple", [deserializedDict objectForKey:@"b"], @"Value for key 'b' is wrong.");
     STAssertEqualObjects(@"capple", [deserializedDict objectForKey:@"c"], @"Value for key 'c' is wrong.");
