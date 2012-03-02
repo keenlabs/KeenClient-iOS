@@ -165,7 +165,8 @@ static ISO8601DateFormatter *dateFormatter;
     if (!dateFormatter) {
         dateFormatter = [[ISO8601DateFormatter alloc] init];
         [dateFormatter setIncludeTime:YES];
-        [dateFormatter setDefaultTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+        NSTimeZone *timeZone = [NSTimeZone localTimeZone];
+        [dateFormatter setDefaultTimeZone:timeZone];
     }
 }
 
@@ -579,7 +580,8 @@ static ISO8601DateFormatter *dateFormatter;
 # pragma mark - NSDate => NSString
                     
 - (id)convertDate:(id)date {
-    return [dateFormatter stringFromDate:date];
+    NSString *string = [dateFormatter stringFromDate:date];
+    return string;
 }
 
 # pragma mark - To make testing easier
