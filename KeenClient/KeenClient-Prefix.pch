@@ -5,3 +5,11 @@
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
 #endif
+
+#define KEEN_DEBUG
+
+#ifdef KEEN_DEBUG
+    #define KCLog(...) NSLog(__VA_ARGS__)
+#else
+    #define KCLog(...)
+#endif
