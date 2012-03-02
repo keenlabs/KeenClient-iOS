@@ -14,6 +14,7 @@
 				0111015A14EF720D009794A5 /* ShellScript */,
 			);
 			dependencies = (
+				01F7580E150089CC00AC7FB0 /* PBXTargetDependency */,
 				0111015C14EF7487009794A5 /* PBXTargetDependency */,
 				0111015E14EF7489009794A5 /* PBXTargetDependency */,
 			);
@@ -100,6 +101,13 @@
 			remoteInfo = "KeenClient-Device";
 		};
 		017EE13414E30C96000F3868 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 017EE11D14E30C96000F3868;
+			remoteInfo = KeenClient;
+		};
+		01F7580D150089CC00AC7FB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
 			proxyType = 1;
@@ -515,7 +523,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"";
+			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nzip -j \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\"";
 		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -591,6 +599,11 @@
 			isa = PBXTargetDependency;
 			target = 017EE11D14E30C96000F3868 /* KeenClient */;
 			targetProxy = 017EE13414E30C96000F3868 /* PBXContainerItemProxy */;
+		};
+		01F7580E150089CC00AC7FB0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 017EE11D14E30C96000F3868 /* KeenClient */;
+			targetProxy = 01F7580D150089CC00AC7FB0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
