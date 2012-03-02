@@ -797,10 +797,17 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KEEN_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/**";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
 				"OTHER_LDFLAGS[arch=*]" = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
@@ -818,6 +825,7 @@
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
 				"OTHER_LDFLAGS[arch=*]" = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;

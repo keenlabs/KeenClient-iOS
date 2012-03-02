@@ -196,9 +196,7 @@
     
     // serialize the faked out response data
     NSData *serializedData = [data JSONData];
-    NSString *json = [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];
-    NSLog(@"created json: %@", json);
-    [json release];
+    NSString *json = [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];    [json release];
     
     // set up the response data we're faking out
     [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any] 
@@ -400,7 +398,6 @@
     // create 5 events
     for (int i=0; i<5; i++) {
         [client addEvent:event toCollection:@"something"];
-        NSLog(@"Added event %d", i);
     }
     // should be 5 events now
     NSArray *contentsBefore = [self contentsOfDirectoryForCollection:@"something"];
@@ -430,7 +427,6 @@
 
 - (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection {
     NSString *path = [self eventDirectoryForCollection:collection];
-    NSLog(@"path: %@", path);
     NSFileManager *manager = [NSFileManager defaultManager];
     NSError *error = nil;
     NSArray *contents = [manager contentsOfDirectoryAtPath:path error:&error];

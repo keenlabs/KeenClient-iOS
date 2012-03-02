@@ -6,6 +6,14 @@
 //  Copyright (c) 2012 Keen Labs. All rights reserved.
 //
 
+#define KEEN_DEBUG
+
+#ifdef KEEN_DEBUG
+#define KCLog(...) NSLog(__VA_ARGS__)
+#else
+#define KCLog(...)
+#endif
+
 #import <Foundation/Foundation.h>
 
 /**

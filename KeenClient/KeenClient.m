@@ -184,7 +184,7 @@ static ISO8601DateFormatter *dateFormatter;
     
     self = [super init];
     if (self) {
-        //NSLog(@"Called init on KeenClient for token: %@", authToken);
+        KCLog(@"Called init on KeenClient for token: %@", authToken);
         self.projectId = projectId;
         self.token = authToken;
     }
@@ -219,22 +219,25 @@ static ISO8601DateFormatter *dateFormatter;
 - (BOOL)addEvent:(NSDictionary *)event toCollection:(NSString *)collection {
     // don't do anything if event or collection are nil.
     if (!event || !collection) {
+        KCLog(@"Invalid event or collection sent to addEvent.");
         return NO;
     }
+    KCLog(@"Adding event to collection: %@", collection);
     
     // make sure the directory we want to write the file to exists
     NSString *dirPath = [self eventDirectoryForCollection:collection];
     // if the directory doesn't exist, create it.
     Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
     if (!success) {
+        KCLog(@"Couldn't create directory at path %@", dirPath);
         return NO;
     }
     // now make sure that we haven't hit the max number of events in this collection already
     NSArray *eventsArray = [self contentsAtPath:dirPath];
     if ([eventsArray count] >= self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
-        NSLog(@"Too many events in cache for %@, aging out old data.", collection);
-        NSLog(@"Count: %d and Max: %d", [eventsArray count], self.maxEventsPerCollection);
+        KCLog(@"Too many events in cache for %@, aging out old data.", collection);
+        KCLog(@"Count: %d and Max: %d", [eventsArray count], self.maxEventsPerCollection);
         
         NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
         // delete the eldest
@@ -244,7 +247,7 @@ static ISO8601DateFormatter *dateFormatter;
             NSError *error = nil;
             [[NSFileManager defaultManager] removeItemAtPath:fullPath error:&error];
             if (error) {
-                NSLog(@"Couldn't delete %@ when aging events out of cache!", [error localizedDescription]);
+                KCLog(@"Couldn't delete %@ when aging events out of cache!", [error localizedDescription]);
             }
         }
     }
@@ -266,7 +269,7 @@ static ISO8601DateFormatter *dateFormatter;
                                                 selector:@selector(convertDate:) 
                                                    error:&error];
     if (error) {
-        NSLog(@"An error occurred when serializing event to JSON: %@", [error localizedDescription]);
+        KCLog(@"An error occurred when serializing event to JSON: %@", [error localizedDescription]);
         return NO;
     }
     
@@ -300,8 +303,12 @@ static ISO8601DateFormatter *dateFormatter;
         
         // finally, run the user-specific block (if there is one)
         if (block) {
-            block();
-            Block_release(block);
+            KCLog(@"Running user-specified block.");
+            @try {
+                block();
+            } @finally {
+                Block_release(block);
+            }
         }
     }
 }
@@ -333,7 +340,7 @@ static ISO8601DateFormatter *dateFormatter;
     
     // iterate through each directory
     for (NSString *dirName in directories) {
-        //NSLog(@"Found directory: %@", dirName);
+        KCLog(@"Found directory: %@", dirName);
         // list contents of each directory
         NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
         NSArray *files = [self contentsAtPath:dirPath];
@@ -344,7 +351,7 @@ static ISO8601DateFormatter *dateFormatter;
         NSMutableArray *fileArray = [NSMutableArray array];
         
         for (NSString *fileName in files) {
-            //NSLog(@"Found file: %@/%@", dirName, fileName);
+            KCLog(@"Found file: %@/%@", dirName, fileName);
             NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
             // for each file, grab the JSON blob
             NSData *data = [NSData dataWithContentsOfFile:filePath];
@@ -353,7 +360,7 @@ static ISO8601DateFormatter *dateFormatter;
             NSDictionary *eventDict = [data objectFromJSONDataWithParseOptions:JKParseOptionNone 
                                                                          error:&error];
             if (error) {
-                NSLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
             }
             // and then add it to the array of events
@@ -369,7 +376,7 @@ static ISO8601DateFormatter *dateFormatter;
     
     // end early if there are no events
     if ([requestDict count] == 0) {
-        NSLog(@"Upload called when no events were present, ending early.");
+        KCLog(@"Upload called when no events were present, ending early.");
         return;
     }
     
@@ -382,7 +389,7 @@ static ISO8601DateFormatter *dateFormatter;
                                            selector:@selector(convertDate:) 
                                               error:&error];
     if (error) {
-        NSLog(@"An error occurred when serializing the final request data back to JSON: %@", 
+        KCLog(@"An error occurred when serializing the final request data back to JSON: %@", 
               [error localizedDescription]);
         // can't do much here.
         return;
@@ -396,9 +403,8 @@ static ISO8601DateFormatter *dateFormatter;
                   andData:(NSData *)responseData 
             forEventPaths:(NSDictionary *)eventPaths {
     if (!responseData) {
-        NSLog(@"responseData was nil for some reason.  That's not great.");
-        NSHTTPURLResponse *httpUrlResponse = (NSHTTPURLResponse *) response;
-        NSLog(@"response status code: %d", [httpUrlResponse statusCode]);
+        KCLog(@"responseData was nil for some reason.  That's not great.");
+        KCLog(@"response status code: %d", [((NSHTTPURLResponse *) response) statusCode]);
         return;
     }
     
@@ -411,7 +417,7 @@ static ISO8601DateFormatter *dateFormatter;
                                                                                 error:&error];
         if (error) {
             NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-            NSLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
+            KCLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
             [responseString release];
             return;
         }
@@ -430,15 +436,15 @@ static ISO8601DateFormatter *dateFormatter;
                     // grab error code and description
                     NSDictionary *errorDict = [result objectForKey:kKeenErrorParam];
                     NSString *errorCode = [errorDict objectForKey:kKeenNameParam];
-                    NSString *errorDescription = [errorDict objectForKey:kKeenDescriptionParam];
                     if ([errorCode isEqualToString:kKeenInvalidCollectionNameError] ||
                         [errorCode isEqualToString:kKeenInvalidPropertyNameError] ||
                         [errorCode isEqualToString:kKeenInvalidPropertyValueError]) {
-                        NSLog(@"An invalid event was found.  Deleting it.  Error: %@", errorDescription);
+                        KCLog(@"An invalid event was found.  Deleting it.  Error: %@", 
+                              [errorDict objectForKey:kKeenDescriptionParam]);
                         deleteFile = YES;
                     } else {
-                        NSLog(@"The event could not be inserted for some reason.  Error name and description: %@, %@", 
-                              errorCode, errorDescription);
+                        KCLog(@"The event could not be inserted for some reason.  Error name and description: %@, %@", 
+                              errorCode, [errorDict objectForKey:kKeenDescriptionParam]);
                         deleteFile = NO;
                     }
                 }
@@ -452,10 +458,10 @@ static ISO8601DateFormatter *dateFormatter;
                     
                     [fileManager removeItemAtPath:path error:&error];
                     if (error) {
-                        NSLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
+                        KCLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
                               [error localizedDescription]);
                     } else {
-                        //NSLog(@"Successfully deleted file: %@", path);
+                        KCLog(@"Successfully deleted file: %@", path);
                     }
                 }
                 count++;
@@ -463,9 +469,9 @@ static ISO8601DateFormatter *dateFormatter;
         }
     } else {
         // response code was NOT 200, which means something else happened. log this.
-        NSLog(@"Response code was NOT 200. It was: %d", responseCode);
+        KCLog(@"Response code was NOT 200. It was: %d", responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        NSLog(@"Response body was: %@", responseString);
+        KCLog(@"Response body was: %@", responseString);
         [responseString release];
     }            
 }
@@ -475,7 +481,7 @@ static ISO8601DateFormatter *dateFormatter;
 - (NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
                            kKeenServerAddress, kKeenApiVersion, self.projectId];
-    NSLog(@"Sending request to: %@", urlString);
+    KCLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];
@@ -511,7 +517,7 @@ static ISO8601DateFormatter *dateFormatter;
     NSError *error = nil;
     NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
     if (error) {
-        NSLog(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
+        KCLog(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
         return nil;
     }
     return files;
@@ -555,10 +561,10 @@ static ISO8601DateFormatter *dateFormatter;
         NSError *error = nil;
         Boolean success = [fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:&error];
         if (error) {
-            NSLog(@"An error occurred when creating directory (%@). Message: %@", dirPath, [error localizedDescription]);
+            KCLog(@"An error occurred when creating directory (%@). Message: %@", dirPath, [error localizedDescription]);
             return NO;
         } else if (!success) {
-            NSLog(@"Failed to create directory (%@) but no error was returned.", dirPath);
+            KCLog(@"Failed to create directory (%@) but no error was returned.", dirPath);
             return NO;
         }        
     }
@@ -569,10 +575,10 @@ static ISO8601DateFormatter *dateFormatter;
     // write file atomically so we don't ever have a partial event to worry about.    
     Boolean success = [data writeToFile:file atomically:YES];
     if (!success) {
-        NSLog(@"Error when writing event to file: %@", file);
+        KCLog(@"Error when writing event to file: %@", file);
         return NO;
     } else {
-        //NSLog(@"Successfully wrote event to file: %@", file);
+        KCLog(@"Successfully wrote event to file: %@", file);
     }
     return YES;
 }
