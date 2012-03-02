@@ -30,7 +30,7 @@
  
  @param projectId The ID of your project.
  @param authToken The authorization token for your project.
- @returns A managed instance of KeenClient.
+ @returns A managed instance of KeenClient, or nil if projectId or authToken are invalid.
  */
 + (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
 
@@ -39,7 +39,7 @@
  
  If you only have to use a single Keen project, just use this.
  
- @returns A managed instance of KeenClient.
+ @returns A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andAuthToken:].
  */
 + (KeenClient *)sharedClient;
 

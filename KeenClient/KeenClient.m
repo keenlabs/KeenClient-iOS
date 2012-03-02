@@ -42,6 +42,14 @@ static ISO8601DateFormatter *dateFormatter;
 - (id)init;
 
 /**
+ Validates that the given project ID and authorization token are valid.
+ @param projectId The Keen project ID.
+ @param authToken The Keen auth token.
+ @returns YES if project ID and auth token are valid, NO otherwise.
+ */
++ (BOOL)validateProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
+
+/**
  Returns the path to the app's library/cache directory.
  @returns An NSString* that is a path to the app's documents directory.
  */
@@ -175,10 +183,16 @@ static ISO8601DateFormatter *dateFormatter;
     return self;
 }
 
-- (id)initWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
-    // TODO dedupe this
++ (BOOL)validateProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
     // validate that project id and auth token are acceptable
-    if (!projectId || !authToken) {
+    if (!projectId || !authToken || [projectId length] == 0 || [authToken length] == 0) {
+        return NO;
+    }
+    return YES;
+}
+
+- (id)initWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
+    if (![KeenClient validateProjectId:projectId andAuthToken:authToken]) {
         return nil;
     }
     
@@ -201,8 +215,7 @@ static ISO8601DateFormatter *dateFormatter;
 # pragma mark - Get a shared client
 
 + (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
-    // validate that project id and auth token are acceptable
-    if (!projectId || !authToken) {
+    if (![KeenClient validateProjectId:projectId andAuthToken:authToken]) {
         return nil;
     }
     sharedClient.projectId = projectId;
@@ -211,6 +224,10 @@ static ISO8601DateFormatter *dateFormatter;
 }
 
 + (KeenClient *)sharedClient {
+    if (![KeenClient validateProjectId:sharedClient.projectId andAuthToken:sharedClient.token]) {
+        KCLog(@"sharedClient requested before registering project ID and authorization token!");
+        return nil;
+    }
     return sharedClient;
 }
 
