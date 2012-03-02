@@ -285,6 +285,11 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClientExample/KeenClientExample-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"KEEN_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				INFOPLIST_FILE = "KeenClientExample/KeenClientExample-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
