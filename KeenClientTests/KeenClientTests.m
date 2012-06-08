@@ -25,6 +25,7 @@
 @property (nonatomic) Boolean isRunningTests;
 
 - (NSData *)sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
+- (id)convertDate: (id) date;
 
 @end
 
@@ -133,10 +134,13 @@
     NSDictionary *deserializedDict = [data objectFromJSONData];
     // make sure timestamp was added
     STAssertNotNil(deserializedDict, @"The event should have been written to disk.");
-    STAssertNotNil([deserializedDict objectForKey:@"_timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
-    STAssertEqualObjects(@"apple", [deserializedDict objectForKey:@"a"], @"Value for key 'a' is wrong.");
-    STAssertEqualObjects(@"bapple", [deserializedDict objectForKey:@"b"], @"Value for key 'b' is wrong.");
-    STAssertEqualObjects(@"capple", [deserializedDict objectForKey:@"c"], @"Value for key 'c' is wrong.");
+    STAssertNotNil([deserializedDict objectForKey:@"system"], @"The event should have a system namespace.");
+    STAssertNotNil([deserializedDict objectForKey:@"user"], @"The event should have a user namespace.");
+    STAssertNotNil([[deserializedDict objectForKey:@"system"] objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
+    NSDictionary *deserializedUserDict = [deserializedDict objectForKey:@"user"];
+    STAssertEqualObjects(@"apple", [deserializedUserDict objectForKey:@"a"], @"Value for key 'a' is wrong.");
+    STAssertEqualObjects(@"bapple", [deserializedUserDict objectForKey:@"b"], @"Value for key 'b' is wrong.");
+    STAssertEqualObjects(@"capple", [deserializedUserDict objectForKey:@"c"], @"Value for key 'c' is wrong.");
     
     // dict with NSDate should work
     keys = [NSArray arrayWithObjects:@"a", @"b", @"a_date", nil];
@@ -156,6 +160,27 @@
     event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
     response = [client addEvent:event toCollection:@"foo"];
     STAssertFalse(response, @"an event that can't be serialized should return NO");
+}
+
+- (void)testEventWithTimestamp {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    
+    NSDate *date = [NSDate date];
+    [client addEvent:[NSDictionary dictionaryWithObject:@"b" forKey:@"a"] 
+withSystemProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"] 
+        toCollection:@"foo"];
+    
+    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
+    NSString *path = [contents objectAtIndex:0];
+    NSString *fullPath = [[self eventDirectoryForCollection:@"foo"] stringByAppendingPathComponent:path];
+    NSData *data = [NSData dataWithContentsOfFile:fullPath];
+    NSDictionary *deserializedDict = [data objectFromJSONData];
+    
+    NSLog(@"the dict %@", deserializedDict);
+    
+    NSString *deserializedDate = [[deserializedDict objectForKey:@"system"] objectForKey:@"timestamp"];
+    NSString *originalDate = [client convertDate:date];
+    STAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
 }
 
 - (NSDictionary *)buildResultWithSuccess:(Boolean)success 

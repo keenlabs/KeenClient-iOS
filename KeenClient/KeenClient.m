@@ -234,6 +234,10 @@ static ISO8601DateFormatter *dateFormatter;
 # pragma mark - Add events
 
 - (BOOL)addEvent:(NSDictionary *)event toCollection:(NSString *)collection {
+    return [self addEvent:event withSystemProperties:nil toCollection:collection];
+}
+
+- (BOOL)addEvent:(NSDictionary *)event withSystemProperties:(NSDictionary *)systemProperties toCollection:(NSString *)collection {
     // don't do anything if event or collection are nil.
     if (!event || !collection) {
         KCLog(@"Invalid event or collection sent to addEvent.");
@@ -269,16 +273,26 @@ static ISO8601DateFormatter *dateFormatter;
         }
     }
     
-    NSDictionary *eventToWrite = nil;
-    // if there's no timestamp in the event, stamp it automatically.
-    NSDate *timestamp = [event objectForKey:@"_timestamp"];
-    if (!timestamp) {
-        eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
-        timestamp = [NSDate date];
-        [eventToWrite setValue:timestamp forKey:@"_timestamp"];
+    NSDictionary *systemPropertiesToWrite = nil;
+    NSDate *timestamp = [NSDate date];
+    
+    if (!systemProperties) {
+        systemPropertiesToWrite = [NSDictionary dictionaryWithObject:timestamp forKey:@"timestamp"];
     } else {
-        eventToWrite = event;
+        // if there's no timestamp in the system properties, stamp it automatically.
+        NSDate *providedTimestamp = [systemProperties objectForKey:@"timestamp"];
+        if (!providedTimestamp) {
+            NSMutableDictionary *mutableSystemProperties = [NSMutableDictionary dictionaryWithDictionary:systemProperties];
+            [mutableSystemProperties setValue:timestamp forKey:@"timestamp"];
+            systemPropertiesToWrite = mutableSystemProperties;
+        } else {
+            systemPropertiesToWrite = systemProperties;
+            KCLog(@"Timestamp provided: %@", providedTimestamp);
+        }
     }
+    
+    NSDictionary *eventToWrite = [NSDictionary dictionaryWithObjectsAndKeys:systemPropertiesToWrite, @"system", 
+                                  event, @"user", nil];
     
     NSError *error = nil;
     NSData *jsonData = [eventToWrite JSONDataWithOptions:JKSerializeOptionNone 

@@ -68,6 +68,20 @@
 - (BOOL)addEvent:(NSDictionary *)event toCollection:(NSString *)collection;
 
 /**
+ Call this any time you want to add an event that will eventually be sent to the keen.io server AND you
+ want to override system defaulted properties (like timestamp).
+ 
+ The event will be stored on the local file system until you decide to upload (usually this will happen
+ in your application delegate right before your app goes into the background, but it could be any time).
+ 
+ @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries or NSArrays are acceptable.
+ @param systemProperties An NSDictionary that consists of key/value pairs to override system defaulted properties. ex: "timestamp" -> NSDate
+ @param collection The collection you want to put this event into.
+ @return YES if the event was added, NO if it was not.
+ */
+- (BOOL)addEvent:(NSDictionary *)event withSystemProperties:(NSDictionary *)systemProperties toCollection:(NSString *)collection;
+
+/**
  Call this whenever you want to upload all the events captured so far.  This will spawn a low
  priority background thread and process all required HTTP requests.
  
