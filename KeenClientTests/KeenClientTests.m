@@ -134,13 +134,13 @@
     NSDictionary *deserializedDict = [data objectFromJSONData];
     // make sure timestamp was added
     STAssertNotNil(deserializedDict, @"The event should have been written to disk.");
-    STAssertNotNil([deserializedDict objectForKey:@"system"], @"The event should have a system namespace.");
-    STAssertNotNil([deserializedDict objectForKey:@"user"], @"The event should have a user namespace.");
-    STAssertNotNil([[deserializedDict objectForKey:@"system"] objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
-    NSDictionary *deserializedUserDict = [deserializedDict objectForKey:@"user"];
-    STAssertEqualObjects(@"apple", [deserializedUserDict objectForKey:@"a"], @"Value for key 'a' is wrong.");
-    STAssertEqualObjects(@"bapple", [deserializedUserDict objectForKey:@"b"], @"Value for key 'b' is wrong.");
-    STAssertEqualObjects(@"capple", [deserializedUserDict objectForKey:@"c"], @"Value for key 'c' is wrong.");
+    STAssertNotNil([deserializedDict objectForKey:@"header"], @"The event should have a header namespace.");
+    STAssertNotNil([deserializedDict objectForKey:@"body"], @"The event should have a body namespace.");
+    STAssertNotNil([[deserializedDict objectForKey:@"header"] objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
+    NSDictionary *deserializedBodyDict = [deserializedDict objectForKey:@"body"];
+    STAssertEqualObjects(@"apple", [deserializedBodyDict objectForKey:@"a"], @"Value for key 'a' is wrong.");
+    STAssertEqualObjects(@"bapple", [deserializedBodyDict objectForKey:@"b"], @"Value for key 'b' is wrong.");
+    STAssertEqualObjects(@"capple", [deserializedBodyDict objectForKey:@"c"], @"Value for key 'c' is wrong.");
     
     // dict with NSDate should work
     keys = [NSArray arrayWithObjects:@"a", @"b", @"a_date", nil];
@@ -167,7 +167,7 @@
     
     NSDate *date = [NSDate date];
     [client addEvent:[NSDictionary dictionaryWithObject:@"b" forKey:@"a"] 
-withSystemProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"] 
+withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"] 
         toCollection:@"foo"];
     
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
@@ -178,7 +178,7 @@ withSystemProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     
     NSLog(@"the dict %@", deserializedDict);
     
-    NSString *deserializedDate = [[deserializedDict objectForKey:@"system"] objectForKey:@"timestamp"];
+    NSString *deserializedDate = [[deserializedDict objectForKey:@"header"] objectForKey:@"timestamp"];
     NSString *originalDate = [client convertDate:date];
     STAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
 }

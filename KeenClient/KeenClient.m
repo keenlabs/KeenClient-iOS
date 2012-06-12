@@ -234,10 +234,10 @@ static ISO8601DateFormatter *dateFormatter;
 # pragma mark - Add events
 
 - (BOOL)addEvent:(NSDictionary *)event toCollection:(NSString *)collection {
-    return [self addEvent:event withSystemProperties:nil toCollection:collection];
+    return [self addEvent:event withHeaderProperties:nil toCollection:collection];
 }
 
-- (BOOL)addEvent:(NSDictionary *)event withSystemProperties:(NSDictionary *)systemProperties toCollection:(NSString *)collection {
+- (BOOL)addEvent:(NSDictionary *)event withHeaderProperties:(NSDictionary *)headerProperties toCollection:(NSString *)collection {
     // don't do anything if event or collection are nil.
     if (!event || !collection) {
         KCLog(@"Invalid event or collection sent to addEvent.");
@@ -273,26 +273,26 @@ static ISO8601DateFormatter *dateFormatter;
         }
     }
     
-    NSDictionary *systemPropertiesToWrite = nil;
+    NSDictionary *headerPropertiesToWrite = nil;
     NSDate *timestamp = [NSDate date];
     
-    if (!systemProperties) {
-        systemPropertiesToWrite = [NSDictionary dictionaryWithObject:timestamp forKey:@"timestamp"];
+    if (!headerProperties) {
+        headerPropertiesToWrite = [NSDictionary dictionaryWithObject:timestamp forKey:@"timestamp"];
     } else {
         // if there's no timestamp in the system properties, stamp it automatically.
-        NSDate *providedTimestamp = [systemProperties objectForKey:@"timestamp"];
+        NSDate *providedTimestamp = [headerProperties objectForKey:@"timestamp"];
         if (!providedTimestamp) {
-            NSMutableDictionary *mutableSystemProperties = [NSMutableDictionary dictionaryWithDictionary:systemProperties];
-            [mutableSystemProperties setValue:timestamp forKey:@"timestamp"];
-            systemPropertiesToWrite = mutableSystemProperties;
+            NSMutableDictionary *mutableHeaderProperties = [NSMutableDictionary dictionaryWithDictionary:headerProperties];
+            [mutableHeaderProperties setValue:timestamp forKey:@"timestamp"];
+            headerPropertiesToWrite = mutableHeaderProperties;
         } else {
-            systemPropertiesToWrite = systemProperties;
+            headerPropertiesToWrite = headerProperties;
             KCLog(@"Timestamp provided: %@", providedTimestamp);
         }
     }
     
-    NSDictionary *eventToWrite = [NSDictionary dictionaryWithObjectsAndKeys:systemPropertiesToWrite, @"system", 
-                                  event, @"user", nil];
+    NSDictionary *eventToWrite = [NSDictionary dictionaryWithObjectsAndKeys:headerPropertiesToWrite, @"header", 
+                                  event, @"body", nil];
     
     NSError *error = nil;
     NSData *jsonData = [eventToWrite JSONDataWithOptions:JKSerializeOptionNone 
