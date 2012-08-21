@@ -523,7 +523,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nzip -j \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\"";
+			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nzip -j \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\"";
 		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
