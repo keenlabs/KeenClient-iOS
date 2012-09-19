@@ -76,8 +76,11 @@
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-    [KeenClient sharedClientWithProjectId:@"4f4ed092163d663d3a000000" 
-                             andAuthToken:@"9a9d92907c3e43c3a4742535fc2f78ec"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"4f4ed092163d663d3a000000"
+                                                  andAuthToken:@"9a9d92907c3e43c3a4742535fc2f78ec"];
+    client.globalPropertiesBlock = ^NSDictionary *(NSString *eventName) {
+        return @{ @"GLOBALS": @"YEAH WHAT"};
+    };
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
