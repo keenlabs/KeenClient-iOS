@@ -510,7 +510,7 @@ static ISO8601DateFormatter *dateFormatter;
 # pragma mark - HTTP request/response management
 
 - (NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/_events", 
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
                            kKeenServerAddress, kKeenApiVersion, self.projectId];
     KCLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
