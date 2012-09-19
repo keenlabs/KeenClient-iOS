@@ -14,7 +14,6 @@
 				0111015A14EF720D009794A5 /* ShellScript */,
 			);
 			dependencies = (
-				01F7580E150089CC00AC7FB0 /* PBXTargetDependency */,
 				0111015C14EF7487009794A5 /* PBXTargetDependency */,
 				0111015E14EF7489009794A5 /* PBXTargetDependency */,
 			);
@@ -34,7 +33,6 @@
 		0111012014EF709A009794A5 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		0111012114EF709A009794A5 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
 		0111012314EF709A009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
-		0111012414EF709A009794A5 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
 		0111012614EF709A009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0111012714EF709A009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
 		0111012814EF709A009794A5 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
@@ -49,7 +47,6 @@
 		0111013814EF70AB009794A5 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		0111013914EF70AB009794A5 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
 		0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
-		0111013C14EF70AB009794A5 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
 		0111013E14EF70AB009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0111013F14EF70AB009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
 		0111014014EF70AB009794A5 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
@@ -107,13 +104,6 @@
 			remoteGlobalIDString = 017EE11D14E30C96000F3868;
 			remoteInfo = KeenClient;
 		};
-		01F7580D150089CC00AC7FB0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 017EE11D14E30C96000F3868;
-			remoteInfo = KeenClient;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -154,7 +144,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0111012314EF709A009794A5 /* Foundation.framework in Frameworks */,
-				0111012414EF709A009794A5 /* libOCMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,7 +152,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */,
-				0111013C14EF70AB009794A5 /* libOCMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,7 +448,7 @@
 		017EE11514E30C95000F3868 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0450;
 				ORGANIZATIONNAME = "Keen Labs";
 			};
 			buildConfigurationList = 017EE11814E30C95000F3868 /* Build configuration list for PBXProject "KeenClient" */;
@@ -600,11 +588,6 @@
 			target = 017EE11D14E30C96000F3868 /* KeenClient */;
 			targetProxy = 017EE13414E30C96000F3868 /* PBXContainerItemProxy */;
 		};
-		01F7580E150089CC00AC7FB0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 017EE11D14E30C96000F3868 /* KeenClient */;
-			targetProxy = 01F7580D150089CC00AC7FB0 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -622,19 +605,17 @@
 		0111013114EF709A009794A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					"$(ARCHS_STANDARD_32_BIT)",
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "KeenClient-Simulator";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphonesimulator;
@@ -645,19 +626,17 @@
 		0111013214EF709A009794A5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					"$(ARCHS_STANDARD_32_BIT)",
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "KeenClient-Simulator";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphonesimulator;
@@ -668,42 +647,40 @@
 		0111014914EF70AB009794A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					"$(ARCHS_STANDARD_32_BIT)",
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "KeenClient-Device";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphoneos;
+				VALID_ARCHS = "armv7 armv7s armv6";
 			};
 			name = Debug;
 		};
 		0111014A14EF70AB009794A5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					"$(ARCHS_STANDARD_32_BIT)",
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "KeenClient-Device";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphoneos;
+				VALID_ARCHS = "armv7 armv7s armv6";
 			};
 			name = Release;
 		};
@@ -775,11 +752,12 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_THUMB_SUPPORT = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -795,11 +773,12 @@
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
+				GCC_THUMB_SUPPORT = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -822,7 +801,7 @@
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/**";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
-				"OTHER_LDFLAGS[arch=*]" = "-all_load";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = octest;
@@ -840,7 +819,7 @@
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/**";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
-				"OTHER_LDFLAGS[arch=*]" = "-all_load";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = octest;
