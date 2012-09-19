@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+
+// defines a type for the block we'll use with our global properties
+typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
+
 /**
  KeenClient has class methods to return managed instances of itself and instance methods
  to collect new events and upload them through the keen API.
@@ -21,6 +25,9 @@
  */
 @interface KeenClient : NSObject
 
+// The global properties block for this particular project.
+@property (nonatomic, copy) KeenGlobalPropertiesBlock globalPropertiesBlock;
+
 /**
  Call this to retrieve the managed instance of KeenClient and set its project ID and auth token
  to the given parameters.
@@ -30,7 +37,7 @@
  
  @param projectId The ID of your project.
  @param authToken The authorization token for your project.
- @returns A managed instance of KeenClient, or nil if projectId or authToken are invalid.
+ @return A managed instance of KeenClient, or nil if projectId or authToken are invalid.
  */
 + (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
 
@@ -39,7 +46,7 @@
  
  If you only have to use a single Keen project, just use this.
  
- @returns A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andAuthToken:].
+ @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andAuthToken:].
  */
 + (KeenClient *)sharedClient;
 
@@ -51,9 +58,28 @@
  
  @param projectId The ID of your project.
  @param authToken The authorization token for your project.
- @returns An initialized instance of KeenClient.
+ @return An initialized instance of KeenClient.
  */
 - (id)initWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
+
+/**
+ Call this to set the global properties block for this instance of the KeenClient. The block is invoked
+ every time an event is added to an event collection.
+ 
+ Global properties are properties which are sent with EVERY event. For example, you may wish to always
+ capture device information like OS version, handset type, orientation, etc.
+ 
+ The block is invoked every time an event is added to an event collection. It takes as a parameter a single
+ NSString*, which is the name of the event collection the event's being added to. The user is responsible
+ for returning an NSDictionary* which represents the global properties for this particular event collection.
+ 
+ Note that because we use a block, you can create DYNAMIC global properties. For example, if you want to
+ capture device orientation, then your block can ask the device for its current orientation and then construct
+ the NSDictionary. If your global properties aren't dynamic, then just return the same NSDictionary every time.
+ 
+ @param block The block which is invoked any time an event is added to an event collection.
+ */
+- (void)setGlobalPropertiesBlock:(NSDictionary * (^)(NSString *eventName))block;
 
 /**
  Call this any time you want to add an event that will eventually be sent to the keen.io server.

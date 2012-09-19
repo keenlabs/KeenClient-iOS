@@ -35,6 +35,7 @@
 - (NSString *)keenDirectory;
 - (NSString *)eventDirectoryForCollection:(NSString *)collection;
 - (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection;
+- (NSDictionary *)firstEventForCollection:(NSString *)collection;
 
 @end
 
@@ -127,11 +128,7 @@
     response = [client addEvent:event toCollection:@"foo"];
     STAssertTrue(response, @"an okay event should return YES");
     // now go find the file we wrote to disk
-    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-    NSString *path = [contents objectAtIndex:0];
-    NSString *fullPath = [[self eventDirectoryForCollection:@"foo"] stringByAppendingPathComponent:path];
-    NSData *data = [NSData dataWithContentsOfFile:fullPath];
-    NSDictionary *deserializedDict = [data objectFromJSONData];
+    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
     // make sure timestamp was added
     STAssertNotNil(deserializedDict, @"The event should have been written to disk.");
     STAssertNotNil([deserializedDict objectForKey:@"header"], @"The event should have a header namespace.");
@@ -150,7 +147,7 @@
     STAssertTrue(response, @"an event with a date should return YES"); 
     
     // now there should be two files
-    contents = [self contentsOfDirectoryForCollection:@"foo"];
+    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
     STAssertTrue([contents count] == 2, @"There should be two files written.");
     
     // dict with non-serializable value should do nothing
@@ -169,12 +166,7 @@
     [client addEvent:[NSDictionary dictionaryWithObject:@"b" forKey:@"a"] 
 withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"] 
         toCollection:@"foo"];
-    
-    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-    NSString *path = [contents objectAtIndex:0];
-    NSString *fullPath = [[self eventDirectoryForCollection:@"foo"] stringByAppendingPathComponent:path];
-    NSData *data = [NSData dataWithContentsOfFile:fullPath];
-    NSDictionary *deserializedDict = [data objectFromJSONData];
+    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
     
     NSLog(@"the dict %@", deserializedDict);
     
@@ -434,6 +426,43 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     STAssertTrue([contentsAfter count] == 4, @"There should be exactly four events.");
 }
 
+- (void)testGlobalProperties {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    client.isRunningTests = YES;
+    
+    NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
+                                                                     NSUInteger expectedNumProperties) {
+        NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
+        client.globalPropertiesBlock = block;
+        NSDictionary *event = [NSDictionary dictionaryWithObject:@"bar" forKey:@"foo"];
+        [client addEvent:event toCollection:eventCollectionName];
+        NSDictionary *storedEvent = [self firstEventForCollection:eventCollectionName];
+        NSDictionary *storedBody = [storedEvent objectForKey:@"body"];
+        STAssertEqualObjects([event objectForKey:@"foo"], [storedBody objectForKey:@"foo"], @"");
+        STAssertTrue([storedBody count] == expectedNumProperties, @"");
+        return storedBody;
+    };
+    
+    // a block that returns nil should be okay
+    RunTest(nil, 1);
+    
+    // a block that returns an empty dictionary should be okay
+    RunTest(^NSDictionary *(NSString *eventName) {
+        return [NSDictionary dictionary];
+    }, 1);
+    
+    // a block that returns some non-conflicting property names should be okay
+    NSDictionary *storedBody = RunTest(^NSDictionary *(NSString *eventName) {
+        return [NSDictionary dictionaryWithObject:@"default_value" forKey:@"default_name"];
+    }, 2);
+    STAssertEqualObjects(@"default_value", [storedBody objectForKey:@"default_name"], @"");
+    
+    // a block that returns a conflicting property name should not overwrite the property on the event
+    RunTest(^NSDictionary *(NSString *eventName) {
+        return [NSDictionary dictionaryWithObject:@"some new value" forKey:@"foo"];
+    }, 1);
+}
+
 # pragma mark - test filesystem utility methods
 
 - (NSString *)cacheDirectory {
@@ -460,6 +489,15 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
                collection, [error localizedDescription]);
     }
     return contents;
+}
+
+- (NSDictionary *)firstEventForCollection:(NSString *)collection {
+    NSArray *contents = [self contentsOfDirectoryForCollection:collection];
+    NSString *path = [contents objectAtIndex:0];
+    NSString *fullPath = [[self eventDirectoryForCollection:collection] stringByAppendingPathComponent:path];
+    NSData *data = [NSData dataWithContentsOfFile:fullPath];
+    NSDictionary *deserializedDict = [data objectFromJSONData];
+    return deserializedDict;
 }
 
 @end
