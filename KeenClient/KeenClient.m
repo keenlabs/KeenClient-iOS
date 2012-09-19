@@ -562,7 +562,7 @@ static ISO8601DateFormatter *dateFormatter;
     // get a file manager.
     NSFileManager *fileManager = [NSFileManager defaultManager];
     // determine the root of the filename.
-    NSString *name = [NSString stringWithFormat:@"%d", (long) [timestamp timeIntervalSince1970]];
+    NSString *name = [NSString stringWithFormat:@"%f", [timestamp timeIntervalSince1970]];
     // get the path to the directory where the file will be written
     NSString *directory = [self eventDirectoryForCollection:collection];
     // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
