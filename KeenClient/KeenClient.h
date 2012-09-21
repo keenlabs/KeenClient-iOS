@@ -9,6 +9,15 @@
 #import <Foundation/Foundation.h>
 
 
+// defines KEEN_DEBUG and the KCLog macros
+#define KEEN_DEBUG
+
+#ifdef KEEN_DEBUG
+#define KCLog(...) NSLog(__VA_ARGS__)
+#else
+#define KCLog(...)
+#endif
+
 // defines a type for the block we'll use with our global properties
 typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
 
