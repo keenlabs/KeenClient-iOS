@@ -151,6 +151,7 @@ static ISO8601DateFormatter *dateFormatter;
 @synthesize token=_token;
 @synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
 @synthesize isRunningTests=_isRunningTests;
+@synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
 @synthesize globalPropertiesBlock=_globalPropertiesBlock;
 
 # pragma mark - Class lifecycle
@@ -208,8 +209,11 @@ static ISO8601DateFormatter *dateFormatter;
 }
 
 - (void)dealloc {
+    // nil out the properties which we've retained (which will release them)
     self.projectId = nil;
     self.token = nil;
+    self.globalPropertiesDictionary = nil;
+    // explicitly release the properties which we've copied
     [self.globalPropertiesBlock release];
     [super dealloc];
 }
@@ -247,24 +251,21 @@ static ISO8601DateFormatter *dateFormatter;
     }
     KCLog(@"Adding event to collection: %@", collection);
     
-    // deal with our global properties first by adding them to the event.
+    // create the body of the event we'll send off. first copy over all keys from the global properties
+    // dictionary, then copy over all the keys from the global properties block, then copy over all the
+    // keys from the user-defined event.
+    NSMutableDictionary *newEvent = [NSMutableDictionary dictionary];
+    if (self.globalPropertiesDictionary) {
+        [newEvent addEntriesFromDictionary:self.globalPropertiesDictionary];
+    }
     if (self.globalPropertiesBlock) {
-        KCLog(@"Calculating global properties...");
         NSDictionary *globalProperties = self.globalPropertiesBlock(collection);
         if (globalProperties) {
-            NSMutableDictionary *newEvent = [NSMutableDictionary dictionaryWithDictionary:event];
-            for (NSString *key in globalProperties) {
-                if ([newEvent objectForKey:key] == nil) {
-                    newEvent[key] = globalProperties[key];
-                }
-            }
-            event = newEvent;
-        } else {
-            KCLog(@"No global properties returned from block.");
+            [newEvent addEntriesFromDictionary:globalProperties];
         }
-    } else {
-        KCLog(@"No global properties block provided.");
     }
+    [newEvent addEntriesFromDictionary:event];
+    event = newEvent;
     
     // make sure the directory we want to write the file to exists
     NSString *dirPath = [self eventDirectoryForCollection:collection];

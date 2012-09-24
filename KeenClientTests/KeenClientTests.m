@@ -426,7 +426,39 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     STAssertTrue([contentsAfter count] == 4, @"There should be exactly four events.");
 }
 
-- (void)testGlobalProperties {
+- (void)testGlobalPropertiesDictionary {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    client.isRunningTests = YES;
+    
+    NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
+                                                             NSUInteger expectedNumProperties) {
+        NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
+        client.globalPropertiesDictionary = globalProperties;
+        NSDictionary *event = [NSDictionary dictionaryWithObject:@"bar" forKey:@"foo"];
+        [client addEvent:event toCollection:eventCollectionName];
+        NSDictionary *storedEvent = [self firstEventForCollection:eventCollectionName];
+        NSDictionary *storedBody = [storedEvent objectForKey:@"body"];
+        STAssertEqualObjects([event objectForKey:@"foo"], [storedBody objectForKey:@"foo"], @"");
+        STAssertTrue([storedBody count] == expectedNumProperties, @"");
+        return storedBody;
+    };
+    
+    // a nil dictionary should be okay
+    RunTest(nil, 1);
+    
+    // an empty dictionary should be okay
+    RunTest(@{}, 1);
+    
+    // a dictionary that returns some non-conflicting property names should be okay
+    NSDictionary *storedBody = RunTest(@{@"default_name": @"default_value"}, 2);
+    STAssertEqualObjects(@"default_value", [storedBody objectForKey:@"default_name"], @"");
+    
+    // a dictionary that returns a conflicting property name should not overwrite the property on
+    // the event
+    RunTest(@{@"foo": @"some_new_value"}, 1);
+}
+
+- (void)testGlobalPropertiesBlock {
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
     client.isRunningTests = YES;
     
@@ -461,6 +493,24 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     RunTest(^NSDictionary *(NSString *eventName) {
         return [NSDictionary dictionaryWithObject:@"some new value" forKey:@"foo"];
     }, 1);
+}
+
+- (void)testGlobalPropertiesTogether {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    client.isRunningTests = YES;
+    
+    // properties from the block should take precedence over properties from the dictionary
+    // but properties from the event itself should take precedence over all
+    client.globalPropertiesDictionary = @{@"default_property": @5, @"foo": @"some_new_value"};
+    client.globalPropertiesBlock = ^NSDictionary *(NSString *eventName) {
+        return @{ @"default_property": @6, @"foo": @"some_other_value"};
+    };
+    [client addEvent:@{@"foo": @"bar"} toCollection:@"apples"];
+    NSDictionary *storedEvent = [self firstEventForCollection:@"apples"];
+    NSDictionary *storedBody = [storedEvent objectForKey:@"body"];
+    STAssertEqualObjects(@"bar", [storedBody objectForKey:@"foo"], @"");
+    STAssertEqualObjects(@6, [storedBody objectForKey:@"default_property"], @"");
+    STAssertTrue([storedBody count] == 2, @"");
 }
 
 # pragma mark - test filesystem utility methods
