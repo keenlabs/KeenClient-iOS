@@ -48,7 +48,7 @@
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"first view", @"view_name", 
                            @"going to", @"action", nil];
-    [[KeenClient sharedClient] addEvent:event toCollection:@"tab_views"];
+    [[KeenClient sharedClient] addEvent:event toEventCollection:@"tab_views" error:nil];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -62,7 +62,7 @@
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"first view", @"view_name", 
                            @"leaving from", @"action", nil];
-    [[KeenClient sharedClient] addEvent:event toCollection:@"tab_views"];
+    [[KeenClient sharedClient] addEvent:event toEventCollection:@"tab_views" error:nil];
 }
 
 - (void)viewDidDisappear:(BOOL)animated

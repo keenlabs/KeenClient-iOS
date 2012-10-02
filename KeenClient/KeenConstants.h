@@ -22,3 +22,5 @@ extern NSString * const kKeenInvalidPropertyValueError;
 
 extern NSUInteger const kKeenMaxEventsPerCollection;
 extern NSUInteger const kKeenNumberEventsToForget;
+
+extern NSString * const kKeenErrorDomain;

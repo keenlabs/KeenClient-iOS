@@ -8,7 +8,8 @@
 
 #import "KeenConstants.h"
 
-NSString * const kKeenServerAddress = @"https://api.keen.io";
+//NSString * const kKeenServerAddress = @"https://api.keen.io";
+NSString * const kKeenServerAddress = @"http://localhost:8888";
 NSString * const kKeenApiVersion = @"3.0";
 
 // Keen API constants
@@ -28,3 +29,6 @@ NSString * const kKeenInvalidPropertyValueError = @"InvalidPropertyValueError";
 NSUInteger const kKeenMaxEventsPerCollection = 10000;
 // how many events to drop when aging out
 NSUInteger const kKeenNumberEventsToForget = 100;
+
+// custom domain for NSErrors
+NSString * const kKeenErrorDomain = @"io.keen";

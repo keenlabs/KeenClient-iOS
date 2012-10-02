@@ -25,11 +25,14 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
  KeenClient has class methods to return managed instances of itself and instance methods
  to collect new events and upload them through the keen API.
  
+ IMPORTANT NOTE: Please remember to add the value "-ObjC" to the "Other Linker Flags" section of your build target.
+ Without doing this, your code will compile but will fail at runtime.
+ 
  Example usage:
  
-    [KeenClient sharedClientWithProjectId:@"my_id" andAuthToken:@"my_token"];
+    [KeenClient sharedClientWithProjectId:@"my_id" andApiKey:@"my_token"];
     NSDictionary *myEvent = [NSDictionary dictionary];
-    [[KeenClient sharedClient] addEvent:myEvent toCollection:@"purchases"];
+    [[KeenClient sharedClient] addEvent:myEvent toEventCollection:@"purchases"];
     [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
  */
 @interface KeenClient : NSObject
@@ -96,38 +99,38 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
 @property (nonatomic, copy) KeenGlobalPropertiesBlock globalPropertiesBlock;
 
 /**
- Call this to retrieve the managed instance of KeenClient and set its project ID and auth token
+ Call this to retrieve the managed instance of KeenClient and set its project ID and API key
  to the given parameters.
  
  You'll generally want to call this the first time you ask for the shared client.  Once you've called
  this, you can simply call [KeenClient sharedClient] afterwards.
  
  @param projectId The ID of your project.
- @param authToken The authorization token for your project.
- @return A managed instance of KeenClient, or nil if projectId or authToken are invalid.
+ @param apiKey The authorization token for your project.
+ @return A managed instance of KeenClient, or nil if projectId or apiKey are invalid.
  */
-+ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
++ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey;
 
 /**
  Call this to retrieve the managed instance of KeenClient.
  
  If you only have to use a single Keen project, just use this.
  
- @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andAuthToken:].
+ @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andApiKey:].
  */
 + (KeenClient *)sharedClient;
 
 /**
- Call this if your code needs to use more than one Keen project and auth token.  By convention, if you
+ Call this if your code needs to use more than one Keen project and API key.  By convention, if you
  call this, you're responsible for releasing the returned instance once you're finished with it.
  
  Otherwise, just use [KeenClient sharedClient].
  
  @param projectId The ID of your project.
- @param authToken The authorization token for your project.
+ @param apiKey The authorization token for your project.
  @return An initialized instance of KeenClient.
  */
-- (id)initWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
+- (id)initWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey;
 
 /**
  Call this to set the global properties block for this instance of the KeenClient. The block is invoked
@@ -155,24 +158,24 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
  in your application delegate right before your app goes into the background, but it could be any time).
  
  @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries or NSArrays are acceptable.
- @param collection The collection you want to put this event into.
- @return YES if the event was added, NO if it was not.
+ @param collection The name of the collection you want to put this event into.
+ @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't added.
  */
-- (BOOL)addEvent:(NSDictionary *)event toCollection:(NSString *)collection;
+- (void)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **)anError;
 
 /**
  Call this any time you want to add an event that will eventually be sent to the keen.io server AND you
- want to override defaulte properties (like timestamp).
+ want to override keen-default properties (like timestamp).
  
  The event will be stored on the local file system until you decide to upload (usually this will happen
  in your application delegate right before your app goes into the background, but it could be any time).
  
  @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries or NSArrays are acceptable.
- @param headerProperties An NSDictionary that consists of key/value pairs to override defaulte properties. ex: "timestamp" -> NSDate
- @param collection The collection you want to put this event into.
- @return YES if the event was added, NO if it was not.
+ @param keenProperties An NSDictionary that consists of key/value pairs to override defaulte properties. ex: "timestamp" -> NSDate
+ @param eventCollection The name of the event collection you want to put this event into.
+ @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't added.
  */
-- (BOOL)addEvent:(NSDictionary *)event withHeaderProperties:(NSDictionary *)headerProperties toCollection:(NSString *)collection;
+- (void)addEvent:(NSDictionary *)event withKeenProperties:(NSDictionary *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **)anError;
 
 /**
  Call this whenever you want to upload all the events captured so far.  This will spawn a low

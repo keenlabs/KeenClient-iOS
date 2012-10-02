@@ -36,7 +36,7 @@ static ISO8601DateFormatter *dateFormatter;
 @property (nonatomic) Boolean isRunningTests;
 
 /**
- Initializes KeenClient without setting its project ID or auth token.
+ Initializes KeenClient without setting its project ID or API key.
  @returns An instance of KeenClient.
  */
 - (id)init;
@@ -44,10 +44,10 @@ static ISO8601DateFormatter *dateFormatter;
 /**
  Validates that the given project ID and authorization token are valid.
  @param projectId The Keen project ID.
- @param authToken The Keen auth token.
- @returns YES if project ID and auth token are valid, NO otherwise.
+ @param apiKey The Keen API key.
+ @returns YES if project ID and API key are valid, NO otherwise.
  */
-+ (BOOL)validateProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken;
++ (BOOL)validateProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey;
 
 /**
  Returns the path to the app's library/cache directory.
@@ -142,6 +142,11 @@ static ISO8601DateFormatter *dateFormatter;
  @returns An ISO-8601 compatible string representation of the date parameter.
  */
 - (id)convertDate:(id)date;
+
+/**
+ Fills the error object with the given message appropriately.
+ */
+- (void) handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage;
     
 @end
 
@@ -185,24 +190,24 @@ static ISO8601DateFormatter *dateFormatter;
     return self;
 }
 
-+ (BOOL)validateProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
-    // validate that project id and auth token are acceptable
-    if (!projectId || !authToken || [projectId length] == 0 || [authToken length] == 0) {
++ (BOOL)validateProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey {
+    // validate that project id and API key are acceptable
+    if (!projectId || !apiKey || [projectId length] == 0 || [apiKey length] == 0) {
         return NO;
     }
     return YES;
 }
 
-- (id)initWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
-    if (![KeenClient validateProjectId:projectId andAuthToken:authToken]) {
+- (id)initWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey {
+    if (![KeenClient validateProjectId:projectId andApiKey:apiKey]) {
         return nil;
     }
     
     self = [super init];
     if (self) {
-        KCLog(@"Called init on KeenClient for token: %@", authToken);
+        KCLog(@"Called init on KeenClient for token: %@", apiKey);
         self.projectId = projectId;
-        self.token = authToken;
+        self.token = apiKey;
     }
     
     return self;
@@ -220,17 +225,17 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - Get a shared client
 
-+ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andAuthToken:(NSString *)authToken {
-    if (![KeenClient validateProjectId:projectId andAuthToken:authToken]) {
++ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey {
+    if (![KeenClient validateProjectId:projectId andApiKey:apiKey]) {
         return nil;
     }
     sharedClient.projectId = projectId;
-    sharedClient.token = authToken;
+    sharedClient.token = apiKey;
     return sharedClient;
 }
 
 + (KeenClient *)sharedClient {
-    if (![KeenClient validateProjectId:sharedClient.projectId andAuthToken:sharedClient.token]) {
+    if (![KeenClient validateProjectId:sharedClient.projectId andApiKey:sharedClient.token]) {
         KCLog(@"sharedClient requested before registering project ID and authorization token!");
         return nil;
     }
@@ -239,17 +244,51 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - Add events
 
-- (BOOL)addEvent:(NSDictionary *)event toCollection:(NSString *)collection {
-    return [self addEvent:event withHeaderProperties:nil toCollection:collection];
+- (void)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+    [self addEvent:event withKeenProperties:nil toEventCollection:eventCollection error:anError];
 }
 
-- (BOOL)addEvent:(NSDictionary *)event withHeaderProperties:(NSDictionary *)headerProperties toCollection:(NSString *)collection {
-    // don't do anything if event or collection are nil.
-    if (!event || !collection) {
-        KCLog(@"Invalid event or collection sent to addEvent.");
-        return NO;
+- (void)addEvent:(NSDictionary *)event withKeenProperties:(NSDictionary *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+    // don't do anything if the event itself or the event collection name are invalid somehow.
+    NSString *errorMessage = nil;
+    if (!event || !eventCollection) {
+        errorMessage = @"Invalid event or collection sent to addEvent.";
+        [self handleError:anError withErrorMessage:errorMessage];
+        return;
     }
-    KCLog(@"Adding event to collection: %@", collection);
+    if ([eventCollection rangeOfString:@"$"].location == 0) {
+        errorMessage = @"An event collection name cannot start with the dollar sign ($) character.";
+        [self handleError:anError withErrorMessage:errorMessage];
+        return;
+    }
+    if ([eventCollection length] > 256) {
+        errorMessage = @"An event collection name cannot be longer than 256 characters.";
+        [self handleError:anError withErrorMessage:errorMessage];
+        return;
+    }
+    if (event[@"keen"] != nil) {
+        errorMessage = @"An event cannot contain a root-level property named 'keen'.";
+        [self handleError:anError withErrorMessage:errorMessage];
+        return;
+    }
+    for (NSString *key in event) {
+        if ([key rangeOfString:@"."].location != NSNotFound) {
+            errorMessage = @"An event cannot contain a property with the period (.) character in it.";
+            [self handleError:anError withErrorMessage:errorMessage];
+            return;
+        }
+        if ([key rangeOfString:@"$"].location == 0) {
+            errorMessage = @"An event cannot contain a property that starts with the dollar sign ($) character in it.";
+            [self handleError:anError withErrorMessage:errorMessage];
+            return;
+        }
+        if ([key length] > 256) {
+            errorMessage = @"An event cannot contain a property longer than 256 characters";
+            [self handleError:anError withErrorMessage:errorMessage];
+            return;
+        }
+    }
+    KCLog(@"Adding event to collection: %@", eventCollection);
     
     // create the body of the event we'll send off. first copy over all keys from the global properties
     // dictionary, then copy over all the keys from the global properties block, then copy over all the
@@ -259,7 +298,7 @@ static ISO8601DateFormatter *dateFormatter;
         [newEvent addEntriesFromDictionary:self.globalPropertiesDictionary];
     }
     if (self.globalPropertiesBlock) {
-        NSDictionary *globalProperties = self.globalPropertiesBlock(collection);
+        NSDictionary *globalProperties = self.globalPropertiesBlock(eventCollection);
         if (globalProperties) {
             [newEvent addEntriesFromDictionary:globalProperties];
         }
@@ -268,18 +307,17 @@ static ISO8601DateFormatter *dateFormatter;
     event = newEvent;
     
     // make sure the directory we want to write the file to exists
-    NSString *dirPath = [self eventDirectoryForCollection:collection];
+    NSString *dirPath = [self eventDirectoryForCollection:eventCollection];
     // if the directory doesn't exist, create it.
     Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
     if (!success) {
-        KCLog(@"Couldn't create directory at path %@", dirPath);
-        return NO;
+        [NSException raise:@"CouldNotCreateDirectory" format:@"Couldn't access local directory at %@, check your logs.", dirPath];
     }
     // now make sure that we haven't hit the max number of events in this collection already
     NSArray *eventsArray = [self contentsAtPath:dirPath];
     if ([eventsArray count] >= self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
-        KCLog(@"Too many events in cache for %@, aging out old data.", collection);
+        KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
         KCLog(@"Count: %d and Max: %d", [eventsArray count], self.maxEventsPerCollection);
         
         NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
@@ -295,26 +333,26 @@ static ISO8601DateFormatter *dateFormatter;
         }
     }
     
-    NSDictionary *headerPropertiesToWrite = nil;
+    NSDictionary *keenPropertiesToWrite = nil;
     NSDate *timestamp = [NSDate date];
     
-    if (!headerProperties) {
-        headerPropertiesToWrite = [NSDictionary dictionaryWithObject:timestamp forKey:@"timestamp"];
+    if (!keenProperties) {
+        keenPropertiesToWrite = [NSDictionary dictionaryWithObject:timestamp forKey:@"timestamp"];
     } else {
-        // if there's no timestamp in the system properties, stamp it automatically.
-        NSDate *providedTimestamp = [headerProperties objectForKey:@"timestamp"];
+        // if there's no timestamp in the keen properties, stamp it automatically.
+        NSDate *providedTimestamp = [keenProperties objectForKey:@"timestamp"];
         if (!providedTimestamp) {
-            NSMutableDictionary *mutableHeaderProperties = [NSMutableDictionary dictionaryWithDictionary:headerProperties];
-            [mutableHeaderProperties setValue:timestamp forKey:@"timestamp"];
-            headerPropertiesToWrite = mutableHeaderProperties;
+            NSMutableDictionary *mutableKeenProperties = [NSMutableDictionary dictionaryWithDictionary:keenProperties];
+            [mutableKeenProperties setValue:timestamp forKey:@"timestamp"];
+            keenPropertiesToWrite = mutableKeenProperties;
         } else {
-            headerPropertiesToWrite = headerProperties;
+            keenPropertiesToWrite = keenProperties;
             KCLog(@"Timestamp provided: %@", providedTimestamp);
         }
     }
     
-    NSDictionary *eventToWrite = [NSDictionary dictionaryWithObjectsAndKeys:headerPropertiesToWrite, @"header", 
-                                  event, @"body", nil];
+    NSMutableDictionary *eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
+    eventToWrite[@"keen"] = keenPropertiesToWrite;
     
     NSError *error = nil;
     NSData *jsonData = [eventToWrite JSONDataWithOptions:JKSerializeOptionNone 
@@ -322,15 +360,16 @@ static ISO8601DateFormatter *dateFormatter;
                                                 selector:@selector(convertDate:) 
                                                    error:&error];
     if (error) {
-        KCLog(@"An error occurred when serializing event to JSON: %@", [error localizedDescription]);
-        return NO;
+        [self handleError:anError
+         withErrorMessage:[NSString stringWithFormat:@"An error occurred when serializing event to JSON: %@", [error localizedDescription]]];
+        return;
     }
     
     // now figure out the correct filename.
-    NSString *fileName = [self pathForEventInCollection:collection WithTimestamp:timestamp];
+    NSString *fileName = [self pathForEventInCollection:eventCollection WithTimestamp:timestamp];
     
     // write JSON to file system
-    return [self writeNSData:jsonData toFile:fileName];
+    [self writeNSData:jsonData toFile:fileName];
 }
 
 # pragma mark - Uploading
@@ -634,6 +673,13 @@ static ISO8601DateFormatter *dateFormatter;
         KCLog(@"Successfully wrote event to file: %@", file);
     }
     return YES;
+}
+
+- (void) handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {
+    if (error != NULL) {
+        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errorMessage};
+        *error = [NSError errorWithDomain:kKeenErrorDomain code:1 userInfo:userInfo];
+    }
 }
                     
 # pragma mark - NSDate => NSString

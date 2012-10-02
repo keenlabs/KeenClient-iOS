@@ -67,38 +67,38 @@
 }
 
 - (void)testInitWithProjectIdAndAuthToken{
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"something" andAuthToken:@"anything"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"something" andApiKey:@"anything"];
     STAssertEqualObjects(@"something", client.projectId, @"init with a valid project ID should work");
     STAssertEqualObjects(@"anything", client.token, @"init with a valid token should work");
     
-    KeenClient *client2 = [[KeenClient alloc] initWithProjectId:@"another" andAuthToken:@"again"];
+    KeenClient *client2 = [[KeenClient alloc] initWithProjectId:@"another" andApiKey:@"again"];
     STAssertTrue(client != client2, @"Another init should return a separate instance");
     
     [client release];
     [client2 release];
     
-    client = [[KeenClient alloc] initWithProjectId:nil andAuthToken:@"valid"];
+    client = [[KeenClient alloc] initWithProjectId:nil andApiKey:@"valid"];
     STAssertNil(client, @"init with a nil project ID should return nil");
     
-    client = [[KeenClient alloc] initWithProjectId:@"valid" andAuthToken:nil];
-    STAssertNil(client, @"init with a nil auth token should return nil");
+    client = [[KeenClient alloc] initWithProjectId:@"valid" andApiKey:nil];
+    STAssertNil(client, @"init with a nil API key should return nil");
 }
 
 - (void)testSharedClientWithProjectIdAndAuthToken{
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     STAssertEquals(@"id", client.projectId, 
                    @"sharedClientWithProjectIdAndAuthToken with a non-nil project ID should work.");
     STAssertEquals(@"auth", client.token, 
                    @"sharedClientWithProjectIdAndAuthToken with a non-nil token should work");
     
-    KeenClient *client2 = [KeenClient sharedClientWithProjectId:@"other" andAuthToken:@"another"];
+    KeenClient *client2 = [KeenClient sharedClientWithProjectId:@"other" andApiKey:@"another"];
     STAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
     
-    client = [KeenClient sharedClientWithProjectId:nil andAuthToken:@"valid"];
+    client = [KeenClient sharedClientWithProjectId:nil andApiKey:@"valid"];
     STAssertNil(client, @"sharedClient with an invalid project ID should return nil");
     
-    client = [KeenClient sharedClientWithProjectId:@"valid" andAuthToken:nil];
-    STAssertNil(client, @"sharedClient with an invalid auth token should return nil");
+    client = [KeenClient sharedClientWithProjectId:@"valid" andApiKey:nil];
+    STAssertNil(client, @"sharedClient with an invalid API key should return nil");
 }
 
 - (void)testSharedClient {
@@ -111,66 +111,62 @@
 }
 
 - (void)testAddEvent {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     
     // nil dict should should do nothing
-    Boolean response = [client addEvent:nil toCollection:@"foo"];
-    STAssertFalse(response, @"nil dict should return NO");
+    NSError *error = nil;
+    [client addEvent:nil toEventCollection:@"foo" error:&error];
+    STAssertNotNil(error, @"nil dict should return NO");
+    error = nil;
     
     // nil collection should do nothing
-    response = [client addEvent:[NSDictionary dictionary] toCollection:nil];
-    STAssertFalse(response, @"nil collection should return NO");
+    [client addEvent:[NSDictionary dictionary] toEventCollection:nil error:&error];
+    STAssertNotNil(error, @"nil collection should return NO");
+    error = nil;
     
     // basic dict should work
     NSArray *keys = [NSArray arrayWithObjects:@"a", @"b", @"c", nil];
     NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", @"capple", nil];
     NSDictionary *event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
-    response = [client addEvent:event toCollection:@"foo"];
-    STAssertTrue(response, @"an okay event should return YES");
+    [client addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertNil(error, @"an okay event should return YES");
+    error = nil;
     // now go find the file we wrote to disk
     NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
     // make sure timestamp was added
     STAssertNotNil(deserializedDict, @"The event should have been written to disk.");
-    STAssertNotNil([deserializedDict objectForKey:@"header"], @"The event should have a header namespace.");
-    STAssertNotNil([deserializedDict objectForKey:@"body"], @"The event should have a body namespace.");
-    STAssertNotNil([[deserializedDict objectForKey:@"header"] objectForKey:@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
-    NSDictionary *deserializedBodyDict = [deserializedDict objectForKey:@"body"];
-    STAssertEqualObjects(@"apple", [deserializedBodyDict objectForKey:@"a"], @"Value for key 'a' is wrong.");
-    STAssertEqualObjects(@"bapple", [deserializedBodyDict objectForKey:@"b"], @"Value for key 'b' is wrong.");
-    STAssertEqualObjects(@"capple", [deserializedBodyDict objectForKey:@"c"], @"Value for key 'c' is wrong.");
+    STAssertNotNil(deserializedDict[@"keen"], @"The event should have a keen namespace.");
+    STAssertNotNil(deserializedDict[@"keen"][@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
+    STAssertEqualObjects(@"apple", deserializedDict[@"a"], @"Value for key 'a' is wrong.");
+    STAssertEqualObjects(@"bapple", deserializedDict[@"b"], @"Value for key 'b' is wrong.");
+    STAssertEqualObjects(@"capple", deserializedDict[@"c"], @"Value for key 'c' is wrong.");
     
     // dict with NSDate should work
-    keys = [NSArray arrayWithObjects:@"a", @"b", @"a_date", nil];
-    values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSDate date], nil];
-    event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
-    response = [client addEvent:event toCollection:@"foo"];
-    STAssertTrue(response, @"an event with a date should return YES"); 
-    
+    event = @{@"a": @"apple", @"b": @"bapple", @"a_date": [NSDate date]};
+    [client addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertNil(error, @"an event with a date should return YES");
+    error = nil;
     // now there should be two files
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
     STAssertTrue([contents count] == 2, @"There should be two files written.");
     
     // dict with non-serializable value should do nothing
-    keys = [NSArray arrayWithObjects:@"a", @"b", @"bad_key", nil];
     NSError *badValue = [[NSError alloc] init];
-    values = [NSArray arrayWithObjects:@"apple", @"bapple", badValue, nil];
-    event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
-    response = [client addEvent:event toCollection:@"foo"];
-    STAssertFalse(response, @"an event that can't be serialized should return NO");
+    event = @{@"a": @"apple", @"b": @"bapple", @"bad_key": badValue};
+    [client addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertNotNil(error, @"an event that can't be serialized should return NO");
+    error = nil;
 }
 
 - (void)testEventWithTimestamp {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     
     NSDate *date = [NSDate date];
-    [client addEvent:[NSDictionary dictionaryWithObject:@"b" forKey:@"a"] 
-withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"] 
-        toCollection:@"foo"];
+    [client addEvent:@{@"a": @"b"} withKeenProperties:@{@"timestamp": date}
+   toEventCollection:@"foo" error:nil];
     NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
-    
-    NSLog(@"the dict %@", deserializedDict);
-    
-    NSString *deserializedDate = [[deserializedDict objectForKey:@"header"] objectForKey:@"timestamp"];
+        
+    NSString *deserializedDate = deserializedDict[@"keen"][@"timestamp"];
     NSString *originalDate = [client convertDate:date];
     STAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
 }
@@ -204,7 +200,7 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     }
     
     // set up the partial mock
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -225,7 +221,7 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
 
 - (void)addSimpleEventAndUploadWithMock:(id)mock {
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
     
     // and "upload" it
     [mock uploadWithFinishedBlock:nil];
@@ -296,8 +292,8 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     id mock = [self uploadTestHelperWithData:result andStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
     
     // and "upload" it
     [mock uploadWithFinishedBlock:nil];
@@ -320,8 +316,8 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     id mock = [self uploadTestHelperWithData:result andStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
     
     // and "upload" it
     [mock uploadWithFinishedBlock:nil];
@@ -345,8 +341,8 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     id mock = [self uploadTestHelperWithData:result andStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toCollection:@"foo"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
     
     // and "upload" it
     [mock uploadWithFinishedBlock:nil];
@@ -369,8 +365,8 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     id mock = [self uploadTestHelperWithData:result andStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
     
     // and "upload" it
     [mock uploadWithFinishedBlock:nil];
@@ -395,8 +391,8 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     id mock = [self uploadTestHelperWithData:result andStatusCode:200];
     
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toCollection:@"foo"];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toCollection:@"bar"];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
     
     // and "upload" it
     [mock uploadWithFinishedBlock:nil];
@@ -409,38 +405,37 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
 }
 
 - (void)testTooManyEventsCached {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     client.isRunningTests = YES;
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
     // create 5 events
     for (int i=0; i<5; i++) {
-        [client addEvent:event toCollection:@"something"];
+        [client addEvent:event toEventCollection:@"something" error:nil];
     }
     // should be 5 events now
     NSArray *contentsBefore = [self contentsOfDirectoryForCollection:@"something"];
     STAssertTrue([contentsBefore count] == 5, @"There should be exactly five events.");
     // now do one more, should age out 2 old ones
-    [client addEvent:event toCollection:@"something"];
+    [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
     NSArray *contentsAfter = [self contentsOfDirectoryForCollection:@"something"];
     STAssertTrue([contentsAfter count] == 4, @"There should be exactly four events.");
 }
 
 - (void)testGlobalPropertiesDictionary {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     client.isRunningTests = YES;
     
     NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
                                                              NSUInteger expectedNumProperties) {
         NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
         client.globalPropertiesDictionary = globalProperties;
-        NSDictionary *event = [NSDictionary dictionaryWithObject:@"bar" forKey:@"foo"];
-        [client addEvent:event toCollection:eventCollectionName];
+        NSDictionary *event = @{@"foo": @"bar"};
+        [client addEvent:event toEventCollection:eventCollectionName error:nil];
         NSDictionary *storedEvent = [self firstEventForCollection:eventCollectionName];
-        NSDictionary *storedBody = [storedEvent objectForKey:@"body"];
-        STAssertEqualObjects([event objectForKey:@"foo"], [storedBody objectForKey:@"foo"], @"");
-        STAssertTrue([storedBody count] == expectedNumProperties, @"");
-        return storedBody;
+        STAssertEqualObjects(event[@"foo"], storedEvent[@"foo"], @"");
+        STAssertTrue([storedEvent count] == expectedNumProperties + 1, @"");
+        return storedEvent;
     };
     
     // a nil dictionary should be okay
@@ -450,8 +445,8 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
     RunTest(@{}, 1);
     
     // a dictionary that returns some non-conflicting property names should be okay
-    NSDictionary *storedBody = RunTest(@{@"default_name": @"default_value"}, 2);
-    STAssertEqualObjects(@"default_value", [storedBody objectForKey:@"default_name"], @"");
+    NSDictionary *storedEvent = RunTest(@{@"default_name": @"default_value"}, 2);
+    STAssertEqualObjects(@"default_value", storedEvent[@"default_name"], @"");
     
     // a dictionary that returns a conflicting property name should not overwrite the property on
     // the event
@@ -459,58 +454,76 @@ withHeaderProperties:[NSDictionary dictionaryWithObject:date forKey:@"timestamp"
 }
 
 - (void)testGlobalPropertiesBlock {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     client.isRunningTests = YES;
     
     NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
-                                                                     NSUInteger expectedNumProperties) {
+                                                                         NSUInteger expectedNumProperties) {
         NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
         client.globalPropertiesBlock = block;
-        NSDictionary *event = [NSDictionary dictionaryWithObject:@"bar" forKey:@"foo"];
-        [client addEvent:event toCollection:eventCollectionName];
+        NSDictionary *event = @{@"foo": @"bar"};
+        [client addEvent:event toEventCollection:eventCollectionName error:nil];
         NSDictionary *storedEvent = [self firstEventForCollection:eventCollectionName];
-        NSDictionary *storedBody = [storedEvent objectForKey:@"body"];
-        STAssertEqualObjects([event objectForKey:@"foo"], [storedBody objectForKey:@"foo"], @"");
-        STAssertTrue([storedBody count] == expectedNumProperties, @"");
-        return storedBody;
+        STAssertEqualObjects(event[@"foo"], storedEvent[@"foo"], @"");
+        STAssertTrue([storedEvent count] == expectedNumProperties + 1, @"");
+        return storedEvent;
     };
     
     // a block that returns nil should be okay
     RunTest(nil, 1);
     
     // a block that returns an empty dictionary should be okay
-    RunTest(^NSDictionary *(NSString *eventName) {
+    RunTest(^NSDictionary *(NSString *eventCollection) {
         return [NSDictionary dictionary];
     }, 1);
     
     // a block that returns some non-conflicting property names should be okay
-    NSDictionary *storedBody = RunTest(^NSDictionary *(NSString *eventName) {
-        return [NSDictionary dictionaryWithObject:@"default_value" forKey:@"default_name"];
+    NSDictionary *storedEvent = RunTest(^NSDictionary *(NSString *eventCollection) {
+        return @{@"default_name": @"default_value"};
     }, 2);
-    STAssertEqualObjects(@"default_value", [storedBody objectForKey:@"default_name"], @"");
+    STAssertEqualObjects(@"default_value", storedEvent[@"default_name"], @"");
     
     // a block that returns a conflicting property name should not overwrite the property on the event
-    RunTest(^NSDictionary *(NSString *eventName) {
-        return [NSDictionary dictionaryWithObject:@"some new value" forKey:@"foo"];
+    RunTest(^NSDictionary *(NSString *eventCollection) {
+        return @{@"foo": @"some new value"};
     }, 1);
 }
 
 - (void)testGlobalPropertiesTogether {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andAuthToken:@"auth"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     client.isRunningTests = YES;
     
     // properties from the block should take precedence over properties from the dictionary
     // but properties from the event itself should take precedence over all
     client.globalPropertiesDictionary = @{@"default_property": @5, @"foo": @"some_new_value"};
-    client.globalPropertiesBlock = ^NSDictionary *(NSString *eventName) {
+    client.globalPropertiesBlock = ^NSDictionary *(NSString *eventCollection) {
         return @{ @"default_property": @6, @"foo": @"some_other_value"};
     };
-    [client addEvent:@{@"foo": @"bar"} toCollection:@"apples"];
+    [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
     NSDictionary *storedEvent = [self firstEventForCollection:@"apples"];
-    NSDictionary *storedBody = [storedEvent objectForKey:@"body"];
-    STAssertEqualObjects(@"bar", [storedBody objectForKey:@"foo"], @"");
-    STAssertEqualObjects(@6, [storedBody objectForKey:@"default_property"], @"");
-    STAssertTrue([storedBody count] == 2, @"");
+    STAssertEqualObjects(@"bar", storedEvent[@"foo"], @"");
+    STAssertEqualObjects(@6, storedEvent[@"default_property"], @"");
+    STAssertTrue([storedEvent count] == 3, @"");
+}
+
+- (void)testInvalidEventCollection {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
+    client.isRunningTests = YES;
+    
+    NSDictionary *event = @{@"a": @"b"};
+    // collection can't start with $
+    NSError *error = nil;
+    [client addEvent:event toEventCollection:@"$asd" error:&error];
+    STAssertNotNil(error, @"collection can't start with $");
+    error = nil;
+    
+    // collection can't be over 256 chars
+    NSMutableString *longString = [NSMutableString stringWithCapacity:257];
+    for (int i=0; i<257; i++) {
+        [longString appendString:@"a"];
+    }
+    [client addEvent:event toEventCollection:@"$asd" error:&error];
+    STAssertNotNil(error, @"collection can't be longer than 256 chars");
 }
 
 # pragma mark - test filesystem utility methods
