@@ -19,7 +19,7 @@
 #endif
 
 // defines a type for the block we'll use with our global properties
-typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
+typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
 /**
  KeenClient has class methods to return managed instances of itself and instance methods
@@ -85,10 +85,10 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
  Example usage:
  
     KeenClient *client = [KeenClient sharedClient];
-    client.globalPropertiesBlock = ^NSDictionary *(NSString *eventName) {
-        if ([eventName isEqualToString:@"apples"]) {
+    client.globalPropertiesBlock = ^NSDictionary *(NSString *eventCollection) {
+        if ([eventCollection isEqualToString:@"apples"]) {
             return @{ @"color": @"red" };
-        } else if ([eventName isEqualToString:@"pears"]) {
+        } else if ([eventCollection isEqualToString:@"pears"]) {
             return @{ @"color": @"green" };
         } else {
             return nil;
@@ -149,7 +149,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
  
  @param block The block which is invoked any time an event is added to an event collection.
  */
-- (void)setGlobalPropertiesBlock:(NSDictionary * (^)(NSString *eventName))block;
+- (void)setGlobalPropertiesBlock:(NSDictionary * (^)(NSString *eventCollection))block;
 
 /**
  Call this any time you want to add an event that will eventually be sent to the keen.io server.
@@ -158,7 +158,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventName);
  in your application delegate right before your app goes into the background, but it could be any time).
  
  @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries or NSArrays are acceptable.
- @param collection The name of the collection you want to put this event into.
+ @param eventCollection The name of the collection you want to put this event into.
  @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't added.
  */
 - (void)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **)anError;
