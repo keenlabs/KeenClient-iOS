@@ -8,8 +8,7 @@
 
 #import "KeenConstants.h"
 
-//NSString * const kKeenServerAddress = @"https://api.keen.io";
-NSString * const kKeenServerAddress = @"http://localhost:8888";
+NSString * const kKeenServerAddress = @"https://api.keen.io";
 NSString * const kKeenApiVersion = @"3.0";
 
 // Keen API constants
