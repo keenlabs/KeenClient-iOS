@@ -156,6 +156,19 @@
     [client addEvent:event toEventCollection:@"foo" error:&error];
     STAssertNotNil(error, @"an event that can't be serialized should return NO");
     error = nil;
+    
+    // dict with root keen prop should do nothing
+    badValue = [[NSError alloc] init];
+    event = @{@"a": @"apple", @"keen": @"bapple"};
+    [client addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertNotNil(error, @"");
+    error = nil;
+    
+    // dict with non-root keen prop should work
+    error = nil;
+    event = @{@"nested": @{@"keen": @"whatever"}};
+    [client addEvent:event toEventCollection:@"foo" error:nil];
+    STAssertNil(error, @"an okay event should return YES");
 }
 
 - (void)testEventWithTimestamp {
@@ -275,7 +288,7 @@
     
     [self addSimpleEventAndUploadWithMock:mock];
     
-    // make sure the file was deleted locally
+    // make sure the file wasn't deleted locally
     NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
     STAssertTrue([contents count] == 1, @"An upload that results in an unexpected error should not delete the event.");     
 }

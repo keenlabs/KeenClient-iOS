@@ -244,50 +244,87 @@ static ISO8601DateFormatter *dateFormatter;
 
 # pragma mark - Add events
 
+- (Boolean)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+    NSString *errorMessage = nil;
+    
+    if ([eventCollection rangeOfString:@"$"].location == 0) {
+        errorMessage = @"An event collection name cannot start with the dollar sign ($) character.";
+        [self handleError:anError withErrorMessage:errorMessage];
+        return NO;
+    }
+    if ([eventCollection length] > 256) {
+        errorMessage = @"An event collection name cannot be longer than 256 characters.";
+        [self handleError:anError withErrorMessage:errorMessage];
+        return NO;
+    }
+    return YES;
+}
+
+- (Boolean)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
+    NSString *errorMessage = nil;
+    
+    if (depth == 0) {
+        if (!event || [event count] == 0) {
+            errorMessage = @"You must specify a non-null, non-empty event.";
+            [self handleError:anError withErrorMessage:errorMessage];
+            return NO;
+        }
+        if (event[@"keen"] != nil) {
+            errorMessage = @"An event cannot contain a root-level property named 'keen'.";
+            [self handleError:anError withErrorMessage:errorMessage];
+            return NO;
+        }
+    }
+    
+    for (NSString *key in event) {
+        // validate keys
+        if ([key rangeOfString:@"."].location != NSNotFound) {
+            errorMessage = @"An event cannot contain a property with the period (.) character in it.";
+            [self handleError:anError withErrorMessage:errorMessage];
+            return NO;
+        }
+        if ([key rangeOfString:@"$"].location == 0) {
+            errorMessage = @"An event cannot contain a property that starts with the dollar sign ($) character in it.";
+            [self handleError:anError withErrorMessage:errorMessage];
+            return NO;
+        }
+        if ([key length] > 256) {
+            errorMessage = @"An event cannot contain a property longer than 256 characters.";
+            [self handleError:anError withErrorMessage:errorMessage];
+            return NO;
+        }
+        
+        // now validate values
+        id value = event[key];
+        if ([value isKindOfClass:[NSString class]]) {
+            // strings can't be longer than 10k
+            if ([value length] > 10000) {
+                errorMessage = @"An event cannot contain a property value longer than 10,000 characters.";
+                [self handleError:anError withErrorMessage:errorMessage];
+                return NO;
+            }
+        } else if ([value isKindOfClass:[NSDictionary class]]) {
+            if (![self validateEvent:value withDepth:depth+1 error:anError]) {
+                return NO;
+            }
+        }
+    }
+    return YES;
+}
+
 - (void)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     [self addEvent:event withKeenProperties:nil toEventCollection:eventCollection error:anError];
 }
 
 - (void)addEvent:(NSDictionary *)event withKeenProperties:(NSDictionary *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     // don't do anything if the event itself or the event collection name are invalid somehow.
-    NSString *errorMessage = nil;
-    if (!event || !eventCollection) {
-        errorMessage = @"Invalid event or collection sent to addEvent.";
-        [self handleError:anError withErrorMessage:errorMessage];
+    if (![self validateEventCollection:eventCollection error:anError]) {
         return;
     }
-    if ([eventCollection rangeOfString:@"$"].location == 0) {
-        errorMessage = @"An event collection name cannot start with the dollar sign ($) character.";
-        [self handleError:anError withErrorMessage:errorMessage];
+    if (![self validateEvent:event withDepth:0 error:anError]) {
         return;
     }
-    if ([eventCollection length] > 256) {
-        errorMessage = @"An event collection name cannot be longer than 256 characters.";
-        [self handleError:anError withErrorMessage:errorMessage];
-        return;
-    }
-    if (event[@"keen"] != nil) {
-        errorMessage = @"An event cannot contain a root-level property named 'keen'.";
-        [self handleError:anError withErrorMessage:errorMessage];
-        return;
-    }
-    for (NSString *key in event) {
-        if ([key rangeOfString:@"."].location != NSNotFound) {
-            errorMessage = @"An event cannot contain a property with the period (.) character in it.";
-            [self handleError:anError withErrorMessage:errorMessage];
-            return;
-        }
-        if ([key rangeOfString:@"$"].location == 0) {
-            errorMessage = @"An event cannot contain a property that starts with the dollar sign ($) character in it.";
-            [self handleError:anError withErrorMessage:errorMessage];
-            return;
-        }
-        if ([key length] > 256) {
-            errorMessage = @"An event cannot contain a property longer than 256 characters";
-            [self handleError:anError withErrorMessage:errorMessage];
-            return;
-        }
-    }
+    
     KCLog(@"Adding event to collection: %@", eventCollection);
     
     // create the body of the event we'll send off. first copy over all keys from the global properties

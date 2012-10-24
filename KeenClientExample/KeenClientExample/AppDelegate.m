@@ -28,10 +28,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"4f4ed092163d663d3a000000"
-//                                                  andApiKey:@"9a9d92907c3e43c3a4742535fc2f78ec"];
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"abc"
-                                                  andApiKey:@"123abcd"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"4f4ed092163d663d3a000000"
+                                                     andApiKey:@"9a9d92907c3e43c3a4742535fc2f78ec"];
     client.globalPropertiesBlock = ^NSDictionary *(NSString *eventCollection) {
         return @{ @"GLOBALS": @"YEAH WHAT"};
     };
@@ -61,8 +59,6 @@
      Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
      If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
      */
-    NSLog(@"something");
-    
     UIBackgroundTaskIdentifier taskId = [application beginBackgroundTaskWithExpirationHandler:^(void) {
         NSLog(@"Background task is being expired.");
     }];
