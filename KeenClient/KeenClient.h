@@ -7,11 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
+#import "KeenProperties.h"
 
 
-// defines KEEN_DEBUG and the KCLog macros
+// defines the KCLog macro
 #define KEEN_DEBUG
-
 #ifdef KEEN_DEBUG
 #define KCLog(...) NSLog(__VA_ARGS__)
 #else
@@ -35,7 +36,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
     [[KeenClient sharedClient] addEvent:myEvent toEventCollection:@"purchases"];
     [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
  */
-@interface KeenClient : NSObject
+@interface KeenClient : NSObject <CLLocationManagerDelegate>
 
 /**
  This Objective-C property represents the Keen Global Properties dictionary for this instance of the
@@ -99,6 +100,13 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 @property (nonatomic, copy) KeenGlobalPropertiesBlock globalPropertiesBlock;
 
 /**
+ A property that holds the current location of the device. You can either call
+ [KeenClient refreshCurrentLocation] to pull location from the device or you can set this property with
+ your own value.
+ */
+@property (nonatomic, retain) CLLocation *currentLocation;
+
+/**
  Call this to retrieve the managed instance of KeenClient and set its project ID and API key
  to the given parameters.
  
@@ -119,6 +127,22 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andApiKey:].
  */
 + (KeenClient *)sharedClient;
+
+/**
+ Call this to disable geo location. If you don't want to pop up a message to users asking them to approve geo location 
+ services, call this BEFORE doing anything else with KeenClient.
+ 
+ Geo location is ENABLED by default.
+ */
++ (void)disableGeoLocation;
+
+/**
+ Call this to enable geo location. You'll probably only have to call this if for some reason you've explicitly
+ disabled geo location.
+ 
+ Geo location is ENABLED by default.
+ */
++ (void)enableGeoLocation;
 
 /**
  Call this if your code needs to use more than one Keen project and API key.  By convention, if you
@@ -175,7 +199,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  @param eventCollection The name of the event collection you want to put this event into.
  @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't added.
  */
-- (void)addEvent:(NSDictionary *)event withKeenProperties:(NSDictionary *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **)anError;
+- (void)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **)anError;
 
 /**
  Call this whenever you want to upload all the events captured so far.  This will spawn a low
@@ -189,5 +213,11 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  @param block The block to be executed once uploading is finished, regardless of whether or not the upload succeeded.
  */
 - (void)uploadWithFinishedBlock:(void (^)())block;
+
+/**
+ Refresh the current geo location. The Keen Client only gets geo at the beginning of each session (i.e. when the client is created).
+ If you want to update geo to the current location, call this method.
+ */
+- (void)refreshCurrentLocation;
 
 @end

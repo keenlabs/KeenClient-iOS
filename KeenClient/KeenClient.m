@@ -10,18 +10,23 @@
 #import "KeenConstants.h"
 #import "JSONKit.h"
 #import "ISO8601DateFormatter.h"
+#import <CoreLocation/CoreLocation.h>
 
 
 static KeenClient *sharedClient;
 static ISO8601DateFormatter *dateFormatter;
+static BOOL geoLocationEnabled = NO;
 
 @interface KeenClient ()
 
 // The project ID for this particular client.
 @property (nonatomic, retain) NSString *projectId;
 
-// The authorization token for this particular project.
-@property (nonatomic, retain) NSString *token;
+// The API Key for this particular project.
+@property (nonatomic, retain) NSString *apiKey;
+
+// NSLocationManager
+@property (nonatomic, retain) CLLocationManager *locationManager;
 
 // How many times the previous timestamp has been used.
 @property (nonatomic) NSInteger numTimesTimestampUsed;
@@ -153,7 +158,9 @@ static ISO8601DateFormatter *dateFormatter;
 @implementation KeenClient
 
 @synthesize projectId=_projectId;
-@synthesize token=_token;
+@synthesize apiKey=_apiKey;
+@synthesize locationManager=_locationManager;
+@synthesize currentLocation=_currentLocation;
 @synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
 @synthesize isRunningTests=_isRunningTests;
 @synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
@@ -162,7 +169,7 @@ static ISO8601DateFormatter *dateFormatter;
 # pragma mark - Class lifecycle
 
 + (void)initialize {
-    // initialize the dictionary used to cache clients exactly once.
+    // initialize the cached client exactly once.
     
     if (self != [KeenClient class]) {
         /*
@@ -174,9 +181,7 @@ static ISO8601DateFormatter *dateFormatter;
         return;
     }
     
-    if (!sharedClient) {
-        sharedClient = [[KeenClient alloc] init];
-    }
+    [KeenClient enableGeoLocation];
     if (!dateFormatter) {
         dateFormatter = [[ISO8601DateFormatter alloc] init];
         [dateFormatter setIncludeTime:YES];
@@ -185,8 +190,21 @@ static ISO8601DateFormatter *dateFormatter;
     }
 }
 
++ (void)enableGeoLocation {
+    KCLog(@"Enabling Geo Location");
+    geoLocationEnabled = YES;
+}
+
++ (void)disableGeoLocation {
+    KCLog(@"Disabling Geo Location");
+    geoLocationEnabled = NO;
+}
+
 - (id)init {
     self = [super init];
+    
+    [self refreshCurrentLocation];
+    
     return self;
 }
 
@@ -203,11 +221,10 @@ static ISO8601DateFormatter *dateFormatter;
         return nil;
     }
     
-    self = [super init];
+    self = [self init];
     if (self) {
-        KCLog(@"Called init on KeenClient for token: %@", apiKey);
         self.projectId = projectId;
-        self.token = apiKey;
+        self.apiKey = apiKey;
     }
     
     return self;
@@ -216,7 +233,9 @@ static ISO8601DateFormatter *dateFormatter;
 - (void)dealloc {
     // nil out the properties which we've retained (which will release them)
     self.projectId = nil;
-    self.token = nil;
+    self.apiKey = nil;
+    self.locationManager = nil;
+    self.currentLocation = nil;
     self.globalPropertiesDictionary = nil;
     // explicitly release the properties which we've copied
     [self.globalPropertiesBlock release];
@@ -226,20 +245,70 @@ static ISO8601DateFormatter *dateFormatter;
 # pragma mark - Get a shared client
 
 + (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey {
+    if (!sharedClient) {
+        sharedClient = [[KeenClient alloc] init];
+    }
     if (![KeenClient validateProjectId:projectId andApiKey:apiKey]) {
         return nil;
     }
     sharedClient.projectId = projectId;
-    sharedClient.token = apiKey;
+    sharedClient.apiKey = apiKey;
     return sharedClient;
 }
 
 + (KeenClient *)sharedClient {
-    if (![KeenClient validateProjectId:sharedClient.projectId andApiKey:sharedClient.token]) {
-        KCLog(@"sharedClient requested before registering project ID and authorization token!");
+    if (!sharedClient) {
+        sharedClient = [[KeenClient alloc] init];
+    }
+    if (![KeenClient validateProjectId:sharedClient.projectId andApiKey:sharedClient.apiKey]) {
+        KCLog(@"sharedClient requested before registering project ID and API Key!");
         return nil;
     }
     return sharedClient;
+}
+
+# pragma mark - Geo stuff
+
+- (void)refreshCurrentLocation {
+    // only do this if geo is enabled
+    if (geoLocationEnabled == YES) {
+        KCLog(@"Geo Location is enabled.");
+        // set up the location manager
+        if (self.locationManager == nil) {
+            if ([CLLocationManager locationServicesEnabled]) {
+                self.locationManager = [[CLLocationManager alloc] init];
+                self.locationManager.delegate = self;
+            }
+        }
+        
+        // if, at this point, the location manager is ready to go, we can start location services
+        if (self.locationManager) {
+            [self.locationManager startUpdatingLocation];
+            KCLog(@"Started location manager.");
+        }
+    } else {
+        KCLog(@"Geo Location is disabled.");
+    }
+}
+
+// Delegate method from the CLLocationManagerDelegate protocol.
+- (void)locationManager:(CLLocationManager *)manager
+    didUpdateToLocation:(CLLocation *)newLocation
+           fromLocation:(CLLocation *)oldLocation {
+    // If it's a relatively recent event, turn off updates to save power
+    NSDate* eventDate = newLocation.timestamp;
+    NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
+    if (abs(howRecent) < 15.0) {
+        KCLog(@"latitude %+.6f, longitude %+.6f\n",
+              newLocation.coordinate.latitude,
+              newLocation.coordinate.longitude);
+        self.currentLocation = newLocation;
+        // got the location, now stop checking
+        [self.locationManager stopUpdatingLocation];
+        KCLog(@"Done finding location");
+    } else {
+        KCLog(@"Event wasn't recent enough: %+.2d", abs(howRecent));
+    }
 }
 
 # pragma mark - Add events
@@ -316,7 +385,7 @@ static ISO8601DateFormatter *dateFormatter;
     [self addEvent:event withKeenProperties:nil toEventCollection:eventCollection error:anError];
 }
 
-- (void)addEvent:(NSDictionary *)event withKeenProperties:(NSDictionary *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (void)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     // don't do anything if the event itself or the event collection name are invalid somehow.
     if (![self validateEventCollection:eventCollection error:anError]) {
         return;
@@ -370,31 +439,21 @@ static ISO8601DateFormatter *dateFormatter;
         }
     }
     
-    NSDictionary *keenPropertiesToWrite = nil;
-    NSDate *timestamp = [NSDate date];
-    
     if (!keenProperties) {
-        keenPropertiesToWrite = [NSDictionary dictionaryWithObject:timestamp forKey:@"timestamp"];
-    } else {
-        // if there's no timestamp in the keen properties, stamp it automatically.
-        NSDate *providedTimestamp = [keenProperties objectForKey:@"timestamp"];
-        if (!providedTimestamp) {
-            NSMutableDictionary *mutableKeenProperties = [NSMutableDictionary dictionaryWithDictionary:keenProperties];
-            [mutableKeenProperties setValue:timestamp forKey:@"timestamp"];
-            keenPropertiesToWrite = mutableKeenProperties;
-        } else {
-            keenPropertiesToWrite = keenProperties;
-            KCLog(@"Timestamp provided: %@", providedTimestamp);
-        }
+        KeenProperties *newProperties = [[[KeenProperties alloc] init] autorelease];
+        keenProperties = newProperties;
+    }
+    if (geoLocationEnabled && self.currentLocation != nil) {
+        keenProperties.location = self.currentLocation;
     }
     
     NSMutableDictionary *eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
-    eventToWrite[@"keen"] = keenPropertiesToWrite;
+    eventToWrite[@"keen"] = keenProperties;
     
     NSError *error = nil;
     NSData *jsonData = [eventToWrite JSONDataWithOptions:JKSerializeOptionNone 
                 serializeUnsupportedClassesUsingDelegate:self 
-                                                selector:@selector(convertDate:) 
+                                                selector:@selector(handleUnsupportedJSONValue:) 
                                                    error:&error];
     if (error) {
         [self handleError:anError
@@ -403,7 +462,7 @@ static ISO8601DateFormatter *dateFormatter;
     }
     
     // now figure out the correct filename.
-    NSString *fileName = [self pathForEventInCollection:eventCollection WithTimestamp:timestamp];
+    NSString *fileName = [self pathForEventInCollection:eventCollection WithTimestamp:[NSDate date]];
     
     // write JSON to file system
     [self writeNSData:jsonData toFile:fileName];
@@ -616,7 +675,7 @@ static ISO8601DateFormatter *dateFormatter;
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:self.token forHTTPHeaderField:@"Authorization"];
+    [request setValue:self.apiKey forHTTPHeaderField:@"Authorization"];
     // TODO check if setHTTPBody also sets content-length
     [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:data];
@@ -724,6 +783,22 @@ static ISO8601DateFormatter *dateFormatter;
 - (id)convertDate:(id)date {
     NSString *string = [dateFormatter stringFromDate:date];
     return string;
+}
+
+- (id)handleUnsupportedJSONValue:(id)value {
+    if ([value isKindOfClass:[NSDate class]]) {
+        return [self convertDate:value];
+    } else if ([value isKindOfClass:[KeenProperties class]]) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject:[value timestamp] forKey:@"timestamp"];
+        CLLocation *location = [value location];
+        if (location != nil) {
+            NSNumber *longitude = [NSNumber numberWithDouble:location.coordinate.longitude];
+            NSNumber *latitude = [NSNumber numberWithDouble:location.coordinate.latitude];
+            dict[@"location"] = @{@"coordinates": @[longitude, latitude]};
+        }
+        return dict;
+    }
+    return NULL;
 }
 
 # pragma mark - To make testing easier

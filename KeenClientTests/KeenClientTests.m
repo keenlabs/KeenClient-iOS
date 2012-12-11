@@ -11,6 +11,7 @@
 #import <OCMock/OCMock.h>
 #import "JSONKit.h"
 #import "KeenConstants.h"
+#import "KeenProperties.h"
 
 
 @interface KeenClient (testability)
@@ -19,7 +20,7 @@
 @property (nonatomic, retain) NSString *projectId;
 
 // The authorization token for this particular project.
-@property (nonatomic, retain) NSString *token;
+@property (nonatomic, retain) NSString *apiKey;
 
 // If we're running tests.
 @property (nonatomic) Boolean isRunningTests;
@@ -46,7 +47,7 @@
     
     // Set-up code here.
     [[KeenClient sharedClient] setProjectId:nil];
-    [[KeenClient sharedClient] setToken:nil];
+    [[KeenClient sharedClient] setApiKey:nil];
 }
 
 - (void)tearDown {
@@ -69,7 +70,7 @@
 - (void)testInitWithProjectIdAndAuthToken{
     KeenClient *client = [[KeenClient alloc] initWithProjectId:@"something" andApiKey:@"anything"];
     STAssertEqualObjects(@"something", client.projectId, @"init with a valid project ID should work");
-    STAssertEqualObjects(@"anything", client.token, @"init with a valid token should work");
+    STAssertEqualObjects(@"anything", client.apiKey, @"init with a valid API Key should work");
     
     KeenClient *client2 = [[KeenClient alloc] initWithProjectId:@"another" andApiKey:@"again"];
     STAssertTrue(client != client2, @"Another init should return a separate instance");
@@ -87,9 +88,9 @@
 - (void)testSharedClientWithProjectIdAndAuthToken{
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     STAssertEquals(@"id", client.projectId, 
-                   @"sharedClientWithProjectIdAndAuthToken with a non-nil project ID should work.");
-    STAssertEquals(@"auth", client.token, 
-                   @"sharedClientWithProjectIdAndAuthToken with a non-nil token should work");
+                   @"sharedClientWithProjectIdAndApiKey with a non-nil project ID should work.");
+    STAssertEquals(@"auth", client.apiKey,
+                   @"sharedClientWithProjectIdAndApiKey with a non-nil token should work");
     
     KeenClient *client2 = [KeenClient sharedClientWithProjectId:@"other" andApiKey:@"another"];
     STAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
@@ -104,7 +105,7 @@
 - (void)testSharedClient {
     KeenClient *client = [KeenClient sharedClient];
     STAssertNil(client.projectId, @"a client's project ID should be nil at first");
-    STAssertNil(client.token, @"a client's token should be nil at first");
+    STAssertNil(client.apiKey, @"a client's API Key should be nil at first");
     
     KeenClient *client2 = [KeenClient sharedClient];
     STAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
@@ -175,13 +176,53 @@
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
     
     NSDate *date = [NSDate date];
-    [client addEvent:@{@"a": @"b"} withKeenProperties:@{@"timestamp": date}
-   toEventCollection:@"foo" error:nil];
+    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
+    keenProperties.timestamp = date;
+    [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
         
     NSString *deserializedDate = deserializedDict[@"keen"][@"timestamp"];
     NSString *originalDate = [client convertDate:date];
     STAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
+}
+
+- (void)testEventWithLocation {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
+    
+    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
+    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
+    keenProperties.location = location;
+    [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
+    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
+    
+    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    NSArray *deserializedCoords = deserializedLocation[@"coordinates"];
+    STAssertEqualObjects(@-122.47, deserializedCoords[0], @"Longitude was incorrect.");
+    STAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
+}
+
+- (void)testGeoLocation {
+    // set up a client with a location
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andApiKey:@"auth"];
+    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
+    client.currentLocation = location;
+    // add an event
+    [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
+    // now get the stored event
+    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
+    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    NSArray *deserializedCoords = deserializedLocation[@"coordinates"];
+    STAssertEqualObjects(@-122.47, deserializedCoords[0], @"Longitude was incorrect.");
+    STAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
+    
+    // now try the same thing but disable geo location
+    [KeenClient disableGeoLocation];
+    // add an event
+    [client addEvent:@{@"a": @"b"} toEventCollection:@"bar" error:nil];
+    // now get the stored event
+    deserializedDict = [self firstEventForCollection:@"bar"];
+    deserializedLocation = deserializedDict[@"keen"][@"location"];
+    STAssertNil(deserializedLocation, @"No location should have been saved.");
 }
 
 - (NSDictionary *)buildResultWithSuccess:(Boolean)success 
