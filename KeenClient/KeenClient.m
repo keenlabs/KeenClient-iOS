@@ -773,7 +773,7 @@ static BOOL geoLocationEnabled = NO;
 
 - (void) handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {
     if (error != NULL) {
-        NSDictionary *userInfo = @{NSLocalizedDescriptionKey: errorMessage};
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errorMessage forKey:NSLocalizedDescriptionKey];
         *error = [NSError errorWithDomain:kKeenErrorDomain code:1 userInfo:userInfo];
     }
 }
@@ -789,8 +789,9 @@ static BOOL geoLocationEnabled = NO;
     if ([value isKindOfClass:[NSDate class]]) {
         return [self convertDate:value];
     } else if ([value isKindOfClass:[KeenProperties class]]) {
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject:[value timestamp] forKey:@"timestamp"];
-        CLLocation *location = [value location];
+        KeenProperties *keenProperties = (KeenProperties *)value;
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject:keenProperties.timestamp forKey:@"timestamp"];
+        CLLocation *location = keenProperties.location;
         if (location != nil) {
             NSNumber *longitude = [NSNumber numberWithDouble:location.coordinate.longitude];
             NSNumber *latitude = [NSNumber numberWithDouble:location.coordinate.latitude];
