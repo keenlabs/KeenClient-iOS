@@ -338,7 +338,7 @@ static BOOL geoLocationEnabled = NO;
             [self handleError:anError withErrorMessage:errorMessage];
             return NO;
         }
-        if (event[@"keen"] != nil) {
+        if ([event objectForKey:@"keen"] != nil) {
             errorMessage = @"An event cannot contain a root-level property named 'keen'.";
             [self handleError:anError withErrorMessage:errorMessage];
             return NO;
@@ -448,7 +448,7 @@ static BOOL geoLocationEnabled = NO;
     }
     
     NSMutableDictionary *eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
-    eventToWrite[@"keen"] = keenProperties;
+    [eventToWrite setObject:keenProperties forKey:@"keen"];
     
     NSError *error = nil;
     NSData *jsonData = [eventToWrite JSONDataWithOptions:JKSerializeOptionNone 
@@ -794,7 +794,9 @@ static BOOL geoLocationEnabled = NO;
         if (location != nil) {
             NSNumber *longitude = [NSNumber numberWithDouble:location.coordinate.longitude];
             NSNumber *latitude = [NSNumber numberWithDouble:location.coordinate.latitude];
-            dict[@"location"] = @{@"coordinates": @[longitude, latitude]};
+            NSArray *coordinatesArray = [NSArray arrayWithObjects:longitude, latitude, nil];
+            NSDictionary *coordinatesDict = [NSDictionary dictionaryWithObject:coordinatesArray forKey:@"coordinates"];
+            [dict setObject:coordinatesDict forKey:@"location"];
         }
         return dict;
     }
