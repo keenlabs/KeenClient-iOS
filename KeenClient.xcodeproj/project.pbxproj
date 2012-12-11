@@ -28,6 +28,10 @@
 		0105EEA814EDAA470048D871 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		0105EEAC14EDAFF70048D871 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
 		0105EEAD14EDAFF70048D871 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
+		010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
+		010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
 		0111011E14EF709A009794A5 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		0111011F14EF709A009794A5 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 		0111012014EF709A009794A5 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
@@ -337,6 +341,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0111012614EF709A009794A5 /* KeenClient.h in Headers */,
+				010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */,
 				0111012714EF709A009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */,
 				0111012814EF709A009794A5 /* OCMArg.h in Headers */,
 				0111012914EF709A009794A5 /* OCMConstraint.h in Headers */,
@@ -353,6 +358,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0111013E14EF70AB009794A5 /* KeenClient.h in Headers */,
+				010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */,
 				0111013F14EF70AB009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */,
 				0111014014EF70AB009794A5 /* OCMArg.h in Headers */,
 				0111014114EF70AB009794A5 /* OCMConstraint.h in Headers */,
@@ -524,7 +530,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nzip -j \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\"";
+			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nzip -j \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\"";
 		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -547,6 +553,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
+				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
 				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
 				0111012014EF709A009794A5 /* JSONKit.m in Sources */,
 				0111012114EF709A009794A5 /* ISO8601DateFormatter.m in Sources */,
@@ -558,6 +565,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
+				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
 				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
 				0111013814EF70AB009794A5 /* JSONKit.m in Sources */,
 				0111013914EF70AB009794A5 /* ISO8601DateFormatter.m in Sources */,

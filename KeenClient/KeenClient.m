@@ -364,7 +364,7 @@ static BOOL geoLocationEnabled = NO;
         }
         
         // now validate values
-        id value = event[key];
+        id value = [event objectForKey:key];
         if ([value isKindOfClass:[NSString class]]) {
             // strings can't be longer than 10k
             if ([value length] > 10000) {

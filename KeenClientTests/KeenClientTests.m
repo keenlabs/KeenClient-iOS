@@ -127,7 +127,7 @@
     
     // basic dict should work
     NSArray *keys = [NSArray arrayWithObjects:@"a", @"b", @"c", nil];
-    NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", @"capple", nil];
+    NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSNull null], nil];
     NSDictionary *event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
     [client addEvent:event toEventCollection:@"foo" error:&error];
     STAssertNil(error, @"an okay event should return YES");
@@ -140,7 +140,7 @@
     STAssertNotNil(deserializedDict[@"keen"][@"timestamp"], @"The event written to disk should have had a timestamp added: %@", deserializedDict);
     STAssertEqualObjects(@"apple", deserializedDict[@"a"], @"Value for key 'a' is wrong.");
     STAssertEqualObjects(@"bapple", deserializedDict[@"b"], @"Value for key 'b' is wrong.");
-    STAssertEqualObjects(@"capple", deserializedDict[@"c"], @"Value for key 'c' is wrong.");
+    STAssertEqualObjects([NSNull null], deserializedDict[@"c"], @"Value for key 'c' is wrong.");
     
     // dict with NSDate should work
     event = @{@"a": @"apple", @"b": @"bapple", @"a_date": [NSDate date]};
