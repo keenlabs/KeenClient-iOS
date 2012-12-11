@@ -7,7 +7,7 @@ rm -rf $WEBDIR
 mkdir $WEBDIR
 
 # generate docs
-appledoc --no-create-docset --project-name "Keen iOS Client" --project-company "Keen Labs" --company-id io.keen --output $OUTPUTDIR --index-desc docs/index.markdown KeenClient/KeenClient.h
+appledoc --no-create-docset --project-name "Keen iOS Client" --project-company "Keen Labs" --company-id io.keen --output $OUTPUTDIR --index-desc docs/index.markdown KeenClient/KeenProperties.h KeenClient/KeenClient.h
 
 # copy correct files from output directory to Keen-Web
 cp -v -r $OUTPUTDIR/html/* $WEBDIR/.

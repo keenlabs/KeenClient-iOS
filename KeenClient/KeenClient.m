@@ -443,7 +443,7 @@ static BOOL geoLocationEnabled = NO;
         KeenProperties *newProperties = [[[KeenProperties alloc] init] autorelease];
         keenProperties = newProperties;
     }
-    if (geoLocationEnabled && self.currentLocation != nil) {
+    if (geoLocationEnabled && self.currentLocation != nil && keenProperties.location == nil) {
         keenProperties.location = self.currentLocation;
     }
     

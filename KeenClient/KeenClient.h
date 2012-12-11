@@ -26,9 +26,6 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  KeenClient has class methods to return managed instances of itself and instance methods
  to collect new events and upload them through the keen API.
  
- IMPORTANT NOTE: Please remember to add the value "-ObjC" to the "Other Linker Flags" section of your build target.
- Without doing this, your code will compile but will fail at runtime.
- 
  Example usage:
  
     [KeenClient sharedClientWithProjectId:@"my_id" andApiKey:@"my_token"];
@@ -195,7 +192,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  in your application delegate right before your app goes into the background, but it could be any time).
  
  @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries or NSArrays are acceptable.
- @param keenProperties An NSDictionary that consists of key/value pairs to override defaulte properties. ex: "timestamp" -> NSDate
+ @param keenProperties An instance of KeenProperties that consists of properties to override defaulted values.
  @param eventCollection The name of the event collection you want to put this event into.
  @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't added.
  */
