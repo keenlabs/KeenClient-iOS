@@ -16,6 +16,7 @@
 static KeenClient *sharedClient;
 static ISO8601DateFormatter *dateFormatter;
 static BOOL geoLocationEnabled = NO;
+static BOOL loggingEnabled = NO;
 
 @interface KeenClient ()
 
@@ -181,6 +182,7 @@ static BOOL geoLocationEnabled = NO;
         return;
     }
     
+    [KeenClient disableLogging];
     [KeenClient enableGeoLocation];
     if (!dateFormatter) {
         dateFormatter = [[ISO8601DateFormatter alloc] init];
@@ -188,6 +190,18 @@ static BOOL geoLocationEnabled = NO;
         NSTimeZone *timeZone = [NSTimeZone localTimeZone];
         [dateFormatter setDefaultTimeZone:timeZone];
     }
+}
+
++ (void)disableLogging {
+    loggingEnabled = NO;
+}
+
++ (void)enableLogging {
+    loggingEnabled = YES;
+}
+
++ (Boolean)isLoggingEnabled {
+    return loggingEnabled;
 }
 
 + (void)enableGeoLocation {

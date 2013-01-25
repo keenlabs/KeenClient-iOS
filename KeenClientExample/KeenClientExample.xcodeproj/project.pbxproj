@@ -47,7 +47,7 @@
 		0105EE8214E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/FirstViewController.xib; sourceTree = "<group>"; };
 		0105EE8514E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/SecondViewController.xib; sourceTree = "<group>"; };
 		012E8A5F1672C30C0021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		012E8A751672DD0B0021F6FA /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libKeenClient.a; path = "../build/Release-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
+		012E8A751672DD0B0021F6FA /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKeenClient.a; path = "../build/Release-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
 		01F90AF514F36C2800DD3DE2 /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeenClient.h; path = ../KeenClient/KeenClient.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -290,9 +290,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClientExample/KeenClientExample-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"KEEN_DEBUG=1",
 					"DEBUG=1",
 					"$(inherited)",
+					"KEEN_DEBUG=1",
 				);
 				INFOPLIST_FILE = "KeenClientExample/KeenClientExample-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;

@@ -10,15 +10,6 @@
 #import <CoreLocation/CoreLocation.h>
 #import "KeenProperties.h"
 
-
-// defines the KCLog macro
-#define KEEN_DEBUG
-#ifdef KEEN_DEBUG
-#define KCLog(...) NSLog(__VA_ARGS__)
-#else
-#define KCLog(...)
-#endif
-
 // defines a type for the block we'll use with our global properties
 typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
@@ -142,6 +133,21 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 + (void)enableGeoLocation;
 
 /**
+ Call this to disable debug logging. It's disabled by default.
+ */
++ (void)disableLogging;
+
+/**
+ Call this to enable debug logging.
+ */
++ (void)enableLogging;
+
+/**
+ Returns whether or not logging is currently enabled.
+ */
++ (Boolean)isLoggingEnabled;
+
+/**
  Call this if your code needs to use more than one Keen project and API key.  By convention, if you
  call this, you're responsible for releasing the returned instance once you're finished with it.
  
@@ -216,5 +222,9 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  If you want to update geo to the current location, call this method.
  */
 - (void)refreshCurrentLocation;
+
+// defines the KCLog macro
+#define KEEN_LOGGING_ENABLED [[KeenClient sharedClient] loggingEnabled]
+#define KCLog(message, ...)if([KeenClient isLoggingEnabled]) NSLog(message, ##__VA_ARGS__)
 
 @end
