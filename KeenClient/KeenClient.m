@@ -20,11 +20,8 @@ static BOOL loggingEnabled = NO;
 
 @interface KeenClient ()
 
-// The project ID for this particular client.
-@property (nonatomic, retain) NSString *projectId;
-
-// The API Key for this particular project.
-@property (nonatomic, retain) NSString *apiKey;
+// The project token for this particular client.
+@property (nonatomic, retain) NSString *projectToken;
 
 // NSLocationManager
 @property (nonatomic, retain) CLLocationManager *locationManager;
@@ -48,12 +45,11 @@ static BOOL loggingEnabled = NO;
 - (id)init;
 
 /**
- Validates that the given project ID and authorization token are valid.
- @param projectId The Keen project ID.
- @param apiKey The Keen API key.
- @returns YES if project ID and API key are valid, NO otherwise.
+ Validates that the given project token is valid.
+ @param projectToken The Keen project token.
+ @returns YES if project token is valid, NO otherwise.
  */
-+ (BOOL)validateProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey;
++ (BOOL)validateProjectToken:(NSString *)projectToken;
 
 /**
  Returns the path to the app's library/cache directory.
@@ -158,8 +154,7 @@ static BOOL loggingEnabled = NO;
 
 @implementation KeenClient
 
-@synthesize projectId=_projectId;
-@synthesize apiKey=_apiKey;
+@synthesize projectToken=_projectToken;
 @synthesize locationManager=_locationManager;
 @synthesize currentLocation=_currentLocation;
 @synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
@@ -222,23 +217,22 @@ static BOOL loggingEnabled = NO;
     return self;
 }
 
-+ (BOOL)validateProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey {
-    // validate that project id and API key are acceptable
-    if (!projectId || !apiKey || [projectId length] == 0 || [apiKey length] == 0) {
++ (BOOL)validateProjectToken:(NSString *)projectToken {
+    // validate that project token is acceptable
+    if (!projectToken || [projectToken length] == 0) {
         return NO;
     }
     return YES;
 }
 
-- (id)initWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey {
-    if (![KeenClient validateProjectId:projectId andApiKey:apiKey]) {
+- (id)initWithProjectToken:(NSString *)projectToken {
+    if (![KeenClient validateProjectToken:projectToken]) {
         return nil;
     }
     
     self = [self init];
     if (self) {
-        self.projectId = projectId;
-        self.apiKey = apiKey;
+        self.projectToken = projectToken;
     }
     
     return self;
@@ -246,8 +240,7 @@ static BOOL loggingEnabled = NO;
 
 - (void)dealloc {
     // nil out the properties which we've retained (which will release them)
-    self.projectId = nil;
-    self.apiKey = nil;
+    self.projectToken = nil;
     self.locationManager = nil;
     self.currentLocation = nil;
     self.globalPropertiesDictionary = nil;
@@ -258,15 +251,14 @@ static BOOL loggingEnabled = NO;
 
 # pragma mark - Get a shared client
 
-+ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey {
++ (KeenClient *)sharedClientWithProjectToken:(NSString *)projectToken {
     if (!sharedClient) {
         sharedClient = [[KeenClient alloc] init];
     }
-    if (![KeenClient validateProjectId:projectId andApiKey:apiKey]) {
+    if (![KeenClient validateProjectToken:projectToken]) {
         return nil;
     }
-    sharedClient.projectId = projectId;
-    sharedClient.apiKey = apiKey;
+    sharedClient.projectToken = projectToken;
     return sharedClient;
 }
 
@@ -274,8 +266,8 @@ static BOOL loggingEnabled = NO;
     if (!sharedClient) {
         sharedClient = [[KeenClient alloc] init];
     }
-    if (![KeenClient validateProjectId:sharedClient.projectId andApiKey:sharedClient.apiKey]) {
-        KCLog(@"sharedClient requested before registering project ID and API Key!");
+    if (![KeenClient validateProjectToken:sharedClient.projectToken]) {
+        KCLog(@"sharedClient requested before registering project token!");
         return nil;
     }
     return sharedClient;
@@ -682,14 +674,13 @@ static BOOL loggingEnabled = NO;
 
 - (NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
-                           kKeenServerAddress, kKeenApiVersion, self.projectId];
+                           kKeenServerAddress, kKeenApiVersion, self.projectToken];
     KCLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:self.apiKey forHTTPHeaderField:@"Authorization"];
     // TODO check if setHTTPBody also sets content-length
     [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:data];
@@ -707,7 +698,7 @@ static BOOL loggingEnabled = NO;
 
 - (NSString *)keenDirectory {
     NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
-    return [keenDirPath stringByAppendingPathComponent:self.projectId];
+    return [keenDirPath stringByAppendingPathComponent:self.projectToken];
 }
 
 - (NSArray *)keenSubDirectories {

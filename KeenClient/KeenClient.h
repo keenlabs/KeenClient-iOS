@@ -15,11 +15,11 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
 /**
  KeenClient has class methods to return managed instances of itself and instance methods
- to collect new events and upload them through the keen API.
+ to collect new events and upload them through the Keen IO API.
  
  Example usage:
  
-    [KeenClient sharedClientWithProjectId:@"my_id" andApiKey:@"my_token"];
+    [KeenClient sharedClientWithProjectToken:@"my_token"];
     NSDictionary *myEvent = [NSDictionary dictionary];
     [[KeenClient sharedClient] addEvent:myEvent toEventCollection:@"purchases"];
     [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
@@ -101,18 +101,17 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  You'll generally want to call this the first time you ask for the shared client.  Once you've called
  this, you can simply call [KeenClient sharedClient] afterwards.
  
- @param projectId The ID of your project.
- @param apiKey The authorization token for your project.
- @return A managed instance of KeenClient, or nil if projectId or apiKey are invalid.
+ @param projectToken Your Keen IO Project Token.
+ @return A managed instance of KeenClient, or nil if projectToken is invalid.
  */
-+ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey;
++ (KeenClient *)sharedClientWithProjectToken:(NSString *)projectToken;
 
 /**
  Call this to retrieve the managed instance of KeenClient.
  
  If you only have to use a single Keen project, just use this.
  
- @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andApiKey:].
+ @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectToken:].
  */
 + (KeenClient *)sharedClient;
 
@@ -148,16 +147,15 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 + (Boolean)isLoggingEnabled;
 
 /**
- Call this if your code needs to use more than one Keen project and API key.  By convention, if you
+ Call this if your code needs to use more than one Keen project.  By convention, if you
  call this, you're responsible for releasing the returned instance once you're finished with it.
  
  Otherwise, just use [KeenClient sharedClient].
  
- @param projectId The ID of your project.
- @param apiKey The authorization token for your project.
+ @param projectToken Your Keen IO Project Token.
  @return An initialized instance of KeenClient.
  */
-- (id)initWithProjectId:(NSString *)projectId andApiKey:(NSString *)apiKey;
+- (id)initWithProjectToken:(NSString *)projectToken;
 
 /**
  Call this to set the global properties block for this instance of the KeenClient. The block is invoked
