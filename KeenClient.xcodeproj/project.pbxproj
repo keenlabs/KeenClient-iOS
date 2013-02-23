@@ -24,8 +24,6 @@
 
 /* Begin PBXBuildFile section */
 		0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0105EEA714EDAA470048D871 /* JSONKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEA414EDAA470048D871 /* JSONKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0105EEA814EDAA470048D871 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		0105EEAC14EDAFF70048D871 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
 		0105EEAD14EDAFF70048D871 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
 		010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -34,7 +32,6 @@
 		010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
 		0111011E14EF709A009794A5 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		0111011F14EF709A009794A5 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
-		0111012014EF709A009794A5 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		0111012114EF709A009794A5 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
 		0111012314EF709A009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		0111012614EF709A009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -48,7 +45,6 @@
 		0111012F14EF709A009794A5 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
 		0111013614EF70AB009794A5 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		0111013714EF70AB009794A5 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
-		0111013814EF70AB009794A5 /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		0111013914EF70AB009794A5 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
 		0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		0111013E14EF70AB009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -65,6 +61,7 @@
 		012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; };
 		012E8A701672D6520021F6FA /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
+		0169C52316D5584E0069C3AE /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE12814E30C96000F3868 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12F14E30C96000F3868 /* SenTestingKit.framework */; };
@@ -375,7 +372,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
-				0105EEA714EDAA470048D871 /* JSONKit.h in Headers */,
 				012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */,
 				01BA1ADE14E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h in Headers */,
 				01BA1ADF14E77DC600CF9F84 /* OCMArg.h in Headers */,
@@ -530,7 +526,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nzip -j \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\"";
+			shellScript = "export TMP_DIR=/tmp/keenios\n\nrm -rf ${TMP_DIR}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${SOURCE_ROOT}/JSONKit\" ${TMP_DIR}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *";
 		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -555,7 +551,6 @@
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
 				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
 				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
-				0111012014EF709A009794A5 /* JSONKit.m in Sources */,
 				0111012114EF709A009794A5 /* ISO8601DateFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -567,7 +562,6 @@
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
 				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
 				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
-				0111013814EF70AB009794A5 /* JSONKit.m in Sources */,
 				0111013914EF70AB009794A5 /* ISO8601DateFormatter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -576,9 +570,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0169C52316D5584E0069C3AE /* JSONKit.m in Sources */,
 				017EE12814E30C96000F3868 /* KeenClient.m in Sources */,
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
-				0105EEA814EDAA470048D871 /* JSONKit.m in Sources */,
 				0105EEAD14EDAFF70048D871 /* ISO8601DateFormatter.m in Sources */,
 				012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */,
 			);
