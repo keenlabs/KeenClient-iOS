@@ -19,7 +19,9 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  Example usage:
  
-    [KeenClient sharedClientWithProjectToken:@"my_token"];
+    [KeenClient sharedClientWithProjectId:@"my_project_id" 
+                              andWriteKey:@"my_write_key" 
+                               andReadKey:@"my_read_key"];
     NSDictionary *myEvent = [NSDictionary dictionary];
     [[KeenClient sharedClient] addEvent:myEvent toEventCollection:@"purchases"];
     [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
@@ -95,23 +97,25 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 @property (nonatomic, retain) CLLocation *currentLocation;
 
 /**
- Call this to retrieve the managed instance of KeenClient and set its project ID and API key
+ Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
  to the given parameters.
  
  You'll generally want to call this the first time you ask for the shared client.  Once you've called
  this, you can simply call [KeenClient sharedClient] afterwards.
  
- @param projectToken Your Keen IO Project Token.
- @return A managed instance of KeenClient, or nil if projectToken is invalid.
+ @param projectId Your Keen IO Project ID.
+ @param writeKey Your Keen IO Write Key.
+ @param readKey Your Keen IO Read Key.
+ @return A managed instance of KeenClient, or nil if projectId is invalid.
  */
-+ (KeenClient *)sharedClientWithProjectToken:(NSString *)projectToken;
++ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
 
 /**
  Call this to retrieve the managed instance of KeenClient.
  
  If you only have to use a single Keen project, just use this.
  
- @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectToken:].
+ @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andWriteKey:andReadKey:].
  */
 + (KeenClient *)sharedClient;
 
@@ -152,10 +156,12 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  Otherwise, just use [KeenClient sharedClient].
  
- @param projectToken Your Keen IO Project Token.
+ @param projectId Your Keen IO Project ID.
+ @param writeKey Your Keen IO Write Key.
+ @param readKey Your Keen IO Read Key.
  @return An initialized instance of KeenClient.
  */
-- (id)initWithProjectToken:(NSString *)projectToken;
+- (id)initWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
 
 /**
  Call this to set the global properties block for this instance of the KeenClient. The block is invoked

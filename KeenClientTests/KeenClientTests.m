@@ -17,7 +17,9 @@
 @interface KeenClient (testability)
 
 // The project ID for this particular client.
-@property (nonatomic, retain) NSString *projectToken;
+@property (nonatomic, retain) NSString *projectId;
+@property (nonatomic, retain) NSString *writeKey;
+@property (nonatomic, retain) NSString *readKey;
 
 // If we're running tests.
 @property (nonatomic) Boolean isRunningTests;
@@ -43,7 +45,9 @@
     [super setUp];
     
     // Set-up code here.
-    [[KeenClient sharedClient] setProjectToken:nil];
+    [[KeenClient sharedClient] setProjectId:nil];
+    [[KeenClient sharedClient] setWriteKey:nil];
+    [[KeenClient sharedClient] setReadKey:nil];
 }
 
 - (void)tearDown {
@@ -63,42 +67,52 @@
     [super tearDown];
 }
 
-- (void)testInitWithProjectToken{
-    KeenClient *client = [[KeenClient alloc] initWithProjectToken:@"something"];
-    STAssertEqualObjects(@"something", client.projectToken, @"init with a valid project token should work");
+- (void)testInitWithProjectId{
+    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"something" andWriteKey:@"wk" andReadKey:@"rk"];
+    STAssertEqualObjects(@"something", client.projectId, @"init with a valid project id should work");
+    STAssertEqualObjects(@"wk", client.writeKey, @"init with a valid project id should work");
+    STAssertEqualObjects(@"rk", client.readKey, @"init with a valid project id should work");
     
-    KeenClient *client2 = [[KeenClient alloc] initWithProjectToken:@"another"];
+    KeenClient *client2 = [[KeenClient alloc] initWithProjectId:@"another" andWriteKey:@"wk2" andReadKey:@"rk2"];
+    STAssertEqualObjects(@"another", client2.projectId, @"init with a valid project id should work");
+    STAssertEqualObjects(@"wk2", client2.writeKey, @"init with a valid project id should work");
+    STAssertEqualObjects(@"rk2", client2.readKey, @"init with a valid project id should work");
     STAssertTrue(client != client2, @"Another init should return a separate instance");
     
     [client release];
     [client2 release];
     
-    client = [[KeenClient alloc] initWithProjectToken:nil];
+    client = [[KeenClient alloc] initWithProjectId:nil andWriteKey:@"wk" andReadKey:@"rk"];
     STAssertNil(client, @"init with a nil project ID should return nil");
 }
 
-- (void)testSharedClientWithProjectTokenAndAuthToken{
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
-    STAssertEquals(@"token", client.projectToken,
-                   @"sharedClientWithProjectToken with a non-nil project token should work.");
+- (void)testSharedClientWithProjectId{
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    STAssertEquals(@"id", client.projectId, @"sharedClientWithProjectId with a non-nil project id should work.");
+    STAssertEqualObjects(@"wk", client.writeKey, @"init with a valid project id should work");
+    STAssertEqualObjects(@"rk", client.readKey, @"init with a valid project id should work");
     
-    KeenClient *client2 = [KeenClient sharedClientWithProjectToken:@"other"];
+    KeenClient *client2 = [KeenClient sharedClientWithProjectId:@"other" andWriteKey:@"wk2" andReadKey:@"rk2"];
     STAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
+    STAssertEqualObjects(@"wk2", client2.writeKey, @"sharedClient with a valid project id should work");
+    STAssertEqualObjects(@"rk2", client2.readKey, @"sharedClient with a valid project id should work");
     
-    client = [KeenClient sharedClientWithProjectToken:nil];
-    STAssertNil(client, @"sharedClient with an invalid project token should return nil");
+    client = [KeenClient sharedClientWithProjectId:nil andWriteKey:@"wk" andReadKey:@"rk"];
+    STAssertNil(client, @"sharedClient with an invalid project id should return nil");
 }
 
 - (void)testSharedClient {
     KeenClient *client = [KeenClient sharedClient];
-    STAssertNil(client.projectToken, @"a client's project token should be nil at first");
+    STAssertNil(client.projectId, @"a client's project id should be nil at first");
+    STAssertNil(client.writeKey, @"a client's write key should be nil at first");
+    STAssertNil(client.readKey, @"a client's read key should be nil at first");
     
     KeenClient *client2 = [KeenClient sharedClient];
     STAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
 }
 
 - (void)testAddEvent {
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
     // nil dict should should do nothing
     NSError *error = nil;
@@ -158,8 +172,17 @@
     STAssertNil(error, @"an okay event should return YES");
 }
 
+- (void)testAddEventNoWriteKey {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:nil andReadKey:nil];
+    
+    NSArray *keys = [NSArray arrayWithObjects:@"a", @"b", @"c", nil];
+    NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSNull null], nil];
+    NSDictionary *event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
+    STAssertThrows([client addEvent:event toEventCollection:@"foo" error:nil], @"should throw an exception");
+}
+
 - (void)testEventWithTimestamp {
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
     NSDate *date = [NSDate date];
     KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
@@ -173,7 +196,7 @@
 }
 
 - (void)testEventWithLocation {
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
     KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
     CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
@@ -189,7 +212,7 @@
 
 - (void)testGeoLocation {
     // set up a client with a location
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
     client.currentLocation = location;
     // add an event
@@ -240,7 +263,7 @@
     }
     
     // set up the partial mock
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -445,7 +468,7 @@
 }
 
 - (void)testTooManyEventsCached {
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
     // create 5 events
@@ -463,7 +486,7 @@
 }
 
 - (void)testGlobalPropertiesDictionary {
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
@@ -494,7 +517,7 @@
 }
 
 - (void)testGlobalPropertiesBlock {
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
@@ -530,7 +553,7 @@
 }
 
 - (void)testGlobalPropertiesTogether {
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     // properties from the block should take precedence over properties from the dictionary
@@ -547,7 +570,7 @@
 }
 
 - (void)testInvalidEventCollection {
-    KeenClient *client = [KeenClient sharedClientWithProjectToken:@"token"];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary *event = @{@"a": @"b"};
@@ -575,7 +598,7 @@
 }
 
 - (NSString *)keenDirectory {
-    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:@"token"];
+    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:@"id"];
 }
 
 - (NSString *)eventDirectoryForCollection:(NSString *)collection {

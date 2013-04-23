@@ -20,8 +20,14 @@ static BOOL loggingEnabled = NO;
 
 @interface KeenClient ()
 
-// The project token for this particular client.
-@property (nonatomic, retain) NSString *projectToken;
+// The project ID for this particular client.
+@property (nonatomic, retain) NSString *projectId;
+
+// The Write Key for this particular client.
+@property (nonatomic, retain) NSString *writeKey;
+
+// The Read Key for this particular client.
+@property (nonatomic, retain) NSString *readKey;
 
 // NSLocationManager
 @property (nonatomic, retain) CLLocationManager *locationManager;
@@ -45,11 +51,18 @@ static BOOL loggingEnabled = NO;
 - (id)init;
 
 /**
- Validates that the given project token is valid.
- @param projectToken The Keen project token.
- @returns YES if project token is valid, NO otherwise.
+ Validates that the given project ID is valid.
+ @param projectId The Keen project ID.
+ @returns YES if project id is valid, NO otherwise.
  */
-+ (BOOL)validateProjectToken:(NSString *)projectToken;
++ (BOOL)validateProjectId:(NSString *)projectId;
+
+/**
+ Validates that the given key is valid.
+ @param key The key to check.
+ @returns YES if key is valid, NO otherwise.
+ */
++ (BOOL)validateKey:(NSString *)key;
 
 /**
  Returns the path to the app's library/cache directory.
@@ -154,7 +167,9 @@ static BOOL loggingEnabled = NO;
 
 @implementation KeenClient
 
-@synthesize projectToken=_projectToken;
+@synthesize projectId=_projectId;
+@synthesize writeKey=_writeKey;
+@synthesize readKey=_readKey;
 @synthesize locationManager=_locationManager;
 @synthesize currentLocation=_currentLocation;
 @synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
@@ -217,22 +232,39 @@ static BOOL loggingEnabled = NO;
     return self;
 }
 
-+ (BOOL)validateProjectToken:(NSString *)projectToken {
-    // validate that project token is acceptable
-    if (!projectToken || [projectToken length] == 0) {
++ (BOOL)validateProjectId:(NSString *)projectId {
+    // validate that project ID is acceptable
+    if (!projectId || [projectId length] == 0) {
         return NO;
     }
     return YES;
 }
 
-- (id)initWithProjectToken:(NSString *)projectToken {
-    if (![KeenClient validateProjectToken:projectToken]) {
++ (BOOL)validateKey:(NSString *)key {
+    // for now just use the same rules as project ID
+    return [KeenClient validateProjectId:key];
+}
+
+- (id)initWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
+    if (![KeenClient validateProjectId:projectId]) {
         return nil;
     }
     
     self = [self init];
     if (self) {
-        self.projectToken = projectToken;
+        self.projectId = projectId;
+        if (writeKey) {
+            if (![KeenClient validateKey:writeKey]) {
+                return nil;
+            }
+            self.writeKey = writeKey;
+        }
+        if (readKey) {
+            if (![KeenClient validateKey:readKey]) {
+                return nil;
+            }
+            self.readKey = readKey;
+        }
     }
     
     return self;
@@ -240,7 +272,9 @@ static BOOL loggingEnabled = NO;
 
 - (void)dealloc {
     // nil out the properties which we've retained (which will release them)
-    self.projectToken = nil;
+    self.projectId = nil;
+    self.writeKey = nil;
+    self.readKey = nil;
     self.locationManager = nil;
     self.currentLocation = nil;
     self.globalPropertiesDictionary = nil;
@@ -251,14 +285,31 @@ static BOOL loggingEnabled = NO;
 
 # pragma mark - Get a shared client
 
-+ (KeenClient *)sharedClientWithProjectToken:(NSString *)projectToken {
++ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
     if (!sharedClient) {
         sharedClient = [[KeenClient alloc] init];
     }
-    if (![KeenClient validateProjectToken:projectToken]) {
+    if (![KeenClient validateProjectId:projectId]) {
         return nil;
     }
-    sharedClient.projectToken = projectToken;
+    sharedClient.projectId = projectId;
+    
+    if (writeKey) {
+        // only validate a non-nil value
+        if (![KeenClient validateKey:writeKey]) {
+            return nil;
+        }
+    }
+    sharedClient.writeKey = writeKey;
+    
+    if (readKey) {
+        // only validate a non-nil value
+        if (![KeenClient validateKey:readKey]) {
+            return nil;
+        }
+    }
+    sharedClient.readKey = readKey;
+    
     return sharedClient;
 }
 
@@ -266,8 +317,8 @@ static BOOL loggingEnabled = NO;
     if (!sharedClient) {
         sharedClient = [[KeenClient alloc] init];
     }
-    if (![KeenClient validateProjectToken:sharedClient.projectToken]) {
-        KCLog(@"sharedClient requested before registering project token!");
+    if (![KeenClient validateProjectId:sharedClient.projectId]) {
+        KCLog(@"sharedClient requested before registering project ID!");
         return nil;
     }
     return sharedClient;
@@ -327,8 +378,8 @@ static BOOL loggingEnabled = NO;
         [self handleError:anError withErrorMessage:errorMessage];
         return NO;
     }
-    if ([eventCollection length] > 256) {
-        errorMessage = @"An event collection name cannot be longer than 256 characters.";
+    if ([eventCollection length] > 64) {
+        errorMessage = @"An event collection name cannot be longer than 64 characters.";
         [self handleError:anError withErrorMessage:errorMessage];
         return NO;
     }
@@ -392,6 +443,11 @@ static BOOL loggingEnabled = NO;
 }
 
 - (void)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+    // make sure the write key has been set - can't do anything without that
+    if (![KeenClient validateKey:self.writeKey]) {
+        [NSException raise:@"KeenNoWriteKeyProvided" format:@"You tried to add an event without setting a write key, please set one!"];
+    }
+    
     // don't do anything if the event itself or the event collection name are invalid somehow.
     if (![self validateEventCollection:eventCollection error:anError]) {
         return;
@@ -674,13 +730,14 @@ static BOOL loggingEnabled = NO;
 
 - (NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
-                           kKeenServerAddress, kKeenApiVersion, self.projectToken];
+                           kKeenServerAddress, kKeenApiVersion, self.projectId];
     KCLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:self.writeKey forHTTPHeaderField:@"Authorization"];
     // TODO check if setHTTPBody also sets content-length
     [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:data];
@@ -698,7 +755,7 @@ static BOOL loggingEnabled = NO;
 
 - (NSString *)keenDirectory {
     NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
-    return [keenDirPath stringByAppendingPathComponent:self.projectToken];
+    return [keenDirPath stringByAppendingPathComponent:self.projectId];
 }
 
 - (NSArray *)keenSubDirectories {
