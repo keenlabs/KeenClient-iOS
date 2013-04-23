@@ -42,7 +42,7 @@ To use this client with the Keen IO API, you have to configure your Keen IO Proj
 
 The write key is required to send events to Keen IO - the read key is required to do analysis on Keen IO.
 
-##### Send Events to Keen IO
+##### Add Events
 
 Use the client like so:
 
@@ -53,6 +53,21 @@ Use the client like so:
         NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"first view", @"view_name",
                                @"going to", @"action", nil];
         [[KeenClient sharedClient] addEvent:event toEventCollection:@"tab_views" error:nil];
+    }
+
+##### Upload Events to Keen IO
+
+Adding events just stores the events locally on the device. You must explicitly upload them to Keen IO. Here's an example:
+
+    - (void)applicationDidEnterBackground:(UIApplication *)application
+    {
+        UIBackgroundTaskIdentifier taskId = [application beginBackgroundTaskWithExpirationHandler:^(void) {
+            NSLog(@"Background task is being expired.");
+        }];
+
+        [[KeenClient sharedClient] uploadWithFinishedBlock:^(void) {
+            [application endBackgroundTask:taskId];
+        }];
     }
 
 ##### Do analysis with Keen IO
