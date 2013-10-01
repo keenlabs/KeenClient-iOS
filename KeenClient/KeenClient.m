@@ -599,7 +599,7 @@ static BOOL loggingEnabled = NO;
         NSMutableArray *requestArray = [NSMutableArray array];
         // set up the array of file paths
         NSMutableArray *fileArray = [NSMutableArray array];
-        
+
         for (NSString *fileName in files) {
             KCLog(@"Found file: %@/%@", dirName, fileName);
             NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
@@ -607,16 +607,22 @@ static BOOL loggingEnabled = NO;
             NSData *data = [NSData dataWithContentsOfFile:filePath];
             // deserialize it
             error = nil;
-            NSDictionary *eventDict = [data objectFromJSONDataWithParseOptions:JKParseOptionNone 
-                                                                         error:&error];
-            if (error) {
-                KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
-                continue;
+
+            if ([data length] > 0) {
+                NSDictionary *eventDict = [data objectFromJSONDataWithParseOptions:JKParseOptionNone
+                                                                             error:&error];
+                if (error) {
+                    KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                    continue;
+                }
+                // and then add it to the array of events
+                [requestArray addObject:eventDict];
+                // and also to the array of paths
+                [fileArray addObject:filePath];
             }
-            // and then add it to the array of events
-            [requestArray addObject:eventDict];
-            // and also to the array of paths
-            [fileArray addObject:filePath];
+            else {
+                [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+            }
         }
         // and then add the array back to the overall request
         [requestDict setObject:requestArray forKey:dirName];
