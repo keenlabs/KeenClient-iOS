@@ -589,6 +589,23 @@
     STAssertNotNil(error, @"collection can't be longer than 256 chars");
 }
 
+-(void)testEmptyEventFileUpload {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+
+    [client addEvent:@{@"fixture key" : @"fixture value"} toEventCollection:@"FixtureCollection" error:nil];
+    client.isRunningTests = YES;
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *directoryForCollection = [self eventDirectoryForCollection:@"FixtureCollection"];
+    NSString *emptyFilePath = [directoryForCollection stringByAppendingPathComponent:@"42"];
+
+    [fileManager createFileAtPath:emptyFilePath contents:[NSData data] attributes:nil];
+
+    [client uploadWithFinishedBlock:nil];
+
+    STAssertFalse([fileManager fileExistsAtPath:emptyFilePath], @"empty event file should be removed");
+}
+
 # pragma mark - test filesystem utility methods
 
 - (NSString *)cacheDirectory {
