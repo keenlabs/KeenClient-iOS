@@ -843,6 +843,7 @@ static BOOL loggingEnabled = NO;
     if (error != NULL) {
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errorMessage forKey:NSLocalizedDescriptionKey];
         *error = [NSError errorWithDomain:kKeenErrorDomain code:1 userInfo:userInfo];
+        KCLog(*error);
     }
 }
                     
