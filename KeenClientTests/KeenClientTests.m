@@ -9,7 +9,6 @@
 #import "KeenClientTests.h"
 #import "KeenClient.h"
 #import <OCMock/OCMock.h>
-#import "JSONKit.h"
 #import "KeenConstants.h"
 #import "KeenProperties.h"
 
@@ -26,6 +25,7 @@
 
 - (NSData *)sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
 - (id)convertDate: (id) date;
+- (id)handleInvalidJSONInObject:(id)value;
 
 @end
 
@@ -271,7 +271,10 @@
     NSHTTPURLResponse *response = [[[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil] autorelease];
     
     // serialize the faked out response data
-    NSData *serializedData = [data JSONData];
+    data = [client handleInvalidJSONInObject:data];
+    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:data
+                                                             options:0
+                                                               error:nil];
     NSString *json = [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];    [json release];
     
     // set up the response data we're faking out
@@ -301,7 +304,7 @@
 }
 
 - (void)testUploadFailedServerDown {
-    id mock = [self uploadTestHelperWithData:@"" andStatusCode:500];
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:500];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -311,7 +314,7 @@
 }
 
 - (void)testUploadFailedServerDownNonJsonResponse {
-    id mock = [self uploadTestHelperWithData:@"bad data" andStatusCode:500];
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:500];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -334,7 +337,7 @@
 }
 
 - (void)testUploadFailedBadRequestUnknownError {
-    id mock = [self uploadTestHelperWithData:@"doesn't matter" andStatusCode:400];
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:400];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -622,7 +625,9 @@
     NSString *path = [contents objectAtIndex:0];
     NSString *fullPath = [[self eventDirectoryForCollection:collection] stringByAppendingPathComponent:path];
     NSData *data = [NSData dataWithContentsOfFile:fullPath];
-    NSDictionary *deserializedDict = [data objectFromJSONData];
+    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:data
+                                                                     options:0
+                                                                       error:nil];
     return deserializedDict;
 }
 

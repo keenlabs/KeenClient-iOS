@@ -61,7 +61,6 @@
 		012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; };
 		012E8A701672D6520021F6FA /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
-		0169C52316D5584E0069C3AE /* JSONKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEA514EDAA470048D871 /* JSONKit.m */; };
 		017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE12814E30C96000F3868 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12F14E30C96000F3868 /* SenTestingKit.framework */; };
@@ -113,8 +112,6 @@
 
 /* Begin PBXFileReference section */
 		0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenClientExample.xcodeproj; path = KeenClientExample/KeenClientExample.xcodeproj; sourceTree = "<group>"; };
-		0105EEA414EDAA470048D871 /* JSONKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONKit.h; sourceTree = "<group>"; };
-		0105EEA514EDAA470048D871 /* JSONKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONKit.m; sourceTree = "<group>"; };
 		0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ISO8601DateFormatter.h; path = "iso-8601-parser-unparser/ISO8601DateFormatter.h"; sourceTree = SOURCE_ROOT; };
 		0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ISO8601DateFormatter.m; path = "iso-8601-parser-unparser/ISO8601DateFormatter.m"; sourceTree = SOURCE_ROOT; };
 		0111013314EF709A009794A5 /* libKeenClient-Simulator.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libKeenClient-Simulator.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -195,15 +192,6 @@
 			);
 			name = Products;
 			sourceTree = "<group>";
-		};
-		0105EEA214EDAA470048D871 /* JSONKit */ = {
-			isa = PBXGroup;
-			children = (
-				0105EEA414EDAA470048D871 /* JSONKit.h */,
-				0105EEA514EDAA470048D871 /* JSONKit.m */,
-			);
-			path = JSONKit;
-			sourceTree = SOURCE_ROOT;
 		};
 		0105EEA914EDAFDF0048D871 /* iso-8601-parser-unparser */ = {
 			isa = PBXGroup;
@@ -302,7 +290,6 @@
 			isa = PBXGroup;
 			children = (
 				0105EEA914EDAFDF0048D871 /* iso-8601-parser-unparser */,
-				0105EEA214EDAA470048D871 /* JSONKit */,
 				01BA1AD514E77DC600CF9F84 /* Headers */,
 				01BA1ADD14E77DC600CF9F84 /* libOCMock.a */,
 			);
@@ -570,7 +557,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0169C52316D5584E0069C3AE /* JSONKit.m in Sources */,
 				017EE12814E30C96000F3868 /* KeenClient.m in Sources */,
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
 				0105EEAD14EDAFF70048D871 /* ISO8601DateFormatter.m in Sources */,
@@ -621,7 +607,7 @@
 		0111013114EF709A009794A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
@@ -642,7 +628,7 @@
 		0111013214EF709A009794A5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
@@ -663,7 +649,7 @@
 		0111014914EF70AB009794A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
@@ -683,7 +669,7 @@
 		0111014A14EF70AB009794A5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
@@ -703,6 +689,8 @@
 		0111015814EF71FB009794A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -710,6 +698,8 @@
 		0111015914EF71FB009794A5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
