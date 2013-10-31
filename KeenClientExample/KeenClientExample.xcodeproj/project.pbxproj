@@ -21,8 +21,9 @@
 		0105EE8014E9A4940048D871 /* second@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE7F14E9A4940048D871 /* second@2x.png */; };
 		0105EE8314E9A4940048D871 /* FirstViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE8114E9A4940048D871 /* FirstViewController.xib */; };
 		0105EE8614E9A4940048D871 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE8414E9A4940048D871 /* SecondViewController.xib */; };
-		012E8A761672DD0B0021F6FA /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A751672DD0B0021F6FA /* libKeenClient.a */; };
 		012E8A7716765C330021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5F1672C30C0021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		015D307F1822DE7D00F8735B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 015D307E1822DE7D00F8735B /* Default-568h@2x.png */; };
+		015D30811822DEE300F8735B /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 015D30801822DEE300F8735B /* libKeenClient.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,8 @@
 		0105EE8514E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/SecondViewController.xib; sourceTree = "<group>"; };
 		012E8A5F1672C30C0021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		012E8A751672DD0B0021F6FA /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKeenClient.a; path = "../build/Release-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
+		015D307E1822DE7D00F8735B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		015D30801822DEE300F8735B /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libKeenClient.a; path = "../build/Debug-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
 		01F90AF514F36C2800DD3DE2 /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeenClient.h; path = ../KeenClient/KeenClient.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -56,11 +59,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				015D30811822DEE300F8735B /* libKeenClient.a in Frameworks */,
 				012E8A7716765C330021F6FA /* CoreLocation.framework in Frameworks */,
 				0105EE6214E9A4940048D871 /* UIKit.framework in Frameworks */,
 				0105EE6414E9A4940048D871 /* Foundation.framework in Frameworks */,
 				0105EE6614E9A4940048D871 /* CoreGraphics.framework in Frameworks */,
-				012E8A761672DD0B0021F6FA /* libKeenClient.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,6 +73,7 @@
 		0105EE5214E9A4930048D871 = {
 			isa = PBXGroup;
 			children = (
+				015D307E1822DE7D00F8735B /* Default-568h@2x.png */,
 				012E8A751672DD0B0021F6FA /* libKeenClient.a */,
 				012E8A5F1672C30C0021F6FA /* CoreLocation.framework */,
 				0105EE9414E9A70A0048D871 /* Dependent Headers */,
@@ -90,6 +94,7 @@
 		0105EE6014E9A4940048D871 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				015D30801822DEE300F8735B /* libKeenClient.a */,
 				0105EE6114E9A4940048D871 /* UIKit.framework */,
 				0105EE6314E9A4940048D871 /* Foundation.framework */,
 				0105EE6514E9A4940048D871 /* CoreGraphics.framework */,
@@ -162,7 +167,7 @@
 		0105EE5414E9A4930048D871 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Keen Labs";
 			};
 			buildConfigurationList = 0105EE5714E9A4930048D871 /* Build configuration list for PBXProject "KeenClientExample" */;
@@ -192,6 +197,7 @@
 				0105EE7914E9A4940048D871 /* first@2x.png in Resources */,
 				0105EE7E14E9A4940048D871 /* second.png in Resources */,
 				0105EE8014E9A4940048D871 /* second@2x.png in Resources */,
+				015D307F1822DE7D00F8735B /* Default-568h@2x.png in Resources */,
 				0105EE8314E9A4940048D871 /* FirstViewController.xib in Resources */,
 				0105EE8614E9A4940048D871 /* SecondViewController.xib in Resources */,
 			);
@@ -245,7 +251,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -257,10 +268,15 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -269,13 +285,22 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
@@ -300,6 +325,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/KeenClient-fbrempmyzeejllfqycmnmewgbkyt/Build/Products/Debug-iphoneos\"",
 				);
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -318,6 +344,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/KeenClient-fbrempmyzeejllfqycmnmewgbkyt/Build/Products/Debug-iphoneos\"",
 				);
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;

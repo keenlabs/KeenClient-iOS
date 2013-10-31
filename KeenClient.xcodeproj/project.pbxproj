@@ -513,7 +513,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export TMP_DIR=/tmp/keenios\n\nrm -rf ${TMP_DIR}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${SOURCE_ROOT}/JSONKit\" ${TMP_DIR}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *";
+			shellScript = "export TMP_DIR=/tmp/keenios\n\nrm -rf ${TMP_DIR}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" ${TMP_DIR}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *";
 		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -747,10 +747,7 @@
 		017EE14314E30C96000F3868 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					"$(ARCHS_STANDARD_32_BIT)",
-					armv6,
-				);
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
@@ -770,10 +767,7 @@
 		017EE14414E30C96000F3868 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					"$(ARCHS_STANDARD_32_BIT)",
-					armv6,
-				);
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
@@ -791,6 +785,7 @@
 		017EE14614E30C96000F3868 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
@@ -818,6 +813,7 @@
 		017EE14714E30C96000F3868 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
