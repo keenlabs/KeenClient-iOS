@@ -537,19 +537,11 @@ static BOOL loggingEnabled = NO;
 }
 
 - (NSMutableDictionary *)makeDictionaryMutable:(NSDictionary *)dict {
-    if ([dict isKindOfClass:[NSMutableDictionary class]]) {
-        return (NSMutableDictionary *) dict;
-    } else {
-        return [NSMutableDictionary dictionaryWithDictionary:dict];
-    }
+    return [dict mutableCopy];
 }
 
 - (NSMutableArray *)makeArrayMutable:(NSArray *)array {
-    if ([array isKindOfClass:[NSMutableArray class]]) {
-        return (NSMutableArray *) array;
-    } else {
-        return [NSMutableArray arrayWithArray:array];
-    }
+    return [array mutableCopy];
 }
 
 - (id)handleInvalidJSONInObject:(id)value {

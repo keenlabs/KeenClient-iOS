@@ -210,6 +210,20 @@
     STAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
 }
 
+- (void)testEventWithDictionary {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    
+    NSString* json = @"{\"test_str_array\":[\"val1\",\"val2\",\"val3\"]}";
+    NSDictionary* eventDictionary = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    
+    [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
+    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
+    
+    STAssertEqualObjects(@"val1", deserializedDict[@"test_str_array"][0], @"array was incorrect");
+    STAssertEqualObjects(@"val2", deserializedDict[@"test_str_array"][1], @"array was incorrect");
+    STAssertEqualObjects(@"val3", deserializedDict[@"test_str_array"][2], @"array was incorrect");
+}
+
 - (void)testGeoLocation {
     // set up a client with a location
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
