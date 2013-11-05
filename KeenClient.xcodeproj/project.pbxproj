@@ -35,12 +35,6 @@
 		0111012114EF709A009794A5 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
 		0111012314EF709A009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		0111012614EF709A009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0111012714EF709A009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
-		0111012814EF709A009794A5 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
-		0111012914EF709A009794A5 /* OCMConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */; };
-		0111012A14EF709A009794A5 /* OCMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADA14E77DC600CF9F84 /* OCMock.h */; };
-		0111012B14EF709A009794A5 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
-		0111012C14EF709A009794A5 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
 		0111012D14EF709A009794A5 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		0111012F14EF709A009794A5 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
 		0111013614EF70AB009794A5 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
@@ -48,19 +42,13 @@
 		0111013914EF70AB009794A5 /* ISO8601DateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */; };
 		0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		0111013E14EF70AB009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0111013F14EF70AB009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
-		0111014014EF70AB009794A5 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
-		0111014114EF70AB009794A5 /* OCMConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */; };
-		0111014214EF70AB009794A5 /* OCMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADA14E77DC600CF9F84 /* OCMock.h */; };
-		0111014314EF70AB009794A5 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
-		0111014414EF70AB009794A5 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
 		0111014514EF70AB009794A5 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		0111014714EF70AB009794A5 /* ISO8601DateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 0105EEAA14EDAFF70048D871 /* ISO8601DateFormatter.h */; };
 		012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
 		012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; };
-		012E8A701672D6520021F6FA /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BA1ADD14E77DC600CF9F84 /* libOCMock.a */; };
+		015D308B1822E8D200F8735B /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 015D308A1822E8D200F8735B /* libOCMock.a */; };
 		017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE12814E30C96000F3868 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12F14E30C96000F3868 /* SenTestingKit.framework */; };
@@ -69,12 +57,6 @@
 		017EE13614E30C96000F3868 /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE11E14E30C96000F3868 /* libKeenClient.a */; };
 		017EE13C14E30C96000F3868 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 017EE13A14E30C96000F3868 /* InfoPlist.strings */; };
 		017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE13E14E30C96000F3868 /* KeenClientTests.m */; };
-		01BA1ADE14E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */; };
-		01BA1ADF14E77DC600CF9F84 /* OCMArg.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD814E77DC600CF9F84 /* OCMArg.h */; };
-		01BA1AE014E77DC600CF9F84 /* OCMConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */; };
-		01BA1AE114E77DC600CF9F84 /* OCMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADA14E77DC600CF9F84 /* OCMock.h */; };
-		01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */; };
-		01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */; };
 		01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 /* End PBXBuildFile section */
@@ -119,6 +101,13 @@
 		012E8A541672B9A90021F6FA /* KeenProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenProperties.h; sourceTree = "<group>"; };
 		012E8A551672B9A90021F6FA /* KeenProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenProperties.m; sourceTree = "<group>"; };
 		012E8A5C1672BE860021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		015D30841822E8D200F8735B /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
+		015D30851822E8D200F8735B /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
+		015D30861822E8D200F8735B /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
+		015D30871822E8D200F8735B /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
+		015D30881822E8D200F8735B /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
+		015D30891822E8D200F8735B /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
+		015D308A1822E8D200F8735B /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		017EE11E14E30C96000F3868 /* libKeenClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKeenClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		017EE12114E30C96000F3868 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		017EE12514E30C96000F3868 /* KeenClient-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KeenClient-Prefix.pch"; sourceTree = "<group>"; };
@@ -132,13 +121,6 @@
 		017EE13D14E30C96000F3868 /* KeenClientTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenClientTests.h; sourceTree = "<group>"; };
 		017EE13E14E30C96000F3868 /* KeenClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KeenClientTests.m; sourceTree = "<group>"; };
 		01A9A34414FE953D0082AB22 /* index.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = index.markdown; path = docs/index.markdown; sourceTree = "<group>"; };
-		01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
-		01BA1AD814E77DC600CF9F84 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
-		01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
-		01BA1ADA14E77DC600CF9F84 /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
-		01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
-		01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
-		01BA1ADD14E77DC600CF9F84 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		01BA1B0314E895BC00CF9F84 /* KeenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenConstants.h; sourceTree = "<group>"; };
 		01BA1B0414E895BC00CF9F84 /* KeenConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenConstants.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -173,7 +155,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				012E8A701672D6520021F6FA /* libOCMock.a in Frameworks */,
+				015D308B1822E8D200F8735B /* libOCMock.a in Frameworks */,
 				012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */,
 				017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */,
 				017EE13214E30C96000F3868 /* UIKit.framework in Frameworks */,
@@ -200,6 +182,27 @@
 				0105EEAB14EDAFF70048D871 /* ISO8601DateFormatter.m */,
 			);
 			name = "iso-8601-parser-unparser";
+			sourceTree = "<group>";
+		};
+		015D30821822E8D200F8735B /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				015D30831822E8D200F8735B /* OCMock */,
+			);
+			path = Headers;
+			sourceTree = "<group>";
+		};
+		015D30831822E8D200F8735B /* OCMock */ = {
+			isa = PBXGroup;
+			children = (
+				015D30841822E8D200F8735B /* NSNotificationCenter+OCMAdditions.h */,
+				015D30851822E8D200F8735B /* OCMArg.h */,
+				015D30861822E8D200F8735B /* OCMConstraint.h */,
+				015D30871822E8D200F8735B /* OCMock.h */,
+				015D30881822E8D200F8735B /* OCMockObject.h */,
+				015D30891822E8D200F8735B /* OCMockRecorder.h */,
+			);
+			path = OCMock;
 			sourceTree = "<group>";
 		};
 		017EE11314E30C95000F3868 = {
@@ -289,32 +292,11 @@
 		01BA1AD414E77DC600CF9F84 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				015D30821822E8D200F8735B /* Headers */,
+				015D308A1822E8D200F8735B /* libOCMock.a */,
 				0105EEA914EDAFDF0048D871 /* iso-8601-parser-unparser */,
-				01BA1AD514E77DC600CF9F84 /* Headers */,
-				01BA1ADD14E77DC600CF9F84 /* libOCMock.a */,
 			);
 			path = Library;
-			sourceTree = "<group>";
-		};
-		01BA1AD514E77DC600CF9F84 /* Headers */ = {
-			isa = PBXGroup;
-			children = (
-				01BA1AD614E77DC600CF9F84 /* OCMock */,
-			);
-			path = Headers;
-			sourceTree = "<group>";
-		};
-		01BA1AD614E77DC600CF9F84 /* OCMock */ = {
-			isa = PBXGroup;
-			children = (
-				01BA1AD714E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h */,
-				01BA1AD814E77DC600CF9F84 /* OCMArg.h */,
-				01BA1AD914E77DC600CF9F84 /* OCMConstraint.h */,
-				01BA1ADA14E77DC600CF9F84 /* OCMock.h */,
-				01BA1ADB14E77DC600CF9F84 /* OCMockObject.h */,
-				01BA1ADC14E77DC600CF9F84 /* OCMockRecorder.h */,
-			);
-			path = OCMock;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -326,12 +308,6 @@
 			files = (
 				0111012614EF709A009794A5 /* KeenClient.h in Headers */,
 				010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */,
-				0111012714EF709A009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */,
-				0111012814EF709A009794A5 /* OCMArg.h in Headers */,
-				0111012914EF709A009794A5 /* OCMConstraint.h in Headers */,
-				0111012A14EF709A009794A5 /* OCMock.h in Headers */,
-				0111012B14EF709A009794A5 /* OCMockObject.h in Headers */,
-				0111012C14EF709A009794A5 /* OCMockRecorder.h in Headers */,
 				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
 				0111012F14EF709A009794A5 /* ISO8601DateFormatter.h in Headers */,
 			);
@@ -343,12 +319,6 @@
 			files = (
 				0111013E14EF70AB009794A5 /* KeenClient.h in Headers */,
 				010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */,
-				0111013F14EF70AB009794A5 /* NSNotificationCenter+OCMAdditions.h in Headers */,
-				0111014014EF70AB009794A5 /* OCMArg.h in Headers */,
-				0111014114EF70AB009794A5 /* OCMConstraint.h in Headers */,
-				0111014214EF70AB009794A5 /* OCMock.h in Headers */,
-				0111014314EF70AB009794A5 /* OCMockObject.h in Headers */,
-				0111014414EF70AB009794A5 /* OCMockRecorder.h in Headers */,
 				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
 				0111014714EF70AB009794A5 /* ISO8601DateFormatter.h in Headers */,
 			);
@@ -360,12 +330,6 @@
 			files = (
 				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
 				012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */,
-				01BA1ADE14E77DC600CF9F84 /* NSNotificationCenter+OCMAdditions.h in Headers */,
-				01BA1ADF14E77DC600CF9F84 /* OCMArg.h in Headers */,
-				01BA1AE014E77DC600CF9F84 /* OCMConstraint.h in Headers */,
-				01BA1AE114E77DC600CF9F84 /* OCMock.h in Headers */,
-				01BA1AE214E77DC600CF9F84 /* OCMockObject.h in Headers */,
-				01BA1AE314E77DC600CF9F84 /* OCMockRecorder.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
 				0105EEAC14EDAFF70048D871 /* ISO8601DateFormatter.h in Headers */,
 			);
@@ -621,7 +585,7 @@
 				PRODUCT_NAME = "KeenClient-Simulator";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphonesimulator;
-				VALID_ARCHS = "armv6 armv7";
+				VALID_ARCHS = "armv6 armv7 arm64";
 			};
 			name = Debug;
 		};
@@ -642,7 +606,7 @@
 				PRODUCT_NAME = "KeenClient-Simulator";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphonesimulator;
-				VALID_ARCHS = "armv6 armv7";
+				VALID_ARCHS = "armv6 armv7 arm64";
 			};
 			name = Release;
 		};
@@ -662,7 +626,7 @@
 				PRODUCT_NAME = "KeenClient-Device";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphoneos;
-				VALID_ARCHS = "armv7 armv7s armv6";
+				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Debug;
 		};
@@ -682,7 +646,7 @@
 				PRODUCT_NAME = "KeenClient-Device";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphoneos;
-				VALID_ARCHS = "armv7 armv7s armv6";
+				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Release;
 		};
@@ -785,7 +749,7 @@
 		017EE14614E30C96000F3868 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
@@ -801,7 +765,8 @@
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/Library\"",
+					"\\\"$(SRCROOT)/Library\\\"",
+					"/Users/dkador/dev/keen/KeenClient-iOS/Library",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -813,7 +778,7 @@
 		017EE14714E30C96000F3868 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
@@ -824,7 +789,8 @@
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/Library\"",
+					"\\\"$(SRCROOT)/Library\\\"",
+					"/Users/dkador/dev/keen/KeenClient-iOS/Library",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

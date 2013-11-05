@@ -485,7 +485,7 @@ static BOOL loggingEnabled = NO;
     if ([eventsArray count] >= self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
         KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
-        KCLog(@"Count: %d and Max: %d", [eventsArray count], self.maxEventsPerCollection);
+        KCLog(@"Count: %lu and Max: %lu", (unsigned long)[eventsArray count], (unsigned long)self.maxEventsPerCollection);
         
         NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
         // delete the eldest
@@ -711,7 +711,7 @@ static BOOL loggingEnabled = NO;
             forEventPaths:(NSDictionary *)eventPaths {
     if (!responseData) {
         KCLog(@"responseData was nil for some reason.  That's not great.");
-        KCLog(@"response status code: %d", [((NSHTTPURLResponse *) response) statusCode]);
+        KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
         return;
     }
     
@@ -777,7 +777,7 @@ static BOOL loggingEnabled = NO;
         }
     } else {
         // response code was NOT 200, which means something else happened. log this.
-        KCLog(@"Response code was NOT 200. It was: %d", responseCode);
+        KCLog(@"Response code was NOT 200. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
         [responseString release];
@@ -797,7 +797,7 @@ static BOOL loggingEnabled = NO;
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setValue:self.writeKey forHTTPHeaderField:@"Authorization"];
     // TODO check if setHTTPBody also sets content-length
-    [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
+    [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [data length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:data];
     NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
     return responseData;
