@@ -770,6 +770,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "armv7 armv7s";
 				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = octest;
 			};
@@ -794,6 +795,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = "armv7 armv7s";
 				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = octest;
 			};
