@@ -333,7 +333,7 @@ static BOOL loggingEnabled = NO;
         // set up the location manager
         if (self.locationManager == nil) {
             if ([CLLocationManager locationServicesEnabled]) {
-                self.locationManager = [[CLLocationManager alloc] init];
+                self.locationManager = [[[CLLocationManager alloc] init] autorelease];
                 self.locationManager.delegate = self;
             }
         }
