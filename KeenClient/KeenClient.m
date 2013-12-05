@@ -8,7 +8,6 @@
 
 #import "KeenClient.h"
 #import "KeenConstants.h"
-#import "JSONKit.h"
 #import "ISO8601DateFormatter.h"
 #import <CoreLocation/CoreLocation.h>
 
@@ -486,7 +485,7 @@ static BOOL loggingEnabled = NO;
     if ([eventsArray count] >= self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
         KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
-        KCLog(@"Count: %d and Max: %d", [eventsArray count], self.maxEventsPerCollection);
+        KCLog(@"Count: %lu and Max: %lu", (unsigned long)[eventsArray count], (unsigned long)self.maxEventsPerCollection);
         
         NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
         // delete the eldest
@@ -513,10 +512,7 @@ static BOOL loggingEnabled = NO;
     [eventToWrite setObject:keenProperties forKey:@"keen"];
     
     NSError *error = nil;
-    NSData *jsonData = [eventToWrite JSONDataWithOptions:JKSerializeOptionNone 
-                serializeUnsupportedClassesUsingDelegate:self 
-                                                selector:@selector(handleUnsupportedJSONValue:) 
-                                                   error:&error];
+    NSData *jsonData = [self serializeEventToJSON:eventToWrite error:&error];
     if (error) {
         [self handleError:anError
          withErrorMessage:[NSString stringWithFormat:@"An error occurred when serializing event to JSON: %@", [error localizedDescription]]];
@@ -528,6 +524,69 @@ static BOOL loggingEnabled = NO;
     
     // write JSON to file system
     [self writeNSData:jsonData toFile:fileName];
+}
+
+- (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError **) anError {
+    id fixed = [self handleInvalidJSONInObject:event];
+    
+    if (![NSJSONSerialization isValidJSONObject:fixed]) {
+        [self handleError:anError withErrorMessage:@"Event contains an invalid JSON type!"];
+        return nil;
+    }
+    return [NSJSONSerialization dataWithJSONObject:fixed options:0 error:anError];
+}
+
+- (NSMutableDictionary *)makeDictionaryMutable:(NSDictionary *)dict {
+    return [dict mutableCopy];
+}
+
+- (NSMutableArray *)makeArrayMutable:(NSArray *)array {
+    return [array mutableCopy];
+}
+
+- (id)handleInvalidJSONInObject:(id)value {
+    if (!value) {
+        return value;
+    }
+    
+    if ([value isKindOfClass:[NSDictionary class]]) {
+        NSMutableDictionary *mutDict = [self makeDictionaryMutable:value];
+        NSArray *keys = [mutDict allKeys];
+        for (NSString *dictKey in keys) {
+            id newValue = [self handleInvalidJSONInObject:[mutDict objectForKey:dictKey]];
+            [mutDict setObject:newValue forKey:dictKey];
+        }
+        return mutDict;
+    } else if ([value isKindOfClass:[NSArray class]]) {
+        // make sure the array is mutable and then recurse for every element
+        NSMutableArray *mutArr = [self makeArrayMutable:value];
+        for (NSUInteger i=0; i<[mutArr count]; i++) {
+            id arrVal = [mutArr objectAtIndex:i];
+            arrVal = [self handleInvalidJSONInObject:arrVal];
+            [mutArr setObject:arrVal atIndexedSubscript:i];
+        }
+        return mutArr;
+    } else if ([value isKindOfClass:[NSDate class]]) {
+        return [self convertDate:value];
+    } else if ([value isKindOfClass:[KeenProperties class]]) {
+        KeenProperties *keenProperties = value;
+        
+        NSString *isoDate = [self convertDate:keenProperties.timestamp];
+        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject:isoDate forKey:@"timestamp"];
+        
+        CLLocation *location = keenProperties.location;
+        if (location != nil) {
+            NSNumber *longitude = [NSNumber numberWithDouble:location.coordinate.longitude];
+            NSNumber *latitude = [NSNumber numberWithDouble:location.coordinate.latitude];
+            NSArray *coordinatesArray = [NSArray arrayWithObjects:longitude, latitude, nil];
+            NSDictionary *coordinatesDict = [NSDictionary dictionaryWithObject:coordinatesArray forKey:@"coordinates"];
+            [dict setObject:coordinatesDict forKey:@"location"];
+        }
+        
+        return dict;
+    } else {
+        return value;
+    }
 }
 
 # pragma mark - Uploading
@@ -607,10 +666,10 @@ static BOOL loggingEnabled = NO;
             NSData *data = [NSData dataWithContentsOfFile:filePath];
             // deserialize it
             error = nil;
-
             if ([data length] > 0) {
-                NSDictionary *eventDict = [data objectFromJSONDataWithParseOptions:JKParseOptionNone
-                                                                             error:&error];
+                NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:data
+                                                                          options:0
+                                                                            error:&error];
                 if (error) {
                     KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                     continue;
@@ -640,10 +699,7 @@ static BOOL loggingEnabled = NO;
     
     // first serialize the request dict back to a json string
     error = nil;
-    NSData *data = [requestDict JSONDataWithOptions:JKSerializeOptionNone 
-           serializeUnsupportedClassesUsingDelegate:self
-                                           selector:@selector(convertDate:) 
-                                              error:&error];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
     if (error) {
         KCLog(@"An error occurred when serializing the final request data back to JSON: %@", 
               [error localizedDescription]);
@@ -660,7 +716,7 @@ static BOOL loggingEnabled = NO;
             forEventPaths:(NSDictionary *)eventPaths {
     if (!responseData) {
         KCLog(@"responseData was nil for some reason.  That's not great.");
-        KCLog(@"response status code: %d", [((NSHTTPURLResponse *) response) statusCode]);
+        KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
         return;
     }
     
@@ -669,8 +725,9 @@ static BOOL loggingEnabled = NO;
     if (responseCode == 200) {
         // deserialize the response
         NSError *error = nil;
-        NSDictionary *responseDict = [responseData objectFromJSONDataWithParseOptions:JKParseOptionNone 
-                                                                                error:&error];
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData
+                                                                     options:0
+                                                                       error:&error];
         if (error) {
             NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
             KCLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
@@ -725,7 +782,7 @@ static BOOL loggingEnabled = NO;
         }
     } else {
         // response code was NOT 200, which means something else happened. log this.
-        KCLog(@"Response code was NOT 200. It was: %d", responseCode);
+        KCLog(@"Response code was NOT 200. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
         [responseString release];
@@ -745,7 +802,7 @@ static BOOL loggingEnabled = NO;
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setValue:self.writeKey forHTTPHeaderField:@"Authorization"];
     // TODO check if setHTTPBody also sets content-length
-    [request setValue:[NSString stringWithFormat:@"%d", [data length]] forHTTPHeaderField:@"Content-Length"];
+    [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [data length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:data];
     NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
     return responseData;
@@ -843,7 +900,7 @@ static BOOL loggingEnabled = NO;
     if (error != NULL) {
         NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errorMessage forKey:NSLocalizedDescriptionKey];
         *error = [NSError errorWithDomain:kKeenErrorDomain code:1 userInfo:userInfo];
-        KCLog(*error);
+        KCLog(@"%@", *error);
     }
 }
                     
