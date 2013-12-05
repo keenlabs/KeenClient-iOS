@@ -78,6 +78,10 @@ That's it! After running your code, check your Keen IO Project to see the event 
 
 ### Changelog
 
+##### 3.2.4
+
++ Get semantic versioning cleaned up for cocoapods (somehow got confused between 3.2.2 and 3.2.3).
+
 ##### 3.2.2
 
 + Support for iOS 7 and ARM64.
