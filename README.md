@@ -78,6 +78,11 @@ That's it! After running your code, check your Keen IO Project to see the event 
 
 ### Changelog
 
+##### 3.2.2
+
++ Support for iOS 7 and ARM64.
++ Removed JSONKit dependency in favor of NSJONSerialization.
+
 ##### 3.2.1
 
 + Changed project token -> project ID.
