@@ -12,12 +12,15 @@ The Keen IO iOS client is designed to be simple to develop with, yet incredibly 
 ### Installation
 
 Use [cocoapods](http://cocoapods.org/) to install! Just add a line to your Podfile like so:
-
+```objc
     pod 'KeenClient'
+```
 
 Then run
 
+```objc
     pod install
+```
 
 ##### Build Settings
 
@@ -35,17 +38,20 @@ To use this client with the Keen IO API, you have to configure your Keen IO Proj
 
 ##### Register Your Project ID and Access Keys
 
+```objc
     - (void)applicationDidBecomeActive:(UIApplication *)application
     {
         [KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
     }
+```
 
-The write key is required to send events to Keen IO - the read key is required to do analysis on Keen IO.
+The write key is required to send events to Keen IO. The read key is required to do analysis on Keen IO.
 
 ##### Add Events
 
 Use the client like so:
 
+```objc
     - (void)viewWillAppear:(BOOL)animated
     {
         [super viewWillAppear:animated];
@@ -54,11 +60,13 @@ Use the client like so:
                                @"going to", @"action", nil];
         [[KeenClient sharedClient] addEvent:event toEventCollection:@"tab_views" error:nil];
     }
+```
 
 ##### Upload Events to Keen IO
 
 Adding events just stores the events locally on the device. You must explicitly upload them to Keen IO. Here's an example:
 
+```objc
     - (void)applicationDidEnterBackground:(UIApplication *)application
     {
         UIBackgroundTaskIdentifier taskId = [application beginBackgroundTaskWithExpirationHandler:^(void) {
@@ -69,10 +77,11 @@ Adding events just stores the events locally on the device. You must explicitly 
             [application endBackgroundTask:taskId];
         }];
     }
+```
 
 ##### Do analysis with Keen IO
 
-    TODO
+    TO DO
     
 That's it! After running your code, check your Keen IO Project to see the event has been added.
 
