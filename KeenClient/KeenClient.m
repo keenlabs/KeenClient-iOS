@@ -537,11 +537,11 @@ static BOOL loggingEnabled = NO;
 }
 
 - (NSMutableDictionary *)makeDictionaryMutable:(NSDictionary *)dict {
-    return [dict mutableCopy];
+    return [[dict mutableCopy] autorelease];
 }
 
 - (NSMutableArray *)makeArrayMutable:(NSArray *)array {
-    return [array mutableCopy];
+    return [[array mutableCopy] autorelease];
 }
 
 - (id)handleInvalidJSONInObject:(id)value {
