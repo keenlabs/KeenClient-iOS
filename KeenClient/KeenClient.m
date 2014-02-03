@@ -524,6 +524,11 @@ static BOOL loggingEnabled = NO;
     
     // write JSON to file system
     [self writeNSData:jsonData toFile:fileName];
+    
+    // log the event
+    if ([KeenClient isLoggingEnabled]) {
+        KCLog(@"Event: %@", eventToWrite);
+    }
 }
 
 - (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError **) anError {
@@ -709,6 +714,10 @@ static BOOL loggingEnabled = NO;
     
     *jsonData = data;
     *eventPaths = fileDict;
+    
+    if ([KeenClient isLoggingEnabled]) {
+        KCLog(@"Uploading following events to Keen API: %@", requestDict);
+    }
 }
 
 - (void)handleAPIResponse:(NSURLResponse *)response 
