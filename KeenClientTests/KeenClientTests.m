@@ -48,6 +48,9 @@
     [[KeenClient sharedClient] setProjectId:nil];
     [[KeenClient sharedClient] setWriteKey:nil];
     [[KeenClient sharedClient] setReadKey:nil];
+    [KeenClient enableLogging];
+    [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
+    [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
 }
 
 - (void)tearDown {
