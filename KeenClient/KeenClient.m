@@ -8,12 +8,11 @@
 
 #import "KeenClient.h"
 #import "KeenConstants.h"
-#import "ISO8601DateFormatter.h"
 #import <CoreLocation/CoreLocation.h>
 
 
 static KeenClient *sharedClient;
-static ISO8601DateFormatter *dateFormatter;
+static NSDateFormatter *dateFormatter;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
 
@@ -194,10 +193,10 @@ static BOOL loggingEnabled = NO;
     [KeenClient disableLogging];
     [KeenClient enableGeoLocation];
     if (!dateFormatter) {
-        dateFormatter = [[ISO8601DateFormatter alloc] init];
-        [dateFormatter setIncludeTime:YES];
+        dateFormatter = [[NSDateFormatter alloc] init];
         NSTimeZone *timeZone = [NSTimeZone localTimeZone];
-        [dateFormatter setDefaultTimeZone:timeZone];
+        [dateFormatter setTimeZone:timeZone];
+        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
     }
 }
 
