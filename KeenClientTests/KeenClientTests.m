@@ -609,7 +609,7 @@
     STAssertNotNil(error, @"collection can't be longer than 256 chars");
 }
 
--(void)testEmptyEventFileUpload {
+- (void)testEmptyEventFileUpload {
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
     [client addEvent:@{@"fixture key" : @"fixture value"} toEventCollection:@"FixtureCollection" error:nil];
@@ -624,6 +624,15 @@
     [client uploadWithFinishedBlock:nil];
 
     STAssertFalse([fileManager fileExistsAtPath:emptyFilePath], @"empty event file should be removed");
+}
+
+- (void)testUploadMultipleTimes {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    
+    [client uploadWithFinishedBlock:nil];
+    [client uploadWithFinishedBlock:nil];
+    [client uploadWithFinishedBlock:nil];
 }
 
 # pragma mark - test filesystem utility methods

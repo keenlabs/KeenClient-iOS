@@ -39,6 +39,9 @@ static BOOL loggingEnabled = NO;
 // The number of events to drop when aging out a collection.
 @property (nonatomic, readonly) NSUInteger numberEventsToForget;
 
+// A dispatch queue used for uploads.
+@property (nonatomic) dispatch_queue_t uploadQueue;
+
 // If we're running tests.
 @property (nonatomic) Boolean isRunningTests;
 
@@ -174,6 +177,7 @@ static BOOL loggingEnabled = NO;
 @synthesize isRunningTests=_isRunningTests;
 @synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
 @synthesize globalPropertiesBlock=_globalPropertiesBlock;
+@synthesize uploadQueue;
 
 # pragma mark - Class lifecycle
 
@@ -227,6 +231,9 @@ static BOOL loggingEnabled = NO;
     
     [self refreshCurrentLocation];
     
+    self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
+    dispatch_retain(self.uploadQueue);
+    
     return self;
 }
 
@@ -278,6 +285,7 @@ static BOOL loggingEnabled = NO;
     self.globalPropertiesDictionary = nil;
     // explicitly release the properties which we've copied
     [self.globalPropertiesBlock release];
+    dispatch_release(self.uploadQueue);
     [super dealloc];
 }
 
@@ -633,7 +641,9 @@ static BOOL loggingEnabled = NO;
         [self uploadHelperWithFinishedBlock:copiedBlock];
     } else {
         // otherwise do it in the background to not interfere with UI operations
-        [self performSelectorInBackground:@selector(uploadHelperWithFinishedBlock:) withObject:copiedBlock];
+        dispatch_async(self.uploadQueue, ^{
+            [self uploadHelperWithFinishedBlock:copiedBlock];
+        });
     }
 }
 
@@ -650,6 +660,9 @@ static BOOL loggingEnabled = NO;
     
     // create a structure that will hold corresponding paths to all the files
     NSMutableDictionary *fileDict = [NSMutableDictionary dictionary];
+    
+    // keep track of how many events we'll upload
+    NSUInteger eventCount = 0;
     
     // iterate through each directory
     for (NSString *dirName in directories) {
@@ -682,6 +695,8 @@ static BOOL loggingEnabled = NO;
                 [requestArray addObject:eventDict];
                 // and also to the array of paths
                 [fileArray addObject:filePath];
+                // increment event count
+                eventCount++;
             }
             else {
                 [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
@@ -694,7 +709,7 @@ static BOOL loggingEnabled = NO;
     }
     
     // end early if there are no events
-    if ([requestDict count] == 0) {
+    if (eventCount == 0) {
         KCLog(@"Upload called when no events were present, ending early.");
         return;
     }
