@@ -79,6 +79,8 @@ Adding events just stores the events locally on the device. You must explicitly 
     }
 ```
 
+An important note: it's a best practice to issue a single upload at a time. We make a best effort to reduce the number of threads spawned to upload in the background, but if you call upload many many times in a tight loop you're going to cause issues for yourself.
+
 ##### Do analysis with Keen IO
 
     TO DO
