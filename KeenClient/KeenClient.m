@@ -485,7 +485,8 @@ static BOOL loggingEnabled = NO;
     // if the directory doesn't exist, create it.
     Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
     if (!success) {
-        [NSException raise:@"CouldNotCreateDirectory" format:@"Couldn't access local directory at %@, check your logs.", dirPath];
+        KCLog(@"Couldn't access local directory at %@. Event NOT added.", dirPath);
+        return;
     }
     // now make sure that we haven't hit the max number of events in this collection already
     NSArray *eventsArray = [self contentsAtPath:dirPath];
