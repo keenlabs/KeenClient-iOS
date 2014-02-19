@@ -89,6 +89,12 @@ That's it! After running your code, check your Keen IO Project to see the event 
 
 ### Changelog
 
+##### 3.2.5
+
++ Don't throw exceptions and crash the app when the local cache directory is unavailable.
++ Remove ISO8601DateFormatter dependency.
++ Use Grand Central Dispatch to not spawn one thread per upload invocation.
+
 ##### 3.2.4
 
 + Get semantic versioning cleaned up for cocoapods (somehow got confused between 3.2.2 and 3.2.3).
