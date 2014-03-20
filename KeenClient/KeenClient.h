@@ -218,6 +218,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  will be logged.
  
  @param block The block to be executed once uploading is finished, regardless of whether or not the upload succeeded.
+ The block is also called when no upload was necessary because no events were captured.
  */
 - (void)uploadWithFinishedBlock:(void (^)())block;
 

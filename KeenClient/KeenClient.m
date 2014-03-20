@@ -611,17 +611,15 @@ static BOOL loggingEnabled = NO;
         NSData *data = nil;
         NSMutableDictionary *eventPaths = nil;
         [self prepareJSONData:&data andEventPaths:&eventPaths];
-        if (!data || !eventPaths) {
-            return;
+        if ([data length] > 0 && [eventPaths count] > 0) {
+            // then make an http request to the keen server.
+            NSURLResponse *response = nil;
+            NSError *error = nil;
+            NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
+            
+            // then parse the http response and deal with it appropriately
+            [self handleAPIResponse:response andData:responseData forEventPaths:eventPaths];
         }
-        
-        // then make an http request to the keen server.
-        NSURLResponse *response = nil;
-        NSError *error = nil;
-        NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
-        
-        // then parse the http response and deal with it appropriately
-        [self handleAPIResponse:response andData:responseData forEventPaths:eventPaths];
         
         // finally, run the user-specific block (if there is one)
         if (block) {
