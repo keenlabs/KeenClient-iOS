@@ -89,6 +89,10 @@ That's it! After running your code, check your Keen IO Project to see the event 
 
 ### Changelog
 
+##### 3.2.6
+
++ Bugfix to always invoke callback on upload, even if there are no events to upload.
+
 ##### 3.2.5
 
 + Don't throw exceptions and crash the app when the local cache directory is unavailable.
