@@ -12,7 +12,7 @@ The Keen IO iOS client is designed to be simple to develop with, yet incredibly 
 ### Installation
 
 Use [cocoapods](http://cocoapods.org/) to install! Just add a line to your Podfile like so:
-```objc
+```
     pod 'KeenClient'
 ```
 
@@ -78,6 +78,8 @@ Adding events just stores the events locally on the device. You must explicitly 
         }];
     }
 ```
+    
+That's it! After running your code, check your Keen IO Project to see the event has been added.
 
 An important note: it's a best practice to issue a single upload at a time. We make a best effort to reduce the number of threads spawned to upload in the background, but if you call upload many many times in a tight loop you're going to cause issues for yourself.
 
@@ -85,8 +87,10 @@ An important note: it's a best practice to issue a single upload at a time. We m
 
     TO DO
     
-That's it! After running your code, check your Keen IO Project to see the event has been added.
+##### Tracking events in OS X apps
 
+This SDK *should* work for OS X apps. If you try and it doesn't work, please file an issue here. Thanks!
+    
 ### Changelog
 
 ##### 3.2.6
