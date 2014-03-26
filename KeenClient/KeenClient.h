@@ -30,6 +30,8 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 @interface KeenClient : NSObject <CLLocationManagerDelegate> {
     sqlite3 *keen_dbname;
     sqlite3_stmt *insert_stmt;
+    sqlite3_stmt *pending_stmt;
+    sqlite3_stmt *delete_stmt;
 }
 
 @property (readwrite, nonatomic) BOOL table_ok,db_open_status;

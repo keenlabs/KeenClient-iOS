@@ -286,12 +286,23 @@ static BOOL loggingEnabled = NO;
             table_ok = YES;
         }
 
-        char *sql = "INSERT INTO events (eventData, pending) VALUES (?, 0)";
-        if(sqlite3_prepare_v2(keen_dbname, sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
+        // TODO: Error messages?
+        char *insert_sql = "INSERT INTO events (eventData, pending) VALUES (?, 0)";
+        if(sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
             KCLog(@"Failed to prepare insert statement!");
             [self closeDB];
-            db_open_status = NO;
-            self.table_ok = NO;
+        }
+        
+        char *pending_sql = "UPDATE events SET pending=? WHERE id=?";
+        if(sqlite3_prepare_v2(keen_dbname, pending_sql, -1, &pending_stmt, NULL) != SQLITE_OK) {
+            KCLog(@"Failed to prepare pending statement!");
+            [self closeDB];
+        }
+
+        char *delete_sql = "DELETE FROM events WHERE id=?";
+        if(sqlite3_prepare_v2(keen_dbname, delete_sql, -1, &pending_stmt, NULL) != SQLITE_OK) {
+            KCLog(@"Failed to prepare delete statement!");
+            [self closeDB];
         }
     }
     
@@ -346,6 +357,7 @@ static BOOL loggingEnabled = NO;
     sqlite3_finalize(insert_stmt);
     sqlite3_close(keen_dbname);
     db_open_status = NO;
+    table_ok = NO;
 }
 
 - (void)dealloc {
