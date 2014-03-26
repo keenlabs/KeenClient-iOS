@@ -179,6 +179,8 @@ static BOOL loggingEnabled = NO;
 @synthesize globalPropertiesBlock=_globalPropertiesBlock;
 @synthesize uploadQueue;
 
+@synthesize table_ok,numberOfRows,db_open_status;
+
 # pragma mark - Class lifecycle
 
 + (void)initialize {
@@ -271,8 +273,77 @@ static BOOL loggingEnabled = NO;
             self.readKey = readKey;
         }
     }
+
+    self.numberOfRows = 0;
+    self.db_open_status = NO;
+    self.table_ok = NO;
+
+    if ([self openDB]) {
+        db_open_status = YES;
+        if(![self createTable]) {
+            KCLog(@"Failed to create SQLite table!");
+        } else {
+            table_ok = YES;
+        }
+
+        char *sql = "INSERT INTO events (eventData, pending) VALUES (?, 0)";
+        if(sqlite3_prepare_v2(keen_dbname, sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
+            KCLog(@"Failed to prepare insert statement!");
+            [self closeDB];
+            db_open_status = NO;
+            self.table_ok = NO;
+        }
+    }
     
     return self;
+}
+
+#pragma sqlite methods
+-(BOOL)openDB {
+    BOOL is_Opened = NO;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *my_sqlfile = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"events"];
+    if(sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
+        is_Opened = YES;
+    }
+    return is_Opened;
+}
+
+-(BOOL)createTable {
+    BOOL has_beencreated = NO;
+    char *err;
+    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData TEXT, pending INTEGER);"];
+    if(sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        sqlite3_close(keen_dbname);
+    } else {
+        has_beencreated = YES;
+    }
+
+    return has_beencreated;
+}
+
+-(BOOL) addEventToTable:(NSString *)eventData  {
+    BOOL wasAdded = NO;
+
+    // Prepare our query for execution, clearing any previous state.
+    // TODO: Do we need error checking here?
+    sqlite3_reset(insert_stmt);
+    sqlite3_clear_bindings(insert_stmt);
+
+    // TODO Add error message?
+    // Not sure if TRANSIENT or STATIC is best here.
+    if(sqlite3_bind_text(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
+        KCLog(@"Failed to insert event!");
+    } else {
+        wasAdded = YES;
+    }
+
+    return wasAdded;
+}
+
+- (void)closeDB {
+    sqlite3_close(keen_dbname);
+    db_open_status = NO;
 }
 
 - (void)dealloc {

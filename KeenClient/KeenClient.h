@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
+#import <sqlite3.h>
 #import "KeenProperties.h"
 
 // defines a type for the block we'll use with our global properties
@@ -26,7 +27,18 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
     [[KeenClient sharedClient] addEvent:myEvent toEventCollection:@"purchases"];
     [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
  */
-@interface KeenClient : NSObject <CLLocationManagerDelegate>
+@interface KeenClient : NSObject <CLLocationManagerDelegate> {
+    sqlite3 *keen_dbname;
+    sqlite3_stmt *insert_stmt;
+}
+
+@property (readwrite, nonatomic) int numberOfRows;
+@property (readwrite, nonatomic) BOOL table_ok,db_open_status;
+
+-(BOOL)openDB;
+-(BOOL)createTable;
+-(BOOL)addEventToTable: (NSString *)eventData;
+-(void)closeDB;
 
 /**
  This Objective-C property represents the Keen Global Properties dictionary for this instance of the
