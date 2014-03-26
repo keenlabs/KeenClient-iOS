@@ -284,8 +284,8 @@ sqlite3_stmt *delete_stmt;
     }
 
     // TODO dealloc?
-    self.db_open_status = NO;
-    self.table_ok = NO;
+    db_open_status = NO;
+    table_ok = NO;
 
     if ([self openDB]) {
         db_open_status = YES;

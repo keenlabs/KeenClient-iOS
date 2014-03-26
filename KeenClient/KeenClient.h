@@ -27,10 +27,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
     [[KeenClient sharedClient] addEvent:myEvent toEventCollection:@"purchases"];
     [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
  */
-@interface KeenClient : NSObject <CLLocationManagerDelegate> {
-}
-
-@property (readwrite, nonatomic) BOOL table_ok,db_open_status;
+@interface KeenClient : NSObject <CLLocationManagerDelegate>
 
 -(BOOL)openDB;
 -(BOOL)createTable;
