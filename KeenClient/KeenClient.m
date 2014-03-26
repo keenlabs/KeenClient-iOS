@@ -367,8 +367,11 @@ static BOOL loggingEnabled = NO;
     BOOL wasAdded = NO;
 
     // Prepare our query for execution, clearing any previous state.
-    // TODO: Do we need error checking here?
-    sqlite3_reset(insert_stmt);
+    if(sqlite3_reset(insert_stmt) != SQLITE_OK) {
+        KCLog(@"Failed to reset insert statement!");
+        [self closeDB];
+    };
+    // Some googling around indicates that this doesn't need an error check.
     sqlite3_clear_bindings(insert_stmt);
 
     // TODO Add error message?
