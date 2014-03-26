@@ -28,14 +28,6 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
     [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
  */
 @interface KeenClient : NSObject <CLLocationManagerDelegate> {
-    sqlite3 *keen_dbname;
-    sqlite3_stmt *insert_stmt;
-    sqlite3_stmt *find_stmt;
-    sqlite3_stmt *count_pending_stmt;
-    sqlite3_stmt *find_pending_stmt;
-    sqlite3_stmt *make_pending_stmt;
-    sqlite3_stmt *reset_pending_stmt;
-    sqlite3_stmt *delete_stmt;
 }
 
 @property (readwrite, nonatomic) BOOL table_ok,db_open_status;

@@ -179,7 +179,16 @@ static BOOL loggingEnabled = NO;
 @synthesize globalPropertiesBlock=_globalPropertiesBlock;
 @synthesize uploadQueue;
 
-@synthesize table_ok,db_open_status;
+BOOL table_ok = NO;
+BOOL db_open_status = NO;
+sqlite3 *keen_dbname;
+sqlite3_stmt *insert_stmt;
+sqlite3_stmt *find_stmt;
+sqlite3_stmt *count_pending_stmt;
+sqlite3_stmt *find_pending_stmt;
+sqlite3_stmt *make_pending_stmt;
+sqlite3_stmt *reset_pending_stmt;
+sqlite3_stmt *delete_stmt;
 
 # pragma mark - Class lifecycle
 
