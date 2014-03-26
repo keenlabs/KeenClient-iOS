@@ -307,7 +307,7 @@ static BOOL loggingEnabled = NO;
             [self closeDB];
         }
 
-        // This stateement returns pending events.
+        // This statement returns pending events.
         char *find_pending_sql = "SELECT id, eventData FROM events WHERE pending=1";
         if(sqlite3_prepare_v2(keen_dbname, find_pending_sql, -1, &find_pending_stmt, NULL) != SQLITE_OK) {
             KCLog(@"Failed to prepare find pending statement!");
@@ -321,6 +321,13 @@ static BOOL loggingEnabled = NO;
             [self closeDB];
         }
 
+        // This statement resets pending events back to normal.
+        char *reset_pending_sql = "UPDATE events SET pending=0";
+        if(sqlite3_prepare_v2(keen_dbname, reset_pending_sql, -1, &reset_pending_stmt, NULL) != SQLITE_OK) {
+            KCLog(@"Failed to prepare reset pending statement!");
+            [self closeDB];
+        }
+        
         // This statement deletes events by id.
         char *delete_sql = "DELETE FROM events WHERE id=?";
         if(sqlite3_prepare_v2(keen_dbname, delete_sql, -1, &delete_stmt, NULL) != SQLITE_OK) {
