@@ -91,31 +91,7 @@
     return self;
 }
 
-#pragma sqlite methods
--(BOOL)openDB {
-    BOOL wasOpened = NO;
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *my_sqlfile = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"events"];
-    if(sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
-        wasOpened = YES;
-    }
-    return wasOpened;
-}
-
--(BOOL)createTable {
-    BOOL wasCreated = NO;
-    char *err;
-    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData BLOB, pending INTEGER);"];
-    if(sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-        [self closeDB];
-    } else {
-        wasCreated = YES;
-    }
-    
-    return wasCreated;
-}
-
--(BOOL) addEventToTable:(NSString *)eventData  {
+-(BOOL) addEvent:(NSString *)eventData  {
     BOOL wasAdded = NO;
     
     // Prepare our query for execution, clearing any previous state.
@@ -140,8 +116,32 @@
         KCLog(@"Failed to insert event!");
         [self closeDB];
     }
-    
+
     return wasAdded;
+}
+
+#pragma sqlite methods
+-(BOOL)openDB {
+    BOOL wasOpened = NO;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *my_sqlfile = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"events"];
+    if(sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
+        wasOpened = YES;
+    }
+    return wasOpened;
+}
+
+-(BOOL)createTable {
+    BOOL wasCreated = NO;
+    char *err;
+    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData BLOB, pending INTEGER);"];
+    if(sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        [self closeDB];
+    } else {
+        wasCreated = YES;
+    }
+
+    return wasCreated;
 }
 
 - (void)closeDB {

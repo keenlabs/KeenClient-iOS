@@ -11,9 +11,6 @@
 
 @interface EventStore : NSObject
 
--(BOOL)openDB;
--(BOOL)createTable;
--(BOOL)addEventToTable: (NSString *)eventData;
--(void)closeDB;
+-(BOOL)addEvent: (NSString *)eventData;
 
 @end
