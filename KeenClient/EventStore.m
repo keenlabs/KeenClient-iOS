@@ -128,6 +128,7 @@
     
     // TODO Add error message?
     // Not sure if TRANSIENT or STATIC is best here.
+    // TODO This is a blog, not a string!
     if(sqlite3_bind_text(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
         KCLog(@"Failed to bind insert event!");
         [self closeDB];
@@ -145,6 +146,13 @@
 
 - (void)closeDB {
     sqlite3_finalize(insert_stmt);
+    sqlite3_finalize(find_stmt);
+    sqlite3_finalize(count_pending_stmt);
+    sqlite3_finalize(find_pending_stmt);
+    sqlite3_finalize(make_pending_stmt);
+    sqlite3_finalize(reset_pending_stmt);
+    sqlite3_finalize(delete_stmt);
+
     sqlite3_close(keen_dbname);
     db_open_status = NO;
     table_ok = NO;
@@ -152,7 +160,7 @@
 
 
 - (void)dealloc {
-    
+    [self closeDB];
     [super dealloc];
 }
 

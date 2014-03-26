@@ -276,7 +276,6 @@ static BOOL loggingEnabled = NO;
 
 - (void)dealloc {
     // nil out the properties which we've retained (which will release them)
-    [self closeDB];
     self.projectId = nil;
     self.writeKey = nil;
     self.readKey = nil;
