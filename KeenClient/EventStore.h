@@ -11,6 +11,19 @@
 
 @interface EventStore : NSObject
 
--(BOOL)addEvent: (NSString *)eventData;
+ /**
+  Add an event to the store.
+  */
+- (BOOL)addEvent: (NSString *)eventData;
 
+ /**
+  Get a list of events that are ready to send to Keen. Events that are
+  returned have been flagged as pending in the underlying store.
+  */
+- (void)getEvents: (NSMutableArray **)events;
+
+ /**
+  Purge pending events that were returned from a previous call to getEvents.
+  */
+- (void)purgeEvents;
 @end

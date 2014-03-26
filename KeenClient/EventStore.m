@@ -19,7 +19,7 @@
     sqlite3_stmt *find_pending_stmt;
     sqlite3_stmt *make_pending_stmt;
     sqlite3_stmt *reset_pending_stmt;
-    sqlite3_stmt *delete_stmt;
+    sqlite3_stmt *purge_stmt;
 }
 
 - (id)init {
@@ -28,15 +28,19 @@
 
         table_ok = NO;
         db_open_status = NO;
-        
+
+        // First, let's open the database.
         if ([self openDB]) {
             db_open_status = YES;
+            // Then try and create the table.
             if(![self createTable]) {
                 KCLog(@"Failed to create SQLite table!");
             } else {
                 table_ok = YES;
             }
-            
+
+            // Now we'll init prepared statements for all the things we might do.
+
             // This statement inserts events into the table.
             char *insert_sql = "INSERT INTO events (eventData, pending) VALUES (?, 0)";
             if(sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
@@ -78,20 +82,19 @@
                 KCLog(@"Failed to prepare reset pending statement!");
                 [self closeDB];
             }
-            
-            // This statement deletes events by id.
-            char *delete_sql = "DELETE FROM events WHERE id=?";
-            if(sqlite3_prepare_v2(keen_dbname, delete_sql, -1, &delete_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare delete statement!");
+
+            // This statement purges all pending events.
+            char *purge_sql = "DELETE FROM evnets WHERE pending=1";
+            if(sqlite3_prepare_v2(keen_dbname, purge_sql, -1, &purge_stmt, NULL) != SQLITE_OK) {
+                KCLog(@"Failed to prepare purge statement!");
                 [self closeDB];
             }
         }
-
     }
     return self;
 }
 
--(BOOL) addEvent:(NSString *)eventData  {
+- (BOOL)addEvent:(NSString *)eventData  {
     BOOL wasAdded = NO;
     
     // Prepare our query for execution, clearing any previous state.
@@ -104,34 +107,75 @@
     
     // TODO Add error message?
     // Not sure if TRANSIENT or STATIC is best here.
-    // TODO This is a blog, not a string!
-    if(sqlite3_bind_text(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
+    // TODO This is a blob, not a string!
+    if (sqlite3_bind_text(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
         KCLog(@"Failed to bind insert event!");
+        [self closeDB];
+    }
+    
+    if (sqlite3_step(insert_stmt) != SQLITE_DONE) {
+        KCLog(@"Failed to insert event!");
         [self closeDB];
     } else {
         wasAdded = YES;
-    }
-    
-    if(sqlite3_step(insert_stmt) != SQLITE_DONE) {
-        KCLog(@"Failed to insert event!");
-        [self closeDB];
     }
 
     return wasAdded;
 }
 
-#pragma sqlite methods
--(BOOL)openDB {
+- (void)getEvents:(NSMutableArray **)eventData {
+
+    // Reset things
+    sqlite3_reset(find_stmt);
+
+    // Create an array to hold the contents of our select.
+    NSMutableArray *events = [NSMutableArray array];
+
+    // This method has no bindings, so can just step it immediately.
+    while (sqlite3_step(find_stmt) == SQLITE_ROW) {
+        // Fetch data out the statement
+        int eventId = sqlite3_column_int(find_stmt, 1);
+        const void *ptr = sqlite3_column_blob(find_stmt, 1);
+        int size = sqlite3_column_bytes(find_stmt, 1);
+
+        // Reset the pendifier
+        sqlite3_reset(make_pending_stmt);
+        // Bind and mark the event pending.
+        if (sqlite3_bind_int(make_pending_stmt, eventId, SQLITE_TRANSIENT) != SQLITE_OK) {
+            // XXX What to do here?
+        }
+        if(sqlite3_step(make_pending_stmt) != SQLITE_OK) {
+            // XXX Or here?
+        }
+
+        // Add the event to the array.
+        NSData *data = [[NSData alloc] initWithBytes:ptr length:size];
+        [events addObject:data];
+    }
+
+    // Set the return.
+    *eventData = events;
+}
+
+- (void)purgeEvents {
+    sqlite3_reset(purge_stmt);
+    if (sqlite3_step(purge_stmt) != SQLITE_DONE) {
+        KCLog(@"Failed to purge pending events.");
+        // What to do here?
+    };
+}
+
+- (BOOL)openDB {
     BOOL wasOpened = NO;
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *my_sqlfile = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"events"];
-    if(sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
+    if (sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
         wasOpened = YES;
     }
     return wasOpened;
 }
 
--(BOOL)createTable {
+- (BOOL)createTable {
     BOOL wasCreated = NO;
     char *err;
     NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData BLOB, pending INTEGER);"];
@@ -145,15 +189,18 @@
 }
 
 - (void)closeDB {
+    // Free all the prepared statements. This is safe on null pointers.
     sqlite3_finalize(insert_stmt);
     sqlite3_finalize(find_stmt);
     sqlite3_finalize(count_pending_stmt);
     sqlite3_finalize(find_pending_stmt);
     sqlite3_finalize(make_pending_stmt);
     sqlite3_finalize(reset_pending_stmt);
-    sqlite3_finalize(delete_stmt);
+    sqlite3_finalize(purge_stmt);
 
+    // Free our DB. This is safe on null pointers.
     sqlite3_close(keen_dbname);
+    // Reset state in case it matters.
     db_open_status = NO;
     table_ok = NO;
 }
