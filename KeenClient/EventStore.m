@@ -16,7 +16,6 @@
     sqlite3_stmt *insert_stmt;
     sqlite3_stmt *find_stmt;
     sqlite3_stmt *count_pending_stmt;
-    sqlite3_stmt *find_pending_stmt;
     sqlite3_stmt *make_pending_stmt;
     sqlite3_stmt *reset_pending_stmt;
     sqlite3_stmt *purge_stmt;
@@ -61,14 +60,7 @@
                 KCLog(@"Failed to prepare count pending statement!");
                 [self closeDB];
             }
-            
-            // This statement returns pending events.
-            char *find_pending_sql = "SELECT id, eventData FROM events WHERE pending=1";
-            if(sqlite3_prepare_v2(keen_dbname, find_pending_sql, -1, &find_pending_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare find pending statement!");
-                [self closeDB];
-            }
-            
+
             // This statement marks an event as pending.
             char *make_pending_sql = "UPDATE events SET pending=1 WHERE id=?";
             if(sqlite3_prepare_v2(keen_dbname, make_pending_sql, -1, &make_pending_stmt, NULL) != SQLITE_OK) {
@@ -140,6 +132,7 @@
 
         // Reset the pendifier
         sqlite3_reset(make_pending_stmt);
+        sqlite3_clear_bindings(make_pending_stmt);
         // Bind and mark the event pending.
         if (sqlite3_bind_int(make_pending_stmt, eventId, SQLITE_TRANSIENT) != SQLITE_OK) {
             // XXX What to do here?
@@ -157,7 +150,29 @@
     *eventData = events;
 }
 
-- (void)purgeEvents {
+- (void)resetPendingEvents {
+    sqlite3_reset(reset_pending_stmt);
+    if (sqlite3_step(reset_pending_stmt) != SQLITE_DONE) {
+        KCLog(@"Failed to reset pending events!");
+    }
+}
+
+- (BOOL)hasPendingevents {
+    sqlite3_reset(count_pending_stmt);
+    BOOL hasRows = NO;
+    int gotDemRows = sqlite3_step(count_pending_stmt);
+    if(gotDemRows == SQLITE_ROW) {
+        int eventCount = sqlite3_column_int(count_pending_stmt, 0);
+        if(eventCount > 0) {
+            hasRows = TRUE;
+        }
+    } else {
+        KCLog(@"Failed to deterimine if we have pending rows.");
+    }
+    return hasRows;
+}
+
+- (void)purgePendingEvents {
     sqlite3_reset(purge_stmt);
     if (sqlite3_step(purge_stmt) != SQLITE_DONE) {
         KCLog(@"Failed to purge pending events.");
@@ -193,7 +208,6 @@
     sqlite3_finalize(insert_stmt);
     sqlite3_finalize(find_stmt);
     sqlite3_finalize(count_pending_stmt);
-    sqlite3_finalize(find_pending_stmt);
     sqlite3_finalize(make_pending_stmt);
     sqlite3_finalize(reset_pending_stmt);
     sqlite3_finalize(purge_stmt);
