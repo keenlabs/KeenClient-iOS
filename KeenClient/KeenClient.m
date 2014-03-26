@@ -286,21 +286,44 @@ static BOOL loggingEnabled = NO;
             table_ok = YES;
         }
 
-        // TODO: Error messages?
+        // This statement inserts events into the table.
         char *insert_sql = "INSERT INTO events (eventData, pending) VALUES (?, 0)";
         if(sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
             KCLog(@"Failed to prepare insert statement!");
             [self closeDB];
         }
         
-        char *pending_sql = "UPDATE events SET pending=? WHERE id=?";
-        if(sqlite3_prepare_v2(keen_dbname, pending_sql, -1, &pending_stmt, NULL) != SQLITE_OK) {
+        // This statement finds non-pending events in the table.
+        char *find_sql = "SELECT id, eventData FROM events WHERE pending=0";
+        if(sqlite3_prepare_v2(keen_dbname, find_sql, -1, &find_stmt, NULL) != SQLITE_OK) {
+            KCLog(@"Failed to prepare find statement!");
+            [self closeDB];
+        }
+        
+        // This statement counts the number of pending events.
+        char *count_pending_sql = "SELECT count(*) FROM events WHERE pending=1";
+        if(sqlite3_prepare_v2(keen_dbname, count_pending_sql, -1, &count_pending_stmt, NULL) != SQLITE_OK) {
+            KCLog(@"Failed to prepare count pending statement!");
+            [self closeDB];
+        }
+
+        // This stateement returns pending events.
+        char *find_pending_sql = "SELECT id, eventData FROM events WHERE pending=1";
+        if(sqlite3_prepare_v2(keen_dbname, find_pending_sql, -1, &find_pending_stmt, NULL) != SQLITE_OK) {
+            KCLog(@"Failed to prepare find pending statement!");
+            [self closeDB];
+        }
+        
+        // This statement marks an event as pending.
+        char *make_pending_sql = "UPDATE events SET pending=1 WHERE id=?";
+        if(sqlite3_prepare_v2(keen_dbname, make_pending_sql, -1, &make_pending_stmt, NULL) != SQLITE_OK) {
             KCLog(@"Failed to prepare pending statement!");
             [self closeDB];
         }
 
+        // This statement deletes events by id.
         char *delete_sql = "DELETE FROM events WHERE id=?";
-        if(sqlite3_prepare_v2(keen_dbname, delete_sql, -1, &pending_stmt, NULL) != SQLITE_OK) {
+        if(sqlite3_prepare_v2(keen_dbname, delete_sql, -1, &delete_stmt, NULL) != SQLITE_OK) {
             KCLog(@"Failed to prepare delete statement!");
             [self closeDB];
         }
@@ -344,10 +367,15 @@ static BOOL loggingEnabled = NO;
     // TODO Add error message?
     // Not sure if TRANSIENT or STATIC is best here.
     if(sqlite3_bind_text(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
-        KCLog(@"Failed to insert event!");
+        KCLog(@"Failed to bind insert event!");
         [self closeDB];
     } else {
         wasAdded = YES;
+    }
+    
+    if(sqlite3_step(insert_stmt) != SQLITE_DONE) {
+        KCLog(@"Failed to insert event!");
+        [self closeDB];
     }
 
     return wasAdded;
