@@ -10,8 +10,6 @@
 #import "EventStore.h"
 
 @implementation EventStore {
-    BOOL table_ok;
-    BOOL db_open_status;
     sqlite3 *keen_dbname;
     sqlite3_stmt *insert_stmt;
     sqlite3_stmt *find_stmt;
@@ -25,17 +23,12 @@
     self = [super init];
     if(self) {
 
-        table_ok = NO;
-        db_open_status = NO;
-
         // First, let's open the database.
         if ([self openDB]) {
-            db_open_status = YES;
             // Then try and create the table.
             if(![self createTable]) {
                 KCLog(@"Failed to create SQLite table!");
-            } else {
-                table_ok = YES;
+                // XXX What to do here?
             }
 
             // Now we'll init prepared statements for all the things we might do.
@@ -215,8 +208,6 @@
     // Free our DB. This is safe on null pointers.
     sqlite3_close(keen_dbname);
     // Reset state in case it matters.
-    db_open_status = NO;
-    table_ok = NO;
 }
 
 
