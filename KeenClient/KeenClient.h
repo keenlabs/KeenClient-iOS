@@ -32,7 +32,6 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
     sqlite3_stmt *insert_stmt;
 }
 
-@property (readwrite, nonatomic) int numberOfRows;
 @property (readwrite, nonatomic) BOOL table_ok,db_open_status;
 
 -(BOOL)openDB;

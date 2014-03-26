@@ -179,7 +179,7 @@ static BOOL loggingEnabled = NO;
 @synthesize globalPropertiesBlock=_globalPropertiesBlock;
 @synthesize uploadQueue;
 
-@synthesize table_ok,numberOfRows,db_open_status;
+@synthesize table_ok,db_open_status;
 
 # pragma mark - Class lifecycle
 
@@ -274,7 +274,7 @@ static BOOL loggingEnabled = NO;
         }
     }
 
-    self.numberOfRows = 0;
+    // TODO dealloc?
     self.db_open_status = NO;
     self.table_ok = NO;
 
@@ -300,26 +300,26 @@ static BOOL loggingEnabled = NO;
 
 #pragma sqlite methods
 -(BOOL)openDB {
-    BOOL is_Opened = NO;
+    BOOL wasOpened = NO;
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *my_sqlfile = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"events"];
     if(sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
-        is_Opened = YES;
+        wasOpened = YES;
     }
-    return is_Opened;
+    return wasOpened;
 }
 
 -(BOOL)createTable {
-    BOOL has_beencreated = NO;
+    BOOL wasCreated = NO;
     char *err;
-    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData TEXT, pending INTEGER);"];
+    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData BLOB, pending INTEGER);"];
     if(sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-        sqlite3_close(keen_dbname);
+        [self closeDB];
     } else {
-        has_beencreated = YES;
+        wasCreated = YES;
     }
 
-    return has_beencreated;
+    return wasCreated;
 }
 
 -(BOOL) addEventToTable:(NSString *)eventData  {
@@ -334,6 +334,7 @@ static BOOL loggingEnabled = NO;
     // Not sure if TRANSIENT or STATIC is best here.
     if(sqlite3_bind_text(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
         KCLog(@"Failed to insert event!");
+        [self closeDB];
     } else {
         wasAdded = YES;
     }
@@ -342,12 +343,14 @@ static BOOL loggingEnabled = NO;
 }
 
 - (void)closeDB {
+    sqlite3_finalize(insert_stmt);
     sqlite3_close(keen_dbname);
     db_open_status = NO;
 }
 
 - (void)dealloc {
     // nil out the properties which we've retained (which will release them)
+    [self closeDB];
     self.projectId = nil;
     self.writeKey = nil;
     self.readKey = nil;
