@@ -103,7 +103,9 @@
         wasAdded = YES;
     }
 
+    // You must reset before the commit happens in SQLite. Doing this now!
     sqlite3_reset(insert_stmt);
+    // Clears off the bindings for future uses.
     sqlite3_clear_bindings(insert_stmt);
 
     return wasAdded;
@@ -115,7 +117,7 @@
     // XXX fwict I don't need to release this. That confuses me.
     NSMutableArray *events = [NSMutableArray array];
 
-    // This method has no bindings, so can just step it immediately.
+    // This statement has no bindings, so can just step it immediately.
     while (sqlite3_step(find_stmt) == SQLITE_ROW) {
         // Fetch data out the statement
         int eventId = sqlite3_column_int(find_stmt, 0);
@@ -138,7 +140,7 @@
 
         // Add the event to the array.
         // XXX What frees this?
-        NSData *data = [[NSData alloc] initWithBytes:ptr length:size];
+        NSData *data = [[[NSData alloc] initWithBytes:ptr length:size] autorelease];
         [events addObject:data];
     }
 
@@ -148,7 +150,7 @@
     return events;
 }
 
-- (void)resetPendingEvents {
+- (void)resetPendingEvents{
     if (sqlite3_step(reset_pending_stmt) != SQLITE_DONE) {
         KCLog(@"Failed to reset pending events!");
     }
@@ -190,7 +192,7 @@
 - (void)purgePendingEvents {
     if (sqlite3_step(purge_stmt) != SQLITE_DONE) {
         KCLog(@"Failed to purge pending events.");
-        // What to do here?
+        // XXX What to do here?
     };
     sqlite3_reset(purge_stmt);
 }
@@ -212,6 +214,7 @@
     char *err;
     NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData BLOB, pending INTEGER);"];
     if (sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"Failed to create table: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
         [self closeDB];
     } else {
         wasCreated = YES;

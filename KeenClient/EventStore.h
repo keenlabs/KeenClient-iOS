@@ -12,7 +12,7 @@
 @interface EventStore : NSObject
 
  /**
-  Reset any pending events so they can be reset.
+  Reset any pending events so they can be resent.
   */
 - (void)resetPendingEvents;
 
@@ -42,11 +42,6 @@
   Get a count of total events, pending or not.
   */
 - (int)getTotalEventCount;
-
- /**
-  Returns true if there are pending events.
-  */
-- (BOOL)hasPendingEvents;
 
  /**
   Purge pending events that were returned from a previous call to getEvents.
