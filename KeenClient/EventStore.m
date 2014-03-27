@@ -91,9 +91,7 @@
     BOOL wasAdded = NO;
 
     // TODO Add error message?
-    // Not sure if TRANSIENT or STATIC is best here.
-    // TODO This is a blob, not a string!
-    if (sqlite3_bind_text(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
+    if (sqlite3_bind_blob(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
         KCLog(@"Failed to bind insert event!");
         [self closeDB];
     }
