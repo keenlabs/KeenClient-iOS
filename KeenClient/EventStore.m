@@ -29,7 +29,7 @@
             // Then try and create the table.
             if(![self createTable]) {
                 KCLog(@"Failed to create SQLite table!");
-                // XXX What to do here?
+                [self closeDB];
             }
 
             // Now we'll init prepared statements for all the things we might do.
@@ -123,8 +123,7 @@
         int size = sqlite3_column_bytes(find_stmt, 1);
 
         // Bind and mark the event pending.
-        int poop = sqlite3_bind_int(make_pending_stmt, 1, eventId);
-        if (poop != SQLITE_OK) {
+        if(sqlite3_bind_int(make_pending_stmt, 1, eventId) != SQLITE_OK) {
             // XXX What to do here?
             KCLog(@"Failed to bind int for make pending!");
         }
@@ -158,8 +157,7 @@
 
 - (BOOL)hasPendingEvents {
     BOOL hasRows = NO;
-    int eventCount = [self getPendingEventCount];
-    if (eventCount > 0) {
+    if ([self getPendingEventCount] > 0) {
         hasRows = TRUE;
     }
     return hasRows;
