@@ -20,7 +20,7 @@
   Determine if there are any pending events so the caller can decide what to
   do. See resetPendingEvents or purgePendingEvents.
   */
-- (BOOL)hasPendingevents;
+- (BOOL)hasPendingEvents;
 
  /**
   Add an event to the store.
