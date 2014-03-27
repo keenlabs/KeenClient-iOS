@@ -13,6 +13,7 @@
     sqlite3 *keen_dbname;
     sqlite3_stmt *insert_stmt;
     sqlite3_stmt *find_stmt;
+    sqlite3_stmt *count_all_stmt;
     sqlite3_stmt *count_pending_stmt;
     sqlite3_stmt *make_pending_stmt;
     sqlite3_stmt *reset_pending_stmt;
@@ -46,7 +47,14 @@
                 NSLog(@"Failed to prepare find statement!");
                 [self closeDB];
             }
-            
+
+            // This statement counts the total number of events (pending or not)
+            char *count_all_sql = "SELECT count(*) FROM events";
+            if(sqlite3_prepare_v2(keen_dbname, count_all_sql, -1, &count_all_stmt, NULL) != SQLITE_OK) {
+                NSLog(@"Failed to prepare count all statement!");
+                [self closeDB];
+            }
+
             // This statement counts the number of pending events.
             char *count_pending_sql = "SELECT count(*) FROM events WHERE pending=1";
             if(sqlite3_prepare_v2(keen_dbname, count_pending_sql, -1, &count_pending_stmt, NULL) != SQLITE_OK) {
@@ -82,15 +90,7 @@
 
 - (BOOL)addEvent:(NSString *)eventData  {
     BOOL wasAdded = NO;
-    
-    // Prepare our query for execution, clearing any previous state.
-    if(sqlite3_reset(insert_stmt) != SQLITE_OK) {
-        KCLog(@"Failed to reset insert statement!");
-        [self closeDB];
-    };
-    // Some googling around indicates that this doesn't need an error check.
-    sqlite3_clear_bindings(insert_stmt);
-    
+
     // TODO Add error message?
     // Not sure if TRANSIENT or STATIC is best here.
     // TODO This is a blob, not a string!
@@ -106,72 +106,98 @@
         wasAdded = YES;
     }
 
+    sqlite3_reset(insert_stmt);
+    sqlite3_clear_bindings(insert_stmt);
+
     return wasAdded;
 }
 
-- (void)getEvents:(NSMutableArray **)eventData {
-
-    // Reset things
-    sqlite3_reset(find_stmt);
+- (NSMutableArray *)getEvents{
 
     // Create an array to hold the contents of our select.
+    // XXX fwict I don't need to release this. That confuses me.
     NSMutableArray *events = [NSMutableArray array];
 
     // This method has no bindings, so can just step it immediately.
     while (sqlite3_step(find_stmt) == SQLITE_ROW) {
         // Fetch data out the statement
-        int eventId = sqlite3_column_int(find_stmt, 1);
+        int eventId = sqlite3_column_int(find_stmt, 0);
         const void *ptr = sqlite3_column_blob(find_stmt, 1);
         int size = sqlite3_column_bytes(find_stmt, 1);
+
+        // Bind and mark the event pending.
+        int poop = sqlite3_bind_int(make_pending_stmt, 1, eventId);
+        if (poop != SQLITE_OK) {
+            // XXX What to do here?
+            NSLog(@"Failed to bind int for make pending!");
+        }
+        if (sqlite3_step(make_pending_stmt) != SQLITE_DONE) {
+            // XXX Or here?
+            NSLog(@"Failed to mark event pending");
+        }
 
         // Reset the pendifier
         sqlite3_reset(make_pending_stmt);
         sqlite3_clear_bindings(make_pending_stmt);
-        // Bind and mark the event pending.
-        if (sqlite3_bind_int(make_pending_stmt, eventId, SQLITE_TRANSIENT) != SQLITE_OK) {
-            // XXX What to do here?
-        }
-        if(sqlite3_step(make_pending_stmt) != SQLITE_OK) {
-            // XXX Or here?
-        }
 
         // Add the event to the array.
+        // XXX What frees this?
         NSData *data = [[NSData alloc] initWithBytes:ptr length:size];
         [events addObject:data];
     }
 
-    // Set the return.
-    *eventData = events;
+    // Reset things
+    sqlite3_reset(find_stmt);
+
+    return events;
 }
 
 - (void)resetPendingEvents {
-    sqlite3_reset(reset_pending_stmt);
     if (sqlite3_step(reset_pending_stmt) != SQLITE_DONE) {
         KCLog(@"Failed to reset pending events!");
     }
+    sqlite3_reset(reset_pending_stmt);
 }
 
-- (BOOL)hasPendingevents {
-    sqlite3_reset(count_pending_stmt);
+- (BOOL)hasPendingEvents {
     BOOL hasRows = NO;
-    int gotDemRows = sqlite3_step(count_pending_stmt);
-    if(gotDemRows == SQLITE_ROW) {
-        int eventCount = sqlite3_column_int(count_pending_stmt, 0);
-        if(eventCount > 0) {
-            hasRows = TRUE;
-        }
-    } else {
-        KCLog(@"Failed to deterimine if we have pending rows.");
+    int eventCount = [self getPendingEventCount];
+    if (eventCount > 0) {
+        hasRows = TRUE;
     }
     return hasRows;
 }
 
+- (int)getPendingEventCount {
+    int eventCount = 0;
+    int gotDemRows = sqlite3_step(count_pending_stmt);
+    if (gotDemRows == SQLITE_ROW) {
+        eventCount = sqlite3_column_int(count_pending_stmt, 0);
+    } else {
+        NSLog(@"Failed to get count of pending rows.");
+    }
+    sqlite3_reset(count_pending_stmt);
+    return eventCount;
+}
+
+- (int)getTotalEventCount {
+    int eventCount = 0;
+    int gotDemRows = sqlite3_step(count_all_stmt);
+    if (gotDemRows == SQLITE_ROW) {
+        eventCount = sqlite3_column_int(count_all_stmt, 0);
+    } else {
+        KCLog(@"Failed to get count total rows.");
+    }
+    sqlite3_reset(count_all_stmt);
+    return eventCount;
+}
+
 - (void)purgePendingEvents {
-    sqlite3_reset(purge_stmt);
     if (sqlite3_step(purge_stmt) != SQLITE_DONE) {
         KCLog(@"Failed to purge pending events.");
         // What to do here?
     };
+    sqlite3_reset(purge_stmt);
 }
 
 - (BOOL)openDB {
@@ -190,7 +216,7 @@
     BOOL wasCreated = NO;
     char *err;
     NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData BLOB, pending INTEGER);"];
-    if(sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+    if (sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
         [self closeDB];
     } else {
         wasCreated = YES;
@@ -203,6 +229,7 @@
     // Free all the prepared statements. This is safe on null pointers.
     sqlite3_finalize(insert_stmt);
     sqlite3_finalize(find_stmt);
+    sqlite3_finalize(count_all_stmt);
     sqlite3_finalize(count_pending_stmt);
     sqlite3_finalize(make_pending_stmt);
     sqlite3_finalize(reset_pending_stmt);
@@ -212,7 +239,6 @@
     sqlite3_close(keen_dbname);
     // Reset state in case it matters.
 }
-
 
 - (void)dealloc {
     [self closeDB];

@@ -31,7 +31,22 @@
   Get a list of events that are ready to send to Keen. Events that are
   returned have been flagged as pending in the underlying store.
   */
-- (void)getEvents: (NSMutableArray **)events;
+- (NSMutableArray *)getEvents;
+
+ /**
+  Get a count of pending events.
+  */
+- (int)getPendingEventCount;
+
+ /**
+  Get a count of total events, pending or not.
+  */
+- (int)getTotalEventCount;
+
+ /**
+  Returns true if there are pending events.
+  */
+- (BOOL)hasPendingEvents;
 
  /**
   Purge pending events that were returned from a previous call to getEvents.
