@@ -36,50 +36,57 @@
 
             // This statement inserts events into the table.
             char *insert_sql = "INSERT INTO events (eventData, pending) VALUES (?, 0)";
-            if(sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare insert statement!");
+            if (sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
+                KCLog(@"Failed to prepare insert statement: %@",
+                      [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
                 [self closeDB];
             }
             
             // This statement finds non-pending events in the table.
             char *find_sql = "SELECT id, eventData FROM events WHERE pending=0";
             if(sqlite3_prepare_v2(keen_dbname, find_sql, -1, &find_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare find statement!");
+                KCLog(@"Failed to prepare find statement: %@",
+                      [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
                 [self closeDB];
             }
 
             // This statement counts the total number of events (pending or not)
             char *count_all_sql = "SELECT count(*) FROM events";
             if(sqlite3_prepare_v2(keen_dbname, count_all_sql, -1, &count_all_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare count all statement!");
+                KCLog(@"Failed to prepare count all statement: %@",
+                      [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
                 [self closeDB];
             }
 
             // This statement counts the number of pending events.
             char *count_pending_sql = "SELECT count(*) FROM events WHERE pending=1";
             if(sqlite3_prepare_v2(keen_dbname, count_pending_sql, -1, &count_pending_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare count pending statement!");
+                KCLog(@"Failed to prepare count pending statement: %@",
+                      [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
                 [self closeDB];
             }
 
             // This statement marks an event as pending.
             char *make_pending_sql = "UPDATE events SET pending=1 WHERE id=?";
             if(sqlite3_prepare_v2(keen_dbname, make_pending_sql, -1, &make_pending_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare pending statement!");
+                KCLog(@"Failed to prepare pending statement: %@",
+                      [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
                 [self closeDB];
             }
             
             // This statement resets pending events back to normal.
             char *reset_pending_sql = "UPDATE events SET pending=0";
             if(sqlite3_prepare_v2(keen_dbname, reset_pending_sql, -1, &reset_pending_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare reset pending statement!");
+                KCLog(@"Failed to prepare reset pending statement: %@",
+                      [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
                 [self closeDB];
             }
 
             // This statement purges all pending events.
             char *purge_sql = "DELETE FROM events WHERE pending=1";
             if(sqlite3_prepare_v2(keen_dbname, purge_sql, -1, &purge_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare purge statement!");
+                KCLog(@"Failed to prepare purge statement: %@",
+                      [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
                 [self closeDB];
             }
         }
