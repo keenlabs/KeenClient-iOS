@@ -75,22 +75,50 @@
     [store addEvent:@"I AM AN EVENT ALSO"];
 
     // Lets get some events out now with the purpose of sending them off.
-    NSMutableArray *events = [store getEvents];
+    [store getEvents];
 
     [store purgePendingEvents];
     STAssertTrue([store getTotalEventCount] == 0, @"0 total event after add");
-    STAssertFalse([store hasPendingEvents], @"No events now!");
+    STAssertFalse([store hasPendingEvents], @"No pending events now!");
 
     // Again for good measure
     [store addEvent:@"I AM AN EVENT"];
     [store addEvent:@"I AM AN EVENT ALSO"];
 
-    NSMutableArray *moreEvents = [store getEvents];
+    [store getEvents];
 
     [store purgePendingEvents];
     STAssertTrue([store getTotalEventCount] == 0, @"0 total event after add");
-    STAssertFalse([store hasPendingEvents], @"No events now!");
+    STAssertFalse([store hasPendingEvents], @"No pending events now!");
 }
+
+- (void)testResetOfPending{
+    EventStore *store = [[EventStore alloc] init];
+    [store addEvent:@"I AM AN EVENT"];
+    [store addEvent:@"I AM AN EVENT ALSO"];
+
+    // Lets get some events out now with the purpose of sending them off.
+    [store getEvents];
+    STAssertTrue([store getTotalEventCount] == 2, @"2 total event after add");
+    STAssertTrue([store getPendingEventCount] == 2, @"2 pending event after add");
+    STAssertTrue([store hasPendingEvents], @"has pending events!");
+
+    [store resetPendingEvents];
+    STAssertTrue([store getTotalEventCount] == 2, @"0 total event after reset");
+    STAssertTrue([store getPendingEventCount] == 0, @"2 pending event after reset");
+    STAssertFalse([store hasPendingEvents], @"has NO pending events!");
+
+    // Again for good measure
+    [store addEvent:@"I AM AN EVENT"];
+    [store addEvent:@"I AM AN EVENT ALSO"];
+
+    [store getEvents];
+
+    [store resetPendingEvents];
+    STAssertTrue([store getTotalEventCount] == 4, @"0 total event after add");
+    STAssertFalse([store hasPendingEvents], @"No pending events now!");
+}
+
 
 - (NSString *)databaseFile {
     NSString *databasePath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
