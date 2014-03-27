@@ -55,6 +55,7 @@
 		01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 		CA6410D818E37E7C00E53E3C /* EventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* EventStore.h */; };
 		CA6410D918E37E7C00E53E3C /* EventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* EventStore.m */; };
+		CA6410E218E39F3A00E53E3C /* EventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* EventStoreTests.m */; };
 		CA795C4E18E32BAB00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C4F18E32BB800EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C5018E32BBF00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
@@ -123,6 +124,8 @@
 		01BA1B0414E895BC00CF9F84 /* KeenConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenConstants.m; sourceTree = "<group>"; };
 		CA6410D618E37E7C00E53E3C /* EventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* EventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventStore.m; sourceTree = "<group>"; };
+		CA6410E018E39F3A00E53E3C /* EventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventStoreTests.h; sourceTree = "<group>"; };
+		CA6410E118E39F3A00E53E3C /* EventStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventStoreTests.m; sourceTree = "<group>"; };
 		CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -267,6 +270,8 @@
 				017EE13D14E30C96000F3868 /* KeenClientTests.h */,
 				017EE13E14E30C96000F3868 /* KeenClientTests.m */,
 				017EE13814E30C96000F3868 /* Supporting Files */,
+				CA6410E018E39F3A00E53E3C /* EventStoreTests.h */,
+				CA6410E118E39F3A00E53E3C /* EventStoreTests.m */,
 			);
 			path = KeenClientTests;
 			sourceTree = "<group>";
@@ -532,6 +537,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA6410E218E39F3A00E53E3C /* EventStoreTests.m in Sources */,
 				017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
