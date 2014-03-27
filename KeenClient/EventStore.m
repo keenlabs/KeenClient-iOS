@@ -21,13 +21,13 @@
 
 - (id)init {
     self = [super init];
-    if(self) {
 
+    if(self) {
         // First, let's open the database.
         if ([self openDB]) {
             // Then try and create the table.
             if(![self createTable]) {
-                KCLog(@"Failed to create SQLite table!");
+                NSLog(@"Failed to create SQLite table!");
                 // XXX What to do here?
             }
 
@@ -36,46 +36,47 @@
             // This statement inserts events into the table.
             char *insert_sql = "INSERT INTO events (eventData, pending) VALUES (?, 0)";
             if(sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare insert statement!");
+                NSLog(@"Failed to prepare insert statement!");
                 [self closeDB];
             }
             
             // This statement finds non-pending events in the table.
             char *find_sql = "SELECT id, eventData FROM events WHERE pending=0";
             if(sqlite3_prepare_v2(keen_dbname, find_sql, -1, &find_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare find statement!");
+                NSLog(@"Failed to prepare find statement!");
                 [self closeDB];
             }
             
             // This statement counts the number of pending events.
             char *count_pending_sql = "SELECT count(*) FROM events WHERE pending=1";
             if(sqlite3_prepare_v2(keen_dbname, count_pending_sql, -1, &count_pending_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare count pending statement!");
+                NSLog(@"Failed to prepare count pending statement!");
                 [self closeDB];
             }
 
             // This statement marks an event as pending.
             char *make_pending_sql = "UPDATE events SET pending=1 WHERE id=?";
             if(sqlite3_prepare_v2(keen_dbname, make_pending_sql, -1, &make_pending_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare pending statement!");
+                NSLog(@"Failed to prepare pending statement!");
                 [self closeDB];
             }
             
             // This statement resets pending events back to normal.
             char *reset_pending_sql = "UPDATE events SET pending=0";
             if(sqlite3_prepare_v2(keen_dbname, reset_pending_sql, -1, &reset_pending_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare reset pending statement!");
+                NSLog(@"Failed to prepare reset pending statement!");
                 [self closeDB];
             }
 
             // This statement purges all pending events.
-            char *purge_sql = "DELETE FROM evnets WHERE pending=1";
+            char *purge_sql = "DELETE FROM events WHERE pending=1";
             if(sqlite3_prepare_v2(keen_dbname, purge_sql, -1, &purge_stmt, NULL) != SQLITE_OK) {
-                KCLog(@"Failed to prepare purge statement!");
+                NSLog(@"Failed to prepare purge statement!");
                 [self closeDB];
             }
         }
     }
+    NSLog(@"Completed EventStore Init");
     return self;
 }
 
@@ -175,10 +176,12 @@
 
 - (BOOL)openDB {
     BOOL wasOpened = NO;
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *my_sqlfile = [[paths objectAtIndex:0] stringByAppendingPathComponent:@"events"];
+    NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString *my_sqlfile = [libraryPath stringByAppendingPathComponent:@"keenEvents.sqlite"];
     if (sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
         wasOpened = YES;
+    } else {
+        NSLog(@"Failed to create database");
     }
     return wasOpened;
 }
