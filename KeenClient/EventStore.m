@@ -98,6 +98,11 @@
 - (BOOL)addEvent:(NSString *)eventData {
     BOOL wasAdded = NO;
 
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping addEvent");
+        return wasAdded;
+    }
+
     if (sqlite3_bind_text(insert_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind pid to add event statement"];
         [self closeDB];
@@ -127,6 +132,12 @@
 
     // Create an array to hold the contents of our select.
     NSMutableArray *events = [NSMutableArray array];
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping getEvents");
+        // Return an empty array so we don't break anything. No nulls here!
+        return events;
+    }
 
     if (sqlite3_bind_text(find_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind pid to find statement"];
@@ -166,6 +177,12 @@
 }
 
 - (void)resetPendingEvents{
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping resetPendingEvents");
+        return;
+    }
+
     if (sqlite3_bind_text(reset_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind pid to reset pending statement"];
     }
@@ -178,6 +195,12 @@
 
 - (BOOL)hasPendingEvents {
     BOOL hasRows = NO;
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping hasPendingEvents");
+        return hasRows;
+    }
+
     if ([self getPendingEventCount] > 0) {
         hasRows = TRUE;
     }
@@ -186,6 +209,12 @@
 
 - (int)getPendingEventCount {
     int eventCount = 0;
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping getPendingEventcount");
+        return eventCount;
+    }
+
     if (sqlite3_bind_text(count_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind pid to count pending statement"];
     }
@@ -201,6 +230,12 @@
 
 - (int)getTotalEventCount {
     int eventCount = 0;
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping getTotalEventCount");
+        return eventCount;
+    }
+
     if (sqlite3_bind_text(count_all_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind pid to total event statement"];
     }
@@ -215,6 +250,12 @@
 }
 
 - (void)purgePendingEvents {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping purgePendingEvents");
+        return;
+    }
+
     if (sqlite3_bind_text(purge_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind pid to purge statement"];
     }
@@ -241,10 +282,17 @@
 
 - (BOOL)createTable {
     BOOL wasCreated = NO;
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping createTable");
+        return wasCreated;
+    }
+
     char *err;
     NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, projectId TEXT, eventData BLOB, pending INTEGER);"];
     if (sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
         KCLog(@"Failed to create table: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        sqlite3_free(err); // Free that error message
         [self closeDB];
     } else {
         wasCreated = YES;
