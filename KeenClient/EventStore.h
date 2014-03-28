@@ -11,6 +11,11 @@
 
 @interface EventStore : NSObject
 
+// The project ID for this store.
+@property (nonatomic, retain) NSString *projectId;
+
+- (id)initWithProjectId:(NSString *)pid;
+
  /**
   Reset any pending events so they can be resent.
   */

@@ -11,6 +11,7 @@
 
 @implementation EventStore {
     sqlite3 *keen_dbname;
+    BOOL dbIsOpen;
     sqlite3_stmt *insert_stmt;
     sqlite3_stmt *find_stmt;
     sqlite3_stmt *count_all_stmt;
@@ -21,9 +22,17 @@
 }
 
 - (id)init {
+    NSAssert(NO, @"init not allowed, use initWithProjectId");
+    [self release];
+    return nil;
+}
+
+- (id)initWithProjectId:(NSString *)pid {
     self = [super init];
 
     if(self) {
+        dbIsOpen = NO;
+        self.projectId = pid;
         // First, let's open the database.
         if ([self openDB]) {
             // Then try and create the table.
@@ -35,28 +44,28 @@
             // Now we'll init prepared statements for all the things we might do.
 
             // This statement inserts events into the table.
-            char *insert_sql = "INSERT INTO events (eventData, pending) VALUES (?, 0)";
+            char *insert_sql = "INSERT INTO events (projectId, eventData, pending) VALUES (?, ?, 0)";
             if (sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare insert statement"];
                 [self closeDB];
             }
             
             // This statement finds non-pending events in the table.
-            char *find_sql = "SELECT id, eventData FROM events WHERE pending=0";
+            char *find_sql = "SELECT id, eventData FROM events WHERE pending=0 AND projectId=?";
             if(sqlite3_prepare_v2(keen_dbname, find_sql, -1, &find_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare find statement"];
                 [self closeDB];
             }
 
             // This statement counts the total number of events (pending or not)
-            char *count_all_sql = "SELECT count(*) FROM events";
+            char *count_all_sql = "SELECT count(*) FROM events WHERE projectId=?";
             if(sqlite3_prepare_v2(keen_dbname, count_all_sql, -1, &count_all_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare count all statement"];
                 [self closeDB];
             }
 
             // This statement counts the number of pending events.
-            char *count_pending_sql = "SELECT count(*) FROM events WHERE pending=1";
+            char *count_pending_sql = "SELECT count(*) FROM events WHERE pending=1 AND projectId=?";
             if(sqlite3_prepare_v2(keen_dbname, count_pending_sql, -1, &count_pending_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare count pending statement"];
                 [self closeDB];
@@ -70,14 +79,14 @@
             }
             
             // This statement resets pending events back to normal.
-            char *reset_pending_sql = "UPDATE events SET pending=0";
+            char *reset_pending_sql = "UPDATE events SET pending=0 WHERE projectId=?";
             if(sqlite3_prepare_v2(keen_dbname, reset_pending_sql, -1, &reset_pending_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"reset pending statement"];
                 [self closeDB];
             }
 
             // This statement purges all pending events.
-            char *purge_sql = "DELETE FROM events WHERE pending=1";
+            char *purge_sql = "DELETE FROM events WHERE pending=1 AND projectId=?";
             if(sqlite3_prepare_v2(keen_dbname, purge_sql, -1, &purge_stmt, NULL) != SQLITE_OK) {
                 [self closeDB];
             }
@@ -89,12 +98,16 @@
 - (BOOL)addEvent:(NSString *)eventData {
     BOOL wasAdded = NO;
 
-    // TODO Add error message?
-    if (sqlite3_bind_blob(insert_stmt, 1, [eventData UTF8String], -1, SQLITE_TRANSIENT) != SQLITE_OK) {
+    if (sqlite3_bind_text(insert_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind pid to add event statement"];
+        [self closeDB];
+    }
+
+    if (sqlite3_bind_blob(insert_stmt, 2, [eventData UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind insert statement"];
         [self closeDB];
     }
-    
+
     if (sqlite3_step(insert_stmt) != SQLITE_DONE) {
         [self handleSQLiteFailure:@"insert event"];
         [self closeDB];
@@ -113,15 +126,18 @@
 - (NSMutableArray *)getEvents{
 
     // Create an array to hold the contents of our select.
-    // XXX fwict I don't need to release this. That confuses me.
     NSMutableArray *events = [NSMutableArray array];
+
+    if (sqlite3_bind_text(find_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind pid to find statement"];
+    }
 
     // This statement has no bindings, so can just step it immediately.
     while (sqlite3_step(find_stmt) == SQLITE_ROW) {
         // Fetch data out the statement
         int eventId = sqlite3_column_int(find_stmt, 0);
-        const void *ptr = sqlite3_column_blob(find_stmt, 1);
-        int size = sqlite3_column_bytes(find_stmt, 1);
+        const void *dataPtr = sqlite3_column_blob(find_stmt, 1);
+        int dataSize = sqlite3_column_bytes(find_stmt, 1);
 
         // Bind and mark the event pending.
         if(sqlite3_bind_int(make_pending_stmt, 1, eventId) != SQLITE_OK) {
@@ -138,21 +154,26 @@
 
         // Add the event to the array.
         // XXX What frees this?
-        NSData *data = [[[NSData alloc] initWithBytes:ptr length:size] autorelease];
+        NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
         [events addObject:data];
     }
 
     // Reset things
     sqlite3_reset(find_stmt);
+    sqlite3_clear_bindings(find_stmt);
 
     return events;
 }
 
 - (void)resetPendingEvents{
+    if (sqlite3_bind_text(reset_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind pid to reset pending statement"];
+    }
     if (sqlite3_step(reset_pending_stmt) != SQLITE_DONE) {
         [self handleSQLiteFailure:@"reset pending events"];
     }
     sqlite3_reset(reset_pending_stmt);
+    sqlite3_clear_bindings(reset_pending_stmt);
 }
 
 - (BOOL)hasPendingEvents {
@@ -165,34 +186,44 @@
 
 - (int)getPendingEventCount {
     int eventCount = 0;
-    int gotDemRows = sqlite3_step(count_pending_stmt);
-    if (gotDemRows == SQLITE_ROW) {
+    if (sqlite3_bind_text(count_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind pid to count pending statement"];
+    }
+    if (sqlite3_step(count_pending_stmt) == SQLITE_ROW) {
         eventCount = sqlite3_column_int(count_pending_stmt, 0);
     } else {
         [self handleSQLiteFailure:@"get count of pending rows"];
     }
     sqlite3_reset(count_pending_stmt);
+    sqlite3_clear_bindings(count_pending_stmt);
     return eventCount;
 }
 
 - (int)getTotalEventCount {
     int eventCount = 0;
-    int gotDemRows = sqlite3_step(count_all_stmt);
-    if (gotDemRows == SQLITE_ROW) {
+    if (sqlite3_bind_text(count_all_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind pid to total event statement"];
+    }
+    if (sqlite3_step(count_all_stmt) == SQLITE_ROW) {
         eventCount = sqlite3_column_int(count_all_stmt, 0);
     } else {
         [self handleSQLiteFailure:@"get count of total rows"];
     }
     sqlite3_reset(count_all_stmt);
+    sqlite3_clear_bindings(count_all_stmt);
     return eventCount;
 }
 
 - (void)purgePendingEvents {
+    if (sqlite3_bind_text(purge_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind pid to purge statement"];
+    }
     if (sqlite3_step(purge_stmt) != SQLITE_DONE) {
         [self handleSQLiteFailure:@"purge pending events"];
         // XXX What to do here?
     };
     sqlite3_reset(purge_stmt);
+    sqlite3_clear_bindings(purge_stmt);
 }
 
 - (BOOL)openDB {
@@ -204,13 +235,14 @@
     } else {
         [self handleSQLiteFailure:@"create database"];
     }
+    dbIsOpen = wasOpened;
     return wasOpened;
 }
 
 - (BOOL)createTable {
     BOOL wasCreated = NO;
     char *err;
-    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, eventData BLOB, pending INTEGER);"];
+    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, projectId TEXT, eventData BLOB, pending INTEGER);"];
     if (sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
         KCLog(@"Failed to create table: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
         [self closeDB];
@@ -222,7 +254,7 @@
 }
 
 - (void)handleSQLiteFailure: (NSString *) msg {
-    KCLog(@"Failed to %@: %@",
+    NSLog(@"Failed to %@: %@",
           msg, [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
 }
 
@@ -240,6 +272,7 @@
     // Free our DB. This is safe on null pointers.
     sqlite3_close(keen_dbname);
     // Reset state in case it matters.
+    dbIsOpen = NO;
 }
 
 - (void)dealloc {
