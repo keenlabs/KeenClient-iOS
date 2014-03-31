@@ -53,9 +53,9 @@
 		017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE13E14E30C96000F3868 /* KeenClientTests.m */; };
 		01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
-		CA6410D818E37E7C00E53E3C /* EventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* EventStore.h */; };
-		CA6410D918E37E7C00E53E3C /* EventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* EventStore.m */; };
-		CA6410E218E39F3A00E53E3C /* EventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* EventStoreTests.m */; };
+		CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; };
+		CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
+		CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */; };
 		CA795C4E18E32BAB00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C4F18E32BB800EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C5018E32BBF00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
@@ -122,12 +122,12 @@
 		01A9A34414FE953D0082AB22 /* index.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = index.markdown; path = docs/index.markdown; sourceTree = "<group>"; };
 		01BA1B0314E895BC00CF9F84 /* KeenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenConstants.h; sourceTree = "<group>"; };
 		01BA1B0414E895BC00CF9F84 /* KeenConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenConstants.m; sourceTree = "<group>"; };
-		CA6410D618E37E7C00E53E3C /* EventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventStore.h; sourceTree = "<group>"; };
-		CA6410D718E37E7C00E53E3C /* EventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
-		CA6410E018E39F3A00E53E3C /* EventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventStoreTests.h; sourceTree = "<group>"; };
-		CA6410E118E39F3A00E53E3C /* EventStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventStoreTests.m; sourceTree = "<group>"; };
+		CA6410D618E37E7C00E53E3C /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
+		CA6410D718E37E7C00E53E3C /* KIOEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
+		CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStoreTests.h; sourceTree = "<group>"; };
+		CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStoreTests.m; sourceTree = "<group>"; };
 		CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
-		CACE78C918EA0CD800A4AB5B /* EventStore_PrivateMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EventStore_PrivateMethods.h; sourceTree = "<group>"; };
+		CACE78C918EA0CD800A4AB5B /* KIOEventStore_PrivateMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KIOEventStore_PrivateMethods.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -251,9 +251,9 @@
 				01BA1B0314E895BC00CF9F84 /* KeenConstants.h */,
 				01BA1B0414E895BC00CF9F84 /* KeenConstants.m */,
 				017EE12414E30C96000F3868 /* Supporting Files */,
-				CA6410D618E37E7C00E53E3C /* EventStore.h */,
-				CA6410D718E37E7C00E53E3C /* EventStore.m */,
-				CACE78C918EA0CD800A4AB5B /* EventStore_PrivateMethods.h */,
+				CA6410D618E37E7C00E53E3C /* KIOEventStore.h */,
+				CA6410D718E37E7C00E53E3C /* KIOEventStore.m */,
+				CACE78C918EA0CD800A4AB5B /* KIOEventStore_PrivateMethods.h */,
 			);
 			path = KeenClient;
 			sourceTree = "<group>";
@@ -272,8 +272,8 @@
 				017EE13D14E30C96000F3868 /* KeenClientTests.h */,
 				017EE13E14E30C96000F3868 /* KeenClientTests.m */,
 				017EE13814E30C96000F3868 /* Supporting Files */,
-				CA6410E018E39F3A00E53E3C /* EventStoreTests.h */,
-				CA6410E118E39F3A00E53E3C /* EventStoreTests.m */,
+				CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */,
+				CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */,
 			);
 			path = KeenClientTests;
 			sourceTree = "<group>";
@@ -332,7 +332,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
-				CA6410D818E37E7C00E53E3C /* EventStore.h in Headers */,
+				CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */,
 				012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
 			);
@@ -530,7 +530,7 @@
 			files = (
 				017EE12814E30C96000F3868 /* KeenClient.m in Sources */,
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
-				CA6410D918E37E7C00E53E3C /* EventStore.m in Sources */,
+				CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */,
 				012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -539,7 +539,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA6410E218E39F3A00E53E3C /* EventStoreTests.m in Sources */,
+				CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */,
 				017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

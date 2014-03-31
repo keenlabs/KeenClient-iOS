@@ -1,5 +1,5 @@
 //
-//  EventStore.m
+//  KIOEventStore.m
 //  KeenClient
 //
 //  Created by Cory Watson on 3/26/14.
@@ -7,14 +7,14 @@
 //
 
 #import "KeenClient.h"
-#import "EventStore.h"
-#import "EventStore_PrivateMethods.h"
+#import "KIOEventStore.h"
+#import "KIOEventStore_PrivateMethods.h"
 
-@interface EventStore()
+@interface KIOEventStore()
 - (void)closeDB;
 @end
 
-@implementation EventStore {
+@implementation KIOEventStore {
     sqlite3 *keen_dbname;
     BOOL dbIsOpen;
     sqlite3_stmt *insert_stmt;

@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <sqlite3.h>
 
-@interface EventStore : NSObject
+@interface KIOEventStore : NSObject
 
 // The project ID for this store.
 @property (nonatomic, retain) NSString *projectId;

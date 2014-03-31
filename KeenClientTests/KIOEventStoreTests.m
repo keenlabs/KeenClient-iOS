@@ -1,22 +1,22 @@
 //
-//  EventStoreTests.m
+//  KIOEventStoreTests.m
 //  KeenClient
 //
 //  Created by Cory Watson on 3/26/14.
 //  Copyright (c) 2014 Keen Labs. All rights reserved.
 //
 
-#import "EventStore.h"
-#import "EventStoreTests.h"
-#import "EventStore_PrivateMethods.h"
+#import "KIOEventStore.h"
+#import "KIOEventStoreTests.h"
+#import "KIOEventStore_PrivateMethods.h"
 
-@interface EventStoreTests ()
+@interface KIOEventStoreTests ()
 
 - (NSString *)databaseFile;
 
 @end
 
-@implementation EventStoreTests
+@implementation KIOEventStoreTests
 
 - (void)setUp {
     [super setUp];
@@ -37,7 +37,7 @@
 }
 
 - (void)testInit{
-    EventStore *store = [[EventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
     STAssertNotNil(store, @"init is not null");
     NSString *dbPath = [self databaseFile];
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -45,14 +45,14 @@
 }
 
 - (void)testAdd{
-    EventStore *store = [[EventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
     [store addEvent:@"I AM AN EVENT"];
     STAssertEquals([store getTotalEventCount], 1, @"1 total event after add");
     STAssertEquals([store getPendingEventCount], 0, @"0 pending events after add");
 }
 
 - (void)testGetPending{
-    EventStore *store = [[EventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
     [store addEvent:@"I AM AN EVENT"];
     [store addEvent:@"I AM AN EVENT ALSO"];
 
@@ -71,7 +71,7 @@
 }
 
 - (void)testCleanupOfPending{
-    EventStore *store = [[EventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
     [store addEvent:@"I AM AN EVENT"];
     [store addEvent:@"I AM AN EVENT ALSO"];
 
@@ -94,7 +94,7 @@
 }
 
 - (void)testResetOfPending{
-    EventStore *store = [[EventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
     [store addEvent:@"I AM AN EVENT"];
     [store addEvent:@"I AM AN EVENT ALSO"];
 
@@ -121,7 +121,7 @@
 }
 
 - (void)testClosedDB{
-    EventStore *store = [[EventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
     [store closeDB];
 
     // Verify that these methods all behave with a closed database.
