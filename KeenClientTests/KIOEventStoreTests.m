@@ -47,8 +47,8 @@
 - (void)testAdd{
     KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
     [store addEvent:@"I AM AN EVENT"];
-    STAssertEquals([store getTotalEventCount], 1, @"1 total event after add");
-    STAssertEquals([store getPendingEventCount], 0, @"0 pending events after add");
+    STAssertTrue([store getTotalEventCount] == 1, @"1 total event after add");
+    STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
 }
 
 - (void)testGetPending{

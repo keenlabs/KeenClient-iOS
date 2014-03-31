@@ -212,8 +212,8 @@
     return hasRows;
 }
 
-- (int)getPendingEventCount {
-    int eventCount = 0;
+- (NSUInteger)getPendingEventCount {
+    NSUInteger eventCount = 0;
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getPendingEventcount");
@@ -224,7 +224,7 @@
         [self handleSQLiteFailure:@"bind pid to count pending statement"];
     }
     if (sqlite3_step(count_pending_stmt) == SQLITE_ROW) {
-        eventCount = sqlite3_column_int(count_pending_stmt, 0);
+        eventCount = (NSInteger) sqlite3_column_int(count_pending_stmt, 0);
     } else {
         [self handleSQLiteFailure:@"get count of pending rows"];
     }
@@ -233,8 +233,8 @@
     return eventCount;
 }
 
-- (int)getTotalEventCount {
-    int eventCount = 0;
+- (NSUInteger)getTotalEventCount {
+    NSUInteger eventCount = 0;
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getTotalEventCount");
@@ -245,7 +245,7 @@
         [self handleSQLiteFailure:@"bind pid to total event statement"];
     }
     if (sqlite3_step(count_all_stmt) == SQLITE_ROW) {
-        eventCount = sqlite3_column_int(count_all_stmt, 0);
+        eventCount = (NSInteger) sqlite3_column_int(count_all_stmt, 0);
     } else {
         [self handleSQLiteFailure:@"get count of total rows"];
     }

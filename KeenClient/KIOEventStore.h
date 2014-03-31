@@ -41,12 +41,12 @@
  /**
   Get a count of pending events.
   */
-- (int)getPendingEventCount;
+- (NSUInteger)getPendingEventCount;
 
  /**
   Get a count of total events, pending or not.
   */
-- (int)getTotalEventCount;
+- (NSUInteger)getTotalEventCount;
 
  /**
   Purge pending events that were returned from a previous call to getEvents.
