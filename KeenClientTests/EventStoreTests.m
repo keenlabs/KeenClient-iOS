@@ -8,6 +8,7 @@
 
 #import "EventStore.h"
 #import "EventStoreTests.h"
+#import "EventStore_PrivateMethods.h"
 
 @interface EventStoreTests ()
 

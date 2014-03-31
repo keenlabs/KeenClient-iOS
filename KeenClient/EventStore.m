@@ -8,6 +8,11 @@
 
 #import "KeenClient.h"
 #import "EventStore.h"
+#import "EventStore_PrivateMethods.h"
+
+@interface EventStore()
+- (void)closeDB;
+@end
 
 @implementation EventStore {
     sqlite3 *keen_dbname;
@@ -305,7 +310,6 @@
     NSLog(@"Failed to %@: %@",
           msg, [NSString stringWithCString:sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
 }
-
 
 - (void)closeDB {
     // Free all the prepared statements. This is safe on null pointers.
