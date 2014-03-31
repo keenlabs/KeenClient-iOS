@@ -26,13 +26,13 @@
     sqlite3_stmt *purge_stmt;
 }
 
-- (id)init {
+- (instancetype)init {
     NSAssert(NO, @"init not allowed, use initWithProjectId");
     [self release];
     return nil;
 }
 
-- (id)initWithProjectId:(NSString *)pid {
+- (instancetype)initWithProjectId:(NSString *)pid {
     self = [super init];
 
     if(self) {
