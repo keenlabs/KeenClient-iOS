@@ -12,7 +12,7 @@
 @interface KIOEventStore : NSObject
 
 // The project ID for this store.
-@property (nonatomic, retain) NSString *projectId;
+@property (nonatomic, strong) NSString *projectId;
 
 - (id)initWithProjectId:(NSString *)pid;
 
