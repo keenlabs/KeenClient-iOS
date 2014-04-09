@@ -271,7 +271,7 @@ static BOOL loggingEnabled = NO;
             self.readKey = readKey;
         }
     }
-    
+
     return self;
 }
 
