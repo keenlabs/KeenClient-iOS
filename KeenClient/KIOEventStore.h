@@ -52,4 +52,9 @@
   Purge pending events that were returned from a previous call to getEvents.
   */
 - (void)purgePendingEvents;
+
+ /**
+  Delete an event from the store
+  */
+- (void)deleteEvent: (NSNumber *)eventId;
 @end

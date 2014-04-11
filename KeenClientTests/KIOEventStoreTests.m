@@ -59,6 +59,24 @@
     STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
 }
 
+- (void)testDelete{
+    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    STAssertTrue([store getTotalEventCount] == 1, @"1 total event after add");
+    STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
+
+    // Lets get some events out now with the purpose of deleteting them.
+    NSMutableDictionary *events = [store getEvents];
+    STAssertTrue([store getPendingEventCount] == 1, @"1 pending events after getEvents");
+
+    for (NSNumber *eid in events) {
+        [store deleteEvent:eid];
+    }
+
+    STAssertTrue([store getTotalEventCount] == 0, @"0 total events after delete");
+    STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after delete");
+}
+
 - (void)testGetPending{
     KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
