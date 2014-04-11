@@ -557,7 +557,6 @@ static KIOEventStore *eventStore;
 - (void)uploadHelperWithFinishedBlock:(void (^)()) block {
     // only one thread should be doing an upload at a time.
     @synchronized(self) {
-        NSLog(@"WTF?! ");
         // get data for the API request we'll make
         NSMutableDictionary *events = [eventStore getEvents];
         // set up the request dictionary we'll send out.
@@ -573,7 +572,6 @@ static KIOEventStore *eventStore;
                                                                       options:0
                                                                         error:&error];
             if (error) {
-                NSLog(@"TRIED TO DESER: %@",[[NSString alloc] initWithData:ev encoding: NSUTF8StringEncoding]);
                 KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
             }
@@ -633,12 +631,9 @@ static KIOEventStore *eventStore;
         KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
         return;
     }
-    NSLog(@"ASDASDASDA");
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
     // if the request succeeded, dig into the response to figure out which events succeeded and which failed
     if (responseCode == 200) {
-        NSLog(@"ASDASDASDA 200");
-        NSLog(@"ASDASDASDA %@", [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]);
         // deserialize the response
         NSError *error = nil;
         NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData
@@ -653,7 +648,6 @@ static KIOEventStore *eventStore;
         // now iterate through the keys of the response, which represent collection names
         NSArray *collectionNames = [responseDict allKeys];
         for (NSString *collectionName in collectionNames) {
-            NSLog(@"ASDASDASDA XXX");
             // grab the results for this collection
             NSArray *results = [responseDict objectForKey:collectionName];
             // go through and delete any successes and failures because of user error
@@ -682,7 +676,7 @@ static KIOEventStore *eventStore;
                 if (deleteFile) {
                     NSNumber *eid = [events objectAtIndex:count];
                     [eventStore deleteEvent: eid];
-                    KCLog(@"Successfully deleted file: %@", eid);
+                    KCLog(@"Successfully deleted event: %@", eid);
                 }
                 count++;
             }

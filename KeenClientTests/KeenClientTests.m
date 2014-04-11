@@ -264,8 +264,6 @@
     NSData *serializedData = [NSJSONSerialization dataWithJSONObject:data
                                                              options:0
                                                                error:nil];
-    NSString *json = [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];    [json release];
-    
     // set up the response data we're faking out
     [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any] 
                                      returningResponse:[OCMArg setTo:response] 
@@ -283,57 +281,53 @@
 }
 
 - (void)testUploadSuccess {
-    id mock = [self uploadTestHelperWithData:@{} andStatusCode:200];
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:200];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-
-    NSLog(@" EVENT COUNT %lu", (unsigned long)[[KeenClient getEventStore] getTotalEventCount]);
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0, @"There should be no files after a successful upload.");
 }
 
-//- (void)testUploadFailedServerDown {
-//    id mock = [self uploadTestHelperWithData:nil andStatusCode:500];
-//    
-//    [self addSimpleEventAndUploadWithMock:mock];
-//    
-//    NSLog(@" EVENT COUNT %lu", (unsigned long)[[KeenClient getEventStore] getTotalEventCount]);
-//    // make sure the file wasn't deleted from the store
-//    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
-//}
-//
-//- (void)testUploadFailedServerDownNonJsonResponse {
-//    id mock = [self uploadTestHelperWithData:@{} andStatusCode:500];
-//    
-//    [self addSimpleEventAndUploadWithMock:mock];
-//    
-//    // make sure the file wasn't deleted locally
-//    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
-//}
-//
-//- (void)testUploadFailedBadRequest {
-//    id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
-//                                                                   AndErrorCode:@"InvalidCollectionNameError" 
-//                                                                 AndDescription:@"anything"] 
-//                               andStatusCode:200];
-//    
-//    [self addSimpleEventAndUploadWithMock:mock];
-//    
-//    // make sure the file was deleted locally
-//    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-//    STAssertTrue([contents count] == 0, @"An invalid event should be deleted after an upload attempt.");
-//}
-//
-//- (void)testUploadFailedBadRequestUnknownError {
-//    id mock = [self uploadTestHelperWithData:@{} andStatusCode:400];
-//    
-//    [self addSimpleEventAndUploadWithMock:mock];
-//    
-//    // make sure the file wasn't deleted locally
-//    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-//    STAssertTrue([contents count] == 1, @"An upload that results in an unexpected error should not delete the event.");     
-//}
+- (void)testUploadFailedServerDown {
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:500];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+
+    // make sure the file wasn't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
+}
+
+- (void)testUploadFailedServerDownNonJsonResponse {
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:500];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+    
+    // make sure the file wasn't deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
+}
+
+- (void)testUploadFailedBadRequest {
+    id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
+                                                                   AndErrorCode:@"InvalidCollectionNameError" 
+                                                                 AndDescription:@"anything"] 
+                               andStatusCode:200];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+    
+    // make sure the file was deleted locally
+    // make sure the event was deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0,  @"An invalid event should be deleted after an upload attempt.");
+}
+
+- (void)testUploadFailedBadRequestUnknownError {
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:400];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+    
+    // make sure the file wasn't deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"An upload that results in an unexpected error should not delete the event.");
+}
 
 //- (void)testUploadMultipleEventsSameCollectionSuccess {
 //    NSDictionary *result1 = [self buildResultWithSuccess:YES 
