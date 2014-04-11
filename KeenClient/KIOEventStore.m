@@ -182,7 +182,7 @@
         // Add the event to the array.
         // XXX What frees this?
         NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
-        [events setObject:data forKey:[NSNumber numberWithLongLong:eventId]];
+        [events setObject:data forKey:[NSNumber numberWithUnsignedLongLong:eventId]];
     }
 
     // Reset things
@@ -271,7 +271,7 @@
         KCLog(@"DB is closed, skipping deleteEvent");
         return;
     }
-    if (sqlite3_bind_int64(delete_stmt, 1, [eventId longLongValue]) != SQLITE_OK) {
+    if (sqlite3_bind_int64(delete_stmt, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind eventid to delete statement"];
     }
     if (sqlite3_step(delete_stmt) != SQLITE_DONE) {

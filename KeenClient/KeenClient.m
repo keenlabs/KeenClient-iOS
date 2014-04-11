@@ -616,7 +616,7 @@ static BOOL loggingEnabled = NO;
 
 - (void)handleAPIResponse:(NSURLResponse *)response 
                   andData:(NSData *)responseData
-                forEvents:(NSArray *) events {
+                forEvents:(NSArray *)events {
     if (!responseData) {
         KCLog(@"responseData was nil for some reason.  That's not great.");
         KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
@@ -666,19 +666,9 @@ static BOOL loggingEnabled = NO;
                 }
                 // delete the file if we need to
                 if (deleteFile) {
-//                    NSString *path = [[eventPaths objectForKey:collectionName] objectAtIndex:count];
-//                    error = nil;
-//                    
-//                    // get a file manager
-//                    NSFileManager *fileManager = [NSFileManager defaultManager];
-//                    
-//                    [fileManager removeItemAtPath:path error:&error];
-//                    if (error) {
-//                        KCLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
-//                              [error localizedDescription]);
-//                    } else {
-//                        KCLog(@"Successfully deleted file: %@", path);
-//                    }
+                    NSNumber *eid = [events objectAtIndex:count];
+                    [eventStore deleteEvent: eid];
+                    KCLog(@"Successfully deleted file: %@l", eid);
                 }
                 count++;
             }
