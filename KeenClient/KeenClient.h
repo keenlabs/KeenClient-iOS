@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
+#import "KIOEventStore.h"
 #import "KeenProperties.h"
 
 // defines a type for the block we'll use with our global properties
@@ -149,6 +150,14 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  Returns whether or not logging is currently enabled.
  */
 + (Boolean)isLoggingEnabled;
+
+
+/**
+ Call this to indiscriminately delete all events queued for sending.
+ */
++ (void)clearAllEvents;
+
++ (KIOEventStore *)getEventStore;
 
 /**
  Call this if your code needs to use more than one Keen project.  By convention, if you

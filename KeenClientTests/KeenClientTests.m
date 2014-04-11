@@ -50,7 +50,7 @@
 - (void)tearDown {
     // Tear-down code here.
     NSLog(@"\n");
-
+    [KeenClient clearAllEvents];
     [super tearDown];
 }
 
@@ -282,24 +282,25 @@
     [mock uploadWithFinishedBlock:nil];
 }
 
-//- (void)testUploadSuccess {
-//    id mock = [self uploadTestHelperWithData:nil andStatusCode:200];
-//    
-//    [self addSimpleEventAndUploadWithMock:mock];
-//    
-//    // make sure the file was deleted locally
-//    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-//    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
-//}
-//
+- (void)testUploadSuccess {
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:200];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+    
+    // make sure the event was deleted from the store
+
+    NSLog(@" EVENT COUNT %lu", (unsigned long)[[KeenClient getEventStore] getTotalEventCount]);
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0, @"There should be no files after a successful upload.");
+}
+
 //- (void)testUploadFailedServerDown {
-//    id mock = [self uploadTestHelperWithData:@{} andStatusCode:500];
+//    id mock = [self uploadTestHelperWithData:nil andStatusCode:500];
 //    
 //    [self addSimpleEventAndUploadWithMock:mock];
 //    
-//    // make sure the file wasn't deleted locally
-//    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-//    STAssertTrue([contents count] == 1, @"There should be one file after a failed upload.");    
+//    NSLog(@" EVENT COUNT %lu", (unsigned long)[[KeenClient getEventStore] getTotalEventCount]);
+//    // make sure the file wasn't deleted from the store
+//    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
 //}
 //
 //- (void)testUploadFailedServerDownNonJsonResponse {
@@ -307,9 +308,8 @@
 //    
 //    [self addSimpleEventAndUploadWithMock:mock];
 //    
-//    // make sure the file wasnt't deleted locally
-//    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-//    STAssertTrue([contents count] == 1, @"There should be one file after a failed upload.");    
+//    // make sure the file wasn't deleted locally
+//    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
 //}
 //
 //- (void)testUploadFailedBadRequest {

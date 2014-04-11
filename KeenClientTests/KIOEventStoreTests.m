@@ -45,7 +45,8 @@
 }
 
 - (void)testInit{
-    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] init];
+    store.projectId = @"1234";
     STAssertNotNil(store, @"init is not null");
     NSString *dbPath = [self databaseFile];
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -53,14 +54,16 @@
 }
 
 - (void)testAdd{
-    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] init];
+    store.projectId = @"1234";
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
     STAssertTrue([store getTotalEventCount] == 1, @"1 total event after add");
     STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
 }
 
 - (void)testDelete{
-    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] init];
+    store.projectId = @"1234";
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
     STAssertTrue([store getTotalEventCount] == 1, @"1 total event after add");
     STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
@@ -78,7 +81,8 @@
 }
 
 - (void)testGetPending{
-    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] init];
+    store.projectId = @"1234";
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
@@ -97,7 +101,8 @@
 }
 
 - (void)testCleanupOfPending{
-    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] init];
+    store.projectId = @"1234";
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
@@ -120,7 +125,8 @@
 }
 
 - (void)testResetOfPending{
-    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] init];
+    store.projectId = @"1234";
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
@@ -147,7 +153,8 @@
 }
 
 - (void)testClosedDB{
-    KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+    KIOEventStore *store = [[KIOEventStore alloc] init];
+    store.projectId = @"1234";
     [store closeDB];
 
     // Verify that these methods all behave with a closed database.

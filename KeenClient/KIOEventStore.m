@@ -25,20 +25,14 @@
     sqlite3_stmt *reset_pending_stmt;
     sqlite3_stmt *purge_stmt;
     sqlite3_stmt *delete_stmt;
+    sqlite3_stmt *delete_all_stmt;
 }
 
 - (instancetype)init {
-    NSAssert(NO, @"init not allowed, use initWithProjectId");
-    [self release];
-    return nil;
-}
-
-- (instancetype)initWithProjectId:(NSString *)pid {
     self = [super init];
 
     if(self) {
         dbIsOpen = NO;
-        self.projectId = pid;
         // First, let's open the database.
         if ([self openDB]) {
             // Then try and create the table.
@@ -102,6 +96,12 @@
             if(sqlite3_prepare_v2(keen_dbname, delete_sql, -1, &delete_stmt, NULL) != SQLITE_OK) {
                 [self closeDB];
             }
+
+            // This statement deletes all events.
+            char *delete_all_sql = "DELETE FROM events";
+            if(sqlite3_prepare_v2(keen_dbname, delete_all_sql, -1, &delete_all_stmt, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
         }
     }
     return self;
@@ -125,7 +125,7 @@
         [self closeDB];
     }
 
-    if (sqlite3_bind_blob(insert_stmt, 3, [eventData bytes], -1, SQLITE_STATIC) != SQLITE_OK) {
+    if (sqlite3_bind_blob(insert_stmt, 3, [eventData bytes], (int) [eventData length], SQLITE_TRANSIENT) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind insert statement"];
         [self closeDB];
     }
@@ -166,9 +166,10 @@
         const void *dataPtr = sqlite3_column_blob(find_stmt, 1);
         int dataSize = sqlite3_column_bytes(find_stmt, 1);
 
+        NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
+
         // Bind and mark the event pending.
         if(sqlite3_bind_int64(make_pending_stmt, 1, eventId) != SQLITE_OK) {
-            // XXX What to do here?
             [self handleSQLiteFailure:@"bind int for make pending"];
         }
         if (sqlite3_step(make_pending_stmt) != SQLITE_DONE) {
@@ -180,8 +181,6 @@
         sqlite3_clear_bindings(make_pending_stmt);
 
         // Add the event to the array.
-        // XXX What frees this?
-        NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
         [events setObject:data forKey:[NSNumber numberWithUnsignedLongLong:eventId]];
     }
 
@@ -282,6 +281,20 @@
     sqlite3_clear_bindings(delete_stmt);
 }
 
+- (void)deleteAllEvents {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping deleteEvent");
+        return;
+    }
+    if (sqlite3_step(delete_all_stmt) != SQLITE_DONE) {
+        [self handleSQLiteFailure:@"delete all events"];
+        // XXX What to do here?
+    };
+    sqlite3_reset(delete_all_stmt);
+    sqlite3_clear_bindings(delete_all_stmt);
+}
+
 - (void)purgePendingEvents {
 
     if (!dbIsOpen) {
@@ -349,6 +362,7 @@
     sqlite3_finalize(reset_pending_stmt);
     sqlite3_finalize(purge_stmt);
     sqlite3_finalize(delete_stmt);
+    sqlite3_finalize(delete_all_stmt);
 
     // Free our DB. This is safe on null pointers.
     sqlite3_close(keen_dbname);

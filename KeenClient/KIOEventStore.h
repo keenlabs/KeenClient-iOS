@@ -14,7 +14,7 @@
 // The project ID for this store.
 @property (nonatomic, strong) NSString *projectId;
 
-- (id)initWithProjectId:(NSString *)pid;
+//- (id)initWithProjectId:(NSString *)pid;
 
  /**
   Reset any pending events so they can be resent.
@@ -57,4 +57,9 @@
   Delete an event from the store
   */
 - (void)deleteEvent: (NSNumber *)eventId;
+
+/**
+ Delete all events from the store
+ */
+- (void)deleteAllEvents;
 @end

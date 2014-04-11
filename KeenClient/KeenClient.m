@@ -16,11 +16,10 @@ static KeenClient *sharedClient;
 static NSDateFormatter *dateFormatter;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
+static KIOEventStore *eventStore;
 
 // Class extention for private properties
-@interface KeenClient () {
-    KIOEventStore *eventStore;
-}
+@interface KeenClient ()
 
 // The project ID for this particular client.
 @property (nonatomic, retain) NSString *projectId;
@@ -131,7 +130,7 @@ static BOOL loggingEnabled = NO;
          */
         return;
     }
-    
+
     [KeenClient disableLogging];
     [KeenClient enableGeoLocation];
     if (!dateFormatter) {
@@ -164,6 +163,14 @@ static BOOL loggingEnabled = NO;
     geoLocationEnabled = NO;
 }
 
++ (void)clearAllEvents {
+    [eventStore deleteAllEvents];
+}
+
++ (KIOEventStore *) getEventStore {
+    return eventStore;
+}
+
 - (id)init {
     self = [super init];
     
@@ -171,8 +178,6 @@ static BOOL loggingEnabled = NO;
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
     dispatch_retain(self.uploadQueue);
-
-    eventStore = [[KIOEventStore alloc] initWithProjectId: @"1234"];
 
     return self;
 }
@@ -198,7 +203,7 @@ static BOOL loggingEnabled = NO;
     self = [self init];
     if (self) {
         self.projectId = projectId;
-        // XXX Change event store project id here? This one is their problem, right?
+        eventStore.projectId = projectId;
         if (writeKey) {
             if (![KeenClient validateKey:writeKey]) {
                 return nil;
@@ -240,8 +245,12 @@ static BOOL loggingEnabled = NO;
     if (![KeenClient validateProjectId:projectId]) {
         return nil;
     }
+
+    if (!eventStore) {
+        eventStore = [[KIOEventStore alloc] init];
+    }
     sharedClient.projectId = projectId;
-    // XXX Change event store project id here
+    eventStore.projectId = projectId;
 
     if (writeKey) {
         // only validate a non-nil value
@@ -548,6 +557,7 @@ static BOOL loggingEnabled = NO;
 - (void)uploadHelperWithFinishedBlock:(void (^)()) block {
     // only one thread should be doing an upload at a time.
     @synchronized(self) {
+        NSLog(@"WTF?! ");
         // get data for the API request we'll make
         NSMutableDictionary *events = [eventStore getEvents];
         // set up the request dictionary we'll send out.
@@ -563,6 +573,7 @@ static BOOL loggingEnabled = NO;
                                                                       options:0
                                                                         error:&error];
             if (error) {
+                NSLog(@"TRIED TO DESER: %@",[[NSString alloc] initWithData:ev encoding: NSUTF8StringEncoding]);
                 KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
             }
@@ -573,7 +584,7 @@ static BOOL loggingEnabled = NO;
 
         NSData *data = [NSJSONSerialization dataWithJSONObject:requestArray options:0 error:&error];
         if (error) {
-            NSLog(@"An error occurred when serializing the final request data back to JSON: %@",
+            NSLog(@"An error occurred when serializing the final request data to JSON: %@",
                   [error localizedDescription]);
             // can't do much here.
             return;
@@ -622,10 +633,12 @@ static BOOL loggingEnabled = NO;
         KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
         return;
     }
-    
+    NSLog(@"ASDASDASDA");
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
     // if the request succeeded, dig into the response to figure out which events succeeded and which failed
     if (responseCode == 200) {
+        NSLog(@"ASDASDASDA 200");
+        NSLog(@"ASDASDASDA %@", [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding]);
         // deserialize the response
         NSError *error = nil;
         NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData
@@ -640,6 +653,7 @@ static BOOL loggingEnabled = NO;
         // now iterate through the keys of the response, which represent collection names
         NSArray *collectionNames = [responseDict allKeys];
         for (NSString *collectionName in collectionNames) {
+            NSLog(@"ASDASDASDA XXX");
             // grab the results for this collection
             NSArray *results = [responseDict objectForKey:collectionName];
             // go through and delete any successes and failures because of user error
@@ -668,7 +682,7 @@ static BOOL loggingEnabled = NO;
                 if (deleteFile) {
                     NSNumber *eid = [events objectAtIndex:count];
                     [eventStore deleteEvent: eid];
-                    KCLog(@"Successfully deleted file: %@l", eid);
+                    KCLog(@"Successfully deleted file: %@", eid);
                 }
                 count++;
             }
