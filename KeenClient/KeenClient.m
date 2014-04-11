@@ -70,63 +70,6 @@ static BOOL loggingEnabled = NO;
 + (BOOL)validateKey:(NSString *)key;
 
 /**
- Returns the path to the app's library/cache directory.
- @returns An NSString* that is a path to the app's documents directory.
- */
-- (NSString *)cacheDirectory;
-
-/**
- Returns the root keen directory where collection sub-directories exist.
- @returns An NSString* that is a path to the keen root directory.
- */
-- (NSString *)keenDirectory;
-
-/**
- Returns the direct child sub-directories of the root keen directory.
- @returns An NSArray* of NSStrings* that are names of sub-directories.
- */
-- (NSArray *)keenSubDirectories;
-
-/**
- Returns all the files and directories that are children of the argument path.
- @param path An NSString* that's a fully qualified path to a directory on the file system.
- @returns An NSArray* of NSStrings* that are names of sub-files or directories.
- */
-- (NSArray *)contentsAtPath:(NSString *)path;
-
-/**
- Returns the directory for a particular collection where events exist.
- @param collection The collection.
- @returns An NSString* that is a path to the collection directory.
- */
-- (NSString *)eventDirectoryForCollection:(NSString *)collection;
-
-/**
- Returns the full path to write an event to.
- @param collection The collection name.
- @param timestamp  The timestamp of the event.
- @returns An NSString* that is a path to the event to be written.
- */
-- (NSString *)pathForEventInCollection:(NSString *)collection 
-                         WithTimestamp:(NSDate *)timestamp;
-
-/**
- Creates a directory if it doesn't exist.
- @param dirPath The fully qualfieid path to a directory.
- @returns YES if the directory exists at the end of this operation, NO otherwise.
- */
-- (BOOL)createDirectoryIfItDoesNotExist:(NSString *)dirPath;
-
-/**
- Writes a particular blob to the given file.
- @param data The data blob to write.
- @param file The fully qualified path to a file.
- @returns YES if the file was successfully written, NO otherwise.
- */
-- (BOOL)writeNSData:(NSData *)data 
-             toFile:(NSString *)file;
-
-/**
  Sends an event to the server. Internal impl.
  @param data The data to send.
  @param response The response being returned.
@@ -135,15 +78,6 @@ static BOOL loggingEnabled = NO;
 - (NSData *)sendEvents:(NSData *)data 
      returningResponse:(NSURLResponse **)response 
                  error:(NSError **)error;
-
-/**
- Harvests local file system for any events to send to keen service and prepares the payload
- for the API request.
- @param jsonData If successful, this will be filled with the correct JSON data.  Otherwise it is untouched.
- @param eventPaths If successful, this will be filled with a dictionary that maps event types to their paths on the local filesystem.
- */
-- (void)prepareJSONData:(NSData **)jsonData 
-          andEventPaths:(NSMutableDictionary **)eventPaths;
 
 /**
  Handles the HTTP response from the keen API.  This involves deserializing the JSON response
@@ -537,11 +471,7 @@ static BOOL loggingEnabled = NO;
         return;
     }
     
-    // now figure out the correct filename.
-//    NSString *fileName = [self pathForEventInCollection:eventCollection WithTimestamp:[NSDate date]];
-
-    // write JSON to file system
-//    [self writeNSData:jsonData toFile:fileName];
+    // write JSON to store
     [eventStore addEvent:jsonData collection: eventCollection];
     
     // log the event
@@ -779,94 +709,6 @@ static BOOL loggingEnabled = NO;
     [request setHTTPBody:data];
     NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
     return responseData;
-}
-
-# pragma mark - Directory/path management
-
-- (NSString *)cacheDirectory {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    return documentsDirectory;
-}
-
-- (NSString *)keenDirectory {
-    NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
-    return [keenDirPath stringByAppendingPathComponent:self.projectId];
-}
-
-- (NSArray *)keenSubDirectories {
-    return [self contentsAtPath:[self keenDirectory]];
-}
-
-- (NSArray *)contentsAtPath:(NSString *) path {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error = nil;
-    NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
-    if (error) {
-        KCLog(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
-        return nil;
-    }
-    return files;
-}
-
-- (NSString *)eventDirectoryForCollection:(NSString *)collection {
-    return [[self keenDirectory] stringByAppendingPathComponent:collection];
-}
-
-- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
-    // get a file manager.
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    // determine the root of the filename.
-    NSString *name = [NSString stringWithFormat:@"%f", [timestamp timeIntervalSince1970]];
-    // get the path to the directory where the file will be written
-    NSString *directory = [self eventDirectoryForCollection:collection];
-    // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
-    // we'll be able to handle it.
-    uint count = 0;
-    
-    // declare a tiny helper block to get the next path based on the counter.
-    NSString * (^getNextPath)(uint count) = ^(uint count) {
-        return [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%i", name, count]];
-    };
-    
-    // starting with our root filename.0, see if a file exists.  if it doesn't, great.  but if it does, then go
-    // on to filename.1, filename.2, etc.
-    NSString *path = getNextPath(count);
-    while ([fileManager fileExistsAtPath:path]) {
-        count++;
-        path = getNextPath(count);
-    }    
-    
-    return path;
-}
-
-- (BOOL)createDirectoryIfItDoesNotExist:(NSString *)dirPath {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    // if the directory doesn't exist, create it.
-    if (![fileManager fileExistsAtPath:dirPath]) {
-        NSError *error = nil;
-        Boolean success = [fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:&error];
-        if (error) {
-            KCLog(@"An error occurred when creating directory (%@). Message: %@", dirPath, [error localizedDescription]);
-            return NO;
-        } else if (!success) {
-            KCLog(@"Failed to create directory (%@) but no error was returned.", dirPath);
-            return NO;
-        }        
-    }
-    return YES;
-}
-
-- (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
-    // write file atomically so we don't ever have a partial event to worry about.    
-    Boolean success = [data writeToFile:file atomically:YES];
-    if (!success) {
-        KCLog(@"Error when writing event to file: %@", file);
-        return NO;
-    } else {
-        KCLog(@"Successfully wrote event to file: %@", file);
-    }
-    return YES;
 }
 
 - (void) handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {
