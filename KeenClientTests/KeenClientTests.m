@@ -43,7 +43,7 @@
 
 - (void)setUp {
     [super setUp];
-    
+
     // Set-up code here.
     [[KeenClient sharedClient] setProjectId:nil];
     [[KeenClient sharedClient] setWriteKey:nil];
@@ -66,7 +66,7 @@
             STFail(@"No error should be thrown when cleaning up: %@", [error localizedDescription]);
         }
     }
-    
+
     [super tearDown];
 }
 
@@ -672,6 +672,11 @@
                                                                      options:0
                                                                        error:nil];
     return deserializedDict;
+}
+
+- (NSString *)databaseFile {
+    NSString *databasePath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    return [databasePath stringByAppendingPathComponent:@"keenEvents.sqlite"];
 }
 
 @end

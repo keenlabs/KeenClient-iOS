@@ -49,7 +49,7 @@
             // Now we'll init prepared statements for all the things we might do.
 
             // This statement inserts events into the table.
-            char *insert_sql = "INSERT INTO events (projectId, eventData, pending) VALUES (?, ?, 0)";
+            char *insert_sql = "INSERT INTO events (projectId, collection, eventData, pending) VALUES (?, ?, ?, 0)";
             if (sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare insert statement"];
                 [self closeDB];
@@ -100,7 +100,7 @@
     return self;
 }
 
-- (BOOL)addEvent:(NSData *)eventData {
+- (BOOL)addEvent:(NSData *)eventData collection: (NSString *)coll {
     BOOL wasAdded = NO;
 
     if (!dbIsOpen) {
@@ -113,7 +113,12 @@
         [self closeDB];
     }
 
-    if (sqlite3_bind_blob(insert_stmt, 2, [eventData bytes], -1, SQLITE_STATIC) != SQLITE_OK) {
+    if (sqlite3_bind_text(insert_stmt, 2, [coll UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind coll to add event statement"];
+        [self closeDB];
+    }
+
+    if (sqlite3_bind_blob(insert_stmt, 3, [eventData bytes], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind insert statement"];
         [self closeDB];
     }
@@ -294,7 +299,7 @@
     }
 
     char *err;
-    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, projectId TEXT, eventData BLOB, pending INTEGER);"];
+    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectId TEXT, eventData BLOB, pending INTEGER);"];
     if (sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
         KCLog(@"Failed to create table: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
         sqlite3_free(err); // Free that error message

@@ -542,7 +542,7 @@ static BOOL loggingEnabled = NO;
     // write JSON to file system
     [self writeNSData:jsonData toFile:fileName];
     // XXX Wrong type!
-    [eventStore addEvent:jsonData];
+    [eventStore addEvent:jsonData collection: eventCollection];
     
     // log the event
     if ([KeenClient isLoggingEnabled]) {
