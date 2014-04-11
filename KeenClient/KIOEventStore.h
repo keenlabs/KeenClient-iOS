@@ -33,10 +33,10 @@
 - (BOOL)addEvent: (NSData *)eventData collection: (NSString *)coll;
 
  /**
-  Get a list of events that are ready to send to Keen. Events that are
-  returned have been flagged as pending in the underlying store.
+  Get a dictionary of events keyed by id that are ready to send to Keen. Events
+  that are returned have been flagged as pending in the underlying store.
   */
-- (NSMutableArray *)getEvents;
+- (NSMutableDictionary *)getEvents;
 
  /**
   Get a count of pending events.

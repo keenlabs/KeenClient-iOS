@@ -620,12 +620,13 @@ static BOOL loggingEnabled = NO;
     NSLog(@"#!!!!!! asdasd 1");
     @synchronized(self) {
         // get data for the API request we'll make
-        NSMutableArray *events = [eventStore getEvents];
+        NSMutableDictionary *events = [eventStore getEvents];
         // set up the request dictionary we'll send out.
         NSMutableArray *requestArray = [NSMutableArray array];
 
         NSError *error = nil;
-        for (NSData *ev in events) {
+        for (NSNumber *eid in events) {
+            NSData *ev = [events objectForKey:eid];
             NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
                                                                       options:0
                                                                         error:&error];

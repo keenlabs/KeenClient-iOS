@@ -138,10 +138,10 @@
     return wasAdded;
 }
 
-- (NSMutableArray *)getEvents{
+- (NSMutableDictionary *)getEvents{
 
     // Create an array to hold the contents of our select.
-    NSMutableArray *events = [NSMutableArray array];
+    NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getEvents");
@@ -176,7 +176,7 @@
         // Add the event to the array.
         // XXX What frees this?
         NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
-        [events addObject:data];
+        [events setObject:data forKey:[NSNumber numberWithInt:eventId]];
     }
 
     // Reset things

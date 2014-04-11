@@ -65,7 +65,7 @@
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
     // Lets get some events out now with the purpose of sending them off.
-    NSMutableArray *events = [store getEvents];
+    NSMutableDictionary *events = [store getEvents];
 
     STAssertTrue([events count] == 2, @"2 event returned");
 
