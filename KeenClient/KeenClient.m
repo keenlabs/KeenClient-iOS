@@ -488,35 +488,36 @@ static BOOL loggingEnabled = NO;
     }
     [newEvent addEntriesFromDictionary:event];
     event = newEvent;
-    
-    // make sure the directory we want to write the file to exists
-    NSString *dirPath = [self eventDirectoryForCollection:eventCollection];
-    // if the directory doesn't exist, create it.
-    Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
-    if (!success) {
-        KCLog(@"Couldn't access local directory at %@. Event NOT added.", dirPath);
-        return;
-    }
-    // now make sure that we haven't hit the max number of events in this collection already
-    NSArray *eventsArray = [self contentsAtPath:dirPath];
-    if ([eventsArray count] >= self.maxEventsPerCollection) {
-        // need to age out old data so the cache doesn't grow too large
-        KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
-        KCLog(@"Count: %lu and Max: %lu", (unsigned long)[eventsArray count], (unsigned long)self.maxEventsPerCollection);
-        
-        NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-        // delete the eldest
-        for (int i=0; i<self.numberEventsToForget; i++) {
-            NSString *fileName = [sortedEventsArray objectAtIndex:i];
-            NSString *fullPath = [dirPath stringByAppendingPathComponent:fileName];
-            NSError *error = nil;
-            [[NSFileManager defaultManager] removeItemAtPath:fullPath error:&error];
-            if (error) {
-                KCLog(@"Couldn't delete %@ when aging events out of cache!", [error localizedDescription]);
-            }
-        }
-    }
-    
+
+    // XXX Need to add counting of per-collection events and "forgetting".
+//    // make sure the directory we want to write the file to exists
+//    NSString *dirPath = [self eventDirectoryForCollection:eventCollection];
+//    // if the directory doesn't exist, create it.
+//    Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
+//    if (!success) {
+//        KCLog(@"Couldn't access local directory at %@. Event NOT added.", dirPath);
+//        return;
+//    }
+//    // now make sure that we haven't hit the max number of events in this collection already
+//    NSArray *eventsArray = [self contentsAtPath:dirPath];
+//    if ([eventsArray count] >= self.maxEventsPerCollection) {
+//        // need to age out old data so the cache doesn't grow too large
+//        KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
+//        KCLog(@"Count: %lu and Max: %lu", (unsigned long)[eventsArray count], (unsigned long)self.maxEventsPerCollection);
+//        
+//        NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+//        // delete the eldest
+//        for (int i=0; i<self.numberEventsToForget; i++) {
+//            NSString *fileName = [sortedEventsArray objectAtIndex:i];
+//            NSString *fullPath = [dirPath stringByAppendingPathComponent:fileName];
+//            NSError *error = nil;
+//            [[NSFileManager defaultManager] removeItemAtPath:fullPath error:&error];
+//            if (error) {
+//                KCLog(@"Couldn't delete %@ when aging events out of cache!", [error localizedDescription]);
+//            }
+//        }
+//    }
+
     if (!keenProperties) {
         KeenProperties *newProperties = [[[KeenProperties alloc] init] autorelease];
         keenProperties = newProperties;
@@ -537,11 +538,10 @@ static BOOL loggingEnabled = NO;
     }
     
     // now figure out the correct filename.
-    NSString *fileName = [self pathForEventInCollection:eventCollection WithTimestamp:[NSDate date]];
-    
+//    NSString *fileName = [self pathForEventInCollection:eventCollection WithTimestamp:[NSDate date]];
+
     // write JSON to file system
-    [self writeNSData:jsonData toFile:fileName];
-    // XXX Wrong type!
+//    [self writeNSData:jsonData toFile:fileName];
     [eventStore addEvent:jsonData collection: eventCollection];
     
     // log the event
@@ -617,21 +617,46 @@ static BOOL loggingEnabled = NO;
 
 - (void)uploadHelperWithFinishedBlock:(void (^)()) block {
     // only one thread should be doing an upload at a time.
-    @synchronized(self) {        
+    NSLog(@"#!!!!!! asdasd 1");
+    @synchronized(self) {
         // get data for the API request we'll make
-        NSData *data = nil;
-        NSMutableDictionary *eventPaths = nil;
-        [self prepareJSONData:&data andEventPaths:&eventPaths];
-        if ([data length] > 0 && [eventPaths count] > 0) {
+        NSMutableArray *events = [eventStore getEvents];
+        // set up the request dictionary we'll send out.
+        NSMutableArray *requestArray = [NSMutableArray array];
+
+        NSError *error = nil;
+        for (NSData *ev in events) {
+            NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
+                                                                      options:0
+                                                                        error:&error];
+            if (error) {
+                KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                continue;
+            }
+            // and then add it to the array of events
+            [requestArray addObject:eventDict];
+        }
+
+        NSLog(@"#!!!!!! asdasd");
+        NSData *data = [NSJSONSerialization dataWithJSONObject:requestArray options:0 error:&error];
+        NSLog(@"#### Getting some data %lu", (unsigned long)[data length]);
+//        if (error) {
+//            NSLog(@"An error occurred when serializing the final request data back to JSON: %@",
+//                  [error localizedDescription]);
+//            // can't do much here.
+//            return;
+//        }
+//
+        if ([data length] > 0) {
             // then make an http request to the keen server.
             NSURLResponse *response = nil;
             NSError *error = nil;
             NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
             
             // then parse the http response and deal with it appropriately
-            [self handleAPIResponse:response andData:responseData forEventPaths:eventPaths];
+            [self handleAPIResponse:response andData:responseData];
         }
-        
+
         // finally, run the user-specific block (if there is one)
         if (block) {
             KCLog(@"Running user-specified block.");
@@ -745,8 +770,7 @@ static BOOL loggingEnabled = NO;
 }
 
 - (void)handleAPIResponse:(NSURLResponse *)response 
-                  andData:(NSData *)responseData 
-            forEventPaths:(NSDictionary *)eventPaths {
+                  andData:(NSData *)responseData {
     if (!responseData) {
         KCLog(@"responseData was nil for some reason.  That's not great.");
         KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
@@ -795,21 +819,21 @@ static BOOL loggingEnabled = NO;
                     }
                 }
                 // delete the file if we need to
-                if (deleteFile) {
-                    NSString *path = [[eventPaths objectForKey:collectionName] objectAtIndex:count];
-                    error = nil;
-                    
-                    // get a file manager
-                    NSFileManager *fileManager = [NSFileManager defaultManager];
-                    
-                    [fileManager removeItemAtPath:path error:&error];
-                    if (error) {
-                        KCLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
-                              [error localizedDescription]);
-                    } else {
-                        KCLog(@"Successfully deleted file: %@", path);
-                    }
-                }
+//                if (deleteFile) {
+//                    NSString *path = [[eventPaths objectForKey:collectionName] objectAtIndex:count];
+//                    error = nil;
+//                    
+//                    // get a file manager
+//                    NSFileManager *fileManager = [NSFileManager defaultManager];
+//                    
+//                    [fileManager removeItemAtPath:path error:&error];
+//                    if (error) {
+//                        KCLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
+//                              [error localizedDescription]);
+//                    } else {
+//                        KCLog(@"Successfully deleted file: %@", path);
+//                    }
+//                }
                 count++;
             }
         }
