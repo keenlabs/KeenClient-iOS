@@ -30,7 +30,7 @@
  /**
   Add an event to the store.
   */
-- (BOOL)addEvent: (NSString *)eventData;
+- (BOOL)addEvent: (NSData *)eventData;
 
  /**
   Get a list of events that are ready to send to Keen. Events that are

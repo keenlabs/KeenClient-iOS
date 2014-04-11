@@ -46,15 +46,15 @@
 
 - (void)testAdd{
     KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
-    [store addEvent:@"I AM AN EVENT"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding]];
     STAssertTrue([store getTotalEventCount] == 1, @"1 total event after add");
     STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
 }
 
 - (void)testGetPending{
     KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
-    [store addEvent:@"I AM AN EVENT"];
-    [store addEvent:@"I AM AN EVENT ALSO"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding]];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding]];
 
     // Lets get some events out now with the purpose of sending them off.
     NSMutableArray *events = [store getEvents];
@@ -65,15 +65,15 @@
     STAssertTrue([store getPendingEventCount] == 2, @"2 pending event after add");
     STAssertTrue([store hasPendingEvents], @"has pending events!");
 
-    [store addEvent:@"I AM NOT AN EVENT BUT A STRING"];
+    [store addEvent:[@"I AM NOT AN EVENT BUT A STRING" dataUsingEncoding:NSUTF8StringEncoding]];
     STAssertTrue([store getTotalEventCount] == 3, @"3 total event after non-pending add");
     STAssertTrue([store getPendingEventCount] == 2, @"2 pending event after add");
 }
 
 - (void)testCleanupOfPending{
     KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
-    [store addEvent:@"I AM AN EVENT"];
-    [store addEvent:@"I AM AN EVENT ALSO"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding]];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding]];
 
     // Lets get some events out now with the purpose of sending them off.
     [store getEvents];
@@ -83,8 +83,8 @@
     STAssertFalse([store hasPendingEvents], @"No pending events now!");
 
     // Again for good measure
-    [store addEvent:@"I AM AN EVENT"];
-    [store addEvent:@"I AM AN EVENT ALSO"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding]];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding]];
 
     [store getEvents];
 
@@ -95,8 +95,8 @@
 
 - (void)testResetOfPending{
     KIOEventStore *store = [[KIOEventStore alloc] initWithProjectId: @"1234"];
-    [store addEvent:@"I AM AN EVENT"];
-    [store addEvent:@"I AM AN EVENT ALSO"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding]];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding]];
 
     // Lets get some events out now with the purpose of sending them off.
     [store getEvents];
@@ -110,8 +110,8 @@
     STAssertFalse([store hasPendingEvents], @"has NO pending events!");
 
     // Again for good measure
-    [store addEvent:@"I AM AN EVENT"];
-    [store addEvent:@"I AM AN EVENT ALSO"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding]];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding]];
 
     [store getEvents];
 
@@ -128,7 +128,7 @@
 
     STAssertFalse([store hasPendingEvents], @"no pending if closed");
     [store resetPendingEvents]; // This shouldn't crash. :P
-    STAssertFalse([store addEvent:@"POOP"], @"add event should fail if closed");
+    STAssertFalse([store addEvent:[@"POOP" dataUsingEncoding:NSUTF8StringEncoding]], @"add event should fail if closed");
     STAssertTrue([[store getEvents] count] == 0, @"no events if closed");
     STAssertTrue([store getPendingEventCount] == 0, @"no pending if closed");
     STAssertTrue([store getTotalEventCount] == 0, @"no total if closed");

@@ -100,7 +100,7 @@
     return self;
 }
 
-- (BOOL)addEvent:(NSString *)eventData {
+- (BOOL)addEvent:(NSData *)eventData {
     BOOL wasAdded = NO;
 
     if (!dbIsOpen) {
@@ -113,7 +113,7 @@
         [self closeDB];
     }
 
-    if (sqlite3_bind_blob(insert_stmt, 2, [eventData UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+    if (sqlite3_bind_blob(insert_stmt, 2, [eventData bytes], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind insert statement"];
         [self closeDB];
     }

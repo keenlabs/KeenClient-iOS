@@ -8,6 +8,7 @@
 
 #import "KeenClient.h"
 #import "KeenConstants.h"
+#import "KIOEventStore.h"
 #import <CoreLocation/CoreLocation.h>
 
 
@@ -16,7 +17,10 @@ static NSDateFormatter *dateFormatter;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
 
-@interface KeenClient ()
+// Class extention for private properties
+@interface KeenClient () {
+    KIOEventStore *eventStore;
+}
 
 // The project ID for this particular client.
 @property (nonatomic, retain) NSString *projectId;
@@ -233,7 +237,9 @@ static BOOL loggingEnabled = NO;
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
     dispatch_retain(self.uploadQueue);
-    
+
+    eventStore = [[KIOEventStore alloc] initWithProjectId: @"1234"];
+
     return self;
 }
 
@@ -258,6 +264,7 @@ static BOOL loggingEnabled = NO;
     self = [self init];
     if (self) {
         self.projectId = projectId;
+        // XXX Change event store project id here? This one is their problem, right?
         if (writeKey) {
             if (![KeenClient validateKey:writeKey]) {
                 return nil;
@@ -286,6 +293,7 @@ static BOOL loggingEnabled = NO;
     // explicitly release the properties which we've copied
     [self.globalPropertiesBlock release];
     dispatch_release(self.uploadQueue);
+    // XXX Dealloc eventstore
     [super dealloc];
 }
 
@@ -299,7 +307,8 @@ static BOOL loggingEnabled = NO;
         return nil;
     }
     sharedClient.projectId = projectId;
-    
+    // XXX Change event store project id here
+
     if (writeKey) {
         // only validate a non-nil value
         if (![KeenClient validateKey:writeKey]) {
@@ -532,6 +541,8 @@ static BOOL loggingEnabled = NO;
     
     // write JSON to file system
     [self writeNSData:jsonData toFile:fileName];
+    // XXX Wrong type!
+    [eventStore addEvent:jsonData];
     
     // log the event
     if ([KeenClient isLoggingEnabled]) {
