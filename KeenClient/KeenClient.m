@@ -154,7 +154,7 @@ static BOOL loggingEnabled = NO;
  */
 - (void)handleAPIResponse:(NSURLResponse *)response 
                   andData:(NSData *)responseData 
-            forEventPaths:(NSDictionary *)eventPaths;
+                forEvents:(NSArray *)events;
 
 /**
  Converts an NSDate* instance into a correctly formatted ISO-8601 compatible string.
@@ -617,12 +617,14 @@ static BOOL loggingEnabled = NO;
 
 - (void)uploadHelperWithFinishedBlock:(void (^)()) block {
     // only one thread should be doing an upload at a time.
-    NSLog(@"#!!!!!! asdasd 1");
     @synchronized(self) {
         // get data for the API request we'll make
         NSMutableDictionary *events = [eventStore getEvents];
         // set up the request dictionary we'll send out.
         NSMutableArray *requestArray = [NSMutableArray array];
+        // An accompanying list of event ids in the same order so we can
+        // delete them
+        NSMutableArray *eventIds = [NSMutableArray array];
 
         NSError *error = nil;
         for (NSNumber *eid in events) {
@@ -636,18 +638,17 @@ static BOOL loggingEnabled = NO;
             }
             // and then add it to the array of events
             [requestArray addObject:eventDict];
+            [eventIds addObject:eid];
         }
 
-        NSLog(@"#!!!!!! asdasd");
         NSData *data = [NSJSONSerialization dataWithJSONObject:requestArray options:0 error:&error];
-        NSLog(@"#### Getting some data %lu", (unsigned long)[data length]);
-//        if (error) {
-//            NSLog(@"An error occurred when serializing the final request data back to JSON: %@",
-//                  [error localizedDescription]);
-//            // can't do much here.
-//            return;
-//        }
-//
+        if (error) {
+            NSLog(@"An error occurred when serializing the final request data back to JSON: %@",
+                  [error localizedDescription]);
+            // can't do much here.
+            return;
+        }
+
         if ([data length] > 0) {
             // then make an http request to the keen server.
             NSURLResponse *response = nil;
@@ -655,7 +656,7 @@ static BOOL loggingEnabled = NO;
             NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
             
             // then parse the http response and deal with it appropriately
-            [self handleAPIResponse:response andData:responseData];
+            [self handleAPIResponse:response andData:responseData forEvents:eventIds];
         }
 
         // finally, run the user-specific block (if there is one)
@@ -683,95 +684,9 @@ static BOOL loggingEnabled = NO;
     }
 }
 
-- (void)prepareJSONData:(NSData **)jsonData andEventPaths:(NSMutableDictionary **)eventPaths {
-    // list all the directories under Keen
-    NSArray *directories = [self keenSubDirectories];
-    NSString *rootPath = [self keenDirectory];
-    
-    // set up the request dictionary we'll send out.
-    NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
-    
-    // declare an error object
-    NSError *error = nil;
-    
-    // create a structure that will hold corresponding paths to all the files
-    NSMutableDictionary *fileDict = [NSMutableDictionary dictionary];
-    
-    // keep track of how many events we'll upload
-    NSUInteger eventCount = 0;
-    
-    // iterate through each directory
-    for (NSString *dirName in directories) {
-        KCLog(@"Found directory: %@", dirName);
-        // list contents of each directory
-        NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
-        NSArray *files = [self contentsAtPath:dirPath];
-        
-        // set up the array of events that will be used in the request
-        NSMutableArray *requestArray = [NSMutableArray array];
-        // set up the array of file paths
-        NSMutableArray *fileArray = [NSMutableArray array];
-
-        for (NSString *fileName in files) {
-            KCLog(@"Found file: %@/%@", dirName, fileName);
-            NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
-            // for each file, grab the JSON blob
-            NSData *data = [NSData dataWithContentsOfFile:filePath];
-            // deserialize it
-            error = nil;
-            if ([data length] > 0) {
-                NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:data
-                                                                          options:0
-                                                                            error:&error];
-                if (error) {
-                    KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
-                    continue;
-                }
-                // and then add it to the array of events
-                [requestArray addObject:eventDict];
-                // and also to the array of paths
-                [fileArray addObject:filePath];
-                // increment event count
-                eventCount++;
-            }
-            else {
-                [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
-            }
-        }
-        // and then add the array back to the overall request
-        [requestDict setObject:requestArray forKey:dirName];
-        // and also to the dictionary of paths
-        [fileDict setObject:fileArray forKey:dirName];
-    }
-    
-    // end early if there are no events
-    if (eventCount == 0) {
-        KCLog(@"Upload called when no events were present, ending early.");
-        return;
-    }
-    
-    // now take the request dict and serialize it to JSON
-    
-    // first serialize the request dict back to a json string
-    error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
-    if (error) {
-        KCLog(@"An error occurred when serializing the final request data back to JSON: %@", 
-              [error localizedDescription]);
-        // can't do much here.
-        return;
-    }
-    
-    *jsonData = data;
-    *eventPaths = fileDict;
-    
-    if ([KeenClient isLoggingEnabled]) {
-        KCLog(@"Uploading following events to Keen API: %@", requestDict);
-    }
-}
-
 - (void)handleAPIResponse:(NSURLResponse *)response 
-                  andData:(NSData *)responseData {
+                  andData:(NSData *)responseData
+                forEvents:(NSArray *) events {
     if (!responseData) {
         KCLog(@"responseData was nil for some reason.  That's not great.");
         KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
@@ -820,7 +735,7 @@ static BOOL loggingEnabled = NO;
                     }
                 }
                 // delete the file if we need to
-//                if (deleteFile) {
+                if (deleteFile) {
 //                    NSString *path = [[eventPaths objectForKey:collectionName] objectAtIndex:count];
 //                    error = nil;
 //                    
@@ -834,7 +749,7 @@ static BOOL loggingEnabled = NO;
 //                    } else {
 //                        KCLog(@"Successfully deleted file: %@", path);
 //                    }
-//                }
+                }
                 count++;
             }
         }

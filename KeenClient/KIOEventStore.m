@@ -24,6 +24,7 @@
     sqlite3_stmt *make_pending_stmt;
     sqlite3_stmt *reset_pending_stmt;
     sqlite3_stmt *purge_stmt;
+    sqlite3_stmt *delete_stmt;
 }
 
 - (instancetype)init {
@@ -95,6 +96,12 @@
             if(sqlite3_prepare_v2(keen_dbname, purge_sql, -1, &purge_stmt, NULL) != SQLITE_OK) {
                 [self closeDB];
             }
+
+            // This statement deletes a specific event.
+            char *delete_sql = "DELETE FROM events WHERE id=?";
+            if(sqlite3_prepare_v2(keen_dbname, delete_sql, -1, &delete_stmt, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
         }
     }
     return self;
@@ -153,15 +160,14 @@
         [self handleSQLiteFailure:@"bind pid to find statement"];
     }
 
-    // This statement has no bindings, so can just step it immediately.
     while (sqlite3_step(find_stmt) == SQLITE_ROW) {
         // Fetch data out the statement
-        int eventId = sqlite3_column_int(find_stmt, 0);
+        long long eventId = sqlite3_column_int64(find_stmt, 0);
         const void *dataPtr = sqlite3_column_blob(find_stmt, 1);
         int dataSize = sqlite3_column_bytes(find_stmt, 1);
 
         // Bind and mark the event pending.
-        if(sqlite3_bind_int(make_pending_stmt, 1, eventId) != SQLITE_OK) {
+        if(sqlite3_bind_int64(make_pending_stmt, 1, eventId) != SQLITE_OK) {
             // XXX What to do here?
             [self handleSQLiteFailure:@"bind int for make pending"];
         }
@@ -176,7 +182,7 @@
         // Add the event to the array.
         // XXX What frees this?
         NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
-        [events setObject:data forKey:[NSNumber numberWithInt:eventId]];
+        [events setObject:data forKey:[NSNumber numberWithLongLong:eventId]];
     }
 
     // Reset things
@@ -259,6 +265,23 @@
     return eventCount;
 }
 
+- (void)deleteEvent: (NSNumber *)eventId {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping deleteEvent");
+        return;
+    }
+    if (sqlite3_bind_int64(delete_stmt, 1, [eventId longLongValue]) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind eventid to delete statement"];
+    }
+    if (sqlite3_step(delete_stmt) != SQLITE_DONE) {
+        [self handleSQLiteFailure:@"delete event"];
+        // XXX What to do here?
+    };
+    sqlite3_reset(delete_stmt);
+    sqlite3_clear_bindings(delete_stmt);
+}
+
 - (void)purgePendingEvents {
 
     if (!dbIsOpen) {
@@ -325,6 +348,7 @@
     sqlite3_finalize(make_pending_stmt);
     sqlite3_finalize(reset_pending_stmt);
     sqlite3_finalize(purge_stmt);
+    sqlite3_finalize(delete_stmt);
 
     // Free our DB. This is safe on null pointers.
     sqlite3_close(keen_dbname);
