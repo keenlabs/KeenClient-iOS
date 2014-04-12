@@ -72,8 +72,10 @@
     NSMutableDictionary *events = [store getEvents];
     STAssertTrue([store getPendingEventCount] == 1, @"1 pending events after getEvents");
 
-    for (NSNumber *eid in events) {
-        [store deleteEvent:eid];
+    for (NSString *coll in events) {
+        for (NSNumber *eid in [events objectForKey:coll]) {
+            [store deleteEvent:eid];
+        }
     }
 
     STAssertTrue([store getTotalEventCount] == 0, @"0 total events after delete");
@@ -89,7 +91,8 @@
     // Lets get some events out now with the purpose of sending them off.
     NSMutableDictionary *events = [store getEvents];
 
-    STAssertTrue([events count] == 2, @"2 event returned");
+    STAssertTrue([events count] == 1, @"1 collection returned");
+    STAssertTrue([[events objectForKey:@"foo"] count] == 2, @"2 events returned");
 
     STAssertTrue([store getTotalEventCount] == 2, @"2 total event after add");
     STAssertTrue([store getPendingEventCount] == 2, @"2 pending event after add");

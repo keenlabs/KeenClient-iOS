@@ -87,7 +87,7 @@ static KIOEventStore *eventStore;
  */
 - (void)handleAPIResponse:(NSURLResponse *)response 
                   andData:(NSData *)responseData 
-                forEvents:(NSArray *)events;
+                forEvents:(NSDictionary *)events;
 
 /**
  Converts an NSDate* instance into a correctly formatted ISO-8601 compatible string.
@@ -552,22 +552,22 @@ static KIOEventStore *eventStore;
     }
 }
 
-# pragma mark - Uploading
+- (void)prepareJSONData:(NSData **)jsonData andEventIds:(NSMutableDictionary **)eventIds {
 
-- (void)uploadHelperWithFinishedBlock:(void (^)()) block {
-    // only one thread should be doing an upload at a time.
-    @synchronized(self) {
-        // get data for the API request we'll make
-        NSMutableDictionary *events = [eventStore getEvents];
-        // set up the request dictionary we'll send out.
-        NSMutableArray *requestArray = [NSMutableArray array];
-        // An accompanying list of event ids in the same order so we can
-        // delete them
-        NSMutableArray *eventIds = [NSMutableArray array];
+    // set up the request dictionary we'll send out.
+    NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
 
-        NSError *error = nil;
-        for (NSNumber *eid in events) {
-            NSData *ev = [events objectForKey:eid];
+    // create a structure that will hold corresponding ids of all the events
+    NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
+
+    // get data for the API request we'll make
+    NSMutableDictionary *events = [eventStore getEvents];
+
+    NSError *error = nil;
+    for (NSString *coll in events) {
+        NSDictionary *collEvents = [events objectForKey:coll];
+        for (NSNumber *eid in collEvents) {
+            NSData *ev = [collEvents objectForKey:eid];
             NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
                                                                       options:0
                                                                         error:&error];
@@ -575,18 +575,41 @@ static KIOEventStore *eventStore;
                 KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
             }
-            // and then add it to the array of events
-            [requestArray addObject:eventDict];
-            [eventIds addObject:eid];
+            // add it to the array of events
+            [requestDict setObject:eventDict forKey:coll];
+            if ([eventIdDict objectForKey:coll] == nil) {
+                [eventIdDict setObject: [NSMutableArray array] forKey: coll];
+            }
+            [[eventIdDict objectForKey:coll] addObject: eid];
         }
+    }
 
-        NSData *data = [NSJSONSerialization dataWithJSONObject:requestArray options:0 error:&error];
-        if (error) {
-            NSLog(@"An error occurred when serializing the final request data to JSON: %@",
-                  [error localizedDescription]);
-            // can't do much here.
-            return;
-        }
+    NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
+    if (error) {
+        KCLog(@"An error occurred when serializing the final request data back to JSON: %@",
+              [error localizedDescription]);
+        // can't do much here.
+        return;
+    }
+
+    *jsonData = data;
+    *eventIds = eventIdDict;
+
+    if ([KeenClient isLoggingEnabled]) {
+        KCLog(@"Uploading following events to Keen API: %@", requestDict);
+    }
+}
+
+# pragma mark - Uploading
+
+- (void)uploadHelperWithFinishedBlock:(void (^)()) block {
+    // only one thread should be doing an upload at a time.
+    @synchronized(self) {
+
+        NSData *data = nil;
+        NSMutableDictionary *eventIds = nil;
+        [self prepareJSONData:&data andEventIds:&eventIds];
+        // get data for the API request we'll make
 
         if ([data length] > 0) {
             // then make an http request to the keen server.
@@ -625,7 +648,7 @@ static KIOEventStore *eventStore;
 
 - (void)handleAPIResponse:(NSURLResponse *)response 
                   andData:(NSData *)responseData
-                forEvents:(NSArray *)events {
+                forEvents:(NSDictionary *)eventIds {
     if (!responseData) {
         KCLog(@"responseData was nil for some reason.  That's not great.");
         KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
@@ -674,7 +697,7 @@ static KIOEventStore *eventStore;
                 }
                 // delete the file if we need to
                 if (deleteFile) {
-                    NSNumber *eid = [events objectAtIndex:count];
+                    NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
                     [eventStore deleteEvent: eid];
                     KCLog(@"Successfully deleted event: %@", eid);
                 }

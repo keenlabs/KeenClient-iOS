@@ -51,7 +51,7 @@
             }
             
             // This statement finds non-pending events in the table.
-            char *find_sql = "SELECT id, eventData FROM events WHERE pending=0 AND projectId=?";
+            char *find_sql = "SELECT id, collection, eventData FROM events WHERE pending=0 AND projectId=?";
             if(sqlite3_prepare_v2(keen_dbname, find_sql, -1, &find_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare find statement"];
                 [self closeDB];
@@ -147,7 +147,7 @@
 
 - (NSMutableDictionary *)getEvents{
 
-    // Create an array to hold the contents of our select.
+    // Create a dictionary to hold the contents of our select.
     NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
     if (!dbIsOpen) {
@@ -163,8 +163,11 @@
     while (sqlite3_step(find_stmt) == SQLITE_ROW) {
         // Fetch data out the statement
         long long eventId = sqlite3_column_int64(find_stmt, 0);
-        const void *dataPtr = sqlite3_column_blob(find_stmt, 1);
-        int dataSize = sqlite3_column_bytes(find_stmt, 1);
+
+        NSString *coll = [[NSString stringWithUTF8String:(char *)sqlite3_column_text(find_stmt, 1)] autorelease];
+
+        const void *dataPtr = sqlite3_column_blob(find_stmt, 2);
+        int dataSize = sqlite3_column_bytes(find_stmt, 2);
 
         NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
 
@@ -180,8 +183,13 @@
         sqlite3_reset(make_pending_stmt);
         sqlite3_clear_bindings(make_pending_stmt);
 
-        // Add the event to the array.
-        [events setObject:data forKey:[NSNumber numberWithUnsignedLongLong:eventId]];
+        if ([events objectForKey:coll] == nil) {
+            // We don't have an entry in the dictionary yet for this collection
+            // so create one.
+            [events setObject:[NSMutableDictionary dictionary] forKey:coll];
+        }
+
+        [[events objectForKey:coll] setObject:data forKey:[NSNumber numberWithUnsignedLongLong:eventId]];
     }
 
     // Reset things
