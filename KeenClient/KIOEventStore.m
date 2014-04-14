@@ -164,12 +164,12 @@
         // Fetch data out the statement
         long long eventId = sqlite3_column_int64(find_stmt, 0);
 
-        NSString *coll = [[NSString stringWithUTF8String:(char *)sqlite3_column_text(find_stmt, 1)] autorelease];
+        NSString *coll = [NSString stringWithUTF8String:(char *)sqlite3_column_text(find_stmt, 1)];
 
         const void *dataPtr = sqlite3_column_blob(find_stmt, 2);
         int dataSize = sqlite3_column_bytes(find_stmt, 2);
 
-        NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
+        NSData *data = [[NSData alloc] initWithBytes:dataPtr length:dataSize];
 
         // Bind and mark the event pending.
         if(sqlite3_bind_int64(make_pending_stmt, 1, eventId) != SQLITE_OK) {
