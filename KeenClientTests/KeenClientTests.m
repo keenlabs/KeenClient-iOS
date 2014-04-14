@@ -156,72 +156,111 @@
     STAssertThrows([client addEvent:event toEventCollection:@"foo" error:nil], @"should throw an exception");
 }
 
-//- (void)testEventWithTimestamp {
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-//    
-//    NSDate *date = [NSDate date];
-//    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
-//    keenProperties.timestamp = date;
-//    [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
-//    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
-//        
-//    NSString *deserializedDate = deserializedDict[@"keen"][@"timestamp"];
-//    NSString *originalDate = [client convertDate:date];
-//    STAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
-//}
+- (void)testEventWithTimestamp {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
-//- (void)testEventWithLocation {
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-//    
-//    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
-//    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
-//    keenProperties.location = location;
-//    [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
-//    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
-//    
-//    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
-//    NSArray *deserializedCoords = deserializedLocation[@"coordinates"];
-//    STAssertEqualObjects(@-122.47, deserializedCoords[0], @"Longitude was incorrect.");
-//    STAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
-//}
-//
-//- (void)testEventWithDictionary {
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-//    
-//    NSString* json = @"{\"test_str_array\":[\"val1\",\"val2\",\"val3\"]}";
-//    NSDictionary* eventDictionary = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
-//    
-//    [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
-//    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
-//    
-//    STAssertEqualObjects(@"val1", deserializedDict[@"test_str_array"][0], @"array was incorrect");
-//    STAssertEqualObjects(@"val2", deserializedDict[@"test_str_array"][1], @"array was incorrect");
-//    STAssertEqualObjects(@"val3", deserializedDict[@"test_str_array"][2], @"array was incorrect");
-//}
-//
-//- (void)testGeoLocation {
-//    // set up a client with a location
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-//    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
-//    client.currentLocation = location;
-//    // add an event
-//    [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
-//    // now get the stored event
-//    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
-//    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
-//    NSArray *deserializedCoords = deserializedLocation[@"coordinates"];
-//    STAssertEqualObjects(@-122.47, deserializedCoords[0], @"Longitude was incorrect.");
-//    STAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
-//    
-//    // now try the same thing but disable geo location
-//    [KeenClient disableGeoLocation];
-//    // add an event
-//    [client addEvent:@{@"a": @"b"} toEventCollection:@"bar" error:nil];
-//    // now get the stored event
-//    deserializedDict = [self firstEventForCollection:@"bar"];
-//    deserializedLocation = deserializedDict[@"keen"][@"location"];
-//    STAssertNil(deserializedLocation, @"No location should have been saved.");
-//}
+    NSDate *date = [NSDate date];
+    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
+    keenProperties.timestamp = date;
+    [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
+
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    // Grab the first event we get back
+    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSError *error = nil;
+    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                options:0
+                                                                  error:&error];
+
+    NSString *deserializedDate = deserializedDict[@"keen"][@"timestamp"];
+    NSString *originalDate = [client convertDate:date];
+    STAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
+}
+
+- (void)testEventWithLocation {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+
+    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
+    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
+    keenProperties.location = location;
+    [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
+
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    // Grab the first event we get back
+    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSError *error = nil;
+    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                     options:0
+                                                                       error:&error];
+
+    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    NSArray *deserializedCoords = deserializedLocation[@"coordinates"];
+    STAssertEqualObjects(@-122.47, deserializedCoords[0], @"Longitude was incorrect.");
+    STAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
+}
+
+- (void)testEventWithDictionary {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+
+    NSString* json = @"{\"test_str_array\":[\"val1\",\"val2\",\"val3\"]}";
+    NSDictionary* eventDictionary = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+
+    [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    // Grab the first event we get back
+    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSError *error = nil;
+    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                     options:0
+                                                                       error:&error];
+
+    STAssertEqualObjects(@"val1", deserializedDict[@"test_str_array"][0], @"array was incorrect");
+    STAssertEqualObjects(@"val2", deserializedDict[@"test_str_array"][1], @"array was incorrect");
+    STAssertEqualObjects(@"val3", deserializedDict[@"test_str_array"][2], @"array was incorrect");
+}
+
+- (void)testGeoLocation {
+    // set up a client with a location
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
+    client.currentLocation = location;
+    // add an event
+    [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
+    // now get the stored event
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    // Grab the first event we get back
+    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSError *error = nil;
+    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                     options:0
+                                                                       error:&error];
+
+    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    NSArray *deserializedCoords = deserializedLocation[@"coordinates"];
+    STAssertEqualObjects(@-122.47, deserializedCoords[0], @"Longitude was incorrect.");
+    STAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
+}
+
+- (void)testGeoLocationDisabled {
+    // now try the same thing but disable geo location
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    [KeenClient disableGeoLocation];
+    // add an event
+    [client addEvent:@{@"a": @"b"} toEventCollection:@"bar" error:nil];
+    // now get the stored event
+
+    // Grab the first event we get back
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"bar"];
+    // Grab the first event we get back
+    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSError *error = nil;
+    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                     options:0
+                                                                       error:&error];
+
+    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    STAssertNil(deserializedLocation, @"No location should have been saved.");
+}
 
 - (NSDictionary *)buildResultWithSuccess:(Boolean)success 
                             andErrorCode:(NSString *)errorCode 
@@ -459,90 +498,114 @@
 //    NSArray *contentsAfter = [self contentsOfDirectoryForCollection:@"something"];
 //    STAssertTrue([contentsAfter count] == 4, @"There should be exactly four events.");
 //}
-//
-//- (void)testGlobalPropertiesDictionary {
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-//    client.isRunningTests = YES;
-//    
-//    NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
-//                                                             NSUInteger expectedNumProperties) {
-//        NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
-//        client.globalPropertiesDictionary = globalProperties;
-//        NSDictionary *event = @{@"foo": @"bar"};
-//        [client addEvent:event toEventCollection:eventCollectionName error:nil];
-//        NSDictionary *storedEvent = [self firstEventForCollection:eventCollectionName];
-//        STAssertEqualObjects(event[@"foo"], storedEvent[@"foo"], @"");
-//        STAssertTrue([storedEvent count] == expectedNumProperties + 1, @"");
-//        return storedEvent;
-//    };
-//    
-//    // a nil dictionary should be okay
-//    RunTest(nil, 1);
-//    
-//    // an empty dictionary should be okay
-//    RunTest(@{}, 1);
-//    
-//    // a dictionary that returns some non-conflicting property names should be okay
-//    NSDictionary *storedEvent = RunTest(@{@"default_name": @"default_value"}, 2);
-//    STAssertEqualObjects(@"default_value", storedEvent[@"default_name"], @"");
-//    
-//    // a dictionary that returns a conflicting property name should not overwrite the property on
-//    // the event
-//    RunTest(@{@"foo": @"some_new_value"}, 1);
-//}
-//
-//- (void)testGlobalPropertiesBlock {
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-//    client.isRunningTests = YES;
-//    
-//    NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
-//                                                                         NSUInteger expectedNumProperties) {
-//        NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
-//        client.globalPropertiesBlock = block;
-//        NSDictionary *event = @{@"foo": @"bar"};
-//        [client addEvent:event toEventCollection:eventCollectionName error:nil];
-//        NSDictionary *storedEvent = [self firstEventForCollection:eventCollectionName];
-//        STAssertEqualObjects(event[@"foo"], storedEvent[@"foo"], @"");
-//        STAssertTrue([storedEvent count] == expectedNumProperties + 1, @"");
-//        return storedEvent;
-//    };
-//    
-//    // a block that returns nil should be okay
-//    RunTest(nil, 1);
-//    
-//    // a block that returns an empty dictionary should be okay
-//    RunTest(^NSDictionary *(NSString *eventCollection) {
-//        return [NSDictionary dictionary];
-//    }, 1);
-//    
-//    // a block that returns some non-conflicting property names should be okay
-//    NSDictionary *storedEvent = RunTest(^NSDictionary *(NSString *eventCollection) {
-//        return @{@"default_name": @"default_value"};
-//    }, 2);
-//    STAssertEqualObjects(@"default_value", storedEvent[@"default_name"], @"");
-//    
-//    // a block that returns a conflicting property name should not overwrite the property on the event
-//    RunTest(^NSDictionary *(NSString *eventCollection) {
-//        return @{@"foo": @"some new value"};
-//    }, 1);
-//}
-//
-//- (void)testGlobalPropertiesTogether {
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-//    client.isRunningTests = YES;
-//    
-//    // properties from the block should take precedence over properties from the dictionary
-//    // but properties from the event itself should take precedence over all
-//    client.globalPropertiesDictionary = @{@"default_property": @5, @"foo": @"some_new_value"};
-//    client.globalPropertiesBlock = ^NSDictionary *(NSString *eventCollection) {
-//        return @{ @"default_property": @6, @"foo": @"some_other_value"};
-//    };
-//    [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
-//    NSDictionary *storedEvent = [self firstEventForCollection:@"apples"];
-//    STAssertEqualObjects(@"bar", storedEvent[@"foo"], @"");
-//    STAssertEqualObjects(@6, storedEvent[@"default_property"], @"");
-//    STAssertTrue([storedEvent count] == 3, @"");
-//}
+
+- (void)testGlobalPropertiesDictionary {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    
+    NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
+                                                             NSUInteger expectedNumProperties) {
+        NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
+        client.globalPropertiesDictionary = globalProperties;
+        NSDictionary *event = @{@"foo": @"bar"};
+
+        [client addEvent:event toEventCollection:eventCollectionName error:nil];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        // Grab the first event we get back
+        NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+        NSError *error = nil;
+        NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                  options:0
+                                                                    error:&error];
+
+        STAssertEqualObjects(event[@"foo"], storedEvent[@"foo"], @"");
+        STAssertTrue([storedEvent count] == expectedNumProperties + 1, @"");
+        return storedEvent;
+    };
+    
+    // a nil dictionary should be okay
+    RunTest(nil, 1);
+    
+    // an empty dictionary should be okay
+    RunTest(@{}, 1);
+    
+    // a dictionary that returns some non-conflicting property names should be okay
+    NSDictionary *storedEvent = RunTest(@{@"default_name": @"default_value"}, 2);
+    STAssertEqualObjects(@"default_value", storedEvent[@"default_name"], @"");
+    
+    // a dictionary that returns a conflicting property name should not overwrite the property on
+    // the event
+    RunTest(@{@"foo": @"some_new_value"}, 1);
+}
+
+- (void)testGlobalPropertiesBlock {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    
+    NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
+                                                                         NSUInteger expectedNumProperties) {
+        NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
+        client.globalPropertiesBlock = block;
+        NSDictionary *event = @{@"foo": @"bar"};
+        [client addEvent:event toEventCollection:eventCollectionName error:nil];
+
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        // Grab the first event we get back
+        NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+        NSError *error = nil;
+        NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                    options:0
+                                                                      error:&error];
+
+        STAssertEqualObjects(event[@"foo"], storedEvent[@"foo"], @"");
+        STAssertTrue([storedEvent count] == expectedNumProperties + 1, @"");
+        return storedEvent;
+    };
+    
+    // a block that returns nil should be okay
+    RunTest(nil, 1);
+    
+    // a block that returns an empty dictionary should be okay
+    RunTest(^NSDictionary *(NSString *eventCollection) {
+        return [NSDictionary dictionary];
+    }, 1);
+    
+    // a block that returns some non-conflicting property names should be okay
+    NSDictionary *storedEvent = RunTest(^NSDictionary *(NSString *eventCollection) {
+        return @{@"default_name": @"default_value"};
+    }, 2);
+    STAssertEqualObjects(@"default_value", storedEvent[@"default_name"], @"");
+    
+    // a block that returns a conflicting property name should not overwrite the property on the event
+    RunTest(^NSDictionary *(NSString *eventCollection) {
+        return @{@"foo": @"some new value"};
+    }, 1);
+}
+
+- (void)testGlobalPropertiesTogether {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    
+    // properties from the block should take precedence over properties from the dictionary
+    // but properties from the event itself should take precedence over all
+    client.globalPropertiesDictionary = @{@"default_property": @5, @"foo": @"some_new_value"};
+    client.globalPropertiesBlock = ^NSDictionary *(NSString *eventCollection) {
+        return @{ @"default_property": @6, @"foo": @"some_other_value"};
+    };
+    [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
+
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"apples"];
+    // Grab the first event we get back
+    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSError *error = nil;
+    NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                options:0
+                                                                  error:&error];
+
+    STAssertEqualObjects(@"bar", storedEvent[@"foo"], @"");
+    STAssertEqualObjects(@6, storedEvent[@"default_property"], @"");
+    STAssertTrue([storedEvent count] == 3, @"");
+}
 
 - (void)testInvalidEventCollection {
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
