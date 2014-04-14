@@ -431,35 +431,15 @@ static KIOEventStore *eventStore;
     }
     [newEvent addEntriesFromDictionary:event];
     event = newEvent;
-
-    // XXX Need to add counting of per-collection events and "forgetting".
-//    // make sure the directory we want to write the file to exists
-//    NSString *dirPath = [self eventDirectoryForCollection:eventCollection];
-//    // if the directory doesn't exist, create it.
-//    Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
-//    if (!success) {
-//        KCLog(@"Couldn't access local directory at %@. Event NOT added.", dirPath);
-//        return;
-//    }
-//    // now make sure that we haven't hit the max number of events in this collection already
-//    NSArray *eventsArray = [self contentsAtPath:dirPath];
-//    if ([eventsArray count] >= self.maxEventsPerCollection) {
-//        // need to age out old data so the cache doesn't grow too large
-//        KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
-//        KCLog(@"Count: %lu and Max: %lu", (unsigned long)[eventsArray count], (unsigned long)self.maxEventsPerCollection);
-//        
-//        NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-//        // delete the eldest
-//        for (int i=0; i<self.numberEventsToForget; i++) {
-//            NSString *fileName = [sortedEventsArray objectAtIndex:i];
-//            NSString *fullPath = [dirPath stringByAppendingPathComponent:fileName];
-//            NSError *error = nil;
-//            [[NSFileManager defaultManager] removeItemAtPath:fullPath error:&error];
-//            if (error) {
-//                KCLog(@"Couldn't delete %@ when aging events out of cache!", [error localizedDescription]);
-//            }
-//        }
-//    }
+    // now make sure that we haven't hit the max number of events in this collection already
+    NSUInteger eventCount = [eventStore getTotalEventCount];
+    // We add 1 because we want to know if this will push us over the limit
+    if (eventCount + 1 > self.maxEventsPerCollection) {
+        // need to age out old data so the cache doesn't grow too large
+        KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
+        KCLog(@"Count: %lu and Max: %lu", (unsigned long)eventCount, (unsigned long)self.maxEventsPerCollection);
+        [eventStore deleteEventsFromOffset:[NSNumber numberWithUnsignedInteger: eventCount - self.numberEventsToForget]];
+    }
 
     if (!keenProperties) {
         KeenProperties *newProperties = [[[KeenProperties alloc] init] autorelease];

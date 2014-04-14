@@ -480,24 +480,22 @@
     // make sure the files were deleted locally
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1,  @"There should be 1 events after a partial upload.");
 }
-//
-//- (void)testTooManyEventsCached {
-//    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-//    client.isRunningTests = YES;
-//    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
-//    // create 5 events
-//    for (int i=0; i<5; i++) {
-//        [client addEvent:event toEventCollection:@"something" error:nil];
-//    }
-//    // should be 5 events now
-//    NSArray *contentsBefore = [self contentsOfDirectoryForCollection:@"something"];
-//    STAssertTrue([contentsBefore count] == 5, @"There should be exactly five events.");
-//    // now do one more, should age out 2 old ones
-//    [client addEvent:event toEventCollection:@"something" error:nil];
-//    // so now there should be 4 left (5 - 2 + 1)
-//    NSArray *contentsAfter = [self contentsOfDirectoryForCollection:@"something"];
-//    STAssertTrue([contentsAfter count] == 4, @"There should be exactly four events.");
-//}
+
+- (void)testTooManyEventsCached {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
+    // create 5 events
+    for (int i=0; i<5; i++) {
+        [client addEvent:event toEventCollection:@"something" error:nil];
+    }
+    // should be 5 events now
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 5,  @"There should be exactly five events.");
+    // now do one more, should age out 1 old ones
+    [client addEvent:event toEventCollection:@"something" error:nil];
+    // so now there should be 5 left (5 - 2 + 1)
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 4, @"There should be exactly five events.");
+}
 
 - (void)testGlobalPropertiesDictionary {
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
