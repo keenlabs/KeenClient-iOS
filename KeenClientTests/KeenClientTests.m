@@ -373,81 +373,74 @@
     // make sure the files were deleted locally
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0,  @"There should be no events after a successful upload.");
 }
-//
-//- (void)testUploadMultipleEventsSameCollectionOneFails {
-//    NSDictionary *result1 = [self buildResultWithSuccess:YES 
-//                                            andErrorCode:nil 
-//                                          andDescription:nil];
-//    NSDictionary *result2 = [self buildResultWithSuccess:NO
-//                                            andErrorCode:@"InvalidCollectionNameError" 
-//                                          andDescription:@"something"];
-//    NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
-//                                                       forKey:@"foo"];
-//    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
-//    
-//    // add an event
-//    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-//    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
-//    
-//    // and "upload" it
-//    [mock uploadWithFinishedBlock:nil];
-//    
-//    // make sure the file were deleted locally
-//    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-//    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
-//}
-//
-//- (void)testUploadMultipleEventsDifferentCollectionsOneFails {
-//    NSDictionary *result1 = [self buildResultWithSuccess:YES 
-//                                            andErrorCode:nil 
-//                                          andDescription:nil];
-//    NSDictionary *result2 = [self buildResultWithSuccess:NO
-//                                            andErrorCode:@"InvalidCollectionNameError" 
-//                                          andDescription:@"something"];
-//    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
-//                            [NSArray arrayWithObject:result1], @"foo", 
-//                            [NSArray arrayWithObject:result2], @"bar", nil];
-//    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
-//    
-//    // add an event
-//    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-//    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
-//    
-//    // and "upload" it
-//    [mock uploadWithFinishedBlock:nil];
-//    
-//    // make sure the files were deleted locally
-//    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-//    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
-//    contents = [self contentsOfDirectoryForCollection:@"bar"];
-//    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
-//}
-//
-//- (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
-//    NSDictionary *result1 = [self buildResultWithSuccess:YES 
-//                                            andErrorCode:nil 
-//                                          andDescription:nil];
-//    NSDictionary *result2 = [self buildResultWithSuccess:NO
-//                                            andErrorCode:@"barf" 
-//                                          andDescription:@"something"];
-//    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
-//                            [NSArray arrayWithObject:result1], @"foo", 
-//                            [NSArray arrayWithObject:result2], @"bar", nil];
-//    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
-//    
-//    // add an event
-//    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-//    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
-//    
-//    // and "upload" it
-//    [mock uploadWithFinishedBlock:nil];
-//    
-//    // make sure the files were deleted locally
-//    NSArray *contents = [self contentsOfDirectoryForCollection:@"foo"];
-//    STAssertTrue([contents count] == 0, @"There should be no files after a successful upload.");
-//    contents = [self contentsOfDirectoryForCollection:@"bar"];
-//    STAssertTrue([contents count] == 1, @"There should be a file after a failed upload.");
-//}
+
+- (void)testUploadMultipleEventsSameCollectionOneFails {
+    NSDictionary *result1 = [self buildResultWithSuccess:YES
+                                            andErrorCode:nil
+                                          andDescription:nil];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO
+                                            andErrorCode:@"InvalidCollectionNameError"
+                                          andDescription:@"something"];
+    NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
+                                                       forKey:@"foo"];
+    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
+
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
+
+    // and "upload" it
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the file were deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0,  @"There should be no events after a successful upload.");
+}
+
+- (void)testUploadMultipleEventsDifferentCollectionsOneFails {
+    NSDictionary *result1 = [self buildResultWithSuccess:YES
+                                            andErrorCode:nil
+                                          andDescription:nil];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO
+                                            andErrorCode:@"InvalidCollectionNameError"
+                                          andDescription:@"something"];
+    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
+                            [NSArray arrayWithObject:result1], @"foo",
+                            [NSArray arrayWithObject:result2], @"bar", nil];
+    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
+
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
+
+    // and "upload" it
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the files were deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0,  @"There should be no events after a successful upload.");
+}
+
+- (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
+    NSDictionary *result1 = [self buildResultWithSuccess:YES
+                                            andErrorCode:nil
+                                          andDescription:nil];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO
+                                            andErrorCode:@"barf"
+                                          andDescription:@"something"];
+    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
+                            [NSArray arrayWithObject:result1], @"foo",
+                            [NSArray arrayWithObject:result2], @"bar", nil];
+    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
+
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
+
+    // and "upload" it
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the files were deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1,  @"There should be 1 events after a partial upload.");
+}
 //
 //- (void)testTooManyEventsCached {
 //    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
