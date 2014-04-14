@@ -62,4 +62,10 @@
  Delete all events from the store
  */
 - (void)deleteAllEvents;
+
+
+/**
+ Delete events starting at an offset. Helps to keep the "queue" bounded.
+ */
+- (void)deleteEventsFromOffset: (NSNumber *)offset;
 @end

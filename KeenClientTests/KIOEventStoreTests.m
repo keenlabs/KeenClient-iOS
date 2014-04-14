@@ -155,6 +155,17 @@
     STAssertFalse([store hasPendingEvents], @"No pending events now!");
 }
 
+- (void)testDeleteFromOffset{
+    KIOEventStore *store = [[KIOEventStore alloc] init];
+    store.projectId = @"1234";
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    [store addEvent:[@"I AM AN BUT ANOTHER EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+
+    [store deleteEventsFromOffset:@2];
+    STAssertTrue([store getTotalEventCount] == 2, @"2 total events after deleteEventsFromOffset");
+}
+
 - (void)testClosedDB{
     KIOEventStore *store = [[KIOEventStore alloc] init];
     store.projectId = @"1234";

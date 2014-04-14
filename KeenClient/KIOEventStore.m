@@ -26,6 +26,7 @@
     sqlite3_stmt *purge_stmt;
     sqlite3_stmt *delete_stmt;
     sqlite3_stmt *delete_all_stmt;
+    sqlite3_stmt *age_out_stmt;
 }
 
 - (instancetype)init {
@@ -100,6 +101,12 @@
             // This statement deletes all events.
             char *delete_all_sql = "DELETE FROM events";
             if(sqlite3_prepare_v2(keen_dbname, delete_all_sql, -1, &delete_all_stmt, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
+
+            // This statement deletes old events at a given offset.
+            char *age_out_sql = "DELETE FROM events WHERE id <= (SELECT id FROM events ORDER BY id DESC LIMIT 1 OFFSET ?)";
+            if(sqlite3_prepare_v2(keen_dbname, age_out_sql, -1, &age_out_stmt, NULL) != SQLITE_OK) {
                 [self closeDB];
             }
         }
@@ -283,7 +290,6 @@
     }
     if (sqlite3_step(delete_stmt) != SQLITE_DONE) {
         [self handleSQLiteFailure:@"delete event"];
-        // XXX What to do here?
     };
     sqlite3_reset(delete_stmt);
     sqlite3_clear_bindings(delete_stmt);
@@ -297,11 +303,27 @@
     }
     if (sqlite3_step(delete_all_stmt) != SQLITE_DONE) {
         [self handleSQLiteFailure:@"delete all events"];
-        // XXX What to do here?
     };
     sqlite3_reset(delete_all_stmt);
     sqlite3_clear_bindings(delete_all_stmt);
 }
+
+- (void)deleteEventsFromOffset: (NSNumber *)offset {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping deleteEvent");
+        return;
+    }
+    if (sqlite3_bind_int64(age_out_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind offset to ageOut statement"];
+    }
+    if (sqlite3_step(age_out_stmt) != SQLITE_DONE) {
+        [self handleSQLiteFailure:@"delete all events"];
+    };
+    sqlite3_reset(age_out_stmt);
+    sqlite3_clear_bindings(age_out_stmt);
+}
+
 
 - (void)purgePendingEvents {
 
@@ -371,6 +393,7 @@
     sqlite3_finalize(purge_stmt);
     sqlite3_finalize(delete_stmt);
     sqlite3_finalize(delete_all_stmt);
+    sqlite3_finalize(age_out_stmt);
 
     // Free our DB. This is safe on null pointers.
     sqlite3_close(keen_dbname);
