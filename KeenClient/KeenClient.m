@@ -232,7 +232,6 @@ static KIOEventStore *eventStore;
     // explicitly release the properties which we've copied
     [self.globalPropertiesBlock release];
     dispatch_release(self.uploadQueue);
-    // XXX Dealloc eventstore
     [super dealloc];
 }
 
