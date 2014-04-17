@@ -522,7 +522,6 @@
         NSString *eventCollectionName = [NSString stringWithFormat:@"foo%f", [[NSDate date] timeIntervalSince1970]];
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
-
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
         NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
         // Grab the first event we get back
