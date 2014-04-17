@@ -18,7 +18,6 @@ static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
 static KIOEventStore *eventStore;
 
-// Class extention for private properties
 @interface KeenClient ()
 
 // The project ID for this particular client.
@@ -67,6 +66,47 @@ static KIOEventStore *eventStore;
  @returns YES if key is valid, NO otherwise.
  */
 + (BOOL)validateKey:(NSString *)key;
+
+/**
+ Returns the path to the app's library/cache directory.
+ @returns An NSString* that is a path to the app's documents directory.
+ */
+- (NSString *)cacheDirectory;
+
+/**
+ Returns the root keen directory where collection sub-directories exist.
+ @returns An NSString* that is a path to the keen root directory.
+ */
+- (NSString *)keenDirectory;
+
+/**
+ Returns the direct child sub-directories of the root keen directory.
+ @returns An NSArray* of NSStrings* that are names of sub-directories.
+ */
+- (NSArray *)keenSubDirectories;
+
+/**
+ Returns all the files and directories that are children of the argument path.
+ @param path An NSString* that's a fully qualified path to a directory on the file system.
+ @returns An NSArray* of NSStrings* that are names of sub-files or directories.
+ */
+- (NSArray *)contentsAtPath:(NSString *)path;
+
+/**
+ Returns the directory for a particular collection where events exist.
+ @param collection The collection.
+ @returns An NSString* that is a path to the collection directory.
+ */
+- (NSString *)eventDirectoryForCollection:(NSString *)collection;
+
+/**
+ Returns the full path to write an event to.
+ @param collection The collection name.
+ @param timestamp  The timestamp of the event.
+ @returns An NSString* that is a path to the event to be written.
+ */
+- (NSString *)pathForEventInCollection:(NSString *)collection
+                         WithTimestamp:(NSDate *)timestamp;
 
 /**
  Sends an event to the server. Internal impl.
