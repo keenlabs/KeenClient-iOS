@@ -31,6 +31,12 @@
 
 @interface KeenClientTests ()
 
+- (NSString *)cacheDirectory;
+- (NSString *)keenDirectory;
+- (NSString *)eventDirectoryForCollection:(NSString *)collection;
+- (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection;
+- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp;
+- (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file;
 @end
 
 @implementation KeenClientTests
@@ -51,6 +57,16 @@
     // Tear-down code here.
     NSLog(@"\n");
     [KeenClient clearAllEvents];
+
+    // delete all collections and their events.
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:[self keenDirectory]]) {
+        [fileManager removeItemAtPath:[self keenDirectory] error:&error];
+        if (error) {
+            STFail(@"No error should be thrown when cleaning up: %@", [error localizedDescription]);
+        }
+    }
     [super tearDown];
 }
 
@@ -634,6 +650,106 @@
     [client uploadWithFinishedBlock:nil];
 }
 
+- (void)testMigrateFSEvents {
+
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+
+    // make sure the directory we want to write the file to exists
+    NSString *dirPath = [self eventDirectoryForCollection:@"foo"];
+    NSFileManager *manager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    [manager createDirectoryAtPath:dirPath withIntermediateDirectories:true attributes:nil error:&error];
+    STAssertNil(error, @"created directory for events");
+
+    // Write out a couple existing events that we can
+    NSDictionary *event1 = [NSDictionary dictionaryWithObject:@"apple" forKey:@"a"];
+    NSDictionary *event2 = [NSDictionary dictionaryWithObject:@"orange" forKey:@"b"];
+
+    NSData *json1 = [NSJSONSerialization dataWithJSONObject:event1 options:0 error:&error];
+    NSData *json2 =[NSJSONSerialization dataWithJSONObject:event2 options:0 error:&error];
+
+    NSString *fileName1 = [self pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
+    NSString *fileName2 = [self pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
+
+    [self writeNSData:json1 toFile:fileName1];
+    [self writeNSData:json2 toFile:fileName2];
+
+    // Now we're gonna add an event and verify that it brings
+    // the events we just wrote into the database and cleans up the files.
+
+    error = nil;
+    NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
+    [client addEvent:event3 toEventCollection:@"foo" error:nil];
+
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 3,  @"There should be 3 events after an import.");
+}
+
 # pragma mark - test filesystem utility methods
+
+- (NSString *)cacheDirectory {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    return documentsDirectory;
+}
+
+- (NSString *)keenDirectory {
+    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:@"id"];
+}
+
+- (NSString *)eventDirectoryForCollection:(NSString *)collection {
+    return [[self keenDirectory] stringByAppendingPathComponent:collection];
+}
+
+- (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection {
+    NSString *path = [self eventDirectoryForCollection:collection];
+    NSFileManager *manager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSArray *contents = [manager contentsOfDirectoryAtPath:path error:&error];
+    if (error) {
+        STFail(@"Error when listing contents of directory for collection %@: %@",
+               collection, [error localizedDescription]);
+    }
+    return contents;
+}
+
+- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
+    // get a file manager.
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    // determine the root of the filename.
+    NSString *name = [NSString stringWithFormat:@"%f", [timestamp timeIntervalSince1970]];
+    // get the path to the directory where the file will be written
+    NSString *directory = [self eventDirectoryForCollection:collection];
+    // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
+    // we'll be able to handle it.
+    uint count = 0;
+
+    // declare a tiny helper block to get the next path based on the counter.
+    NSString * (^getNextPath)(uint count) = ^(uint count) {
+        return [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%i", name, count]];
+    };
+
+    // starting with our root filename.0, see if a file exists.  if it doesn't, great.  but if it does, then go
+    // on to filename.1, filename.2, etc.
+    NSString *path = getNextPath(count);
+    while ([fileManager fileExistsAtPath:path]) {
+        count++;
+        path = getNextPath(count);
+    }
+
+    return path;
+}
+
+- (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
+    // write file atomically so we don't ever have a partial event to worry about.
+    Boolean success = [data writeToFile:file atomically:YES];
+    if (!success) {
+        KCLog(@"Error when writing event to file: %@", file);
+        return NO;
+    } else {
+        KCLog(@"Successfully wrote event to file: %@", file);
+    }
+    return YES;
+}
 
 @end

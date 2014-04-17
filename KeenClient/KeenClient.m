@@ -404,7 +404,10 @@ static KIOEventStore *eventStore;
     if (![KeenClient validateKey:self.writeKey]) {
         [NSException raise:@"KeenNoWriteKeyProvided" format:@"You tried to add an event without setting a write key, please set one!"];
     }
-    
+
+    // Slurp in any filesystem based events
+    [sharedClient importFileData];
+
     // don't do anything if the event itself or the event collection name are invalid somehow.
     if (![self validateEventCollection:eventCollection error:anError]) {
         return;
@@ -577,6 +580,108 @@ static KIOEventStore *eventStore;
     if ([KeenClient isLoggingEnabled]) {
         KCLog(@"Uploading following events to Keen API: %@", requestDict);
     }
+}
+
+# pragma mark - Directory/path management
+
+- (void)importFileData {
+    // list all the directories under Keen
+    NSArray *directories = [self keenSubDirectories];
+    NSString *rootPath = [self keenDirectory];
+
+    // declare an error object
+    NSError *error = nil;
+
+    // iterate through each directory
+    for (NSString *dirName in directories) {
+        KCLog(@"Found directory: %@", dirName);
+        // list contents of each directory
+        NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
+        NSArray *files = [self contentsAtPath:dirPath];
+
+        for (NSString *fileName in files) {
+            KCLog(@"Found file: %@/%@", dirName, fileName);
+            NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
+            // for each file, grab the JSON blob
+            NSData *data = [NSData dataWithContentsOfFile:filePath];
+            // deserialize it
+            error = nil;
+            if ([data length] > 0) {
+                // Attempt to deserialize this just to determine if it's valid
+                // or not. We don't actually care about the results.
+                [NSJSONSerialization JSONObjectWithData:data
+                    options:0
+                    error:&error];
+                if (error) {
+                    // If we got an error we're not gonna add it
+                    KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                } else {
+                    // All's well: Add it!
+                    [eventStore addEvent:data collection:dirName];
+                }
+
+            }
+            // Regardless, delete it when we're done.
+            [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+        }
+    }
+}
+
+- (NSString *)cacheDirectory {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    return documentsDirectory;
+}
+
+- (NSString *)keenDirectory {
+    NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
+    return [keenDirPath stringByAppendingPathComponent:self.projectId];
+}
+
+- (NSArray *)keenSubDirectories {
+    return [self contentsAtPath:[self keenDirectory]];
+}
+
+- (NSArray *)contentsAtPath:(NSString *) path {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
+    if (error) {
+        KCLog(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
+        return nil;
+    }
+    return files;
+}
+
+- (NSString *)eventDirectoryForCollection:(NSString *)collection {
+    return [[self keenDirectory] stringByAppendingPathComponent:collection];
+}
+
+- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
+    // get a file manager.
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    // determine the root of the filename.
+    NSString *name = [NSString stringWithFormat:@"%f", [timestamp timeIntervalSince1970]];
+    // get the path to the directory where the file will be written
+    NSString *directory = [self eventDirectoryForCollection:collection];
+    // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
+    // we'll be able to handle it.
+    uint count = 0;
+
+    // declare a tiny helper block to get the next path based on the counter.
+    NSString * (^getNextPath)(uint count) = ^(uint count) {
+        return [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%i", name, count]];
+    };
+
+    // starting with our root filename.0, see if a file exists.  if it doesn't, great.  but if it does, then go
+    // on to filename.1, filename.2, etc.
+    NSString *path = getNextPath(count);
+    while ([fileManager fileExistsAtPath:path]) {
+        count++;
+        path = getNextPath(count);
+    }
+
+    return path;
 }
 
 # pragma mark - Uploading
