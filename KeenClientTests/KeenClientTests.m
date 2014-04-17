@@ -509,7 +509,7 @@
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
-    // so now there should be 5 left (5 - 2 + 1)
+    // so now there should be 4 left (5 - 2 + 1)
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 4, @"There should be exactly five events.");
 }
 
