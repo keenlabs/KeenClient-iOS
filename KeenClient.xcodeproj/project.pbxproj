@@ -773,8 +773,7 @@
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\\\"$(SRCROOT)/Library\\\"",
-					"/Users/gphat/src/KeenClient-iOS/Library",
+					"$(SRCROOT)/Library",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -798,8 +797,7 @@
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\\\"$(SRCROOT)/Library\\\"",
-					"/Users/gphat/src/KeenClient-iOS/Library",
+					"$(SRCROOT)/Library",
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
