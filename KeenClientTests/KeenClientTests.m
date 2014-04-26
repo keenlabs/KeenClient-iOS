@@ -57,6 +57,9 @@
     // Tear-down code here.
     NSLog(@"\n");
     
+    [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
+    [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
+    
     // delete all collections and their events.
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -249,6 +252,42 @@
     deserializedDict = [self firstEventForCollection:@"bar"];
     deserializedLocation = deserializedDict[@"keen"][@"location"];
     STAssertNil(deserializedLocation, @"No location should have been saved.");
+}
+
+- (void)testEventWithNonDictionaryKeen {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    
+    NSDictionary *theEvent = @{@"keen": @"abc"};
+    NSError *error = nil;
+    [client addEvent:theEvent toEventCollection:@"foo" error:&error];
+    STAssertNotNil(error, @"an event with a non-dict value for 'keen' should error");
+}
+
+- (void)testBasicAddon {
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    
+    NSDictionary *theEvent = @{
+                               @"keen":@{
+                                       @"addons" : @[
+                                               @{
+                                                   @"name" : @"addon:name",
+                                                   @"input" : @{@"param_name" : @"property_that_contains_param"},
+                                                   @"output" : @"property.to.store.output"
+                                                   }
+                                               ]
+                                       },
+                               @"a": @"b"
+                               };
+    
+    // add the event
+    NSError *error = nil;
+    [client addEvent:theEvent toEventCollection:@"foo" error:&error];
+    STAssertNil(error, @"event should add");
+    
+    // now get it and verify some things about it
+    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
+    NSDictionary *deserializedAddon = deserializedDict[@"keen"][@"addons"][0];
+    STAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
 - (NSDictionary *)buildResultWithSuccess:(Boolean)success 
@@ -534,6 +573,23 @@
     // a dictionary that returns a conflicting property name should not overwrite the property on
     // the event
     RunTest(@{@"foo": @"some_new_value"}, 1);
+    
+    // a dictionary that contains an addon should be okay
+    NSDictionary *theEvent = @{
+                               @"keen":@{
+                                       @"addons" : @[
+                                               @{
+                                                   @"name" : @"addon:name",
+                                                   @"input" : @{@"param_name" : @"property_that_contains_param"},
+                                                   @"output" : @"property.to.store.output"
+                                                   }
+                                               ]
+                                       },
+                               @"a": @"b"
+                               };
+    storedEvent = RunTest(theEvent, 2);
+    NSDictionary *deserializedAddon = storedEvent[@"keen"][@"addons"][0];
+    STAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
 - (void)testGlobalPropertiesBlock {
@@ -570,6 +626,25 @@
     RunTest(^NSDictionary *(NSString *eventCollection) {
         return @{@"foo": @"some new value"};
     }, 1);
+    
+    // a dictionary that contains an addon should be okay
+    NSDictionary *theEvent = @{
+                               @"keen":@{
+                                       @"addons" : @[
+                                               @{
+                                                   @"name" : @"addon:name",
+                                                   @"input" : @{@"param_name" : @"property_that_contains_param"},
+                                                   @"output" : @"property.to.store.output"
+                                                   }
+                                               ]
+                                       },
+                               @"a": @"b"
+                               };
+    storedEvent = RunTest(^NSDictionary *(NSString *eventCollection) {
+        return theEvent;
+    }, 2);
+    NSDictionary *deserializedAddon = storedEvent[@"keen"][@"addons"][0];
+    STAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
 - (void)testGlobalPropertiesTogether {
