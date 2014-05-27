@@ -505,7 +505,6 @@
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    // should be 4 events now
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
@@ -661,7 +660,7 @@
     [manager createDirectoryAtPath:dirPath withIntermediateDirectories:true attributes:nil error:&error];
     STAssertNil(error, @"created directory for events");
 
-    // Write out a couple existing events that we can
+    // Write out a couple of events that we can import later!
     NSDictionary *event1 = [NSDictionary dictionaryWithObject:@"apple" forKey:@"a"];
     NSDictionary *event2 = [NSDictionary dictionaryWithObject:@"orange" forKey:@"b"];
 
