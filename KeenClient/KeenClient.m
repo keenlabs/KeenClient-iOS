@@ -445,9 +445,6 @@ static KIOEventStore *eventStore;
         [NSException raise:@"KeenNoWriteKeyProvided" format:@"You tried to add an event without setting a write key, please set one!"];
     }
 
-    // Slurp in any filesystem based events
-    [sharedClient importFileData];
-
     // don't do anything if the event itself or the event collection name are invalid somehow.
     if (![self validateEventCollection:eventCollection error:anError]) {
         return;
@@ -729,6 +726,10 @@ static KIOEventStore *eventStore;
 - (void)uploadHelperWithFinishedBlock:(void (^)()) block {
     // only one thread should be doing an upload at a time.
     @synchronized(self) {
+
+        // Slurp in any filesystem based events. This converts older fs-based
+        // event storage into newer SQL-lite based storage.
+        [sharedClient importFileData];
 
         NSData *data = nil;
         NSMutableDictionary *eventIds = nil;

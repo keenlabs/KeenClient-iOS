@@ -673,9 +673,10 @@
     [self writeNSData:json1 toFile:fileName1];
     [self writeNSData:json2 toFile:fileName2];
 
-    // Now we're gonna add an event and verify that it brings
-    // the events we just wrote into the database and cleans up the files.
 
+    [client importFileData];
+    // Now we're gonna add an event and verify the events we just wrote to the fs
+    // are added to the database and the files are cleaned up.
     error = nil;
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];

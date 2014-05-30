@@ -237,6 +237,11 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  */
 - (void)refreshCurrentLocation;
 
+/**
+ * Import fs-based data into the SQLite database.
+ */
+- (void)importFileData;
+
 // defines the KCLog macro
 #define KEEN_LOGGING_ENABLED [[KeenClient sharedClient] loggingEnabled]
 #define KCLog(message, ...)if([KeenClient isLoggingEnabled]) NSLog(message, ##__VA_ARGS__)
