@@ -673,7 +673,6 @@
     [self writeNSData:json1 toFile:fileName1];
     [self writeNSData:json2 toFile:fileName2];
 
-
     [client importFileData];
     // Now we're gonna add an event and verify the events we just wrote to the fs
     // are added to the database and the files are cleaned up.
@@ -682,6 +681,7 @@
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 3,  @"There should be 3 events after an import.");
+    STAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
 # pragma mark - test filesystem utility methods
