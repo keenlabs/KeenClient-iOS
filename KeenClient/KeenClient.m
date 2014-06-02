@@ -628,54 +628,59 @@ static KIOEventStore *eventStore;
     [defaults setBool:true forKey:@"didFSImport"];
     [defaults synchronize];
 
-    // list all the directories under Keen
-    NSArray *directories = [self keenSubDirectories];
-    NSString *rootPath = [self keenDirectory];
+    @try {
+        // list all the directories under Keen
+        NSArray *directories = [self keenSubDirectories];
+        NSString *rootPath = [self keenDirectory];
 
-    // Get a file manager so we can use it later
-    NSFileManager *fileManager = [NSFileManager defaultManager];
+        // Get a file manager so we can use it later
+        NSFileManager *fileManager = [NSFileManager defaultManager];
 
-    // We only need to do this import if the directory exists so check
-    // that out first.
-    if ([fileManager fileExistsAtPath:rootPath]) {
-        // declare an error object
-        NSError *error = nil;
+        // We only need to do this import if the directory exists so check
+        // that out first.
+        if ([fileManager fileExistsAtPath:rootPath]) {
+            // declare an error object
+            NSError *error = nil;
 
-        // iterate through each directory
-        for (NSString *dirName in directories) {
-            KCLog(@"Found directory: %@", dirName);
-            // list contents of each directory
-            NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
-            NSArray *files = [self contentsAtPath:dirPath];
+            // iterate through each directory
+            for (NSString *dirName in directories) {
+                KCLog(@"Found directory: %@", dirName);
+                // list contents of each directory
+                NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
+                NSArray *files = [self contentsAtPath:dirPath];
 
-            for (NSString *fileName in files) {
-                KCLog(@"Found file: %@/%@", dirName, fileName);
-                NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
-                // for each file, grab the JSON blob
-                NSData *data = [NSData dataWithContentsOfFile:filePath];
-                // deserialize it
-                error = nil;
-                if ([data length] > 0) {
-                    // Attempt to deserialize this just to determine if it's valid
-                    // or not. We don't actually care about the results.
-                    [NSJSONSerialization JSONObjectWithData:data
-                        options:0
-                        error:&error];
-                    if (error) {
-                        // If we got an error we're not gonna add it
-                        KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
-                    } else {
-                        // All's well: Add it!
-                        [eventStore addEvent:data collection:dirName];
+                for (NSString *fileName in files) {
+                    KCLog(@"Found file: %@/%@", dirName, fileName);
+                    NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
+                    // for each file, grab the JSON blob
+                    NSData *data = [NSData dataWithContentsOfFile:filePath];
+                    // deserialize it
+                    error = nil;
+                    if ([data length] > 0) {
+                        // Attempt to deserialize this just to determine if it's valid
+                        // or not. We don't actually care about the results.
+                        [NSJSONSerialization JSONObjectWithData:data
+                            options:0
+                            error:&error];
+                        if (error) {
+                            // If we got an error we're not gonna add it
+                            KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                        } else {
+                            // All's well: Add it!
+                            [eventStore addEvent:data collection:dirName];
+                        }
+
                     }
-
+                    // Regardless, delete it when we're done.
+                    [fileManager removeItemAtPath:filePath error:nil];
                 }
-                // Regardless, delete it when we're done.
-                [fileManager removeItemAtPath:filePath error:nil];
             }
+            // Remove the keen directory at the end so we know not to do this again!
+            [fileManager removeItemAtPath:rootPath error:nil];
         }
-        // Remove the keen directory at the end so we know not to do this again!
-        [fileManager removeItemAtPath:rootPath error:nil];
+    }
+    @catch (NSException *e) {
+        KCLog(@"An error occurred when attempting to import events from the filesystem, will not run again: %@", e);
     }
 }
 
