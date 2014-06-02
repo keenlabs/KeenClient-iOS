@@ -671,6 +671,11 @@ static KIOEventStore *eventStore;
         // Remove the keen directory at the end so we know not to do this again!
         [fileManager removeItemAtPath:rootPath error:nil];
     }
+    // Save a flag that we've done the FS import so we don't waste
+    // time on it in the future.
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:true forKey:@"didFSImport"];
+    [defaults synchronize];
 }
 
 - (NSString *)cacheDirectory {
@@ -736,9 +741,14 @@ static KIOEventStore *eventStore;
     // only one thread should be doing an upload at a time.
     @synchronized(self) {
 
-        // Slurp in any filesystem based events. This converts older fs-based
-        // event storage into newer SQL-lite based storage.
-        [sharedClient importFileData];
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+        // Check if we've done an import before. (A missing value returns NO)
+        if (![defaults boolForKey:@"didFSImport"]) {
+            // Slurp in any filesystem based events. This converts older fs-based
+            // event storage into newer SQL-lite based storage.
+            [sharedClient importFileData];
+        }
 
         NSData *data = nil;
         NSMutableDictionary *eventIds = nil;
