@@ -618,9 +618,10 @@ static BOOL loggingEnabled = NO;
 
 # pragma mark - Uploading
 
-- (void)uploadHelperWithFinishedBlock:(void (^)()) block {
+- (void)uploadHelper
+{
     // only one thread should be doing an upload at a time.
-    @synchronized(self) {        
+    @synchronized(self) {
         // get data for the API request we'll make
         NSData *data = nil;
         NSMutableDictionary *eventPaths = nil;
@@ -634,29 +635,33 @@ static BOOL loggingEnabled = NO;
             // then parse the http response and deal with it appropriately
             [self handleAPIResponse:response andData:responseData forEventPaths:eventPaths];
         }
-        
-        // finally, run the user-specific block (if there is one)
-        if (block) {
-            KCLog(@"Running user-specified block.");
-            @try {
-                block();
-            } @finally {
-                Block_release(block);
-            }
-        }
     }
 }
 
 - (void)uploadWithFinishedBlock:(void (^)()) block {
-    id copiedBlock = Block_copy(block);
     if (self.isRunningTests) {
         // run upload in same thread if we're in tests
-        [self uploadHelperWithFinishedBlock:copiedBlock];
+        [self uploadHelper];
     } else {
         // otherwise do it in the background to not interfere with UI operations
+        dispatch_semaphore_t sema = dispatch_semaphore_create(0);
         dispatch_async(self.uploadQueue, ^{
-            [self uploadHelperWithFinishedBlock:copiedBlock];
+            [self uploadHelper];
+            dispatch_semaphore_signal(sema);
         });
+        
+        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+        dispatch_release(sema);
+    }
+    
+    // finally, run the user-specific block (if there is one)
+    if (block) {
+        KCLog(@"Running user-specified block.");
+        @try {
+            block();
+        } @finally {
+            // do nothing
+        }
     }
 }
 
@@ -832,7 +837,7 @@ static BOOL loggingEnabled = NO;
                            kKeenServerAddress, kKeenApiVersion, self.projectId];
     KCLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
