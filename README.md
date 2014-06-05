@@ -93,6 +93,10 @@ This SDK *should* work for OS X apps. If you try and it doesn't work, please fil
     
 ### Changelog
 
+##### 3.2.8
+
++ Upload with finished block consistency fix
+
 ##### 3.2.7
 
 + Support sending addons in events.
