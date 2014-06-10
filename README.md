@@ -93,6 +93,10 @@ This SDK *should* work for OS X apps. If you try and it doesn't work, please fil
     
 ### Changelog
 
+##### 3.2.7
+
++ Support sending addons in events.
+
 ##### 3.2.6
 
 + Bugfix to always invoke callback on upload, even if there are no events to upload.

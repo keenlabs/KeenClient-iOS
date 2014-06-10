@@ -56,11 +56,15 @@
 - (void)tearDown {
     // Tear-down code here.
     NSLog(@"\n");
+<<<<<<< HEAD
     [KeenClient clearAllEvents];
 
+=======
+    
     [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
     
+>>>>>>> 94cba80a30f1bfd2903293806f7dce85fcd34e7d
     // delete all collections and their events.
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];

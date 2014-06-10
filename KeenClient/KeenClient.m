@@ -392,8 +392,9 @@ static KIOEventStore *eventStore;
             [self handleError:anError withErrorMessage:errorMessage];
             return NO;
         }
-        if ([event objectForKey:@"keen"] != nil) {
-            errorMessage = @"An event cannot contain a root-level property named 'keen'.";
+        id keenObject = [event objectForKey:@"keen"];
+        if (keenObject != nil && ![keenObject isKindOfClass:[NSDictionary class]]) {
+            errorMessage = @"An event's root-level property named 'keen' must be a dictionary.";
             [self handleError:anError withErrorMessage:errorMessage];
             return NO;
         }
@@ -488,8 +489,21 @@ static KIOEventStore *eventStore;
         keenProperties.location = self.currentLocation;
     }
     
+    // this is the event we'll actually write
     NSMutableDictionary *eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
-    [eventToWrite setObject:keenProperties forKey:@"keen"];
+    
+    // either set "keen" only from keen properties or merge in
+    NSDictionary *originalKeenDict = [eventToWrite objectForKey:@"keen"];
+    if (originalKeenDict) {
+        // have to merge
+        NSMutableDictionary *keenDict = [self handleInvalidJSONInObject:keenProperties];
+        [keenDict addEntriesFromDictionary:originalKeenDict];
+        [eventToWrite setObject:keenDict forKey:@"keen"];
+        
+    } else {
+        // just set it directly
+        [eventToWrite setObject:keenProperties forKey:@"keen"];
+    }
     
     NSError *error = nil;
     NSData *jsonData = [self serializeEventToJSON:eventToWrite error:&error];
