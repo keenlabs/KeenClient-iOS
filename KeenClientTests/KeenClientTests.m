@@ -311,8 +311,14 @@
     [client addEvent:theEvent toEventCollection:@"foo" error:&error];
     STAssertNil(error, @"event should add");
     
-    // now get it and verify some things about it
-    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
+    // Grab the first event we get back
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    // Grab the first event we get back
+    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                     options:0
+                                                                       error:&error];
+    
     NSDictionary *deserializedAddon = deserializedDict[@"keen"][@"addons"][0];
     STAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
