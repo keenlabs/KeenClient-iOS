@@ -24,7 +24,7 @@ Then run
 
 ##### Build Settings
 
-Make sure to add CoreLocation.framework to the "Link Binary with Libraries" section.
+Make sure to add CoreLocation.framework to the "Link Binary with Libraries" section. If you're using SDK version 3.2.9 or above, add libsqlite3.dylib as well.
 
 Also enable the "-ObjC" linker flag under "Other Linker Flags".
 
