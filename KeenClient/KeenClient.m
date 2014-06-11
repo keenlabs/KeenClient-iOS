@@ -586,7 +586,7 @@ static KIOEventStore *eventStore;
 }
 
 - (void)prepareJSONData:(NSData **)jsonData andEventIds:(NSMutableDictionary **)eventIds {
-
+    
     // set up the request dictionary we'll send out.
     NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
     
@@ -598,7 +598,7 @@ static KIOEventStore *eventStore;
     
     // get data for the API request we'll make
     NSMutableDictionary *events = [eventStore getEvents];
-
+    
     NSError *error = nil;
     for (NSString *coll in events) {
         NSDictionary *collEvents = [events objectForKey:coll];
@@ -611,7 +611,7 @@ static KIOEventStore *eventStore;
                 KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
             }
-
+            
             // add it to the array of events
             [eventsArray addObject:eventDict];
             if ([eventIdDict objectForKey:coll] == nil) {
@@ -631,10 +631,10 @@ static KIOEventStore *eventStore;
         // can't do much here.
         return;
     }
-
+    
     *jsonData = data;
     *eventIds = eventIdDict;
-
+    
     if ([KeenClient isLoggingEnabled]) {
         KCLog(@"Uploading following events to Keen API: %@", requestDict);
     }
