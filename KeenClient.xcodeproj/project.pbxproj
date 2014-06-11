@@ -53,13 +53,17 @@
 		017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE13E14E30C96000F3868 /* KeenClientTests.m */; };
 		01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
-		CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; };
+		CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */; };
 		CA795C4E18E32BAB00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C4F18E32BB800EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C5018E32BBF00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C5118E32BC600EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
+		DEFA50181947A66200F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
+		DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
+		DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -313,6 +317,7 @@
 			files = (
 				0111012614EF709A009794A5 /* KeenClient.h in Headers */,
 				010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */,
+				DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */,
 				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -323,6 +328,7 @@
 			files = (
 				0111013E14EF70AB009794A5 /* KeenClient.h in Headers */,
 				010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */,
+				DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */,
 				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -486,7 +492,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export TMP_DIR=/tmp/keenios\n\nrm -rf ${TMP_DIR}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" ${TMP_DIR}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *";
+			shellScript = "export TMP_DIR=/tmp/keenios\n\nrm -rf ${TMP_DIR}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" ${TMP_DIR}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *";
 		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -508,6 +514,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEFA50181947A66200F78E13 /* KIOEventStore.m in Sources */,
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
 				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
 				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
@@ -518,6 +525,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */,
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
 				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
 				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,

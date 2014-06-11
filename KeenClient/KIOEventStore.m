@@ -24,20 +24,16 @@
     sqlite3_stmt *make_pending_stmt;
     sqlite3_stmt *reset_pending_stmt;
     sqlite3_stmt *purge_stmt;
+    sqlite3_stmt *delete_stmt;
+    sqlite3_stmt *delete_all_stmt;
+    sqlite3_stmt *age_out_stmt;
 }
 
 - (instancetype)init {
-    NSAssert(NO, @"init not allowed, use initWithProjectId");
-    [self release];
-    return nil;
-}
-
-- (instancetype)initWithProjectId:(NSString *)pid {
     self = [super init];
 
     if(self) {
         dbIsOpen = NO;
-        self.projectId = pid;
         // First, let's open the database.
         if ([self openDB]) {
             // Then try and create the table.
@@ -49,14 +45,14 @@
             // Now we'll init prepared statements for all the things we might do.
 
             // This statement inserts events into the table.
-            char *insert_sql = "INSERT INTO events (projectId, eventData, pending) VALUES (?, ?, 0)";
+            char *insert_sql = "INSERT INTO events (projectId, collection, eventData, pending) VALUES (?, ?, ?, 0)";
             if (sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare insert statement"];
                 [self closeDB];
             }
             
             // This statement finds non-pending events in the table.
-            char *find_sql = "SELECT id, eventData FROM events WHERE pending=0 AND projectId=?";
+            char *find_sql = "SELECT id, collection, eventData FROM events WHERE pending=0 AND projectId=?";
             if(sqlite3_prepare_v2(keen_dbname, find_sql, -1, &find_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare find statement"];
                 [self closeDB];
@@ -95,12 +91,30 @@
             if(sqlite3_prepare_v2(keen_dbname, purge_sql, -1, &purge_stmt, NULL) != SQLITE_OK) {
                 [self closeDB];
             }
+
+            // This statement deletes a specific event.
+            char *delete_sql = "DELETE FROM events WHERE id=?";
+            if(sqlite3_prepare_v2(keen_dbname, delete_sql, -1, &delete_stmt, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
+
+            // This statement deletes all events.
+            char *delete_all_sql = "DELETE FROM events";
+            if(sqlite3_prepare_v2(keen_dbname, delete_all_sql, -1, &delete_all_stmt, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
+
+            // This statement deletes old events at a given offset.
+            char *age_out_sql = "DELETE FROM events WHERE id <= (SELECT id FROM events ORDER BY id DESC LIMIT 1 OFFSET ?)";
+            if(sqlite3_prepare_v2(keen_dbname, age_out_sql, -1, &age_out_stmt, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
         }
     }
     return self;
 }
 
-- (BOOL)addEvent:(NSString *)eventData {
+- (BOOL)addEvent:(NSData *)eventData collection: (NSString *)coll {
     BOOL wasAdded = NO;
 
     if (!dbIsOpen) {
@@ -113,7 +127,12 @@
         [self closeDB];
     }
 
-    if (sqlite3_bind_blob(insert_stmt, 2, [eventData UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+    if (sqlite3_bind_text(insert_stmt, 2, [coll UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind coll to add event statement"];
+        [self closeDB];
+    }
+
+    if (sqlite3_bind_blob(insert_stmt, 3, [eventData bytes], (int) [eventData length], SQLITE_TRANSIENT) != SQLITE_OK) {
         [self handleSQLiteFailure:@"bind insert statement"];
         [self closeDB];
     }
@@ -133,10 +152,10 @@
     return wasAdded;
 }
 
-- (NSMutableArray *)getEvents{
+- (NSMutableDictionary *)getEvents{
 
-    // Create an array to hold the contents of our select.
-    NSMutableArray *events = [NSMutableArray array];
+    // Create a dictionary to hold the contents of our select.
+    NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getEvents");
@@ -148,16 +167,19 @@
         [self handleSQLiteFailure:@"bind pid to find statement"];
     }
 
-    // This statement has no bindings, so can just step it immediately.
     while (sqlite3_step(find_stmt) == SQLITE_ROW) {
         // Fetch data out the statement
-        int eventId = sqlite3_column_int(find_stmt, 0);
-        const void *dataPtr = sqlite3_column_blob(find_stmt, 1);
-        int dataSize = sqlite3_column_bytes(find_stmt, 1);
+        long long eventId = sqlite3_column_int64(find_stmt, 0);
+
+        NSString *coll = [NSString stringWithUTF8String:(char *)sqlite3_column_text(find_stmt, 1)];
+
+        const void *dataPtr = sqlite3_column_blob(find_stmt, 2);
+        int dataSize = sqlite3_column_bytes(find_stmt, 2);
+
+        NSData *data = [[NSData alloc] initWithBytes:dataPtr length:dataSize];
 
         // Bind and mark the event pending.
-        if(sqlite3_bind_int(make_pending_stmt, 1, eventId) != SQLITE_OK) {
-            // XXX What to do here?
+        if(sqlite3_bind_int64(make_pending_stmt, 1, eventId) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind int for make pending"];
         }
         if (sqlite3_step(make_pending_stmt) != SQLITE_DONE) {
@@ -168,10 +190,13 @@
         sqlite3_reset(make_pending_stmt);
         sqlite3_clear_bindings(make_pending_stmt);
 
-        // Add the event to the array.
-        // XXX What frees this?
-        NSData *data = [[[NSData alloc] initWithBytes:dataPtr length:dataSize] autorelease];
-        [events addObject:data];
+        if ([events objectForKey:coll] == nil) {
+            // We don't have an entry in the dictionary yet for this collection
+            // so create one.
+            [events setObject:[NSMutableDictionary dictionary] forKey:coll];
+        }
+
+        [[events objectForKey:coll] setObject:data forKey:[NSNumber numberWithUnsignedLongLong:eventId]];
     }
 
     // Reset things
@@ -254,6 +279,52 @@
     return eventCount;
 }
 
+- (void)deleteEvent: (NSNumber *)eventId {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping deleteEvent");
+        return;
+    }
+    if (sqlite3_bind_int64(delete_stmt, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind eventid to delete statement"];
+    }
+    if (sqlite3_step(delete_stmt) != SQLITE_DONE) {
+        [self handleSQLiteFailure:@"delete event"];
+    };
+    sqlite3_reset(delete_stmt);
+    sqlite3_clear_bindings(delete_stmt);
+}
+
+- (void)deleteAllEvents {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping deleteEvent");
+        return;
+    }
+    if (sqlite3_step(delete_all_stmt) != SQLITE_DONE) {
+        [self handleSQLiteFailure:@"delete all events"];
+    };
+    sqlite3_reset(delete_all_stmt);
+    sqlite3_clear_bindings(delete_all_stmt);
+}
+
+- (void)deleteEventsFromOffset: (NSNumber *)offset {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping deleteEvent");
+        return;
+    }
+    if (sqlite3_bind_int64(age_out_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"bind offset to ageOut statement"];
+    }
+    if (sqlite3_step(age_out_stmt) != SQLITE_DONE) {
+        [self handleSQLiteFailure:@"delete all events"];
+    };
+    sqlite3_reset(age_out_stmt);
+    sqlite3_clear_bindings(age_out_stmt);
+}
+
+
 - (void)purgePendingEvents {
 
     if (!dbIsOpen) {
@@ -294,7 +365,7 @@
     }
 
     char *err;
-    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, projectId TEXT, eventData BLOB, pending INTEGER);"];
+    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectId TEXT, eventData BLOB, pending INTEGER, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
     if (sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
         KCLog(@"Failed to create table: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
         sqlite3_free(err); // Free that error message
@@ -320,6 +391,9 @@
     sqlite3_finalize(make_pending_stmt);
     sqlite3_finalize(reset_pending_stmt);
     sqlite3_finalize(purge_stmt);
+    sqlite3_finalize(delete_stmt);
+    sqlite3_finalize(delete_all_stmt);
+    sqlite3_finalize(age_out_stmt);
 
     // Free our DB. This is safe on null pointers.
     sqlite3_close(keen_dbname);
