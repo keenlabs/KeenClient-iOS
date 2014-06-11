@@ -56,11 +56,15 @@
 - (void)tearDown {
     // Tear-down code here.
     NSLog(@"\n");
+<<<<<<< HEAD
     [KeenClient clearAllEvents];
 
+=======
+    
     [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
     
+>>>>>>> 94cba80a30f1bfd2903293806f7dce85fcd34e7d
     // delete all collections and their events.
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -311,14 +315,8 @@
     [client addEvent:theEvent toEventCollection:@"foo" error:&error];
     STAssertNil(error, @"event should add");
     
-    // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
-    // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
-    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
-                                                                     options:0
-                                                                       error:&error];
-    
+    // now get it and verify some things about it
+    NSDictionary *deserializedDict = [self firstEventForCollection:@"foo"];
     NSDictionary *deserializedAddon = deserializedDict[@"keen"][@"addons"][0];
     STAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }

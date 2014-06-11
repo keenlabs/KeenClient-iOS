@@ -8,6 +8,7 @@
 
 #import "KeenClient.h"
 #import "KeenConstants.h"
+#import "KIOEventStore.h"
 #import <CoreLocation/CoreLocation.h>
 
 
@@ -15,6 +16,7 @@ static KeenClient *sharedClient;
 static NSDateFormatter *dateFormatter;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
+static KIOEventStore *eventStore;
 
 @interface KeenClient ()
 
@@ -103,24 +105,8 @@ static BOOL loggingEnabled = NO;
  @param timestamp  The timestamp of the event.
  @returns An NSString* that is a path to the event to be written.
  */
-- (NSString *)pathForEventInCollection:(NSString *)collection 
+- (NSString *)pathForEventInCollection:(NSString *)collection
                          WithTimestamp:(NSDate *)timestamp;
-
-/**
- Creates a directory if it doesn't exist.
- @param dirPath The fully qualfieid path to a directory.
- @returns YES if the directory exists at the end of this operation, NO otherwise.
- */
-- (BOOL)createDirectoryIfItDoesNotExist:(NSString *)dirPath;
-
-/**
- Writes a particular blob to the given file.
- @param data The data blob to write.
- @param file The fully qualified path to a file.
- @returns YES if the file was successfully written, NO otherwise.
- */
-- (BOOL)writeNSData:(NSData *)data 
-             toFile:(NSString *)file;
 
 /**
  Sends an event to the server. Internal impl.
@@ -133,15 +119,6 @@ static BOOL loggingEnabled = NO;
                  error:(NSError **)error;
 
 /**
- Harvests local file system for any events to send to keen service and prepares the payload
- for the API request.
- @param jsonData If successful, this will be filled with the correct JSON data.  Otherwise it is untouched.
- @param eventPaths If successful, this will be filled with a dictionary that maps event types to their paths on the local filesystem.
- */
-- (void)prepareJSONData:(NSData **)jsonData 
-          andEventPaths:(NSMutableDictionary **)eventPaths;
-
-/**
  Handles the HTTP response from the keen API.  This involves deserializing the JSON response
  and then removing any events from the local filesystem that have been handled by the keen API.
  @param response The response from the server.
@@ -150,7 +127,7 @@ static BOOL loggingEnabled = NO;
  */
 - (void)handleAPIResponse:(NSURLResponse *)response 
                   andData:(NSData *)responseData 
-            forEventPaths:(NSDictionary *)eventPaths;
+                forEvents:(NSDictionary *)events;
 
 /**
  Converts an NSDate* instance into a correctly formatted ISO-8601 compatible string.
@@ -193,7 +170,7 @@ static BOOL loggingEnabled = NO;
          */
         return;
     }
-    
+
     [KeenClient disableLogging];
     [KeenClient enableGeoLocation];
     if (!dateFormatter) {
@@ -226,6 +203,14 @@ static BOOL loggingEnabled = NO;
     geoLocationEnabled = NO;
 }
 
++ (void)clearAllEvents {
+    [eventStore deleteAllEvents];
+}
+
++ (KIOEventStore *) getEventStore {
+    return eventStore;
+}
+
 - (id)init {
     self = [super init];
     
@@ -233,7 +218,7 @@ static BOOL loggingEnabled = NO;
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
     dispatch_retain(self.uploadQueue);
-    
+
     return self;
 }
 
@@ -258,6 +243,7 @@ static BOOL loggingEnabled = NO;
     self = [self init];
     if (self) {
         self.projectId = projectId;
+        eventStore.projectId = projectId;
         if (writeKey) {
             if (![KeenClient validateKey:writeKey]) {
                 return nil;
@@ -298,8 +284,13 @@ static BOOL loggingEnabled = NO;
     if (![KeenClient validateProjectId:projectId]) {
         return nil;
     }
+
+    if (!eventStore) {
+        eventStore = [[KIOEventStore alloc] init];
+    }
     sharedClient.projectId = projectId;
-    
+    eventStore.projectId = projectId;
+
     if (writeKey) {
         // only validate a non-nil value
         if (![KeenClient validateKey:writeKey]) {
@@ -454,7 +445,7 @@ static BOOL loggingEnabled = NO;
     if (![KeenClient validateKey:self.writeKey]) {
         [NSException raise:@"KeenNoWriteKeyProvided" format:@"You tried to add an event without setting a write key, please set one!"];
     }
-    
+
     // don't do anything if the event itself or the event collection name are invalid somehow.
     if (![self validateEventCollection:eventCollection error:anError]) {
         return;
@@ -480,35 +471,16 @@ static BOOL loggingEnabled = NO;
     }
     [newEvent addEntriesFromDictionary:event];
     event = newEvent;
-    
-    // make sure the directory we want to write the file to exists
-    NSString *dirPath = [self eventDirectoryForCollection:eventCollection];
-    // if the directory doesn't exist, create it.
-    Boolean success = [self createDirectoryIfItDoesNotExist:dirPath];
-    if (!success) {
-        KCLog(@"Couldn't access local directory at %@. Event NOT added.", dirPath);
-        return;
-    }
     // now make sure that we haven't hit the max number of events in this collection already
-    NSArray *eventsArray = [self contentsAtPath:dirPath];
-    if ([eventsArray count] >= self.maxEventsPerCollection) {
+    NSUInteger eventCount = [eventStore getTotalEventCount];
+    // We add 1 because we want to know if this will push us over the limit
+    if (eventCount + 1 > self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
         KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
-        KCLog(@"Count: %lu and Max: %lu", (unsigned long)[eventsArray count], (unsigned long)self.maxEventsPerCollection);
-        
-        NSArray *sortedEventsArray = [eventsArray sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-        // delete the eldest
-        for (int i=0; i<self.numberEventsToForget; i++) {
-            NSString *fileName = [sortedEventsArray objectAtIndex:i];
-            NSString *fullPath = [dirPath stringByAppendingPathComponent:fileName];
-            NSError *error = nil;
-            [[NSFileManager defaultManager] removeItemAtPath:fullPath error:&error];
-            if (error) {
-                KCLog(@"Couldn't delete %@ when aging events out of cache!", [error localizedDescription]);
-            }
-        }
+        KCLog(@"Count: %lu and Max: %lu", (unsigned long)eventCount, (unsigned long)self.maxEventsPerCollection);
+        [eventStore deleteEventsFromOffset:[NSNumber numberWithUnsignedInteger: eventCount - self.numberEventsToForget]];
     }
-    
+
     if (!keenProperties) {
         KeenProperties *newProperties = [[[KeenProperties alloc] init] autorelease];
         keenProperties = newProperties;
@@ -541,11 +513,8 @@ static BOOL loggingEnabled = NO;
         return;
     }
     
-    // now figure out the correct filename.
-    NSString *fileName = [self pathForEventInCollection:eventCollection WithTimestamp:[NSDate date]];
-    
-    // write JSON to file system
-    [self writeNSData:jsonData toFile:fileName];
+    // write JSON to store
+    [eventStore addEvent:jsonData collection: eventCollection];
     
     // log the event
     if ([KeenClient isLoggingEnabled]) {
@@ -616,24 +585,212 @@ static BOOL loggingEnabled = NO;
     }
 }
 
+- (void)prepareJSONData:(NSData **)jsonData andEventIds:(NSMutableDictionary **)eventIds {
+    
+    // set up the request dictionary we'll send out.
+    NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
+    
+    // create a structure that will hold corresponding ids of all the events
+    NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
+    
+    // create a separate array for event data so our dictionary serializes properly
+    NSMutableArray *eventsArray = [[NSMutableArray alloc] init];
+    
+    // get data for the API request we'll make
+    NSMutableDictionary *events = [eventStore getEvents];
+    
+    NSError *error = nil;
+    for (NSString *coll in events) {
+        NSDictionary *collEvents = [events objectForKey:coll];
+        for (NSNumber *eid in collEvents) {
+            NSData *ev = [collEvents objectForKey:eid];
+            NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
+                                                                      options:0
+                                                                        error:&error];
+            if (error) {
+                KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                continue;
+            }
+            
+            // add it to the array of events
+            [eventsArray addObject:eventDict];
+            if ([eventIdDict objectForKey:coll] == nil) {
+                [eventIdDict setObject: [NSMutableArray array] forKey: coll];
+            }
+            [[eventIdDict objectForKey:coll] addObject: eid];
+        }
+        
+        // add the array of events to the request
+        [requestDict setObject:eventsArray forKey:coll];
+    }
+    
+    NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
+    if (error) {
+        KCLog(@"An error occurred when serializing the final request data back to JSON: %@",
+              [error localizedDescription]);
+        // can't do much here.
+        return;
+    }
+    
+    *jsonData = data;
+    *eventIds = eventIdDict;
+    
+    if ([KeenClient isLoggingEnabled]) {
+        KCLog(@"Uploading following events to Keen API: %@", requestDict);
+    }
+}
+
+# pragma mark - Directory/path management
+
+- (void)importFileData {
+    // Save a flag that we've done the FS import so we don't waste
+    // time on it in the future.
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:true forKey:@"didFSImport"];
+    [defaults synchronize];
+
+    @try {
+        // list all the directories under Keen
+        NSArray *directories = [self keenSubDirectories];
+        NSString *rootPath = [self keenDirectory];
+
+        // Get a file manager so we can use it later
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+
+        // We only need to do this import if the directory exists so check
+        // that out first.
+        if ([fileManager fileExistsAtPath:rootPath]) {
+            // declare an error object
+            NSError *error = nil;
+
+            // iterate through each directory
+            for (NSString *dirName in directories) {
+                KCLog(@"Found directory: %@", dirName);
+                // list contents of each directory
+                NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
+                NSArray *files = [self contentsAtPath:dirPath];
+
+                for (NSString *fileName in files) {
+                    KCLog(@"Found file: %@/%@", dirName, fileName);
+                    NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
+                    // for each file, grab the JSON blob
+                    NSData *data = [NSData dataWithContentsOfFile:filePath];
+                    // deserialize it
+                    error = nil;
+                    if ([data length] > 0) {
+                        // Attempt to deserialize this just to determine if it's valid
+                        // or not. We don't actually care about the results.
+                        [NSJSONSerialization JSONObjectWithData:data
+                            options:0
+                            error:&error];
+                        if (error) {
+                            // If we got an error we're not gonna add it
+                            KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                        } else {
+                            // All's well: Add it!
+                            [eventStore addEvent:data collection:dirName];
+                        }
+
+                    }
+                    // Regardless, delete it when we're done.
+                    [fileManager removeItemAtPath:filePath error:nil];
+                }
+            }
+            // Remove the keen directory at the end so we know not to do this again!
+            [fileManager removeItemAtPath:rootPath error:nil];
+        }
+    }
+    @catch (NSException *e) {
+        KCLog(@"An error occurred when attempting to import events from the filesystem, will not run again: %@", e);
+    }
+}
+
+- (NSString *)cacheDirectory {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    return documentsDirectory;
+}
+
+- (NSString *)keenDirectory {
+    NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
+    return [keenDirPath stringByAppendingPathComponent:self.projectId];
+}
+
+- (NSArray *)keenSubDirectories {
+    return [self contentsAtPath:[self keenDirectory]];
+}
+
+- (NSArray *)contentsAtPath:(NSString *) path {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
+    if (error) {
+        KCLog(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
+        return nil;
+    }
+    return files;
+}
+
+- (NSString *)eventDirectoryForCollection:(NSString *)collection {
+    return [[self keenDirectory] stringByAppendingPathComponent:collection];
+}
+
+- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
+    // get a file manager.
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    // determine the root of the filename.
+    NSString *name = [NSString stringWithFormat:@"%f", [timestamp timeIntervalSince1970]];
+    // get the path to the directory where the file will be written
+    NSString *directory = [self eventDirectoryForCollection:collection];
+    // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
+    // we'll be able to handle it.
+    uint count = 0;
+
+    // declare a tiny helper block to get the next path based on the counter.
+    NSString * (^getNextPath)(uint count) = ^(uint count) {
+        return [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%i", name, count]];
+    };
+
+    // starting with our root filename.0, see if a file exists.  if it doesn't, great.  but if it does, then go
+    // on to filename.1, filename.2, etc.
+    NSString *path = getNextPath(count);
+    while ([fileManager fileExistsAtPath:path]) {
+        count++;
+        path = getNextPath(count);
+    }
+
+    return path;
+}
+
 # pragma mark - Uploading
 
 - (void)uploadHelper
 {
     // only one thread should be doing an upload at a time.
     @synchronized(self) {
-        // get data for the API request we'll make
+
+        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+
+        // Check if we've done an import before. (A missing value returns NO)
+        if (![defaults boolForKey:@"didFSImport"]) {
+            // Slurp in any filesystem based events. This converts older fs-based
+            // event storage into newer SQL-lite based storage.
+            [sharedClient importFileData];
+        }
+
         NSData *data = nil;
-        NSMutableDictionary *eventPaths = nil;
-        [self prepareJSONData:&data andEventPaths:&eventPaths];
-        if ([data length] > 0 && [eventPaths count] > 0) {
+        NSMutableDictionary *eventIds = nil;
+        [self prepareJSONData:&data andEventIds:&eventIds];
+        // get data for the API request we'll make
+
+        if ([data length] > 0) {
             // then make an http request to the keen server.
             NSURLResponse *response = nil;
             NSError *error = nil;
             NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
             
             // then parse the http response and deal with it appropriately
-            [self handleAPIResponse:response andData:responseData forEventPaths:eventPaths];
+            [self handleAPIResponse:response andData:responseData forEvents:eventIds];
         }
     }
 }
@@ -665,102 +822,14 @@ static BOOL loggingEnabled = NO;
     }
 }
 
-- (void)prepareJSONData:(NSData **)jsonData andEventPaths:(NSMutableDictionary **)eventPaths {
-    // list all the directories under Keen
-    NSArray *directories = [self keenSubDirectories];
-    NSString *rootPath = [self keenDirectory];
-    
-    // set up the request dictionary we'll send out.
-    NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
-    
-    // declare an error object
-    NSError *error = nil;
-    
-    // create a structure that will hold corresponding paths to all the files
-    NSMutableDictionary *fileDict = [NSMutableDictionary dictionary];
-    
-    // keep track of how many events we'll upload
-    NSUInteger eventCount = 0;
-    
-    // iterate through each directory
-    for (NSString *dirName in directories) {
-        KCLog(@"Found directory: %@", dirName);
-        // list contents of each directory
-        NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
-        NSArray *files = [self contentsAtPath:dirPath];
-        
-        // set up the array of events that will be used in the request
-        NSMutableArray *requestArray = [NSMutableArray array];
-        // set up the array of file paths
-        NSMutableArray *fileArray = [NSMutableArray array];
-
-        for (NSString *fileName in files) {
-            KCLog(@"Found file: %@/%@", dirName, fileName);
-            NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
-            // for each file, grab the JSON blob
-            NSData *data = [NSData dataWithContentsOfFile:filePath];
-            // deserialize it
-            error = nil;
-            if ([data length] > 0) {
-                NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:data
-                                                                          options:0
-                                                                            error:&error];
-                if (error) {
-                    KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
-                    continue;
-                }
-                // and then add it to the array of events
-                [requestArray addObject:eventDict];
-                // and also to the array of paths
-                [fileArray addObject:filePath];
-                // increment event count
-                eventCount++;
-            }
-            else {
-                [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
-            }
-        }
-        // and then add the array back to the overall request
-        [requestDict setObject:requestArray forKey:dirName];
-        // and also to the dictionary of paths
-        [fileDict setObject:fileArray forKey:dirName];
-    }
-    
-    // end early if there are no events
-    if (eventCount == 0) {
-        KCLog(@"Upload called when no events were present, ending early.");
-        return;
-    }
-    
-    // now take the request dict and serialize it to JSON
-    
-    // first serialize the request dict back to a json string
-    error = nil;
-    NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
-    if (error) {
-        KCLog(@"An error occurred when serializing the final request data back to JSON: %@", 
-              [error localizedDescription]);
-        // can't do much here.
-        return;
-    }
-    
-    *jsonData = data;
-    *eventPaths = fileDict;
-    
-    if ([KeenClient isLoggingEnabled]) {
-        KCLog(@"Uploading following events to Keen API: %@", requestDict);
-    }
-}
-
 - (void)handleAPIResponse:(NSURLResponse *)response 
-                  andData:(NSData *)responseData 
-            forEventPaths:(NSDictionary *)eventPaths {
+                  andData:(NSData *)responseData
+                forEvents:(NSDictionary *)eventIds {
     if (!responseData) {
         KCLog(@"responseData was nil for some reason.  That's not great.");
         KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
         return;
     }
-    
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
     // if the request succeeded, dig into the response to figure out which events succeeded and which failed
     if (responseCode == 200) {
@@ -804,19 +873,9 @@ static BOOL loggingEnabled = NO;
                 }
                 // delete the file if we need to
                 if (deleteFile) {
-                    NSString *path = [[eventPaths objectForKey:collectionName] objectAtIndex:count];
-                    error = nil;
-                    
-                    // get a file manager
-                    NSFileManager *fileManager = [NSFileManager defaultManager];
-                    
-                    [fileManager removeItemAtPath:path error:&error];
-                    if (error) {
-                        KCLog(@"CRITICAL ERROR: Could not remove event at %@ because: %@", path, 
-                              [error localizedDescription]);
-                    } else {
-                        KCLog(@"Successfully deleted file: %@", path);
-                    }
+                    NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
+                    [eventStore deleteEvent: eid];
+                    KCLog(@"Successfully deleted event: %@", eid);
                 }
                 count++;
             }
@@ -847,94 +906,6 @@ static BOOL loggingEnabled = NO;
     [request setHTTPBody:data];
     NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
     return responseData;
-}
-
-# pragma mark - Directory/path management
-
-- (NSString *)cacheDirectory {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    return documentsDirectory;
-}
-
-- (NSString *)keenDirectory {
-    NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
-    return [keenDirPath stringByAppendingPathComponent:self.projectId];
-}
-
-- (NSArray *)keenSubDirectories {
-    return [self contentsAtPath:[self keenDirectory]];
-}
-
-- (NSArray *)contentsAtPath:(NSString *) path {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error = nil;
-    NSArray *files = [fileManager contentsOfDirectoryAtPath:path error:&error];
-    if (error) {
-        KCLog(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
-        return nil;
-    }
-    return files;
-}
-
-- (NSString *)eventDirectoryForCollection:(NSString *)collection {
-    return [[self keenDirectory] stringByAppendingPathComponent:collection];
-}
-
-- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
-    // get a file manager.
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    // determine the root of the filename.
-    NSString *name = [NSString stringWithFormat:@"%f", [timestamp timeIntervalSince1970]];
-    // get the path to the directory where the file will be written
-    NSString *directory = [self eventDirectoryForCollection:collection];
-    // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
-    // we'll be able to handle it.
-    uint count = 0;
-    
-    // declare a tiny helper block to get the next path based on the counter.
-    NSString * (^getNextPath)(uint count) = ^(uint count) {
-        return [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%i", name, count]];
-    };
-    
-    // starting with our root filename.0, see if a file exists.  if it doesn't, great.  but if it does, then go
-    // on to filename.1, filename.2, etc.
-    NSString *path = getNextPath(count);
-    while ([fileManager fileExistsAtPath:path]) {
-        count++;
-        path = getNextPath(count);
-    }    
-    
-    return path;
-}
-
-- (BOOL)createDirectoryIfItDoesNotExist:(NSString *)dirPath {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    // if the directory doesn't exist, create it.
-    if (![fileManager fileExistsAtPath:dirPath]) {
-        NSError *error = nil;
-        Boolean success = [fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:&error];
-        if (error) {
-            KCLog(@"An error occurred when creating directory (%@). Message: %@", dirPath, [error localizedDescription]);
-            return NO;
-        } else if (!success) {
-            KCLog(@"Failed to create directory (%@) but no error was returned.", dirPath);
-            return NO;
-        }        
-    }
-    return YES;
-}
-
-- (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
-    // write file atomically so we don't ever have a partial event to worry about.    
-    Boolean success = [data writeToFile:file atomically:YES];
-    if (!success) {
-        KCLog(@"Error when writing event to file: %@", file);
-        return NO;
-    } else {
-        KCLog(@"Successfully wrote event to file: %@", file);
-    }
-    return YES;
 }
 
 - (void) handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {

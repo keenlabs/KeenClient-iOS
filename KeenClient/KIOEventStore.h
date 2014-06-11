@@ -14,8 +14,6 @@
 // The project ID for this store.
 @property (nonatomic, strong) NSString *projectId;
 
-- (id)initWithProjectId:(NSString *)pid;
-
  /**
   Reset any pending events so they can be resent.
   */
@@ -30,13 +28,13 @@
  /**
   Add an event to the store.
   */
-- (BOOL)addEvent: (NSString *)eventData;
+- (BOOL)addEvent: (NSData *)eventData collection: (NSString *)coll;
 
  /**
-  Get a list of events that are ready to send to Keen. Events that are
-  returned have been flagged as pending in the underlying store.
+  Get a dictionary of events keyed by id that are ready to send to Keen. Events
+  that are returned have been flagged as pending in the underlying store.
   */
-- (NSMutableArray *)getEvents;
+- (NSMutableDictionary *)getEvents;
 
  /**
   Get a count of pending events.
@@ -52,4 +50,20 @@
   Purge pending events that were returned from a previous call to getEvents.
   */
 - (void)purgePendingEvents;
+
+ /**
+  Delete an event from the store
+  */
+- (void)deleteEvent: (NSNumber *)eventId;
+
+/**
+ Delete all events from the store
+ */
+- (void)deleteAllEvents;
+
+
+/**
+ Delete events starting at an offset. Helps to keep the "queue" bounded.
+ */
+- (void)deleteEventsFromOffset: (NSNumber *)offset;
 @end
