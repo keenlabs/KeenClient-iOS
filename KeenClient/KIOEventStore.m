@@ -12,6 +12,10 @@
 
 @interface KIOEventStore()
 - (void)closeDB;
+
+// A dispatch queue used for sqlite.
+@property (nonatomic) dispatch_queue_t dbQueue;
+
 @end
 
 @implementation KIOEventStore {
@@ -115,47 +119,56 @@
 }
 
 - (BOOL)addEvent:(NSData *)eventData collection: (NSString *)coll {
-    BOOL wasAdded = NO;
+    __block BOOL wasAdded = NO;
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping addEvent");
         return wasAdded;
     }
-
-    if (sqlite3_bind_text(insert_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind pid to add event statement"];
-        [self closeDB];
-    }
-
-    if (sqlite3_bind_text(insert_stmt, 2, [coll UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind coll to add event statement"];
-        [self closeDB];
-    }
-
-    if (sqlite3_bind_blob(insert_stmt, 3, [eventData bytes], (int) [eventData length], SQLITE_TRANSIENT) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind insert statement"];
-        [self closeDB];
-    }
-
-    if (sqlite3_step(insert_stmt) != SQLITE_DONE) {
-        [self handleSQLiteFailure:@"insert event"];
-        [self closeDB];
-    } else {
-        wasAdded = YES;
-    }
-
-    // You must reset before the commit happens in SQLite. Doing this now!
-    sqlite3_reset(insert_stmt);
-    // Clears off the bindings for future uses.
-    sqlite3_clear_bindings(insert_stmt);
-
+    
+    // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_bind_text(insert_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind pid to add event statement"];
+            [self closeDB];
+        }
+        
+        if (sqlite3_bind_text(insert_stmt, 2, [coll UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind coll to add event statement"];
+            [self closeDB];
+        }
+        
+        if (sqlite3_bind_blob(insert_stmt, 3, [eventData bytes], (int) [eventData length], SQLITE_TRANSIENT) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind insert statement"];
+            [self closeDB];
+        }
+        
+        if (sqlite3_step(insert_stmt) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"insert event"];
+            [self closeDB];
+        } else {
+            wasAdded = YES;
+        }
+        
+        // You must reset before the commit happens in SQLite. Doing this now!
+        sqlite3_reset(insert_stmt);
+        // Clears off the bindings for future uses.
+        sqlite3_clear_bindings(insert_stmt);
+        
+        dispatch_semaphore_signal(sema);
+    });
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    dispatch_release(sema);
+    
     return wasAdded;
 }
 
 - (NSMutableDictionary *)getEvents{
 
     // Create a dictionary to hold the contents of our select.
-    NSMutableDictionary *events = [NSMutableDictionary dictionary];
+    __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getEvents");
@@ -163,46 +176,55 @@
         return events;
     }
 
-    if (sqlite3_bind_text(find_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind pid to find statement"];
-    }
-
-    while (sqlite3_step(find_stmt) == SQLITE_ROW) {
-        // Fetch data out the statement
-        long long eventId = sqlite3_column_int64(find_stmt, 0);
-
-        NSString *coll = [NSString stringWithUTF8String:(char *)sqlite3_column_text(find_stmt, 1)];
-
-        const void *dataPtr = sqlite3_column_blob(find_stmt, 2);
-        int dataSize = sqlite3_column_bytes(find_stmt, 2);
-
-        NSData *data = [[NSData alloc] initWithBytes:dataPtr length:dataSize];
-
-        // Bind and mark the event pending.
-        if(sqlite3_bind_int64(make_pending_stmt, 1, eventId) != SQLITE_OK) {
-            [self handleSQLiteFailure:@"bind int for make pending"];
-        }
-        if (sqlite3_step(make_pending_stmt) != SQLITE_DONE) {
-            [self handleSQLiteFailure:@"mark event pending"];
+    // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_bind_text(find_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind pid to find statement"];
         }
 
-        // Reset the pendifier
-        sqlite3_reset(make_pending_stmt);
-        sqlite3_clear_bindings(make_pending_stmt);
+        while (sqlite3_step(find_stmt) == SQLITE_ROW) {
+            // Fetch data out the statement
+            long long eventId = sqlite3_column_int64(find_stmt, 0);
 
-        if ([events objectForKey:coll] == nil) {
-            // We don't have an entry in the dictionary yet for this collection
-            // so create one.
-            [events setObject:[NSMutableDictionary dictionary] forKey:coll];
+            NSString *coll = [NSString stringWithUTF8String:(char *)sqlite3_column_text(find_stmt, 1)];
+
+            const void *dataPtr = sqlite3_column_blob(find_stmt, 2);
+            int dataSize = sqlite3_column_bytes(find_stmt, 2);
+
+            NSData *data = [[NSData alloc] initWithBytes:dataPtr length:dataSize];
+
+            // Bind and mark the event pending.
+            if(sqlite3_bind_int64(make_pending_stmt, 1, eventId) != SQLITE_OK) {
+                [self handleSQLiteFailure:@"bind int for make pending"];
+            }
+            if (sqlite3_step(make_pending_stmt) != SQLITE_DONE) {
+                [self handleSQLiteFailure:@"mark event pending"];
+            }
+
+            // Reset the pendifier
+            sqlite3_reset(make_pending_stmt);
+            sqlite3_clear_bindings(make_pending_stmt);
+
+            if ([events objectForKey:coll] == nil) {
+                // We don't have an entry in the dictionary yet for this collection
+                // so create one.
+                [events setObject:[NSMutableDictionary dictionary] forKey:coll];
+            }
+
+            [[events objectForKey:coll] setObject:data forKey:[NSNumber numberWithUnsignedLongLong:eventId]];
         }
 
-        [[events objectForKey:coll] setObject:data forKey:[NSNumber numberWithUnsignedLongLong:eventId]];
-    }
-
-    // Reset things
-    sqlite3_reset(find_stmt);
-    sqlite3_clear_bindings(find_stmt);
-
+        // Reset things
+        sqlite3_reset(find_stmt);
+        sqlite3_clear_bindings(find_stmt);
+        
+        dispatch_semaphore_signal(sema);
+    });
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    dispatch_release(sema);
+    
     return events;
 }
 
@@ -212,15 +234,17 @@
         KCLog(@"DB is closed, skipping resetPendingEvents");
         return;
     }
-
-    if (sqlite3_bind_text(reset_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind pid to reset pending statement"];
-    }
-    if (sqlite3_step(reset_pending_stmt) != SQLITE_DONE) {
-        [self handleSQLiteFailure:@"reset pending events"];
-    }
-    sqlite3_reset(reset_pending_stmt);
-    sqlite3_clear_bindings(reset_pending_stmt);
+    
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_bind_text(reset_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind pid to reset pending statement"];
+        }
+        if (sqlite3_step(reset_pending_stmt) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"reset pending events"];
+        }
+        sqlite3_reset(reset_pending_stmt);
+        sqlite3_clear_bindings(reset_pending_stmt);
+    });
 }
 
 - (BOOL)hasPendingEvents {
@@ -238,44 +262,64 @@
 }
 
 - (NSUInteger)getPendingEventCount {
-    NSUInteger eventCount = 0;
+    __block NSUInteger eventCount = 0;
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getPendingEventcount");
         return eventCount;
     }
-
-    if (sqlite3_bind_text(count_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind pid to count pending statement"];
-    }
-    if (sqlite3_step(count_pending_stmt) == SQLITE_ROW) {
-        eventCount = (NSInteger) sqlite3_column_int(count_pending_stmt, 0);
-    } else {
-        [self handleSQLiteFailure:@"get count of pending rows"];
-    }
-    sqlite3_reset(count_pending_stmt);
-    sqlite3_clear_bindings(count_pending_stmt);
+    
+    // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_bind_text(count_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind pid to count pending statement"];
+        }
+        if (sqlite3_step(count_pending_stmt) == SQLITE_ROW) {
+            eventCount = (NSInteger) sqlite3_column_int(count_pending_stmt, 0);
+        } else {
+            [self handleSQLiteFailure:@"get count of pending rows"];
+        }
+        sqlite3_reset(count_pending_stmt);
+        sqlite3_clear_bindings(count_pending_stmt);
+        
+        dispatch_semaphore_signal(sema);
+    });
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    dispatch_release(sema);
+    
     return eventCount;
 }
 
 - (NSUInteger)getTotalEventCount {
-    NSUInteger eventCount = 0;
+    __block NSUInteger eventCount = 0;
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getTotalEventCount");
         return eventCount;
     }
 
-    if (sqlite3_bind_text(count_all_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind pid to total event statement"];
-    }
-    if (sqlite3_step(count_all_stmt) == SQLITE_ROW) {
-        eventCount = (NSInteger) sqlite3_column_int(count_all_stmt, 0);
-    } else {
-        [self handleSQLiteFailure:@"get count of total rows"];
-    }
-    sqlite3_reset(count_all_stmt);
-    sqlite3_clear_bindings(count_all_stmt);
+    // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_bind_text(count_all_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind pid to total event statement"];
+        }
+        if (sqlite3_step(count_all_stmt) == SQLITE_ROW) {
+            eventCount = (NSInteger) sqlite3_column_int(count_all_stmt, 0);
+        } else {
+            [self handleSQLiteFailure:@"get count of total rows"];
+        }
+        sqlite3_reset(count_all_stmt);
+        sqlite3_clear_bindings(count_all_stmt);
+        
+        dispatch_semaphore_signal(sema);
+    });
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    dispatch_release(sema);
+    
     return eventCount;
 }
 
@@ -285,14 +329,17 @@
         KCLog(@"DB is closed, skipping deleteEvent");
         return;
     }
-    if (sqlite3_bind_int64(delete_stmt, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind eventid to delete statement"];
-    }
-    if (sqlite3_step(delete_stmt) != SQLITE_DONE) {
-        [self handleSQLiteFailure:@"delete event"];
-    };
-    sqlite3_reset(delete_stmt);
-    sqlite3_clear_bindings(delete_stmt);
+    
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_bind_int64(delete_stmt, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind eventid to delete statement"];
+        }
+        if (sqlite3_step(delete_stmt) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"delete event"];
+        };
+        sqlite3_reset(delete_stmt);
+        sqlite3_clear_bindings(delete_stmt);
+    });
 }
 
 - (void)deleteAllEvents {
@@ -301,11 +348,14 @@
         KCLog(@"DB is closed, skipping deleteEvent");
         return;
     }
-    if (sqlite3_step(delete_all_stmt) != SQLITE_DONE) {
-        [self handleSQLiteFailure:@"delete all events"];
-    };
-    sqlite3_reset(delete_all_stmt);
-    sqlite3_clear_bindings(delete_all_stmt);
+    
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_step(delete_all_stmt) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"delete all events"];
+        };
+        sqlite3_reset(delete_all_stmt);
+        sqlite3_clear_bindings(delete_all_stmt);
+    });
 }
 
 - (void)deleteEventsFromOffset: (NSNumber *)offset {
@@ -314,14 +364,17 @@
         KCLog(@"DB is closed, skipping deleteEvent");
         return;
     }
-    if (sqlite3_bind_int64(age_out_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind offset to ageOut statement"];
-    }
-    if (sqlite3_step(age_out_stmt) != SQLITE_DONE) {
-        [self handleSQLiteFailure:@"delete all events"];
-    };
-    sqlite3_reset(age_out_stmt);
-    sqlite3_clear_bindings(age_out_stmt);
+    
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_bind_int64(age_out_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind offset to ageOut statement"];
+        }
+        if (sqlite3_step(age_out_stmt) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"delete all events"];
+        };
+        sqlite3_reset(age_out_stmt);
+        sqlite3_clear_bindings(age_out_stmt);
+    });
 }
 
 
@@ -332,15 +385,17 @@
         return;
     }
 
-    if (sqlite3_bind_text(purge_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"bind pid to purge statement"];
-    }
-    if (sqlite3_step(purge_stmt) != SQLITE_DONE) {
-        [self handleSQLiteFailure:@"purge pending events"];
-        // XXX What to do here?
-    };
-    sqlite3_reset(purge_stmt);
-    sqlite3_clear_bindings(purge_stmt);
+    dispatch_async(self.dbQueue, ^{
+        if (sqlite3_bind_text(purge_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind pid to purge statement"];
+        }
+        if (sqlite3_step(purge_stmt) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"purge pending events"];
+            // XXX What to do here?
+        };
+        sqlite3_reset(purge_stmt);
+        sqlite3_clear_bindings(purge_stmt);
+    });
 }
 
 - (BOOL)openDB {
@@ -353,6 +408,10 @@
         [self handleSQLiteFailure:@"create database"];
     }
     dbIsOpen = wasOpened;
+    
+    // we're going to use a queue for all database operations, so let's create it
+    self.dbQueue = dispatch_queue_create("io.keen.sqlite", DISPATCH_QUEUE_SERIAL);
+    
     return wasOpened;
 }
 
@@ -384,25 +443,28 @@
 
 - (void)closeDB {
     // Free all the prepared statements. This is safe on null pointers.
-    sqlite3_finalize(insert_stmt);
-    sqlite3_finalize(find_stmt);
-    sqlite3_finalize(count_all_stmt);
-    sqlite3_finalize(count_pending_stmt);
-    sqlite3_finalize(make_pending_stmt);
-    sqlite3_finalize(reset_pending_stmt);
-    sqlite3_finalize(purge_stmt);
-    sqlite3_finalize(delete_stmt);
-    sqlite3_finalize(delete_all_stmt);
-    sqlite3_finalize(age_out_stmt);
+    dispatch_async(self.dbQueue, ^{
+        sqlite3_finalize(insert_stmt);
+        sqlite3_finalize(find_stmt);
+        sqlite3_finalize(count_all_stmt);
+        sqlite3_finalize(count_pending_stmt);
+        sqlite3_finalize(make_pending_stmt);
+        sqlite3_finalize(reset_pending_stmt);
+        sqlite3_finalize(purge_stmt);
+        sqlite3_finalize(delete_stmt);
+        sqlite3_finalize(delete_all_stmt);
+        sqlite3_finalize(age_out_stmt);
 
-    // Free our DB. This is safe on null pointers.
-    sqlite3_close(keen_dbname);
-    // Reset state in case it matters.
-    dbIsOpen = NO;
+        // Free our DB. This is safe on null pointers.
+        sqlite3_close(keen_dbname);
+        // Reset state in case it matters.
+        dbIsOpen = NO;
+    });
 }
 
 - (void)dealloc {
     [self closeDB];
+    dispatch_release(self.dbQueue);
     [super dealloc];
 }
 
