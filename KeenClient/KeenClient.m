@@ -602,6 +602,7 @@ static KIOEventStore *eventStore;
     NSError *error = nil;
     for (NSString *coll in events) {
         NSDictionary *collEvents = [events objectForKey:coll];
+        [eventsArray removeAllObjects];
         for (NSNumber *eid in collEvents) {
             NSData *ev = [collEvents objectForKey:eid];
             NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
@@ -801,24 +802,22 @@ static KIOEventStore *eventStore;
         [self uploadHelper];
     } else {
         // otherwise do it in the background to not interfere with UI operations
-        dispatch_semaphore_t sema = dispatch_semaphore_create(0);
         dispatch_async(self.uploadQueue, ^{
             [self uploadHelper];
-            dispatch_semaphore_signal(sema);
+            
+            // we're done uploading, call the main queue and execute the block
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // finally, run the user-specific block (if there is one)
+                if (block) {
+                    KCLog(@"Running user-specified block.");
+                    @try {
+                        block();
+                    } @finally {
+                        // do nothing
+                    }
+                }
+            });
         });
-        
-        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-        dispatch_release(sema);
-    }
-    
-    // finally, run the user-specific block (if there is one)
-    if (block) {
-        KCLog(@"Running user-specified block.");
-        @try {
-            block();
-        } @finally {
-            // do nothing
-        }
     }
 }
 
