@@ -214,6 +214,11 @@ static KIOEventStore *eventStore;
 - (id)init {
     self = [super init];
     
+    // log the current version number
+    if ([KeenClient isLoggingEnabled]) {
+        KCLog(@"SDK Version: %@", kKeenSdkVersion);
+    }
+    
     [self refreshCurrentLocation];
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
