@@ -598,16 +598,16 @@ static KIOEventStore *eventStore;
     // create a structure that will hold corresponding ids of all the events
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
-    // create a separate array for event data so our dictionary serializes properly
-    NSMutableArray *eventsArray = [[NSMutableArray alloc] init];
-    
     // get data for the API request we'll make
     NSMutableDictionary *events = [eventStore getEvents];
     
     NSError *error = nil;
     for (NSString *coll in events) {
         NSDictionary *collEvents = [events objectForKey:coll];
-        [eventsArray removeAllObjects];
+        
+        // create a separate array for event data so our dictionary serializes properly
+        NSMutableArray *eventsArray = [[NSMutableArray alloc] init];
+        
         for (NSNumber *eid in collEvents) {
             NSData *ev = [collEvents objectForKey:eid];
             NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
