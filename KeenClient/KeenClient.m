@@ -214,6 +214,11 @@ static KIOEventStore *eventStore;
 - (id)init {
     self = [super init];
     
+    // log the current version number
+    if ([KeenClient isLoggingEnabled]) {
+        KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
+    }
+    
     [self refreshCurrentLocation];
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
@@ -593,15 +598,16 @@ static KIOEventStore *eventStore;
     // create a structure that will hold corresponding ids of all the events
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
-    // create a separate array for event data so our dictionary serializes properly
-    NSMutableArray *eventsArray = [[NSMutableArray alloc] init];
-    
     // get data for the API request we'll make
     NSMutableDictionary *events = [eventStore getEvents];
     
     NSError *error = nil;
     for (NSString *coll in events) {
         NSDictionary *collEvents = [events objectForKey:coll];
+        
+        // create a separate array for event data so our dictionary serializes properly
+        NSMutableArray *eventsArray = [[NSMutableArray alloc] init];
+        
         for (NSNumber *eid in collEvents) {
             NSData *ev = [collEvents objectForKey:eid];
             NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
@@ -801,24 +807,22 @@ static KIOEventStore *eventStore;
         [self uploadHelper];
     } else {
         // otherwise do it in the background to not interfere with UI operations
-        dispatch_semaphore_t sema = dispatch_semaphore_create(0);
         dispatch_async(self.uploadQueue, ^{
             [self uploadHelper];
-            dispatch_semaphore_signal(sema);
+            
+            // we're done uploading, call the main queue and execute the block
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // finally, run the user-specific block (if there is one)
+                if (block) {
+                    KCLog(@"Running user-specified block.");
+                    @try {
+                        block();
+                    } @finally {
+                        // do nothing
+                    }
+                }
+            });
         });
-        
-        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-        dispatch_release(sema);
-    }
-    
-    // finally, run the user-specific block (if there is one)
-    if (block) {
-        KCLog(@"Running user-specified block.");
-        @try {
-            block();
-        } @finally {
-            // do nothing
-        }
     }
 }
 

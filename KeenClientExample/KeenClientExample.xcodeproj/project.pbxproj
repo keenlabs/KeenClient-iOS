@@ -24,7 +24,6 @@
 		012E8A7716765C330021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5F1672C30C0021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		015D307F1822DE7D00F8735B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 015D307E1822DE7D00F8735B /* Default-568h@2x.png */; };
 		015D30811822DEE300F8735B /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 015D30801822DEE300F8735B /* libKeenClient.a */; };
-		CA795C4B18E329FB00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4A18E329FB00EBDFC4 /* libsqlite3.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,7 +60,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA795C4B18E329FB00EBDFC4 /* libsqlite3.dylib in Frameworks */,
 				015D30811822DEE300F8735B /* libKeenClient.a in Frameworks */,
 				012E8A7716765C330021F6FA /* CoreLocation.framework in Frameworks */,
 				0105EE6214E9A4940048D871 /* UIKit.framework in Frameworks */,
