@@ -24,7 +24,7 @@ Then run
 
 ##### Build Settings
 
-Make sure to add CoreLocation.framework to the "Link Binary with Libraries" section. If you're using SDK version 3.2.9 or above, add libsqlite3.dylib as well.
+Make sure to add CoreLocation.framework to the "Link Binary with Libraries" section.
 
 Also enable the "-ObjC" linker flag under "Other Linker Flags".
 
@@ -93,13 +93,20 @@ This SDK *should* work for OS X apps. If you try and it doesn't work, please fil
     
 ### Changelog
 
+##### 3.2.10
+
++ Fixed array allocation/deallocation bug in prepareJSONData.
++ Added queuing to KIOEventStore to ensure SQLite calls are serialized.
++ Added sqlite-amalgamation library to eliminate dependency on libsqlite3.dylib.
++ Added SDK version string to logging.
+
 ##### 3.2.9
 
-+ Replaced use of filesystem's cache directory with SQLite via KIOEventStore
++ Replaced use of filesystem's cache directory with SQLite via KIOEventStore.
 
 ##### 3.2.8
 
-+ Upload with finished block consistency fix
++ Upload with finished block consistency fix.
 
 ##### 3.2.7
 
