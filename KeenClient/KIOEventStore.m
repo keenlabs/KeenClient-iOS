@@ -399,39 +399,57 @@
 }
 
 - (BOOL)openDB {
-    BOOL wasOpened = NO;
+    __block BOOL wasOpened = NO;
     NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSString *my_sqlfile = [libraryPath stringByAppendingPathComponent:@"keenEvents.sqlite"];
-    if (keen_io_sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
-        wasOpened = YES;
-    } else {
-        [self handleSQLiteFailure:@"create database"];
-    }
-    dbIsOpen = wasOpened;
     
     // we're going to use a queue for all database operations, so let's create it
     self.dbQueue = dispatch_queue_create("io.keen.sqlite", DISPATCH_QUEUE_SERIAL);
+    
+    // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_async(self.dbQueue, ^{
+        if (keen_io_sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
+            wasOpened = YES;
+        } else {
+            [self handleSQLiteFailure:@"create database"];
+        }
+        dbIsOpen = wasOpened;
+        dispatch_semaphore_signal(sema);
+    });
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    dispatch_release(sema);
     
     return wasOpened;
 }
 
 - (BOOL)createTable {
-    BOOL wasCreated = NO;
+    __block BOOL wasCreated = NO;
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping createTable");
         return wasCreated;
     }
+    
+    // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    dispatch_async(self.dbQueue, ^{
+        char *err;
+        NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectId TEXT, eventData BLOB, pending INTEGER, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
+        if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+            KCLog(@"Failed to create table: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+            keen_io_sqlite3_free(err); // Free that error message
+            [self closeDB];
+        } else {
+            wasCreated = YES;
+        }
+        dispatch_semaphore_signal(sema);
+    });
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    dispatch_release(sema);
 
-    char *err;
-    NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectId TEXT, eventData BLOB, pending INTEGER, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
-    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-        KCLog(@"Failed to create table: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
-        keen_io_sqlite3_free(err); // Free that error message
-        [self closeDB];
-    } else {
-        wasCreated = YES;
-    }
 
     return wasCreated;
 }
@@ -443,6 +461,7 @@
 
 - (void)closeDB {
     // Free all the prepared statements. This is safe on null pointers.
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     dispatch_async(self.dbQueue, ^{
         keen_io_sqlite3_finalize(insert_stmt);
         keen_io_sqlite3_finalize(find_stmt);
@@ -459,7 +478,12 @@
         keen_io_sqlite3_close(keen_dbname);
         // Reset state in case it matters.
         dbIsOpen = NO;
+        
+        dispatch_semaphore_signal(sema);
     });
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    dispatch_release(sema);
 }
 
 - (void)dealloc {
