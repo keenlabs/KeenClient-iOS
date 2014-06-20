@@ -216,7 +216,7 @@ static KIOEventStore *eventStore;
     
     // log the current version number
     if ([KeenClient isLoggingEnabled]) {
-        KCLog(@"SDK Version: %@", kKeenSdkVersion);
+        KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
     }
     
     [self refreshCurrentLocation];
