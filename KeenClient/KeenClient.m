@@ -921,9 +921,9 @@ static KIOEventStore *eventStore;
 }
                     
 # pragma mark - NSDate => NSString
-                    
+
 - (id)convertDate:(id)date {
-    NSString *string = [dateFormatter stringFromDate:date];
+    NSString *string = [eventStore convertNSDateToISO8601:date];
     return string;
 }
 

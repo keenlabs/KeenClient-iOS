@@ -31,6 +31,7 @@
     keen_io_sqlite3_stmt *delete_stmt;
     keen_io_sqlite3_stmt *delete_all_stmt;
     keen_io_sqlite3_stmt *age_out_stmt;
+    keen_io_sqlite3_stmt *convert_date_stmt;
 }
 
 - (instancetype)init {
@@ -111,6 +112,12 @@
             // This statement deletes old events at a given offset.
             char *age_out_sql = "DELETE FROM events WHERE id <= (SELECT id FROM events ORDER BY id DESC LIMIT 1 OFFSET ?)";
             if(keen_io_sqlite3_prepare_v2(keen_dbname, age_out_sql, -1, &age_out_stmt, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
+            
+            // This statement converts an NSDate to an ISO-8601 formatted date/time string (we use sqlite because NSDateFormatter isn't thread-safe)
+            char *convert_date_sql = "SELECT strftime('%Y-%m-%dT%H:%M:%S',datetime(?,'unixepoch','localtime'))";
+            if(keen_io_sqlite3_prepare_v2(keen_dbname, convert_date_sql, -1, &convert_date_stmt, NULL) != SQLITE_OK) {
                 [self closeDB];
             }
         }
@@ -485,6 +492,48 @@
     dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
     dispatch_release(sema);
 }
+
+- (id)convertNSDateToISO8601:(NSDate *)date {
+    double offset = [[NSTimeZone localTimeZone] secondsFromGMTForDate:date] / 3600.00;  // need the offset
+    NSArray *offsetArray = [[NSString stringWithFormat:@"%f",offset] componentsSeparatedByString:@"."]; // split it so we don't have to do math or numberformatting, which isn't thread-safe either
+    NSString *hour = [[offsetArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"-" withString:@""];
+    NSString *minute = [[offsetArray objectAtIndex:1] substringToIndex:2];
+    
+    // ensure we have leading zeros where necessary
+    while([hour length] < 2) {
+        hour = [@"0" stringByAppendingString:hour];
+    }
+    
+    // minute math
+    if([minute isEqual: @"25"]) { minute = @"15"; }
+    if([minute isEqual: @"50"]) { minute = @"30"; }
+    if([minute isEqual: @"75"]) { minute = @"45"; }
+    
+    NSString *offsetString = [[hour stringByAppendingString:@":"] stringByAppendingString:minute];
+    
+    // are we + or -?
+    if(offset > 0) {
+        offsetString = [@"+" stringByAppendingString:offsetString];
+    } else {
+        offsetString = [@"-" stringByAppendingString:offsetString];
+    }
+
+    // bind
+    if (keen_io_sqlite3_bind_text(convert_date_stmt, 1, [[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]] UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        [self handleSQLiteFailure:@"date conversion"];
+        [self closeDB];
+    }
+    keen_io_sqlite3_step(convert_date_stmt);
+    
+    NSString *iso8601 = [[NSString stringWithUTF8String:(char *)keen_io_sqlite3_column_text(convert_date_stmt, 0)] stringByAppendingString:offsetString];
+    
+    // reset things
+    keen_io_sqlite3_reset(convert_date_stmt);
+    keen_io_sqlite3_clear_bindings(convert_date_stmt);
+    
+    return iso8601;
+}
+
 
 - (void)dealloc {
     [self closeDB];
