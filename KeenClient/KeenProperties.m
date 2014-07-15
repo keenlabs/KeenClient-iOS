@@ -25,11 +25,5 @@
     return [NSString stringWithFormat:@"{ timestamp = %@, location = %@}", self.timestamp, self.location];
 }
 
-- (void)dealloc {
-    // nil out the properties which we've retained (which will release them)
-    self.timestamp = nil;
-    self.location = nil;
-    [super dealloc];
-}
 
 @end
