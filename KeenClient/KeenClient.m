@@ -946,6 +946,12 @@ static KIOEventStore *eventStore;
     return NULL;
 }
 
+# pragma mark - SDK
+
++ (NSString *)sdkVersion {
+    return kKeenSdkVersion;
+}
+
 # pragma mark - To make testing easier
 
 - (NSUInteger)maxEventsPerCollection {

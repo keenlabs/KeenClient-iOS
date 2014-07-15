@@ -765,6 +765,16 @@
     STAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
+- (void)testSDKVersion {
+    
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    
+    // result from class method should equal the SDK Version constant
+    STAssertTrue([KeenClient sdkVersion] == kKeenSdkVersion,  @"SDK Version from class method equals the SDK Version constant.");
+    STAssertFalse([KeenClient sdkVersion] != kKeenSdkVersion, @"SDK Version from class method doesn't equal the SDK Version constant.");
+}
+
 # pragma mark - test filesystem utility methods
 
 - (NSString *)cacheDirectory {

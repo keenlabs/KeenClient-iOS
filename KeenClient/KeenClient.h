@@ -238,6 +238,11 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 - (void)refreshCurrentLocation;
 
 /**
+ Returns the Keen SDK Version
+ */
++ (NSString *)sdkVersion;
+
+/**
  * Import fs-based data into the SQLite database.
  */
 - (void)importFileData;
