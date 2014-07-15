@@ -9,6 +9,7 @@
 #import "KeenClient.h"
 #import "KIOEventStore.h"
 #import "KIOEventStore_PrivateMethods.h"
+#import "keen_io_sqlite3.h"
 
 @interface KIOEventStore()
 - (void)closeDB;

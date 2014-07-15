@@ -60,16 +60,15 @@
 		CA795C4F18E32BB800EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C5018E32BBF00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		CA795C5118E32BC600EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
-		DE6955811951FBCC0044D2C4 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE69557A1951FBCC0044D2C4 /* sqlite3.c */; };
-		DE6955821951FBCC0044D2C4 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE69557A1951FBCC0044D2C4 /* sqlite3.c */; };
-		DE6955831951FBCC0044D2C4 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE69557A1951FBCC0044D2C4 /* sqlite3.c */; };
-		DE6955841951FBCC0044D2C4 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE69557A1951FBCC0044D2C4 /* sqlite3.c */; };
-		DE6955851951FBCC0044D2C4 /* sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69557B1951FBCC0044D2C4 /* sqlite3.h */; };
-		DE6955861951FBCC0044D2C4 /* sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69557B1951FBCC0044D2C4 /* sqlite3.h */; };
-		DE6955871951FBCC0044D2C4 /* sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69557B1951FBCC0044D2C4 /* sqlite3.h */; };
-		DE6955881951FBCC0044D2C4 /* sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69557C1951FBCC0044D2C4 /* sqlite3ext.h */; };
-		DE6955891951FBCC0044D2C4 /* sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69557C1951FBCC0044D2C4 /* sqlite3ext.h */; };
-		DE69558A1951FBCC0044D2C4 /* sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE69557C1951FBCC0044D2C4 /* sqlite3ext.h */; };
+		DE34F6F3197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; };
+		DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; };
+		DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; };
+		DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DE34F6F7197586EE00051390 /* keen_io_sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DE34F6F8197586EE00051390 /* keen_io_sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DEFA50181947A66200F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -142,9 +141,9 @@
 		CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStoreTests.m; sourceTree = "<group>"; };
 		CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		CACE78C918EA0CD800A4AB5B /* KIOEventStore_PrivateMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KIOEventStore_PrivateMethods.h; sourceTree = "<group>"; };
-		DE69557A1951FBCC0044D2C4 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sqlite3.c; sourceTree = "<group>"; };
-		DE69557B1951FBCC0044D2C4 /* sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite3.h; sourceTree = "<group>"; };
-		DE69557C1951FBCC0044D2C4 /* sqlite3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite3ext.h; sourceTree = "<group>"; };
+		DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = keen_io_sqlite3.c; sourceTree = "<group>"; };
+		DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3.h; sourceTree = "<group>"; };
+		DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3ext.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -325,9 +324,9 @@
 		DE6955781951FBCC0044D2C4 /* sqlite-amalgamation */ = {
 			isa = PBXGroup;
 			children = (
-				DE69557A1951FBCC0044D2C4 /* sqlite3.c */,
-				DE69557B1951FBCC0044D2C4 /* sqlite3.h */,
-				DE69557C1951FBCC0044D2C4 /* sqlite3ext.h */,
+				DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */,
+				DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */,
+				DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */,
 			);
 			path = "sqlite-amalgamation";
 			sourceTree = "<group>";
@@ -341,10 +340,10 @@
 			files = (
 				0111012614EF709A009794A5 /* KeenClient.h in Headers */,
 				010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */,
-				DE6955891951FBCC0044D2C4 /* sqlite3ext.h in Headers */,
 				DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */,
+				DE34F6F7197586EE00051390 /* keen_io_sqlite3.h in Headers */,
+				DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
-				DE6955861951FBCC0044D2C4 /* sqlite3.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,10 +353,10 @@
 			files = (
 				0111013E14EF70AB009794A5 /* KeenClient.h in Headers */,
 				010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */,
-				DE69558A1951FBCC0044D2C4 /* sqlite3ext.h in Headers */,
 				DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */,
+				DE34F6F8197586EE00051390 /* keen_io_sqlite3.h in Headers */,
+				DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
-				DE6955871951FBCC0044D2C4 /* sqlite3.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,11 +365,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
-				CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */,
-				DE6955881951FBCC0044D2C4 /* sqlite3ext.h in Headers */,
 				012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */,
+				CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */,
+				DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */,
+				DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
-				DE6955851951FBCC0044D2C4 /* sqlite3.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,10 +544,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEFA50181947A66200F78E13 /* KIOEventStore.m in Sources */,
-				DE6955831951FBCC0044D2C4 /* sqlite3.c in Sources */,
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
 				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
 				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
+				DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -557,10 +556,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */,
-				DE6955841951FBCC0044D2C4 /* sqlite3.c in Sources */,
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
 				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
 				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
+				DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,10 +568,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				017EE12814E30C96000F3868 /* KeenClient.m in Sources */,
-				DE6955811951FBCC0044D2C4 /* sqlite3.c in Sources */,
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
 				CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */,
 				012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */,
+				DE34F6F3197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -582,7 +581,6 @@
 			files = (
 				CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */,
 				017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */,
-				DE6955821951FBCC0044D2C4 /* sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
