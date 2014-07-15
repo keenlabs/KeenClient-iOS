@@ -168,7 +168,7 @@
 - (NSMutableDictionary *)getEvents{
 
     // Create a dictionary to hold the contents of our select.
-    __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
+    __weak NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getEvents");
@@ -484,12 +484,6 @@
     
     dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
     dispatch_release(sema);
-}
-
-- (void)dealloc {
-    [self closeDB];
-    dispatch_release(self.dbQueue);
-    [super dealloc];
 }
 
 @end

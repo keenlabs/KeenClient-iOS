@@ -53,7 +53,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
     client.globalPropertiesDictionary = @{@"some_standard_key": @"some_standard_value"};
  
  */
-@property (nonatomic, retain) NSDictionary *globalPropertiesDictionary;
+@property (nonatomic, strong) NSDictionary *globalPropertiesDictionary;
 
 /**
  This Objective-C property represents the Keen Global Properties block for this instance of the KeenClient. 
@@ -95,7 +95,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  [KeenClient refreshCurrentLocation] to pull location from the device or you can set this property with
  your own value.
  */
-@property (nonatomic, retain) CLLocation *currentLocation;
+@property (nonatomic, strong) CLLocation *currentLocation;
 
 /**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
