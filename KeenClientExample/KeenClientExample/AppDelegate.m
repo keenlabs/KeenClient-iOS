@@ -19,13 +19,6 @@
 @synthesize window = _window;
 @synthesize tabBarController = _tabBarController;
 
-- (void)dealloc
-{
-    [_window release];
-    [_tabBarController release];
-    [super dealloc];
-}
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [KeenClient enableLogging];
@@ -33,6 +26,7 @@
     client.globalPropertiesBlock = ^NSDictionary *(NSString *eventCollection) {
         return @{ @"GLOBALS": @"YEAH WHAT"};
     };
+    NSLog(@"KeenClient-iOS %@ [from class method]", [KeenClient sdkVersion]);
     
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.

@@ -21,16 +21,16 @@ static KIOEventStore *eventStore;
 @interface KeenClient ()
 
 // The project ID for this particular client.
-@property (nonatomic, retain) NSString *projectId;
+@property (nonatomic, strong) NSString *projectId;
 
 // The Write Key for this particular client.
-@property (nonatomic, retain) NSString *writeKey;
+@property (nonatomic, strong) NSString *writeKey;
 
 // The Read Key for this particular client.
-@property (nonatomic, retain) NSString *readKey;
+@property (nonatomic, strong) NSString *readKey;
 
 // NSLocationManager
-@property (nonatomic, retain) CLLocationManager *locationManager;
+@property (nonatomic, strong) CLLocationManager *locationManager;
 
 // How many times the previous timestamp has been used.
 @property (nonatomic) NSInteger numTimesTimestampUsed;
@@ -266,20 +266,6 @@ static KIOEventStore *eventStore;
     return self;
 }
 
-- (void)dealloc {
-    // nil out the properties which we've retained (which will release them)
-    self.projectId = nil;
-    self.writeKey = nil;
-    self.readKey = nil;
-    self.locationManager = nil;
-    self.currentLocation = nil;
-    self.globalPropertiesDictionary = nil;
-    // explicitly release the properties which we've copied
-    [self.globalPropertiesBlock release];
-    dispatch_release(self.uploadQueue);
-    [super dealloc];
-}
-
 # pragma mark - Get a shared client
 
 + (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
@@ -335,7 +321,7 @@ static KIOEventStore *eventStore;
         // set up the location manager
         if (self.locationManager == nil) {
             if ([CLLocationManager locationServicesEnabled]) {
-                self.locationManager = [[[CLLocationManager alloc] init] autorelease];
+                self.locationManager = [[CLLocationManager alloc] init];
                 self.locationManager.delegate = self;
             }
         }
@@ -487,7 +473,7 @@ static KIOEventStore *eventStore;
     }
 
     if (!keenProperties) {
-        KeenProperties *newProperties = [[[KeenProperties alloc] init] autorelease];
+        KeenProperties *newProperties = [[KeenProperties alloc] init];
         keenProperties = newProperties;
     }
     if (geoLocationEnabled && self.currentLocation != nil && keenProperties.location == nil) {
@@ -538,11 +524,11 @@ static KIOEventStore *eventStore;
 }
 
 - (NSMutableDictionary *)makeDictionaryMutable:(NSDictionary *)dict {
-    return [[dict mutableCopy] autorelease];
+    return [dict mutableCopy];
 }
 
 - (NSMutableArray *)makeArrayMutable:(NSArray *)array {
-    return [[array mutableCopy] autorelease];
+    return [array mutableCopy];
 }
 
 - (id)handleInvalidJSONInObject:(id)value {
@@ -845,7 +831,6 @@ static KIOEventStore *eventStore;
         if (error) {
             NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
             KCLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@", [error localizedDescription], responseString);
-            [responseString release];
             return;
         }
         // now iterate through the keys of the response, which represent collection names
@@ -889,7 +874,6 @@ static KIOEventStore *eventStore;
         KCLog(@"Response code was NOT 200. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
-        [responseString release];
     }            
 }
 
@@ -944,6 +928,12 @@ static KIOEventStore *eventStore;
         return dict;
     }
     return NULL;
+}
+
+# pragma mark - SDK
+
++ (NSString *)sdkVersion {
+    return kKeenSdkVersion;
 }
 
 # pragma mark - To make testing easier

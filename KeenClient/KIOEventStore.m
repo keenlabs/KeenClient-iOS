@@ -9,6 +9,7 @@
 #import "KeenClient.h"
 #import "KIOEventStore.h"
 #import "KIOEventStore_PrivateMethods.h"
+#import "keen_io_sqlite3.h"
 
 @interface KIOEventStore()
 - (void)closeDB;
@@ -175,7 +176,7 @@
 - (NSMutableDictionary *)getEvents{
 
     // Create a dictionary to hold the contents of our select.
-    __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
+    __weak NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getEvents");
@@ -534,11 +535,5 @@
     return iso8601;
 }
 
-
-- (void)dealloc {
-    [self closeDB];
-    dispatch_release(self.dbQueue);
-    [super dealloc];
-}
 
 @end
