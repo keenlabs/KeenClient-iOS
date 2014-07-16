@@ -519,7 +519,7 @@
     NSString *offsetString = [[hour stringByAppendingString:@":"] stringByAppendingString:minute];
     
     // are we + or -?
-    if(offset > 0) {
+    if(offset >= 0) {
         offsetString = [@"+" stringByAppendingString:offsetString];
     } else {
         offsetString = [@"-" stringByAppendingString:offsetString];
