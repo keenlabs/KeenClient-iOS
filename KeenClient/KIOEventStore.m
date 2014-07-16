@@ -417,6 +417,11 @@
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     dispatch_async(self.dbQueue, ^{
+        // initialize sqlite ourselves so we can config
+        keen_io_sqlite3_shutdown();
+        keen_io_sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
+        keen_io_sqlite3_initialize();
+        
         if (keen_io_sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
             wasOpened = YES;
         } else {
@@ -481,7 +486,8 @@
         keen_io_sqlite3_finalize(delete_stmt);
         keen_io_sqlite3_finalize(delete_all_stmt);
         keen_io_sqlite3_finalize(age_out_stmt);
-
+        keen_io_sqlite3_finalize(convert_date_stmt);
+        
         // Free our DB. This is safe on null pointers.
         keen_io_sqlite3_close(keen_dbname);
         // Reset state in case it matters.
@@ -518,7 +524,7 @@
     } else {
         offsetString = [@"-" stringByAppendingString:offsetString];
     }
-
+    
     // bind
     if (keen_io_sqlite3_bind_text(convert_date_stmt, 1, [[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]] UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
         [self handleSQLiteFailure:@"date conversion"];
