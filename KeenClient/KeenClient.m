@@ -238,6 +238,10 @@ static KIOEventStore *eventStore;
         return nil;
     }
     
+    if (!eventStore) {
+        eventStore = [[KIOEventStore alloc] init];
+    }
+    
     self = [self init];
     if (self) {
         self.projectId = projectId;
