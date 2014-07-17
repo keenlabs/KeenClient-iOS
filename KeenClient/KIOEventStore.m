@@ -504,8 +504,14 @@
     dispatch_release(sema);
 }
 
-- (id)convertNSDateToISO8601:(NSDate *)date {
-    double offset = [[NSTimeZone localTimeZone] secondsFromGMTForDate:date] / 3600.00;  // need the offset
+- (id)convertNSDateToISO8601:(id)date {
+    double offset = 0.0f;
+    if([date isKindOfClass:[NSDate class]]) {
+        offset = [[NSTimeZone localTimeZone] secondsFromGMTForDate:date] / 3600.00;  // need the offset
+    }
+    else if([date isKindOfClass:[NSString class]]) {
+        offset = [[NSTimeZone localTimeZone] secondsFromGMT] / 3600.00;  // need the offset
+    }
     NSArray *offsetArray = [[NSString stringWithFormat:@"%f",offset] componentsSeparatedByString:@"."]; // split it so we don't have to do math or numberformatting, which isn't thread-safe either
     NSString *hour = [[offsetArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"-" withString:@""];
     NSString *minute = [[offsetArray objectAtIndex:1] substringToIndex:2];
