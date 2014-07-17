@@ -13,7 +13,6 @@
 
 
 static KeenClient *sharedClient;
-static NSDateFormatter *dateFormatter;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
 static KIOEventStore *eventStore;
@@ -173,12 +172,6 @@ static KIOEventStore *eventStore;
 
     [KeenClient disableLogging];
     [KeenClient enableGeoLocation];
-    if (!dateFormatter) {
-        dateFormatter = [[NSDateFormatter alloc] init];
-        NSTimeZone *timeZone = [NSTimeZone localTimeZone];
-        [dateFormatter setTimeZone:timeZone];
-        [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
-    }
 }
 
 + (void)disableLogging {
