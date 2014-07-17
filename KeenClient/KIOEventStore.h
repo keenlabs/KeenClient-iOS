@@ -60,6 +60,10 @@
  */
 - (void)deleteAllEvents;
 
+/**
+ Convert an NSDate to ISO-8601 using SQLite (thread safe)
+ */
+- (id)convertNSDateToISO8601:(NSDate *)date;
 
 /**
  Delete events starting at an offset. Helps to keep the "queue" bounded.
