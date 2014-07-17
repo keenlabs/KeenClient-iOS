@@ -248,7 +248,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 - (void)importFileData;
 
 // defines the KCLog macro
-#define KEEN_LOGGING_ENABLED [[KeenClient sharedClient] loggingEnabled]
+#define KEEN_LOGGING_ENABLED [KeenClient loggingEnabled]
 #define KCLog(message, ...)if([KeenClient isLoggingEnabled]) NSLog(message, ##__VA_ARGS__)
 
 @end
