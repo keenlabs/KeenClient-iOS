@@ -89,7 +89,17 @@
     [client2 release];
     
     client = [[KeenClient alloc] initWithProjectId:nil andWriteKey:@"wk" andReadKey:@"rk"];
-    STAssertNil(client, @"init with a nil project ID should return nil");
+    STFail(client, @"init with a nil project ID should return nil");
+}
+
+- (void)testInstanceClient {
+    KeenClient *client = [[KeenClient alloc] init];
+    STAssertNil(client.projectId, @"a client's project id should be nil at first");
+    STAssertNil(client.writeKey, @"a client's write key should be nil at first");
+    STAssertNil(client.readKey, @"a client's read key should be nil at first");
+
+    KeenClient *client2 = [[KeenClient alloc] init];
+    STAssertTrue(client != client2, @"Another init should return a separate instance");
 }
 
 - (void)testSharedClientWithProjectId{
@@ -145,6 +155,55 @@
     STAssertNil(error, @"an event with a date should return YES");
     error = nil;
 
+    // dict with non-serializable value should do nothing
+    NSError *badValue = [[NSError alloc] init];
+    event = @{@"a": @"apple", @"b": @"bapple", @"bad_key": badValue};
+    [client addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertNotNil(error, @"an event that can't be serialized should return NO");
+    error = nil;
+    
+    // dict with root keen prop should do nothing
+    badValue = [[NSError alloc] init];
+    event = @{@"a": @"apple", @"keen": @"bapple"};
+    [client addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertNotNil(error, @"");
+    error = nil;
+    
+    // dict with non-root keen prop should work
+    error = nil;
+    event = @{@"nested": @{@"keen": @"whatever"}};
+    [client addEvent:event toEventCollection:@"foo" error:nil];
+    STAssertNil(error, @"an okay event should return YES");
+}
+
+- (void)testAddEventInstanceClient {
+    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    
+    // nil dict should should do nothing
+    NSError *error = nil;
+    [client addEvent:nil toEventCollection:@"foo" error:&error];
+    STAssertNotNil(error, @"nil dict should return NO");
+    error = nil;
+    
+    // nil collection should do nothing
+    [client addEvent:[NSDictionary dictionary] toEventCollection:nil error:&error];
+    STAssertNotNil(error, @"nil collection should return NO");
+    error = nil;
+    
+    // basic dict should work
+    NSArray *keys = [NSArray arrayWithObjects:@"a", @"b", @"c", nil];
+    NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSNull null], nil];
+    NSDictionary *event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
+    [client addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertNil(error, @"an okay event should return YES");
+    error = nil;
+    
+    // dict with NSDate should work
+    event = @{@"a": @"apple", @"b": @"bapple", @"a_date": [NSDate date]};
+    [client addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertNil(error, @"an event with a date should return YES");
+    error = nil;
+    
     // dict with non-serializable value should do nothing
     NSError *badValue = [[NSError alloc] init];
     event = @{@"a": @"apple", @"b": @"bapple", @"bad_key": badValue};
