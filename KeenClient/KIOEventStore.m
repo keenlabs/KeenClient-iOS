@@ -183,7 +183,12 @@
         // Return an empty array so we don't break anything. No nulls here!
         return events;
     }
-
+    
+    // reset pending events, if necessary
+    if([self hasPendingEvents]) {
+        [self resetPendingEvents];
+    }
+    
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     dispatch_async(self.dbQueue, ^{
@@ -276,7 +281,7 @@
         KCLog(@"DB is closed, skipping getPendingEventcount");
         return eventCount;
     }
-    
+
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     dispatch_async(self.dbQueue, ^{
@@ -290,7 +295,6 @@
         }
         keen_io_sqlite3_reset(count_pending_stmt);
         keen_io_sqlite3_clear_bindings(count_pending_stmt);
-        
         dispatch_semaphore_signal(sema);
     });
     
