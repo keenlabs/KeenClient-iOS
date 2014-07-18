@@ -238,6 +238,10 @@ static KIOEventStore *eventStore;
         return nil;
     }
     
+    if (!eventStore) {
+        eventStore = [[KIOEventStore alloc] init];
+    }
+    
     self = [self init];
     if (self) {
         self.projectId = projectId;
@@ -760,7 +764,7 @@ static KIOEventStore *eventStore;
         if (![defaults boolForKey:@"didFSImport"]) {
             // Slurp in any filesystem based events. This converts older fs-based
             // event storage into newer SQL-lite based storage.
-            [sharedClient importFileData];
+            [self importFileData];
         }
 
         NSData *data = nil;
