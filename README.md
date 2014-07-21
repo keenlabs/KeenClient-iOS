@@ -93,6 +93,17 @@ This SDK *should* work for OS X apps. If you try and it doesn't work, please fil
     
 ### Changelog
 
+##### 3.2.11
+
++ Converted KeenClient to use ARC.
++ Renamed all SQLite files with keen\_io\_ prefix.
++ Moved keen\_io\_sqlite3.h import to KIOEventStore.m.
++ Added sdkVersion class method.
++ Replaced usage of NSDateFormatter with SQLite based date conversion (thread safe).
++ Fixed KEEN\_LOGGING\_ macro.
++ Added call to resetPendingEvents in getEvents.
++ Fixed instance client issues created by KIOEventStore implementation.
+
 ##### 3.2.10
 
 + Fixed array allocation/deallocation bug in prepareJSONData.
