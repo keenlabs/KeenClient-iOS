@@ -56,10 +56,6 @@
 		CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */; };
-		CA795C4E18E32BAB00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
-		CA795C4F18E32BB800EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
-		CA795C5018E32BBF00EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
-		CA795C5118E32BC600EBDFC4 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */; };
 		DE34F6F3197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; };
 		DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; };
 		DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; };
@@ -151,7 +147,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA795C5018E32BBF00EBDFC4 /* libsqlite3.dylib in Frameworks */,
 				0111012314EF709A009794A5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -160,7 +155,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA795C4F18E32BB800EBDFC4 /* libsqlite3.dylib in Frameworks */,
 				0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -169,7 +163,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA795C4E18E32BAB00EBDFC4 /* libsqlite3.dylib in Frameworks */,
 				012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */,
 				017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */,
 			);
@@ -179,7 +172,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA795C5118E32BC600EBDFC4 /* libsqlite3.dylib in Frameworks */,
 				015D308B1822E8D200F8735B /* libOCMock.a in Frameworks */,
 				012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */,
 				017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */,
