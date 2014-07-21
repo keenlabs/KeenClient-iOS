@@ -176,7 +176,7 @@
 - (NSMutableDictionary *)getEvents{
 
     // Create a dictionary to hold the contents of our select.
-    __block __weak NSMutableDictionary *events = [NSMutableDictionary dictionary];
+    __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
     if (!dbIsOpen) {
         KCLog(@"DB is closed, skipping getEvents");
