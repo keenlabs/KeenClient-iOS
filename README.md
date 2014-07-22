@@ -93,6 +93,10 @@ This SDK *should* work for OS X apps. If you try and it doesn't work, please fil
     
 ### Changelog
 
+##### 3.2.13
+
++ Updated podspec to include c source for sqlite3.
+
 ##### 3.2.12
 
 + Skipped 3.2.11 versioning in favor of 3.2.12 to workaround Cocoapods versioning issue.
