@@ -137,8 +137,10 @@ static KIOEventStore *eventStore;
 
 /**
  Fills the error object with the given message appropriately.
+ 
+ @return Always return NO.
  */
-- (void) handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage;
+- (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage;
     
 @end
 
@@ -360,13 +362,11 @@ static KIOEventStore *eventStore;
     
     if ([eventCollection rangeOfString:@"$"].location == 0) {
         errorMessage = @"An event collection name cannot start with the dollar sign ($) character.";
-        [self handleError:anError withErrorMessage:errorMessage];
-        return NO;
+        return [self handleError:anError withErrorMessage:errorMessage];
     }
     if ([eventCollection length] > 64) {
         errorMessage = @"An event collection name cannot be longer than 64 characters.";
-        [self handleError:anError withErrorMessage:errorMessage];
-        return NO;
+        return [self handleError:anError withErrorMessage:errorMessage];
     }
     return YES;
 }
@@ -377,14 +377,12 @@ static KIOEventStore *eventStore;
     if (depth == 0) {
         if (!event || [event count] == 0) {
             errorMessage = @"You must specify a non-null, non-empty event.";
-            [self handleError:anError withErrorMessage:errorMessage];
-            return NO;
+            return [self handleError:anError withErrorMessage:errorMessage];
         }
         id keenObject = [event objectForKey:@"keen"];
         if (keenObject != nil && ![keenObject isKindOfClass:[NSDictionary class]]) {
             errorMessage = @"An event's root-level property named 'keen' must be a dictionary.";
-            [self handleError:anError withErrorMessage:errorMessage];
-            return NO;
+            return [self handleError:anError withErrorMessage:errorMessage];
         }
     }
     
@@ -392,18 +390,15 @@ static KIOEventStore *eventStore;
         // validate keys
         if ([key rangeOfString:@"."].location != NSNotFound) {
             errorMessage = @"An event cannot contain a property with the period (.) character in it.";
-            [self handleError:anError withErrorMessage:errorMessage];
-            return NO;
+            return [self handleError:anError withErrorMessage:errorMessage];
         }
         if ([key rangeOfString:@"$"].location == 0) {
             errorMessage = @"An event cannot contain a property that starts with the dollar sign ($) character in it.";
-            [self handleError:anError withErrorMessage:errorMessage];
-            return NO;
+            return [self handleError:anError withErrorMessage:errorMessage];
         }
         if ([key length] > 256) {
             errorMessage = @"An event cannot contain a property longer than 256 characters.";
-            [self handleError:anError withErrorMessage:errorMessage];
-            return NO;
+            return [self handleError:anError withErrorMessage:errorMessage];
         }
         
         // now validate values
@@ -412,8 +407,7 @@ static KIOEventStore *eventStore;
             // strings can't be longer than 10k
             if ([value length] > 10000) {
                 errorMessage = @"An event cannot contain a property value longer than 10,000 characters.";
-                [self handleError:anError withErrorMessage:errorMessage];
-                return NO;
+                return [self handleError:anError withErrorMessage:errorMessage];
             }
         } else if ([value isKindOfClass:[NSDictionary class]]) {
             if (![self validateEvent:value withDepth:depth+1 error:anError]) {
@@ -424,11 +418,11 @@ static KIOEventStore *eventStore;
     return YES;
 }
 
-- (void)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
-    [self addEvent:event withKeenProperties:nil toEventCollection:eventCollection error:anError];
+- (BOOL)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+    return [self addEvent:event withKeenProperties:nil toEventCollection:eventCollection error:anError];
 }
 
-- (void)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (BOOL)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     // make sure the write key has been set - can't do anything without that
     if (![KeenClient validateKey:self.writeKey]) {
         [NSException raise:@"KeenNoWriteKeyProvided" format:@"You tried to add an event without setting a write key, please set one!"];
@@ -436,10 +430,10 @@ static KIOEventStore *eventStore;
 
     // don't do anything if the event itself or the event collection name are invalid somehow.
     if (![self validateEventCollection:eventCollection error:anError]) {
-        return;
+        return NO;
     }
     if (![self validateEvent:event withDepth:0 error:anError]) {
-        return;
+        return NO;
     }
     
     KCLog(@"Adding event to collection: %@", eventCollection);
@@ -496,9 +490,9 @@ static KIOEventStore *eventStore;
     NSError *error = nil;
     NSData *jsonData = [self serializeEventToJSON:eventToWrite error:&error];
     if (error) {
-        [self handleError:anError
-         withErrorMessage:[NSString stringWithFormat:@"An error occurred when serializing event to JSON: %@", [error localizedDescription]]];
-        return;
+        return [self handleError:anError
+                withErrorMessage:[NSString stringWithFormat:@"An error occurred when serializing event to JSON: %@", [error localizedDescription]]
+                underlayingError:error];
     }
     
     // write JSON to store
@@ -508,6 +502,8 @@ static KIOEventStore *eventStore;
     if ([KeenClient isLoggingEnabled]) {
         KCLog(@"Event: %@", eventToWrite);
     }
+
+    return YES;
 }
 
 - (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError **) anError {
@@ -893,14 +889,23 @@ static KIOEventStore *eventStore;
     return responseData;
 }
 
-- (void) handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {
+- (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {
+    return [self handleError:error withErrorMessage:errorMessage underlayingError:nil];
+}
+
+- (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage underlayingError:(NSError *)underlayingError {
     if (error != NULL) {
-        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:errorMessage forKey:NSLocalizedDescriptionKey];
+        const id<NSCopying> keys[] = {NSLocalizedDescriptionKey, NSUnderlyingErrorKey};
+        const id objects[] = {errorMessage, underlayingError};
+        NSUInteger count = underlayingError ? 2 : 1;
+        NSDictionary *userInfo = [NSDictionary dictionaryWithObjects:objects forKeys:keys count:count];
         *error = [NSError errorWithDomain:kKeenErrorDomain code:1 userInfo:userInfo];
         KCLog(@"%@", *error);
     }
+
+    return NO;
 }
-                    
+
 # pragma mark - NSDate => NSString
 
 - (id)convertDate:(id)date {

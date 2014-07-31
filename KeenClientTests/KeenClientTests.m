@@ -130,14 +130,20 @@
     
     // nil dict should should do nothing
     NSError *error = nil;
-    [client addEvent:nil toEventCollection:@"foo" error:&error];
-    [clientI addEvent:nil toEventCollection:@"foo" error:&error];
+    STAssertFalse([client addEvent:nil toEventCollection:@"foo" error:&error], @"addEvent should fail");
+    STAssertNotNil(error, @"nil dict should return NO");
+    error = nil;
+
+    STAssertFalse([clientI addEvent:nil toEventCollection:@"foo" error:&error], @"addEvent should fail");
     STAssertNotNil(error, @"nil dict should return NO");
     error = nil;
     
     // nil collection should do nothing
-    [client addEvent:[NSDictionary dictionary] toEventCollection:nil error:&error];
-    [clientI addEvent:[NSDictionary dictionary] toEventCollection:nil error:&error];
+    STAssertFalse([client addEvent:[NSDictionary dictionary] toEventCollection:nil error:&error], @"addEvent should fail");
+    STAssertNotNil(error, @"nil collection should return NO");
+    error = nil;
+
+    STAssertFalse([clientI addEvent:[NSDictionary dictionary] toEventCollection:nil error:&error], @"addEvent should fail");
     STAssertNotNil(error, @"nil collection should return NO");
     error = nil;
     
@@ -145,39 +151,50 @@
     NSArray *keys = [NSArray arrayWithObjects:@"a", @"b", @"c", nil];
     NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSNull null], nil];
     NSDictionary *event = [NSDictionary dictionaryWithObjects:values forKeys:keys];
-    [client addEvent:event toEventCollection:@"foo" error:&error];
-    [clientI addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertTrue([client addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should succeed");
+    STAssertNil(error, @"no error should be returned");
+    STAssertTrue([clientI addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should succeed");
     STAssertNil(error, @"an okay event should return YES");
     error = nil;
 
     // dict with NSDate should work
     event = @{@"a": @"apple", @"b": @"bapple", @"a_date": [NSDate date]};
-    [client addEvent:event toEventCollection:@"foo" error:&error];
-    [clientI addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertTrue([client addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should succeed");
+    STAssertNil(error, @"no error should be returned");
+    STAssertTrue([clientI addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should succeed");
     STAssertNil(error, @"an event with a date should return YES");
     error = nil;
 
     // dict with non-serializable value should do nothing
     NSError *badValue = [[NSError alloc] init];
     event = @{@"a": @"apple", @"b": @"bapple", @"bad_key": badValue};
-    [client addEvent:event toEventCollection:@"foo" error:&error];
-    [clientI addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertFalse([client addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should fail");
     STAssertNotNil(error, @"an event that can't be serialized should return NO");
+    STAssertNotNil([[error userInfo] objectForKey:NSUnderlyingErrorKey], @"and event that can't be serialized should return the underlaying error");
+    error = nil;
+
+    STAssertFalse([clientI addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should fail");
+    STAssertNotNil(error, @"an event that can't be serialized should return NO");
+    STAssertNotNil([[error userInfo] objectForKey:NSUnderlyingErrorKey], @"and event that can't be serialized should return the underlaying error");
     error = nil;
     
     // dict with root keen prop should do nothing
     badValue = [[NSError alloc] init];
     event = @{@"a": @"apple", @"keen": @"bapple"};
-    [client addEvent:event toEventCollection:@"foo" error:&error];
-    [clientI addEvent:event toEventCollection:@"foo" error:&error];
+    STAssertFalse([client addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should fail");
+    STAssertNotNil(error, @"");
+    error = nil;
+
+    STAssertFalse([clientI addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should fail");
     STAssertNotNil(error, @"");
     error = nil;
     
     // dict with non-root keen prop should work
     error = nil;
     event = @{@"nested": @{@"keen": @"whatever"}};
-    [client addEvent:event toEventCollection:@"foo" error:nil];
-    [clientI addEvent:event toEventCollection:@"foo" error:nil];
+    STAssertTrue([client addEvent:event toEventCollection:@"foo" error:nil], @"addEvent should succeed");
+    STAssertNil(error, @"no error should be returned");
+    STAssertTrue([clientI addEvent:event toEventCollection:@"foo" error:nil], @"addEvent should succeed");
     STAssertNil(error, @"an okay event should return YES");
 }
 
