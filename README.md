@@ -93,6 +93,12 @@ This SDK *should* work for OS X apps. If you try and it doesn't work, please fil
     
 ### Changelog
 
+##### 3.2.14
+
++ Fixed analyzer warnings.
++ Fixed methods returning NSErrors as double pointers.
++ Enabled ARC in Simulator and Device targets.
+
 ##### 3.2.13
 
 + Updated podspec to include c source for sqlite3.
