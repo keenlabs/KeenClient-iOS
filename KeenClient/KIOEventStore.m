@@ -135,8 +135,7 @@
     }
     
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    dispatch_async(self.dbQueue, ^{
+    dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(insert_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to add event statement"];
             [self closeDB];
@@ -163,12 +162,7 @@
         keen_io_sqlite3_reset(insert_stmt);
         // Clears off the bindings for future uses.
         keen_io_sqlite3_clear_bindings(insert_stmt);
-        
-        dispatch_semaphore_signal(sema);
     });
-    
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    dispatch_release(sema);
     
     return wasAdded;
 }
@@ -190,8 +184,7 @@
     }
     
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    dispatch_async(self.dbQueue, ^{
+    dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(find_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to find statement"];
         }
@@ -231,12 +224,7 @@
         // Reset things
         keen_io_sqlite3_reset(find_stmt);
         keen_io_sqlite3_clear_bindings(find_stmt);
-        
-        dispatch_semaphore_signal(sema);
     });
-    
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    dispatch_release(sema);
     
     return events;
 }
@@ -283,8 +271,7 @@
     }
 
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    dispatch_async(self.dbQueue, ^{
+    dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(count_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to count pending statement"];
         }
@@ -295,11 +282,7 @@
         }
         keen_io_sqlite3_reset(count_pending_stmt);
         keen_io_sqlite3_clear_bindings(count_pending_stmt);
-        dispatch_semaphore_signal(sema);
     });
-    
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    dispatch_release(sema);
     
     return eventCount;
 }
@@ -313,8 +296,7 @@
     }
 
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    dispatch_async(self.dbQueue, ^{
+    dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(count_all_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to total event statement"];
         }
@@ -325,12 +307,7 @@
         }
         keen_io_sqlite3_reset(count_all_stmt);
         keen_io_sqlite3_clear_bindings(count_all_stmt);
-        
-        dispatch_semaphore_signal(sema);
     });
-    
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    dispatch_release(sema);
     
     return eventCount;
 }
@@ -419,8 +396,7 @@
     self.dbQueue = dispatch_queue_create("io.keen.sqlite", DISPATCH_QUEUE_SERIAL);
     
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    dispatch_async(self.dbQueue, ^{
+    dispatch_sync(self.dbQueue, ^{
         // initialize sqlite ourselves so we can config
         keen_io_sqlite3_shutdown();
         keen_io_sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
@@ -432,11 +408,7 @@
             [self handleSQLiteFailure:@"create database"];
         }
         dbIsOpen = wasOpened;
-        dispatch_semaphore_signal(sema);
     });
-    
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    dispatch_release(sema);
     
     return wasOpened;
 }
@@ -450,8 +422,7 @@
     }
     
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    dispatch_async(self.dbQueue, ^{
+    dispatch_sync(self.dbQueue, ^{
         char *err;
         NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectId TEXT, eventData BLOB, pending INTEGER, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
         if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
@@ -461,11 +432,7 @@
         } else {
             wasCreated = YES;
         }
-        dispatch_semaphore_signal(sema);
     });
-    
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    dispatch_release(sema);
 
 
     return wasCreated;
@@ -478,8 +445,7 @@
 
 - (void)closeDB {
     // Free all the prepared statements. This is safe on null pointers.
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    dispatch_async(self.dbQueue, ^{
+    dispatch_sync(self.dbQueue, ^{
         keen_io_sqlite3_finalize(insert_stmt);
         keen_io_sqlite3_finalize(find_stmt);
         keen_io_sqlite3_finalize(count_all_stmt);
@@ -496,12 +462,7 @@
         keen_io_sqlite3_close(keen_dbname);
         // Reset state in case it matters.
         dbIsOpen = NO;
-        
-        dispatch_semaphore_signal(sema);
     });
-    
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-    dispatch_release(sema);
 }
 
 - (id)convertNSDateToISO8601:(id)date {
