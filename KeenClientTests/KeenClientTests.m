@@ -16,9 +16,9 @@
 @interface KeenClient (testability)
 
 // The project ID for this particular client.
-@property (nonatomic, retain) NSString *projectId;
-@property (nonatomic, retain) NSString *writeKey;
-@property (nonatomic, retain) NSString *readKey;
+@property (nonatomic, strong) NSString *projectId;
+@property (nonatomic, strong) NSString *writeKey;
+@property (nonatomic, strong) NSString *readKey;
 
 // If we're running tests.
 @property (nonatomic) Boolean isRunningTests;

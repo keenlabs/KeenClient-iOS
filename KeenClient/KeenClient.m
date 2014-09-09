@@ -217,7 +217,6 @@ static KIOEventStore *eventStore;
     [self refreshCurrentLocation];
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
-    dispatch_retain(self.uploadQueue);
 
     return self;
 }
