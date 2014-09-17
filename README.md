@@ -315,6 +315,13 @@ However, the next time they trigger the code that send events (e.g. backgroundin
     
 ### Changelog
 
+##### 3.2.15
+
++ Updated GitHub documentation to match documentation found at [keen.io](http://keen.io)
++ Added KeenClient-Cocoa build target/universal binary to support Mac OS X
++ Added convertNSDateToISO8601 to dispatch queue
++ Refactored semaphores to use dispatch_sync and cleaned up instances of dispatch_retain
+
 ##### 3.2.14
 
 + Fixed analyzer warnings.
