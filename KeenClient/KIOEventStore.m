@@ -496,18 +496,26 @@
         offsetString = [@"-" stringByAppendingString:offsetString];
     }
     
-    // bind
-    if (keen_io_sqlite3_bind_text(convert_date_stmt, 1, [[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]] UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-        [self handleSQLiteFailure:@"date conversion"];
-        [self closeDB];
-    }
-    keen_io_sqlite3_step(convert_date_stmt);
-    
-    NSString *iso8601 = [[NSString stringWithUTF8String:(char *)keen_io_sqlite3_column_text(convert_date_stmt, 0)] stringByAppendingString:offsetString];
-    
-    // reset things
-    keen_io_sqlite3_reset(convert_date_stmt);
-    keen_io_sqlite3_clear_bindings(convert_date_stmt);
+    __block NSString *iso8601 = nil;
+    dispatch_sync(self.dbQueue, ^{
+        // bind
+        if (keen_io_sqlite3_bind_text(convert_date_stmt, 1, [[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]] UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind date to date conversion statement"];
+            [self closeDB];
+        }
+        
+        if (keen_io_sqlite3_step(convert_date_stmt) == SQLITE_ROW) {
+            iso8601 = [[NSString stringWithUTF8String:(char *)keen_io_sqlite3_column_text(convert_date_stmt, 0)] stringByAppendingString:offsetString];
+        }
+        else {
+            [self handleSQLiteFailure:@"date conversion"];
+            [self closeDB];
+        }
+        
+        // reset things
+        keen_io_sqlite3_reset(convert_date_stmt);
+        keen_io_sqlite3_clear_bindings(convert_date_stmt);
+    });
     
     return iso8601;
 }
