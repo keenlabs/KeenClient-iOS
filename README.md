@@ -18,7 +18,7 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 * [FAQs](#faqs)
 * [Changelog](#changelog)
 * [To Do](#to-do)
-* [Questions & Support](#questions-&-support)
+* [Questions & Support](#questions--support)
 * [Contributing](#contributing)
 * [API Documentation](https://keen.io/static/iOS-reference/index.html)
 
