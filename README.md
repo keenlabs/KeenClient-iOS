@@ -7,13 +7,14 @@ The Keen IO iOS client is designed to be simple to develop with, yet incredibly 
 
 While the name of this repo implies that this SDK is strictly for iOS, it can also be used in Mac OS applications by using the Cocoa version as outlined below. The code base is the same, but the build targets are different. :)
 
-* [Installation](#installation) - How to install Keen Client in your application
-* [Register Client](#register-your-project-id-and-access-keys) - How to register your Project ID
-* [Add Events](#add-events) - How to add an event
-* [Geo Location](#geo-location) - How to use Geo Location
-* [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
-* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) feature to enrich your data
-* [Debugging](#debugging) - How to debug your application using built in logging
+* [Installation](#installation) - How to install `KeenClient` in your application
+* [Usage](#usage) - How to use `KeenClient`
+	* [Add Events](#add-events) - How to add an event
+	* [Global Properties](#global-properties) - How to set global properties
+	* [Geo Location](#geo-location) - How to use Geo Location
+	* [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
+	* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) features to enrich your data
+	* [Debugging](#debugging) - How to debug your application using the SDK's built in logging
 * [FAQs](#faqs)
 * [Changelog](#changelog)
 * [To Do](#to-do)
@@ -27,7 +28,7 @@ Installing the client should be a breeze. If it's not, please let us know at [co
 
 #### Universal Binary
 
-Our recommended way of installing the Keen Client is to use the universal binary we’ve created. We have binaries for both [Cocoa](http://keen.io/static/code/KeenClient-Cocoa.zip) and [iOS](http://keen.io/static/code/KeenClient.zip).
+Our recommended way of installing `KeenClient` is to use the universal binary we’ve created. We have binaries for both [Cocoa](http://keen.io/static/code/KeenClient-Cocoa.zip) and [iOS](http://keen.io/static/code/KeenClient.zip).
 
 > While we think the universal binary makes things really easy, we love to be transparent. We love feedback, especially in the form of pull requests. :)
 
@@ -90,7 +91,7 @@ To use this client with the Keen IO API, you have to configure your Keen IO Proj
 
 ##### Register Your Project ID and Access Keys
 
-Register the KeenClient shared client with your Project ID and access keys. The recommended place to do this is in one of your application delegates like so:
+Register the `KeenClient` shared client with your Project ID and access keys. The recommended place to do this is in one of your application delegates like so:
 
 ```objc
 - (void)applicationDidBecomeActive:(UIApplication *)application
@@ -123,13 +124,13 @@ The idea is to first create an arbitrary dictionary of JSON-serializable values.
 NSString, NSNumber, NSDate, NSDictionary, NSArray, and BOOL
 ```
 
-> The JSON spec doesn’t include anything about date values. At Keen, we know dates are important to track. Keen sends dates back and forth through its API in ISO-8601 format. The Keen Client handles this for you.
+> The JSON spec doesn’t include anything about date values. At Keen, we know dates are important to track. Keen sends dates back and forth through its API in ISO-8601 format. `KeenClient` handles this for you.
 
 Keys must be alphanumeric, with the exception of the underscore (_) character, which can appear anywhere but the beginning of the string. For example, “view_name” is allowed, but “_view_name” is not.
 
-Add as many events as you like. The Keen client will cache them on disk until you’re ready to send them.
+Add as many events as you like. `KeenClient` will cache them on disk until you’re ready to send them.
 
-The client will automatically stamp every event you track with a timestamp. If you want to override the system value with your own, use the following example. Note that the “timestamp” key is set in the header properties dictionary.
+`KeenClient` will automatically stamp every event you track with a timestamp. If you want to override the system value with your own, use the following example. Note that the “timestamp” key is set in the header properties dictionary.
 
 ```objc
 - (void)viewWillAppear:(BOOL)animated
@@ -149,15 +150,15 @@ The client will automatically stamp every event you track with a timestamp. If y
 
 ##### Global Properties
 
-Now you might be thinking, “Okay, that looks pretty easy. But what if I want to send the same properties on every event in a particular collection? Or just every event, period?” We’ve got you covered through something we call Global Properties.
+Now you might be thinking, “Okay, that looks pretty easy. But what if I want to send the same properties on _every_ event in a particular collection? Or just _every_ event, period?” We’ve got you covered through something we call Global Properties.
 
 Global properties are properties which are sent with every event. For example, you may wish to always capture device information like OS version, handset type, orientation, etc.
 
-There are two ways to handle Global Properties - one is more simple but more limited, while the other is a bit more complex but much more powerful. For each of them, after you register your client, you’ll need to set an Objective-C property on the KeenClient instance you’re using.
+There are two ways to handle Global Properties - one is more simple but more limited, while the other is a bit more complex but much more powerful. For each of them, after you register your client, you’ll need to set an Objective-C property on the `KeenClient` instance you’re using.
 
 ###### Dictionary-based Global Properties
 
-For this, the Objective-C property is called globalPropertiesDictionary. The property’s value will be an NSDictionary that you define. Each time an event is added, the iOS client will look at the value of this property and add all its contents to the user-defined event. Use this if you have a bunch of static properties that you want to add to every event.
+For this, the Objective-C property is called `globalPropertiesDictionary`. The property’s value will be an `NSDictionary` that you define. Each time an event is added, the client will look at the value of this property and add all its contents to the user-defined event. Use this if you have a bunch of static properties that you want to add to every event.
 
 Here's an example using a dictionary:
 
@@ -173,7 +174,7 @@ Here's an example using a dictionary:
 
 ###### Block-based Global Properties
 
-For this, the Objective-C property is called globalPropertiesBlock. The property’s value will be a block that you define. Every time an event is added, the block will be called. The client expects the block to return an NSDictionary consisting of the global properties for that event collection. Use this if you have a bunch of dynamic properties (see below) that you want to add to every event.
+For this, the Objective-C property is called `globalPropertiesBlock`. The property’s value will be a block that you define. Every time an event is added, the block will be called. The client expects the block to return an `NSDictionary` consisting of the global properties for that event collection. Use this if you have a bunch of dynamic properties (see below) that you want to add to every event.
 
 Here’s an example using blocks:
 
@@ -193,11 +194,11 @@ Here’s an example using blocks:
 }
 ```
 
-The block takes in a single string parameter which corresponds to the name of this particular event. And we expect it to return an NSDictionary of your construction. This example doesn’t make use of the parameter, but yours could!
+The block takes in a single string parameter which corresponds to the name of this particular event. And we expect it to return an `NSDictionary` of your construction. This example doesn’t make use of the parameter, but yours could!
 
-> Because we support a block here, you can create dynamic global properties. For example, you might want to capture the orientation of the device, which obviously could change at run-time. With the block, you can use functional programming to ask the OS what the current orientation is, each time you add an event. Pretty useful, right?
+> Because we support a block here, you can create **dynamic** global properties. For example, you might want to capture the orientation of the device, which obviously could change at run-time. With the block, you can use functional programming to ask the OS what the current orientation is, each time you add an event. Pretty useful, right?
 
-> Another note - you can use both the dictionary property and the block property at the same time. If there are conflicts between defined properties, the order of precedence is: user-defined event > block-defined event > dictionary-defined event. Meaning the properties you put in a single event will always show up, even if you define the same property in one of your globals.
+> Another note - you can use _both_ the dictionary property and the block property at the same time. If there are conflicts between defined properties, the order of precedence is: user-defined event > block-defined event > dictionary-defined event. Meaning the properties you put in a single event will **always** show up, even if you define the same property in one of your globals.
 
 ##### Geo Location
 
@@ -243,7 +244,7 @@ Upload the captured events to the Keen service. This must be done explicitly. We
 ```
 In this example, the upload is done in a background task so that even once the user backgrounds your application, the upload can continue. Here we first start the background task, start the upload, and then end the background task once the upload completes.
 
-If you want to call upload periodically during your application’s execution, you can do so by simply invoking the uploadWithFinishedBlock method on your KeenClient instance at any point.
+If you want to call upload periodically during your application’s execution, you can do so by simply invoking the `uploadWithFinishedBlock` method on your `KeenClient` instance at any point.
 
 ```objc
 [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
@@ -283,13 +284,13 @@ In this example, we add a global property for the IP to Geo information that all
 
 ##### Debugging
 
-The Keen iOS client code does a lot of logging, but it’s turned off by default. If you’d like to see the log lines generated by your usage of the client, you can enable logging easily:
+`KeenClient` code does a lot of logging, but it’s turned off by default. If you’d like to see the log lines generated by your usage of the client, you can enable logging easily:
 
 ```objc
 [KeenClient enableLogging];
 ```
 
-Just put this at any point before you use KeenClient. A good place is in your application delegate.
+Just put this at any point before you use `KeenClient`. A good place is in your application delegate.
 
 To disable logging, simply call:
 
@@ -301,7 +302,7 @@ To disable logging, simply call:
 
     TO DO
 
-##### FAQs
+### FAQs
 
 Q: What happens when the device is offline? Will events automatically be sent when the device connects to wifi again?
 
