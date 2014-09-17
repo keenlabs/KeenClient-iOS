@@ -594,7 +594,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export TMP_DIR=/tmp/keenios\nexport TMP_DIR_COCOA=/tmp/keenios/cocoa\n\nrm -rf ${TMP_DIR}\nrm -rf ${TMP_DIR_COCOA}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Cocoa.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\nmkdir -p ${TMP_DIR_COCOA}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" ${TMP_DIR}/.\n\ncp -r \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}/libKeenClient-Cocoa.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" ${TMP_DIR_COCOA}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *\n\ncd ${TMP_DIR_COCOA}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\" *";
+			shellScript = "export TMP_DIR=/tmp/keenios\nexport TMP_DIR_COCOA=/tmp/keenios-cocoa\n\nrm -rf ${TMP_DIR}\nrm -rf ${TMP_DIR_COCOA}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Cocoa.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\nmkdir -p ${TMP_DIR_COCOA}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" ${TMP_DIR}/.\n\ncp -r \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}/libKeenClient-Cocoa.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" ${TMP_DIR_COCOA}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *\n\ncd ${TMP_DIR_COCOA}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\" *";
 		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1083,6 +1083,7 @@
 				1296398419C10AD200B2B653 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
