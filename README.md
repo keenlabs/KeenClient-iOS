@@ -7,7 +7,6 @@ The Keen IO iOS client is designed to be simple to develop with, yet incredibly 
 
 While the name of this repo implies that this SDK is strictly for iOS, it can also be used in Mac OS applications by using the Cocoa version as outlined below. The code base is the same, but the build targets are different. :)
 
-* [API Documentation](https://keen.io/static/iOS-reference/index.html)
 * [Installation](#installation) - How to install Keen Client in your application
 * [Register Client](#register-your-project-id-and-access-keys) - How to register your Project ID
 * [Add Events](#add-events) - How to add an event
@@ -15,6 +14,7 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 * [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
 * [Add-ons](#add--ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) feature to enrich your data
 * [Debugging](#debugging) - How to debug your application using built in logging
+* [API Documentation](https://keen.io/static/iOS-reference/index.html)
 
 ### Installation
 
@@ -42,7 +42,7 @@ Uncompress the archive. It should contain a folder called “KeenClient-Cocoa”
 
 ##### Add Files to XCode - Cocoa
 
-Drag the "KeenClient-Cocoa"" folder into your XCode project.
+Drag the "KeenClient-Cocoa" folder into your XCode project.
 
 ##### Uncompress - iOS
 
@@ -55,20 +55,20 @@ Uncompress the archive. It should contain a folder called “KeenClient” with 
 
 ##### Add Files to XCode - iOS
 
-Drag the "KeenClient"" folder into your XCode project.
+Drag the "KeenClient" folder into your XCode project.
 
 #### CocoaPods - iOS
 
 If you're using [CocoaPods](http://cocoapods.org/), add the following to your Podfile:
 
-```objc
-    pod 'KeenClient'
+```
+pod 'KeenClient'
 ```
 
 Then run:
 
-```objc
-    pod install
+```
+pod install
 ```
 
 ##### Build Settings
