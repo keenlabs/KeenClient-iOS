@@ -12,8 +12,13 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 * [Add Events](#add-events) - How to add an event
 * [Geo Location](#geo-location) - How to use Geo Location
 * [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
-* [Add-ons](#add--ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) feature to enrich your data
+* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) feature to enrich your data
 * [Debugging](#debugging) - How to debug your application using built in logging
+* [FAQs](#faqs)
+* [Changelog](#changelog)
+* [To Do](#to-do)
+* [Questions & Support](#questions-&-support)
+* [Contributing](#contributing)
 * [API Documentation](https://keen.io/static/iOS-reference/index.html)
 
 ### Installation
@@ -96,7 +101,7 @@ Register the KeenClient shared client with your Project ID and access keys. The 
 
 The write key is required to send events to Keen IO. The read key is required to do analysis on Keen IO.
 
-The ```objc [KeenClient sharedClientWithProjectId: andWriteKey: andReadKey:]``` does the registration. From now on, in your code, you can just reference the shared client by calling ```objc [KeenClient sharedClient]```.
+`[KeenClient sharedClientWithProjectId: andWriteKey: andReadKey:]` does the registration. From now on, in your code, you can just reference the shared client by calling `objc [KeenClient sharedClient]`.
 
 ##### Add Events
 
@@ -272,9 +277,9 @@ client.globalPropertiesDictionary = @{@"keen":
                                          };
 ```
 
-In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the ```objc [self getIPAddress:YES]``` method. 
+In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `[self getIPAddress:YES]` method. 
 
-**Note:** ```objc [self getIPAddress:YES]``` is a custom method that you'll have to implement for yourself as there's currently no built-in method to obtain the device's IP address. We've had success using a few of the solutions suggested in [this post](http://stackoverflow.com/questions/7072989/iphone-ipad-osx-how-to-get-my-ip-address-programmatically).
+**Note:** `[self getIPAddress:YES]` is a custom method that you'll have to implement for yourself as there's currently no built-in method to obtain the device's IP address. We've had success using a few of the solutions suggested in [this post](http://stackoverflow.com/questions/7072989/iphone-ipad-osx-how-to-get-my-ip-address-programmatically).
 
 ##### Debugging
 
@@ -295,10 +300,6 @@ To disable logging, simply call:
 ##### Do analysis with Keen IO
 
     TO DO
-    
-##### Tracking events in OS X apps
-
-This SDK *should* work for OS X apps. If you try and it doesn't work, please file an issue here. Thanks!
 
 ##### FAQs
 
