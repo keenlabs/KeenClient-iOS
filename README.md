@@ -63,7 +63,7 @@ Uncompress the archive. It should contain a folder called “KeenClient” with 
 
 Drag the "KeenClient" folder into your XCode project.
 
-#### CocoaPods - iOS
+#### CocoaPods
 
 If you're using [CocoaPods](http://cocoapods.org/), add the following to your Podfile:
 
