@@ -322,6 +322,11 @@ static KIOEventStore *eventStore;
                 self.locationManager = [[CLLocationManager alloc] init];
                 self.locationManager.delegate = self;
             }
+            // check for iOS 8 and provide appropriate authorization for location services
+            if([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+                // we use always because we need access to location in both the background, and foreground
+                [self.locationManager requestAlwaysAuthorization];
+            }
         }
         
         // if, at this point, the location manager is ready to go, we can start location services
