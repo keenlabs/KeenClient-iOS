@@ -339,7 +339,7 @@ static KIOEventStore *eventStore;
         // check for iOS 8 and provide appropriate authorization for location services
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
         if(self.locationManager != nil) {
-            if([self.locationManager performSelector:@selector(requestAlwaysAuthorization)]) {
+            if([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
                 // allow explicit control over the type of authorization
                 if(authorizedGeoLocationAlways) {
                     [self.locationManager requestAlwaysAuthorization];
