@@ -13,6 +13,8 @@
 
 
 static KeenClient *sharedClient;
+static BOOL authorizedGeoLocationAlways = NO;
+static BOOL authorizedGeoLocationWhenInUse = NO;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
 static KIOEventStore *eventStore;
@@ -188,6 +190,16 @@ static KIOEventStore *eventStore;
     return loggingEnabled;
 }
 
++ (void)authorizeGeoLocationAlways {
+    KCLog(@"Authorizing Geo Location Always");
+    authorizedGeoLocationAlways = YES;
+}
+
++ (void)authorizeGeoLocationWhenInUse {
+    KCLog(@"Authorizing Geo Location When In Use");
+    authorizedGeoLocationWhenInUse = YES;
+}
+
 + (void)enableGeoLocation {
     KCLog(@"Enabling Geo Location");
     geoLocationEnabled = YES;
@@ -322,10 +334,20 @@ static KIOEventStore *eventStore;
                 self.locationManager = [[CLLocationManager alloc] init];
                 self.locationManager.delegate = self;
             }
-            // check for iOS 8 and provide appropriate authorization for location services
-            if([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
-                // we use always because we need access to location in both the background, and foreground
+        }
+        
+        // check for iOS 8 and provide appropriate authorization for location services
+        if(self.locationManager != nil && [self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+            // allow explicit control over the type of authorization
+            if(authorizedGeoLocationAlways) {
                 [self.locationManager requestAlwaysAuthorization];
+            }
+            else if(authorizedGeoLocationWhenInUse) {
+                [self.locationManager requestWhenInUseAuthorization];
+            }
+            else if(!authorizedGeoLocationAlways && !authorizedGeoLocationWhenInUse) {
+                // default to when in use because it is the least invasive authorization
+                [self.locationManager requestWhenInUseAuthorization];
             }
         }
         
