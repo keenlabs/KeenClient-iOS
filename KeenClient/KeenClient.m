@@ -337,17 +337,19 @@ static KIOEventStore *eventStore;
         }
         
         // check for iOS 8 and provide appropriate authorization for location services
-        if(self.locationManager != nil && [self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
-            // allow explicit control over the type of authorization
-            if(authorizedGeoLocationAlways) {
-                [self.locationManager requestAlwaysAuthorization];
-            }
-            else if(authorizedGeoLocationWhenInUse) {
-                [self.locationManager requestWhenInUseAuthorization];
-            }
-            else if(!authorizedGeoLocationAlways && !authorizedGeoLocationWhenInUse) {
-                // default to when in use because it is the least invasive authorization
-                [self.locationManager requestWhenInUseAuthorization];
+        if(self.locationManager != nil) {
+            if([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+                // allow explicit control over the type of authorization
+                if(authorizedGeoLocationAlways) {
+                    [self.locationManager requestAlwaysAuthorization];
+                }
+                else if(authorizedGeoLocationWhenInUse) {
+                    [self.locationManager requestWhenInUseAuthorization];
+                }
+                else if(!authorizedGeoLocationAlways && !authorizedGeoLocationWhenInUse) {
+                    // default to when in use because it is the least invasive authorization
+                    [self.locationManager requestWhenInUseAuthorization];
+                }
             }
         }
         
