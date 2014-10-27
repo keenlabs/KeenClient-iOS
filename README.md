@@ -226,6 +226,20 @@ keenProperties.location = location;
 [[KeenClient sharedClient] addEvent:event withKeenProperties:keenProperties toEventCollection:@"tab_views" error:nil];
 ```
 
+###### Requesting Authorization for Location in iOS 8+
+
+iOS 8 introduced a new method for requesting authorization that requires a few additional steps before location will automatically be appended to your events:
+
+1. Add one or both of the following keys to your Info.plist file: `NSLocationWhenInUseUsageDescription`,`NSLocationAlwaysUsageDescription`
+2. Call the appropriate authorization method to authorize your app to use location services. `authorizeGeoLocationWhenInUse` and `authorizeGeoLocationAlways` were both added as of version 3.2.16 of this SDK. `authorizeGeoLocationWhenInUse` is enabled by default as long as `NSLocationWhenInUseUsageDescription` is specified in your Info.plist file, so you don't need to call it if you're going the 'When in Use' route. `authorizeGeoLocationAlways` on the other hand must be called explicitly.
+
+Example:
+
+```objc
+[KeenClient authorizeGeoLocationAlways];
+[KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
+```
+
 ##### Upload Events to Keen IO
 
 Upload the captured events to the Keen service. This must be done explicitly. We recommend doing the upload when your application is sent to the background, but you can do it whenever you’d like (for example, if your application typically has very long user sessions). The uploader spawns its own background thread so the main UI thread is not blocked.
@@ -314,6 +328,9 @@ If your player is offline when that happens, their data will be collected on the
 However, the next time they trigger the code that send events (e.g. backgrounding the app again) all the data from the previous sessions will also be posted (the timestamps will reflect the times the events actually happened).
     
 ### Changelog
+
+##### 3.2.16
++ Added support for `requestWhenInUseAuthorization` and `requestAlwaysAuthorization` in iOS 8.
 
 ##### 3.2.15
 
