@@ -13,6 +13,8 @@
 
 
 static KeenClient *sharedClient;
+static BOOL authorizedGeoLocationAlways = NO;
+static BOOL authorizedGeoLocationWhenInUse = NO;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
 static KIOEventStore *eventStore;
@@ -188,6 +190,16 @@ static KIOEventStore *eventStore;
     return loggingEnabled;
 }
 
++ (void)authorizeGeoLocationAlways {
+    KCLog(@"Authorizing Geo Location Always");
+    authorizedGeoLocationAlways = YES;
+}
+
++ (void)authorizeGeoLocationWhenInUse {
+    KCLog(@"Authorizing Geo Location When In Use");
+    authorizedGeoLocationWhenInUse = YES;
+}
+
 + (void)enableGeoLocation {
     KCLog(@"Enabling Geo Location");
     geoLocationEnabled = YES;
@@ -323,6 +335,25 @@ static KIOEventStore *eventStore;
                 self.locationManager.delegate = self;
             }
         }
+        
+        // check for iOS 8 and provide appropriate authorization for location services
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+        if(self.locationManager != nil) {
+            if([self.locationManager performSelector:@selector(requestAlwaysAuthorization)]) {
+                // allow explicit control over the type of authorization
+                if(authorizedGeoLocationAlways) {
+                    [self.locationManager requestAlwaysAuthorization];
+                }
+                else if(authorizedGeoLocationWhenInUse) {
+                    [self.locationManager requestWhenInUseAuthorization];
+                }
+                else if(!authorizedGeoLocationAlways && !authorizedGeoLocationWhenInUse) {
+                    // default to when in use because it is the least invasive authorization
+                    [self.locationManager requestWhenInUseAuthorization];
+                }
+            }
+        }
+#endif
         
         // if, at this point, the location manager is ready to go, we can start location services
         if (self.locationManager) {

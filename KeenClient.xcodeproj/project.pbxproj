@@ -499,7 +499,7 @@
 			name = KeenClientTests;
 			productName = KeenClientTests;
 			productReference = 017EE12E14E30C96000F3868 /* KeenClientTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
 		1296396219C10AD200B2B653 /* KeenClient-Cocoa */ = {
 			isa = PBXNativeTarget;
@@ -524,8 +524,8 @@
 		017EE11514E30C95000F3868 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastTestingUpgradeCheck = 0510;
-				LastUpgradeCheck = 0510;
+				LastTestingUpgradeCheck = 0610;
+				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = "Keen Labs";
 				TargetAttributes = {
 					017EE12D14E30C96000F3868 = {

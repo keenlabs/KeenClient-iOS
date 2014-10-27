@@ -121,12 +121,19 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 + (KeenClient *)sharedClient;
 
 /**
- Call this to disable geo location. If you don't want to pop up a message to users asking them to approve geo location 
- services, call this BEFORE doing anything else with KeenClient.
+ Call this to authorize geo location always (iOS 8 and above). You must also add NSLocationAlwaysUsageDescription string to Info.plist to
+ authorize geo location always (foreground and background), call this BEFORE doing anything else with KeenClient.
  
- Geo location is ENABLED by default.
  */
-+ (void)disableGeoLocation;
++ (void)authorizeGeoLocationAlways;
+
+/**
+ Call this to authorize geo location when in use (iOS 8 and above). You must also add NSLocationWhenInUsageDescription string to Info.plist to
+ authorize geo location when in use (foreground), call this BEFORE doing anything else with KeenClient.
+ 
+ When In Use is AUTHORIZED by default.
+ */
++ (void)authorizeGeoLocationWhenInUse;
 
 /**
  Call this to enable geo location. You'll probably only have to call this if for some reason you've explicitly
