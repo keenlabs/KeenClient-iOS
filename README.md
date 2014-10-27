@@ -329,6 +329,9 @@ However, the next time they trigger the code that send events (e.g. backgroundin
     
 ### Changelog
 
+##### 3.2.17
++ Fixed bug created in CocoaPods by 3.2.16.
+
 ##### 3.2.16
 + Added support for `requestWhenInUseAuthorization` and `requestAlwaysAuthorization` in iOS 8.
 
