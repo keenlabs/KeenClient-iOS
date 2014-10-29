@@ -329,6 +329,9 @@ However, the next time they trigger the code that send events (e.g. backgroundin
     
 ### Changelog
 
+##### 3.2.18
++ Fixed erroneous removal of disableGeoLocation method call from KeenClient.h.
+
 ##### 3.2.17
 + Fixed bug created in CocoaPods by 3.2.16.
 

@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define kKeenSdkVersion @"3.2.17"
+#define kKeenSdkVersion @"3.2.18"
 
 extern NSString * const kKeenServerAddress;
 extern NSString * const kKeenApiVersion;
