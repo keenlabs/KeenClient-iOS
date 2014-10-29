@@ -136,6 +136,14 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 + (void)authorizeGeoLocationWhenInUse;
 
 /**
+ Call this to disable geo location. If you don't want to pop up a message to users asking them to approve geo location
+ services, call this BEFORE doing anything else with KeenClient.
+ 
+ Geo location is ENABLED by default.
+ */
++ (void)disableGeoLocation;
+
+/**
  Call this to enable geo location. You'll probably only have to call this if for some reason you've explicitly
  disabled geo location.
  
