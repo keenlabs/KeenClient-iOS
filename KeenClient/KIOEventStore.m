@@ -445,24 +445,22 @@
 
 - (void)closeDB {
     // Free all the prepared statements. This is safe on null pointers.
-    dispatch_sync(self.dbQueue, ^{
-        keen_io_sqlite3_finalize(insert_stmt);
-        keen_io_sqlite3_finalize(find_stmt);
-        keen_io_sqlite3_finalize(count_all_stmt);
-        keen_io_sqlite3_finalize(count_pending_stmt);
-        keen_io_sqlite3_finalize(make_pending_stmt);
-        keen_io_sqlite3_finalize(reset_pending_stmt);
-        keen_io_sqlite3_finalize(purge_stmt);
-        keen_io_sqlite3_finalize(delete_stmt);
-        keen_io_sqlite3_finalize(delete_all_stmt);
-        keen_io_sqlite3_finalize(age_out_stmt);
-        keen_io_sqlite3_finalize(convert_date_stmt);
-        
-        // Free our DB. This is safe on null pointers.
-        keen_io_sqlite3_close(keen_dbname);
-        // Reset state in case it matters.
-        dbIsOpen = NO;
-    });
+    keen_io_sqlite3_finalize(insert_stmt);
+    keen_io_sqlite3_finalize(find_stmt);
+    keen_io_sqlite3_finalize(count_all_stmt);
+    keen_io_sqlite3_finalize(count_pending_stmt);
+    keen_io_sqlite3_finalize(make_pending_stmt);
+    keen_io_sqlite3_finalize(reset_pending_stmt);
+    keen_io_sqlite3_finalize(purge_stmt);
+    keen_io_sqlite3_finalize(delete_stmt);
+    keen_io_sqlite3_finalize(delete_all_stmt);
+    keen_io_sqlite3_finalize(age_out_stmt);
+    keen_io_sqlite3_finalize(convert_date_stmt);
+    
+    // Free our DB. This is safe on null pointers.
+    keen_io_sqlite3_close(keen_dbname);
+    // Reset state in case it matters.
+    dbIsOpen = NO;
 }
 
 - (id)convertNSDateToISO8601:(id)date {
