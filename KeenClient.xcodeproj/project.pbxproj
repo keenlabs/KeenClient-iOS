@@ -82,6 +82,15 @@
 		DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F4D3B6021A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; };
+		F4D3B6031A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; };
+		F4D3B6041A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; };
+		F4D3B6051A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; };
+		F4D3B6061A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
+		F4D3B6081A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
+		F4D3B6091A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
+		F4D3B60A1A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
+		F4D3B61E1A0D98B4000825FE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -167,6 +176,9 @@
 		DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = keen_io_sqlite3.c; sourceTree = "<group>"; };
 		DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3.h; sourceTree = "<group>"; };
 		DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3ext.h; sourceTree = "<group>"; };
+		F4D3B6001A0D8EB4000825FE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		F4D3B6011A0D8EB4000825FE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +211,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4D3B61E1A0D98B4000825FE /* SystemConfiguration.framework in Frameworks */,
 				015D308B1822E8D200F8735B /* libOCMock.a in Frameworks */,
 				012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */,
 				017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */,
@@ -277,6 +290,7 @@
 		017EE12014E30C96000F3868 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */,
 				1296398C19C10B8500B2B653 /* Cocoa.framework */,
 				CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */,
 				017EE12114E30C96000F3868 /* Foundation.framework */,
@@ -346,6 +360,7 @@
 		01BA1AD414E77DC600CF9F84 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				F4D3B5FF1A0D8EB4000825FE /* Reachability */,
 				DE6955781951FBCC0044D2C4 /* sqlite-amalgamation */,
 				015D30821822E8D200F8735B /* Headers */,
 				015D308A1822E8D200F8735B /* libOCMock.a */,
@@ -373,6 +388,15 @@
 			path = "sqlite-amalgamation";
 			sourceTree = "<group>";
 		};
+		F4D3B5FF1A0D8EB4000825FE /* Reachability */ = {
+			isa = PBXGroup;
+			children = (
+				F4D3B6001A0D8EB4000825FE /* Reachability.h */,
+				F4D3B6011A0D8EB4000825FE /* Reachability.m */,
+			);
+			path = Reachability;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -386,6 +410,7 @@
 				DE34F6F7197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
+				F4D3B6031A0D8EB4000825FE /* Reachability.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,6 +424,7 @@
 				DE34F6F8197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
+				F4D3B6041A0D8EB4000825FE /* Reachability.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,6 +438,7 @@
 				DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
+				F4D3B6021A0D8EB4000825FE /* Reachability.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +452,7 @@
 				1296398E19C10D0000B2B653 /* keen_io_sqlite3.h in Headers */,
 				1296398F19C10D0000B2B653 /* keen_io_sqlite3ext.h in Headers */,
 				1296399219C10D0000B2B653 /* KeenConstants.h in Headers */,
+				F4D3B6051A0D8EB4000825FE /* Reachability.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -620,6 +648,7 @@
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
 				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
 				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
+				F4D3B6081A0D8EB4000825FE /* Reachability.m in Sources */,
 				DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -632,6 +661,7 @@
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
 				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
 				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
+				F4D3B6091A0D8EB4000825FE /* Reachability.m in Sources */,
 				DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -644,6 +674,7 @@
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
 				CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */,
 				012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */,
+				F4D3B6061A0D8EB4000825FE /* Reachability.m in Sources */,
 				DE34F6F3197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -665,6 +696,7 @@
 				1296399419C10D2C00B2B653 /* KeenClient.m in Sources */,
 				1296399519C10D2C00B2B653 /* KeenProperties.m in Sources */,
 				1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */,
+				F4D3B60A1A0D8EB4000825FE /* Reachability.m in Sources */,
 				1296399719C10D2C00B2B653 /* KIOEventStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
