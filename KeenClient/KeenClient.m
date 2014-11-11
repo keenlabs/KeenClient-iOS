@@ -9,6 +9,7 @@
 #import "KeenClient.h"
 #import "KeenConstants.h"
 #import "KIOEventStore.h"
+#import "Reachability.h"
 #import <CoreLocation/CoreLocation.h>
 
 
@@ -779,10 +780,20 @@ static KIOEventStore *eventStore;
 
 # pragma mark - Uploading
 
+- (BOOL)isNetworkConnected {
+    Reachability *hostReachability = [Reachability reachabilityForInternetConnection];
+    return [hostReachability currentReachabilityStatus] != NotReachable;
+}
+
 - (void)uploadHelper
 {
     // only one thread should be doing an upload at a time.
     @synchronized(self) {
+
+        if (![self isNetworkConnected]) {
+            // no network connection, so don't even attempt to upload
+            return;
+        }
 
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 

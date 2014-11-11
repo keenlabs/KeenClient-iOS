@@ -24,6 +24,7 @@
 @property (nonatomic) Boolean isRunningTests;
 
 - (NSData *)sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
+- (BOOL)isNetworkConnected;
 - (id)convertDate: (id) date;
 - (id)handleInvalidJSONInObject:(id)value;
 
@@ -399,6 +400,10 @@
 }
 
 - (id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code {
+    return [self uploadTestHelperWithData:data andStatusCode:code andNetwork:@YES];
+}
+
+- (id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code andNetwork:(NSNumber *)network {
     if (!data) {
         data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
     }
@@ -420,7 +425,9 @@
     [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any] 
                                      returningResponse:[OCMArg setTo:response] 
                                                  error:[OCMArg setTo:nil]];
-    
+
+    [[[mock stub] andReturnValue:network] isNetworkConnected];
+
     return mock;
 }
 
@@ -446,6 +453,8 @@
     [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any]
                                      returningResponse:[OCMArg setTo:response]
                                                  error:[OCMArg setTo:nil]];
+
+    [[[mock stub] andReturnValue:@YES] isNetworkConnected];
     
     return mock;
 }
@@ -549,11 +558,21 @@
 
 - (void)testUploadFailedBadRequestUnknownErrorInstanceClient {
     id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:400];
-    
+
     [self addSimpleEventAndUploadWithMock:mock];
-    
+
     // make sure the file wasn't deleted locally
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"An upload that results in an unexpected error should not delete the event.");
+}
+
+- (void)testUploadSkippedNoNetwork {
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:200 andNetwork:@NO];
+
+    NSLog(@"my failure here.");
+    [self addSimpleEventAndUploadWithMock:mock];
+
+    // make sure the file wasn't deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"An upload with no network should not delete the event.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccess {
