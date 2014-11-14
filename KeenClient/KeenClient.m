@@ -231,6 +231,8 @@ static KIOEventStore *eventStore;
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
 
+    self.maxAttempts = 3;
+
     return self;
 }
 
@@ -894,11 +896,15 @@ static KIOEventStore *eventStore;
                         deleteFile = NO;
                     }
                 }
+
+                NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
+
                 // delete the file if we need to
                 if (deleteFile) {
-                    NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
                     [eventStore deleteEvent: eid];
                     KCLog(@"Successfully deleted event: %@", eid);
+                } else {
+                    [eventStore incrementAttempts:eid];
                 }
                 count++;
             }
@@ -908,7 +914,16 @@ static KIOEventStore *eventStore;
         KCLog(@"Response code was NOT 200. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
-    }            
+
+        // loop through events and increment their attempt count
+        for (NSString *collectionName in eventIds) {
+            for (NSNumber *eid in eventIds[collectionName]) {
+                [eventStore incrementAttempts:eid];
+            }
+        }
+    }
+
+    [eventStore deleteEventsWithTooManyAttempts:self.maxAttempts];
 }
 
 # pragma mark - HTTP request/response management

@@ -65,6 +65,17 @@
  */
 - (void)deleteAllEvents;
 
+
+/**
+ Increment the `attempts` column
+ */
+- (void)incrementAttempts: (NSNumber *)eventId;
+
+/**
+ Delete all events with a `attempts` value greater than or equal to `maxAttempts`
+ */
+- (void) deleteEventsWithTooManyAttempts: (int)maxAttempts;
+
 /**
  Convert an NSDate to ISO-8601 using SQLite (thread safe)
  

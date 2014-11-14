@@ -31,6 +31,8 @@
     keen_io_sqlite3_stmt *purge_stmt;
     keen_io_sqlite3_stmt *delete_stmt;
     keen_io_sqlite3_stmt *delete_all_stmt;
+    keen_io_sqlite3_stmt *increment_attempts_statement;
+    keen_io_sqlite3_stmt *delete_too_many_attempts_statement;
     keen_io_sqlite3_stmt *age_out_stmt;
     keen_io_sqlite3_stmt *convert_date_stmt;
 }
@@ -120,7 +122,20 @@
             if(keen_io_sqlite3_prepare_v2(keen_dbname, age_out_sql, -1, &age_out_stmt, NULL) != SQLITE_OK) {
                 [self closeDB];
             }
-            
+
+            // This statement increments the attempts count of an event.
+            char *increment_attempt_sql = "UPDATE events SET attempts = attempts + 1 WHERE id=?";
+            if(keen_io_sqlite3_prepare_v2(keen_dbname, increment_attempt_sql, -1, &increment_attempts_statement, NULL) != SQLITE_OK) {
+                [self handleSQLiteFailure:@"prepare increment attempt statement"];
+                [self closeDB];
+            }
+
+            // This statement deletes events exceeding a max attempt limit.
+            char *delete_too_many_attempts_sql = "DELETE FROM events WHERE attempts >= ?";
+            if(keen_io_sqlite3_prepare_v2(keen_dbname, delete_too_many_attempts_sql, -1, &delete_too_many_attempts_statement, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
+
             // This statement converts an NSDate to an ISO-8601 formatted date/time string (we use sqlite because NSDateFormatter isn't thread-safe)
             char *convert_date_sql = "SELECT strftime('%Y-%m-%dT%H:%M:%S',datetime(?,'unixepoch','localtime'))";
             if(keen_io_sqlite3_prepare_v2(keen_dbname, convert_date_sql, -1, &convert_date_stmt, NULL) != SQLITE_OK) {
@@ -358,7 +373,7 @@
         KCLog(@"DB is closed, skipping deleteEvent");
         return;
     }
-    
+
     dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_int64(age_out_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind offset to ageOut statement"];
@@ -368,6 +383,47 @@
         };
         keen_io_sqlite3_reset(age_out_stmt);
         keen_io_sqlite3_clear_bindings(age_out_stmt);
+    });
+}
+
+- (void)incrementAttempts: (NSNumber *)eventId {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping incrementAttempts");
+        return;
+    }
+
+    dispatch_async(self.dbQueue, ^{
+
+        if (keen_io_sqlite3_bind_int64(increment_attempts_statement, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind eventid to increment attempts statement"];
+        }
+        if (keen_io_sqlite3_step(increment_attempts_statement) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"increment attempts"];
+        };
+        keen_io_sqlite3_reset(increment_attempts_statement);
+        keen_io_sqlite3_clear_bindings(increment_attempts_statement);
+
+    });
+}
+
+- (void) deleteEventsWithTooManyAttempts: (int)maxAttempts {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping deleteEventsWithTooManyAttempts");
+        return;
+    }
+    dispatch_async(self.dbQueue, ^{
+
+        if (keen_io_sqlite3_bind_int64(delete_too_many_attempts_statement, 1, (unsigned long long)maxAttempts) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind eventid to increment attempts statement"];
+        }
+        if (keen_io_sqlite3_step(delete_too_many_attempts_statement) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"increment attempts"];
+        };
+        keen_io_sqlite3_reset(delete_too_many_attempts_statement);
+        keen_io_sqlite3_clear_bindings(delete_too_many_attempts_statement);
+
     });
 }
 
@@ -631,6 +687,9 @@
     keen_io_sqlite3_finalize(purge_stmt);
     keen_io_sqlite3_finalize(delete_stmt);
     keen_io_sqlite3_finalize(delete_all_stmt);
+
+    keen_io_sqlite3_finalize(increment_attempts_statement);
+    keen_io_sqlite3_finalize(delete_too_many_attempts_statement);
     keen_io_sqlite3_finalize(age_out_stmt);
     keen_io_sqlite3_finalize(convert_date_stmt);
     

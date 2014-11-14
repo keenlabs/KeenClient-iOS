@@ -521,6 +521,40 @@
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
 }
 
+
+- (void)testDeleteAfterMaxAttempts {
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:500];
+
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+
+    // and "upload" it
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the file wasn't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one file after an unsuccessful attempts.");
+
+
+    // add another event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure both filef weren't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 2, @"There should be two files after 2 unsuccessful attempts.");
+
+
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the first file was deleted from the store, but the second one remains
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after 3 unsuccessful attempts.");
+
+
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure both files were delete from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0, @"There should be no files after 3 unsuccessfull attempts.");
+}
+
 - (void)testUploadFailedBadRequest {
     id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
                                                                    AndErrorCode:@"InvalidCollectionNameError" 
