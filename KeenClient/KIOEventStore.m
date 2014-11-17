@@ -48,10 +48,15 @@
                 [self closeDB];
             }
 
+            if (![self migrateTable]) {
+                KCLog(@"Failed to migrate SQLite table!");
+                [self closeDB];
+            }
+
             // Now we'll init prepared statements for all the things we might do.
 
             // This statement inserts events into the table.
-            char *insert_sql = "INSERT INTO events (projectId, collection, eventData, pending) VALUES (?, ?, ?, 0)";
+            char *insert_sql = "INSERT INTO events (projectId, collection, eventData, pending, attempts) VALUES (?, ?, ?, 0, 0)";
             if (keen_io_sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare insert statement"];
                 [self closeDB];
@@ -436,6 +441,178 @@
 
 
     return wasCreated;
+}
+
+- (int)queryUserVersion {
+    int databaseVersion;
+
+    // get current database version of schema
+    static keen_io_sqlite3_stmt *stmt_version;
+
+    if(keen_io_sqlite3_prepare_v2(keen_dbname, "PRAGMA user_version;", -1, &stmt_version, NULL) != SQLITE_OK) {
+        return -1;
+    }
+
+    while(keen_io_sqlite3_step(stmt_version) == SQLITE_ROW) {
+        databaseVersion = keen_io_sqlite3_column_int(stmt_version, 0);
+    }
+    keen_io_sqlite3_finalize(stmt_version);
+
+    // -1 means error, >= 1 is a real version number, otherwise it's unversioned
+    if (databaseVersion != -1 && !(databaseVersion >= 1)) {
+        return 0;
+    }
+
+    return databaseVersion;
+}
+
+- (BOOL)beginTransaction {
+    char *err;
+    NSString *sql = @"BEGIN IMMEDIATE TRANSACTION;";
+    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"failed to commit transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        keen_io_sqlite3_free(err); // Free that error message
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)commitTransaction {
+    char *err;
+    NSString *sql = @"COMMIT TRANSACTION;";
+    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"failed to commit transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        keen_io_sqlite3_free(err); // Free that error message
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)rollbackTransaction {
+    char *err;
+    NSString *sql = @"ROLLBACK TRANSACTION;";
+    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"failed to rollback transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        keen_io_sqlite3_free(err); // Free that error message
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)setUserVersion: (int)userVersion {
+    char *err;
+    NSString *sql = [NSString stringWithFormat:@"PRAGMA user_version = %d;", userVersion];
+    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"failed to set user_version: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        keen_io_sqlite3_free(err); // Free that error message
+        return NO;
+    }
+
+    return YES;
+}
+
+- (int)runMigration: (int)forVersion {
+    char *err;
+
+    if (forVersion < 0) {
+        // versions less than 0 are an error
+        return -1;
+    } else if (forVersion == 0) {
+        // first migration does nothing, just adds adds a real version number (1).
+        return YES;
+    } else if (forVersion == 1) {
+        NSString *sql = @"ALTER TABLE events ADD COLUMN attempts INTEGER DEFAULT 0;";
+        if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+            KCLog(@"Failed to add attempts column: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+            keen_io_sqlite3_free(err); // Free that error message
+            return -1;
+        }
+        return YES;
+    } else if (forVersion == 2) {
+        // This is the current version. To add a migration, increment the value of the
+        // RHS of the above if statement and add another else if statement in between
+        // to handle the new version number.
+        // e.g. change `forVersion == 2` to `forVersion == 3`, and then add an
+        // explicit block for handling the forVersion == 2 migration that looks like
+        // the forVersion == 1 block above.
+
+        // IMPORTANT: never remove any existing migration blocks!
+
+        return 0;
+    }
+
+    // versions that aren't integers or are greater than the max version we know about
+    // are errors
+    return -1;
+}
+
+-(BOOL)migrateFromVersion: (int)userVersion {
+    // this is really more of a while loop, but we use a for loop with a limit to avoid
+    // getting stuck in an infinite loop if there is a bug in the loop breaking logic
+    for(int i = 0; i < 1000; i++) {
+        if(![self beginTransaction]) {
+            // deal with error?
+            KCLog(@"Migration failed to begin a transaction with userVersion = %d.", userVersion);
+            return NO;
+        }
+
+        int migrationResult = [self runMigration:userVersion];
+        if (migrationResult == 0) {
+            // we didn't migrate anything, because we're current.
+            return YES;
+        }
+
+        if (migrationResult < 0) {
+            // error
+            if (![self rollbackTransaction]) {
+                KCLog(@"Migration failed to rollback a transaction with userVersion = %d.", userVersion);
+                // yeesh, couldn't rollback
+            }
+            return NO;
+        }
+
+        // we migrated, so increment PRAGMA user_version
+        if (![self setUserVersion:userVersion+1]) {
+            KCLog(@"Migration failed to set the user_version to %d.", userVersion);
+            if (![self rollbackTransaction]) {
+                KCLog(@"Migration failed to rollback a transaction after failing to set user_version (with userVersion = %d).", userVersion);
+                // whoa, double bad news
+            }
+            return NO;
+        }
+        // ok, let's commit this step
+        if (![self commitTransaction]) {
+            KCLog(@"Migration failed to commit a transaction with userVersion = %d.", userVersion);
+            return NO;
+        }
+
+        userVersion++;
+
+        // there might be more migrations, so we loop around again
+    }
+
+    KCLog(@"Migration loop maxed out after 1000 iterations. This is almost certainly a bug. Version %d", [self queryUserVersion]);
+
+    return NO;
+}
+
+- (BOOL)migrateTable {
+    __block BOOL wasMigrated = NO;
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping migrateTable");
+        return NO;
+    }
+
+    // we need to wait for the queue to finish because this method has a return value
+    // that we're manipulating in the queue
+    dispatch_sync(self.dbQueue, ^{
+        int userVersion = [self queryUserVersion];
+        KCLog(@"Preparing to migrate DB, current version: %d", userVersion);
+        wasMigrated = [self migrateFromVersion:userVersion];
+    });
+
+    return wasMigrated;
 }
 
 - (void)handleSQLiteFailure: (NSString *) msg {
