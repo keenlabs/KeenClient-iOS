@@ -65,7 +65,7 @@
             }
             
             // This statement finds non-pending events in the table.
-            char *find_sql = "SELECT id, collection, eventData FROM events WHERE pending=0 AND projectId=?";
+            char *find_sql = "SELECT id, collection, eventData FROM events WHERE pending=0 AND projectId=? AND attempts<?";
             if(keen_io_sqlite3_prepare_v2(keen_dbname, find_sql, -1, &find_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare find statement"];
                 [self closeDB];
@@ -187,7 +187,7 @@
     return wasAdded;
 }
 
-- (NSMutableDictionary *)getEvents{
+- (NSMutableDictionary *)getEventsWithMaxAttempts: (int)maxAttempts {
 
     // Create a dictionary to hold the contents of our select.
     __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
@@ -208,6 +208,12 @@
         if (keen_io_sqlite3_bind_text(find_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to find statement"];
         }
+        
+        if(keen_io_sqlite3_bind_int64(find_stmt, 2, maxAttempts) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind coll to add event statement"];
+            [self closeDB];
+        }
+
 
         while (keen_io_sqlite3_step(find_stmt) == SQLITE_ROW) {
             // Fetch data out the statement
@@ -406,27 +412,6 @@
 
     });
 }
-
-- (void) deleteEventsWithTooManyAttempts: (int)maxAttempts {
-
-    if (!dbIsOpen) {
-        KCLog(@"DB is closed, skipping deleteEventsWithTooManyAttempts");
-        return;
-    }
-    dispatch_async(self.dbQueue, ^{
-
-        if (keen_io_sqlite3_bind_int64(delete_too_many_attempts_statement, 1, (unsigned long long)maxAttempts) != SQLITE_OK) {
-            [self handleSQLiteFailure:@"bind eventid to increment attempts statement"];
-        }
-        if (keen_io_sqlite3_step(delete_too_many_attempts_statement) != SQLITE_DONE) {
-            [self handleSQLiteFailure:@"increment attempts"];
-        };
-        keen_io_sqlite3_reset(delete_too_many_attempts_statement);
-        keen_io_sqlite3_clear_bindings(delete_too_many_attempts_statement);
-
-    });
-}
-
 
 - (void)purgePendingEvents {
 

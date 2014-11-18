@@ -36,7 +36,7 @@
   Get a dictionary of events keyed by id that are ready to send to Keen. Events
   that are returned have been flagged as pending in the underlying store.
   */
-- (NSMutableDictionary *)getEvents;
+- (NSMutableDictionary *)getEventsWithMaxAttempts: (int)maxAttempts;
 
  /**
   Get a count of pending events.
@@ -70,11 +70,6 @@
  Increment the `attempts` column
  */
 - (void)incrementAttempts: (NSNumber *)eventId;
-
-/**
- Delete all events with a `attempts` value greater than or equal to `maxAttempts`
- */
-- (void) deleteEventsWithTooManyAttempts: (int)maxAttempts;
 
 /**
  Convert an NSDate to ISO-8601 using SQLite (thread safe)

@@ -611,7 +611,7 @@ static KIOEventStore *eventStore;
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
     // get data for the API request we'll make
-    NSMutableDictionary *events = [eventStore getEvents];
+    NSMutableDictionary *events = [eventStore getEventsWithMaxAttempts:self.maxAttempts];
     
     NSError *error = nil;
     for (NSString *coll in events) {
@@ -922,8 +922,6 @@ static KIOEventStore *eventStore;
             }
         }
     }
-
-    [eventStore deleteEventsWithTooManyAttempts:self.maxAttempts];
 }
 
 # pragma mark - HTTP request/response management
