@@ -220,7 +220,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -245,7 +245,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -268,7 +268,7 @@
 
     [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
     [clientI addEvent:eventDictionary toEventCollection:@"foo" error:nil];
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -292,7 +292,7 @@
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     // now get the stored event
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -318,7 +318,7 @@
     // now get the stored event
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"bar"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"bar"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -365,7 +365,7 @@
     STAssertNil(error, @"event should add");
     
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
@@ -519,6 +519,40 @@
     
     // make sure the file wasn't deleted locally
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
+}
+
+
+- (void)testDeleteAfterMaxAttempts {
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:500];
+
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+
+    // and "upload" it
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the file wasn't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one file after an unsuccessful attempts.");
+
+
+    // add another event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure both filef weren't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 2, @"There should be two files after 2 unsuccessful attempts.");
+
+
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the first file was deleted from the store, but the second one remains
+    STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3] allKeys].count == 1, @"There should be one files after 3 unsuccessful attempts.");
+
+
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure both files were delete from the store
+    STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
 }
 
 - (void)testUploadFailedBadRequest {
@@ -841,7 +875,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -896,7 +930,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -952,7 +986,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1015,7 +1049,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
         
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1079,7 +1113,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1104,7 +1138,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
     
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;

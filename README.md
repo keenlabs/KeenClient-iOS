@@ -120,7 +120,7 @@ Add events to track. Here’s a very basic example for an app that includes two 
 
 The idea is to first create an arbitrary dictionary of JSON-serializable values. We support:
 
-```objc 
+```objc
 NSString, NSNumber, NSDate, NSDictionary, NSArray, and BOOL
 ```
 
@@ -266,6 +266,18 @@ If you want to call upload periodically during your application’s execution, y
 
 **An important note:** it's a best practice to issue a single upload at a time. We make a best effort to reduce the number of threads spawned to upload in the background, but if you call upload many many times in a tight loop you're going to cause issues for yourself.
 
+###### Limiting Upload Retries
+
+By default, the client will only attempt to upload a given event 3 times --
+after that it will be purged from the local queue. You can change this number to
+your liking by setting the `client.maxAttempts` value:
+
+```objc
+// Set the max upload attempts to 10
+[KeenClient sharedClient].maxAttempts = 10;
+```
+
+
 ##### Add-ons
 
 Keen IO can take data you’ve sent and enrich it by parsing the data or joining it with other data sets. This is done through the concept of “add-ons”.
@@ -292,7 +304,7 @@ client.globalPropertiesDictionary = @{@"keen":
                                          };
 ```
 
-In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `[self getIPAddress:YES]` method. 
+In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `[self getIPAddress:YES]` method.
 
 **Note:** `[self getIPAddress:YES]` is a custom method that you'll have to implement for yourself as there's currently no built-in method to obtain the device's IP address. We've had success using a few of the solutions suggested in [this post](http://stackoverflow.com/questions/7072989/iphone-ipad-osx-how-to-get-my-ip-address-programmatically).
 
@@ -326,7 +338,7 @@ Here's how it works. You specify when events should be uploaded to Keen (e.g. wh
 
 If your player is offline when that happens, their data will be collected on the device and it will not be posted to Keen IO.
 However, the next time they trigger the code that send events (e.g. backgrounding the app again) all the data from the previous sessions will also be posted (the timestamps will reflect the times the events actually happened).
-    
+
 ### Changelog
 
 ##### 3.2.20
