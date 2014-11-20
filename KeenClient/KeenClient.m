@@ -812,6 +812,14 @@ static KIOEventStore *eventStore;
         // get data for the API request we'll make
 
         if ([data length] > 0) {
+
+            // loop through events and increment their attempt count
+            for (NSString *collectionName in eventIds) {
+                for (NSNumber *eid in eventIds[collectionName]) {
+                    [eventStore incrementAttempts:eid];
+                }
+            }
+
             // then make an http request to the keen server.
             NSURLResponse *response = nil;
             NSError *error = nil;
@@ -903,8 +911,6 @@ static KIOEventStore *eventStore;
                 if (deleteFile) {
                     [eventStore deleteEvent: eid];
                     KCLog(@"Successfully deleted event: %@", eid);
-                } else {
-                    [eventStore incrementAttempts:eid];
                 }
                 count++;
             }
@@ -914,13 +920,6 @@ static KIOEventStore *eventStore;
         KCLog(@"Response code was NOT 200. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
-
-        // loop through events and increment their attempt count
-        for (NSString *collectionName in eventIds) {
-            for (NSNumber *eid in eventIds[collectionName]) {
-                [eventStore incrementAttempts:eid];
-            }
-        }
     }
 }
 
