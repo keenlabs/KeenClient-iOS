@@ -555,6 +555,34 @@
     STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
 }
 
+- (void)testIncrementEvenOnNoResponse {
+    // mock an empty response from the server
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:200];
+
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+
+    // and "upload" it
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the file wasn't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one event after an unsuccessful attempt.");
+
+
+    // add another event
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure both filef weren't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one event after 2 unsuccessful attempts.");
+
+
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the event was incremented
+    STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
+    STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:4] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+}
+
 - (void)testUploadFailedBadRequest {
     id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
                                                                    AndErrorCode:@"InvalidCollectionNameError" 
