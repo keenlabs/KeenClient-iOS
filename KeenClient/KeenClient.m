@@ -639,6 +639,11 @@ static KIOEventStore *eventStore;
         [requestDict setObject:eventsArray forKey:coll];
     }
     
+    if ([requestDict count] == 0) {
+        KCLog(@"Request data is empty");
+        return;
+    }
+    
     NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
     if (error) {
         KCLog(@"An error occurred when serializing the final request data back to JSON: %@",
