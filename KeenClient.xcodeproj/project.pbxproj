@@ -169,7 +169,7 @@
 		1296396919C10AD200B2B653 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		1296397519C10AD200B2B653 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		1296398C19C10B8500B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		87A331F21AE13F6200104912 /* KeenClient-Framework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "KeenClient-Framework.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		87A331F21AE13F6200104912 /* KeenClient-Framework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "KeenClient-Framework.framework"; path = KeenClientFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		87A331F51AE13F6200104912 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CA6410D618E37E7C00E53E3C /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* KIOEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
@@ -1277,6 +1277,7 @@
 				87A332061AE13F6200104912 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
