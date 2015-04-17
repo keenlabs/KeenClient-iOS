@@ -11,12 +11,6 @@
 #import "KIOEventStore.h"
 #import "KeenProperties.h"
 
-//! Project version number for MGImageUtilities.
-FOUNDATION_EXPORT double KeenClientVersionNumber;
-
-//! Project version string for MGImageUtilities.
-FOUNDATION_EXPORT const unsigned char KeenClientVersionString[];
-
 // defines a type for the block we'll use with our global properties
 typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 

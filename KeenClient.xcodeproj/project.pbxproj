@@ -77,6 +77,7 @@
 		87A332151AE1400600104912 /* keen_io_sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		87A332161AE1400600104912 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		87A332171AE1400C00104912 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
+		87A3322E1AE15CBD00104912 /* KeenClientFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 87A3322C1AE15CA000104912 /* KeenClientFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */; };
@@ -169,8 +170,9 @@
 		1296396919C10AD200B2B653 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		1296397519C10AD200B2B653 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		1296398C19C10B8500B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		87A331F21AE13F6200104912 /* KeenClient-Framework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "KeenClient-Framework.framework"; path = KeenClientFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		87A331F21AE13F6200104912 /* KeenClientFramework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KeenClientFramework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		87A331F51AE13F6200104912 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		87A3322C1AE15CA000104912 /* KeenClientFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenClientFramework.h; sourceTree = "<group>"; };
 		CA6410D618E37E7C00E53E3C /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* KIOEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
 		CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStoreTests.h; sourceTree = "<group>"; };
@@ -291,7 +293,7 @@
 				0111013314EF709A009794A5 /* libKeenClient-Simulator.a */,
 				0111014B14EF70AB009794A5 /* libKeenClient-Device.a */,
 				1296396319C10AD200B2B653 /* libKeenClient-Cocoa.a */,
-				87A331F21AE13F6200104912 /* KeenClient-Framework.framework */,
+				87A331F21AE13F6200104912 /* KeenClientFramework.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -389,6 +391,7 @@
 			isa = PBXGroup;
 			children = (
 				87A331F41AE13F6200104912 /* Supporting Files */,
+				87A3322C1AE15CA000104912 /* KeenClientFramework.h */,
 			);
 			path = "KeenClient-Framework";
 			sourceTree = "<group>";
@@ -470,6 +473,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87A3322E1AE15CBD00104912 /* KeenClientFramework.h in Headers */,
 				87A332121AE13FB200104912 /* KeenClient.h in Headers */,
 				87A332131AE13FB200104912 /* KeenProperties.h in Headers */,
 				87A332141AE13FB200104912 /* KIOEventStore.h in Headers */,
@@ -584,7 +588,7 @@
 			);
 			name = KeenClientFramework;
 			productName = "KeenClient-Framework";
-			productReference = 87A331F21AE13F6200104912 /* KeenClient-Framework.framework */;
+			productReference = 87A331F21AE13F6200104912 /* KeenClientFramework.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
