@@ -1233,8 +1233,8 @@
     client.isRunningTests = YES;
     
     // result from class method should equal the SDK Version constant
-    STAssertTrue([KeenClient sdkVersion] == kKeenSdkVersion,  @"SDK Version from class method equals the SDK Version constant.");
-    STAssertFalse([KeenClient sdkVersion] != kKeenSdkVersion, @"SDK Version from class method doesn't equal the SDK Version constant.");
+    STAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],  @"SDK Version from class method equals the SDK Version constant.");
+    STAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
 }
 
 - (void)testSDKVersionInstanceClient {
@@ -1242,8 +1242,8 @@
     client.isRunningTests = YES;
     
     // result from class method should equal the SDK Version constant
-    STAssertTrue([KeenClient sdkVersion] == kKeenSdkVersion,  @"SDK Version from class method equals the SDK Version constant.");
-    STAssertFalse([KeenClient sdkVersion] != kKeenSdkVersion, @"SDK Version from class method doesn't equal the SDK Version constant.");
+    STAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],  @"SDK Version from class method equals the SDK Version constant.");
+    STAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
 }
 
 # pragma mark - test filesystem utility methods
