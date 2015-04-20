@@ -21,7 +21,7 @@
 @property (nonatomic, strong) NSString *readKey;
 
 // If we're running tests.
-@property (nonatomic) Boolean isRunningTests;
+@property (nonatomic) BOOL isRunningTests;
 
 - (NSData *)sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
 - (BOOL)isNetworkConnected;
@@ -215,7 +215,7 @@
     KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
     NSDate *date = [NSDate date];
-    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
+    KeenProperties *keenProperties = [[KeenProperties alloc] init];
     keenProperties.timestamp = date;
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
@@ -239,8 +239,8 @@
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
-    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
-    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
+    KeenProperties *keenProperties = [[KeenProperties alloc] init];
+    CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     keenProperties.location = location;
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
@@ -286,7 +286,7 @@
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
-    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
+    CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     client.currentLocation = location;
     // add an event
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
@@ -376,7 +376,7 @@
     STAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
-- (NSDictionary *)buildResultWithSuccess:(Boolean)success 
+- (NSDictionary *)buildResultWithSuccess:(BOOL)success
                             andErrorCode:(NSString *)errorCode 
                           andDescription:(NSString *)description {
     NSDictionary *result = [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithBool:success]
@@ -389,7 +389,7 @@
     return result;
 }
 
-- (NSDictionary *)buildResponseJsonWithSuccess:(Boolean)success 
+- (NSDictionary *)buildResponseJsonWithSuccess:(BOOL)success
                                  AndErrorCode:(NSString *)errorCode 
                                AndDescription:(NSString *)description {
     NSDictionary *result = [self buildResultWithSuccess:success 
@@ -414,7 +414,7 @@
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
-    NSHTTPURLResponse *response = [[[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil] autorelease];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
     data = [client handleInvalidJSONInObject:data];
@@ -442,7 +442,7 @@
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
-    NSHTTPURLResponse *response = [[[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil] autorelease];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
     data = [client handleInvalidJSONInObject:data];
@@ -1384,7 +1384,7 @@
 
 - (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
     // write file atomically so we don't ever have a partial event to worry about.
-    Boolean success = [data writeToFile:file atomically:YES];
+    BOOL success = [data writeToFile:file atomically:YES];
     if (!success) {
         KCLog(@"Error when writing event to file: %@", file);
         return NO;

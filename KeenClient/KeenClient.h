@@ -171,7 +171,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  @return true if logging is enabled, false if disabled.
  */
-+ (Boolean)isLoggingEnabled;
++ (BOOL)isLoggingEnabled;
 
 
 /**

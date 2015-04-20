@@ -47,7 +47,7 @@ static KIOEventStore *eventStore;
 @property (nonatomic) dispatch_queue_t uploadQueue;
 
 // If we're running tests.
-@property (nonatomic) Boolean isRunningTests;
+@property (nonatomic) BOOL isRunningTests;
 
 /**
  Initializes KeenClient without setting its project ID or API key.
@@ -187,7 +187,7 @@ static KIOEventStore *eventStore;
     loggingEnabled = YES;
 }
 
-+ (Boolean)isLoggingEnabled {
++ (BOOL)isLoggingEnabled {
     return loggingEnabled;
 }
 
@@ -390,7 +390,7 @@ static KIOEventStore *eventStore;
 
 # pragma mark - Add events
 
-- (Boolean)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (BOOL)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     NSString *errorMessage = nil;
     
     if ([eventCollection rangeOfString:@"$"].location == 0) {
@@ -404,7 +404,7 @@ static KIOEventStore *eventStore;
     return YES;
 }
 
-- (Boolean)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
+- (BOOL)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
     NSString *errorMessage = nil;
     
     if (depth == 0) {
@@ -886,8 +886,8 @@ static KIOEventStore *eventStore;
             // (making sure to keep any failures due to server error)
             NSUInteger count = 0;
             for (NSDictionary *result in results) {
-                Boolean deleteFile = YES;
-                Boolean success = [[result objectForKey:kKeenSuccessParam] boolValue];
+                BOOL deleteFile = YES;
+                BOOL success = [[result objectForKey:kKeenSuccessParam] boolValue];
                 if (!success) {
                     // grab error code and description
                     NSDictionary *errorDict = [result objectForKey:kKeenErrorParam];
