@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Keen Labs. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface KIOEventStoreTests : SenTestCase
+@interface KIOEventStoreTests : XCTestCase
 
 @end

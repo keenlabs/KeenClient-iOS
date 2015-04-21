@@ -46,7 +46,6 @@
 		015D308B1822E8D200F8735B /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 015D308A1822E8D200F8735B /* libOCMock.a */; };
 		017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE12814E30C96000F3868 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
-		017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12F14E30C96000F3868 /* SenTestingKit.framework */; };
 		017EE13214E30C96000F3868 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE13114E30C96000F3868 /* UIKit.framework */; };
 		017EE13314E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE13614E30C96000F3868 /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE11E14E30C96000F3868 /* libKeenClient.a */; };
@@ -176,8 +175,7 @@
 		017EE12514E30C96000F3868 /* KeenClient-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KeenClient-Prefix.pch"; sourceTree = "<group>"; };
 		017EE12614E30C96000F3868 /* KeenClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenClient.h; sourceTree = "<group>"; };
 		017EE12714E30C96000F3868 /* KeenClient.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KeenClient.m; sourceTree = "<group>"; };
-		017EE12E14E30C96000F3868 /* KeenClientTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeenClientTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		017EE12F14E30C96000F3868 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		017EE12E14E30C96000F3868 /* KeenClientTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KeenClientTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		017EE13114E30C96000F3868 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		017EE13914E30C96000F3868 /* KeenClientTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "KeenClientTests-Info.plist"; sourceTree = "<group>"; };
 		017EE13B14E30C96000F3868 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -247,7 +245,6 @@
 				F4D3B61E1A0D98B4000825FE /* SystemConfiguration.framework in Frameworks */,
 				015D308B1822E8D200F8735B /* libOCMock.a in Frameworks */,
 				012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */,
-				017EE13014E30C96000F3868 /* SenTestingKit.framework in Frameworks */,
 				017EE13214E30C96000F3868 /* UIKit.framework in Frameworks */,
 				017EE13314E30C96000F3868 /* Foundation.framework in Frameworks */,
 				017EE13614E30C96000F3868 /* libKeenClient.a in Frameworks */,
@@ -313,7 +310,7 @@
 			isa = PBXGroup;
 			children = (
 				017EE11E14E30C96000F3868 /* libKeenClient.a */,
-				017EE12E14E30C96000F3868 /* KeenClientTests.octest */,
+				017EE12E14E30C96000F3868 /* KeenClientTests.xctest */,
 				0111013314EF709A009794A5 /* libKeenClient-Simulator.a */,
 				0111014B14EF70AB009794A5 /* libKeenClient-Device.a */,
 				1296396319C10AD200B2B653 /* libKeenClient-Cocoa.a */,
@@ -330,7 +327,6 @@
 				1296398C19C10B8500B2B653 /* Cocoa.framework */,
 				CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */,
 				017EE12114E30C96000F3868 /* Foundation.framework */,
-				017EE12F14E30C96000F3868 /* SenTestingKit.framework */,
 				017EE13114E30C96000F3868 /* UIKit.framework */,
 				1296396419C10AD200B2B653 /* Cocoa.framework */,
 				1296397519C10AD200B2B653 /* XCTest.framework */,
@@ -577,8 +573,8 @@
 			);
 			name = KeenClientTests;
 			productName = KeenClientTests;
-			productReference = 017EE12E14E30C96000F3868 /* KeenClientTests.octest */;
-			productType = "com.apple.product-type.bundle.ocunit-test";
+			productReference = 017EE12E14E30C96000F3868 /* KeenClientTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		1296396219C10AD200B2B653 /* KeenClient-Cocoa */ = {
 			isa = PBXNativeTarget;
@@ -999,10 +995,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
@@ -1021,7 +1018,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "armv7 armv7s";
 				WARNING_CFLAGS = "";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -1029,10 +1025,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(DEVELOPER_LIBRARY_DIR)/Frameworks",
+					"$(inherited)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
@@ -1046,7 +1043,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "armv7 armv7s";
 				WARNING_CFLAGS = "";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
