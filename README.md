@@ -79,7 +79,7 @@ pod install
 
 ##### Build Settings
 
-Make sure to add CoreLocation.framework to the "Link Binary with Libraries" section.
+Make sure to add CoreLocation.framework and SystemConfiguration.framework to the "Link Binary with Libraries" section.
 
 Also enable the "-ObjC" linker flag under "Other Linker Flags".
 
