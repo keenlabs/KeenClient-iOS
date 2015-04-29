@@ -485,7 +485,7 @@
 }
 
 - (int)queryUserVersion {
-    int databaseVersion;
+    int databaseVersion = 0;
 
     // get current database version of schema
     static keen_io_sqlite3_stmt *stmt_version;
