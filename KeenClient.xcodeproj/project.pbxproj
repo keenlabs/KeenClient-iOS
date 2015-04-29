@@ -66,6 +66,10 @@
 		1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 		1296399719C10D2C00B2B653 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		1296399819C10D4000B2B653 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-checker"; }; };
+		3EE5CA9D1AF0697200D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
+		3EE5CA9F1AF069D900D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
+		3EE5CAA01AF069E300D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
+		3EE5CAA21AF06A0700D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */; };
 		CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */; };
@@ -167,6 +171,7 @@
 		1296396919C10AD200B2B653 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		1296397519C10AD200B2B653 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		1296398C19C10B8500B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		CA6410D618E37E7C00E53E3C /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* KIOEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
 		CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStoreTests.h; sourceTree = "<group>"; };
@@ -186,6 +191,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EE5CA9F1AF069D900D6C48D /* SystemConfiguration.framework in Frameworks */,
 				0111012314EF709A009794A5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -194,6 +200,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EE5CAA01AF069E300D6C48D /* SystemConfiguration.framework in Frameworks */,
 				0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -202,6 +209,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EE5CA9D1AF0697200D6C48D /* SystemConfiguration.framework in Frameworks */,
 				012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */,
 				017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */,
 			);
@@ -225,6 +233,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EE5CAA21AF06A0700D6C48D /* SystemConfiguration.framework in Frameworks */,
 				1296398D19C10B8500B2B653 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -264,7 +273,6 @@
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
-				012E8A5C1672BE860021F6FA /* CoreLocation.framework */,
 				0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */,
 				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE12314E30C96000F3868 /* KeenClient */,
@@ -290,6 +298,8 @@
 		017EE12014E30C96000F3868 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				012E8A5C1672BE860021F6FA /* CoreLocation.framework */,
+				3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */,
 				F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */,
 				1296398C19C10B8500B2B653 /* Cocoa.framework */,
 				CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */,
