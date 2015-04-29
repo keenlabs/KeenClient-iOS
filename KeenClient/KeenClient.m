@@ -11,6 +11,7 @@
 #import "KIOEventStore.h"
 #import "KIOReachability.h"
 #import "HTTPCodes.h"
+#import "KIOQuery.h"
 #import <CoreLocation/CoreLocation.h>
 
 
@@ -46,6 +47,9 @@ static KIOEventStore *eventStore;
 
 // A dispatch queue used for uploads.
 @property (nonatomic) dispatch_queue_t uploadQueue;
+
+// A dispatch queue used for querying.
+@property (nonatomic) dispatch_queue_t queryQueue;
 
 // If we're running tests.
 @property (nonatomic) BOOL isRunningTests;
@@ -160,6 +164,7 @@ static KIOEventStore *eventStore;
 @synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
 @synthesize globalPropertiesBlock=_globalPropertiesBlock;
 @synthesize uploadQueue;
+@synthesize queryQueue;
 
 # pragma mark - Class lifecycle
 
@@ -231,6 +236,9 @@ static KIOEventStore *eventStore;
     [self refreshCurrentLocation];
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
+
+    // use global concurrent dispatch queue to run queries in parallel
+    self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
     self.maxAttempts = 3;
 
@@ -963,6 +971,66 @@ static KIOEventStore *eventStore;
     }
 
     return NO;
+}
+
+# pragma mark - Querying
+
+- (void)runAsyncQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error block:(void (^)(NSData *))block {
+    dispatch_async(self.queryQueue, ^{
+        NSData *dataResponse = [self runQuery:keenQuery returningResponse:response error:error];
+- (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
+    dispatch_async(self.uploadQueue, ^{
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+        
+        // we're done querying, call the main queue and execute the block
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // run the user-specific block (if there is one)
+            if (block) {
+                KCLog(@"Running user-specified block.");
+                @try {
+                    block(dataResponse, response, error);
+                } @finally {
+                    // do nothing
+                }
+            }
+        });
+    });
+}
+
+- (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+    
+    if (block) {
+        KCLog(@"Running user-specified query block.");
+        @try {
+            block(dataResponse, response, error);
+        } @finally {
+            // do nothing
+        }
+    }
+}
+
+- (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error {
+    @synchronized(self) {
+        NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
+                           kKeenServerAddress, kKeenApiVersion, self.projectId, keenQuery.queryType];
+        KCLog(@"Sending request to: %@", urlString);
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
+        [request setHTTPMethod:@"POST"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
+        [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
+        [request setHTTPBody:[keenQuery convertQueryToData]];
+        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+        
+        return responseData;
+    }
 }
 
 # pragma mark - NSDate => NSString

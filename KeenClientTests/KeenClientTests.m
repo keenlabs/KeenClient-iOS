@@ -12,6 +12,7 @@
 #import "KeenConstants.h"
 #import "KeenProperties.h"
 #import "HTTPCodes.h"
+#import "KIOQuery.h"
 
 
 @interface KeenClient (testability)
@@ -377,6 +378,8 @@
     XCTAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
+# pragma mark - test mock request methods
+
 - (NSDictionary *)buildResultWithSuccess:(BOOL)success
                             andErrorCode:(NSString *)errorCode 
                           andDescription:(NSString *)description {
@@ -460,6 +463,26 @@
     return mock;
 }
 
+- (id)queryMockTestHelper:(id)responseData andStatusCode:(NSInteger)code {
+    // set up the partial mock
+    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    id mock = [OCMockObject partialMockForObject:client];
+    
+    // set up the response we're faking out
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
+    
+    // serialize the faked out response data
+    responseData = [client handleInvalidJSONInObject:responseData];
+    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:responseData
+                                                             options:0
+                                                               error:nil];
+    // set up the response data we're faking out
+    [[[mock stub] andReturn:serializedData] runQuery:[OCMArg any] returningResponse:[OCMArg setTo:response] error:[OCMArg setTo:nil]];
+    
+    return mock;
+}
+
 - (void)addSimpleEventAndUploadWithMock:(id)mock {
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -467,6 +490,8 @@
     // and "upload" it
     [mock uploadWithFinishedBlock:nil];
 }
+
+# pragma mark - test upload
 
 -(void)testUploadWithNoEvents {
     id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK];
@@ -1319,7 +1344,6 @@
 }
 
 - (void)testMigrateFSEventsInstanceClient {
-    
     KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
@@ -1370,6 +1394,124 @@
     // result from class method should equal the SDK Version constant
     XCTAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],  @"SDK Version from class method equals the SDK Version constant.");
     XCTAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
+}
+
+# pragma mark - test query
+
+- (void)testCountQuerySuccess {
+    id mock = [self queryMockTestHelper:@{@"result": @10} andStatusCode:HTTPCode200OK];
+    
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
+    
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
+    
+    KCLog(@"error: %@", error);
+    KCLog(@"response: %@", response);
+    
+    XCTAssertNil(error);
+    
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+    XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+    
+    NSDictionary *responseDictionary = [NSJSONSerialization
+                                  JSONObjectWithData:queryResponseData
+                                  options:kNilOptions
+                                  error:&error];
+    
+    KCLog(@"response: %@", responseDictionary);
+    
+    NSNumber *result = [responseDictionary objectForKey:@"result"];
+    
+    XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+}
+
+- (void)testCountQueryFailure {
+    id mock = [self queryMockTestHelper:@{} andStatusCode:HTTPCode400BadRequest];
+    
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{}];
+    
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
+    
+    KCLog(@"error: %@", error);
+    KCLog(@"response: %@", response);
+    
+    XCTAssertNil(error);
+    
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+    XCTAssertEqual([httpResponse statusCode], HTTPCode400BadRequest);
+    
+    NSDictionary *responseDictionary = [NSJSONSerialization
+                                  JSONObjectWithData:queryResponseData
+                                  options:kNilOptions
+                                  error:&error];
+    
+    KCLog(@"response: %@", responseDictionary);
+    
+    NSNumber *result = [responseDictionary objectForKey:@"result"];
+    
+    XCTAssertNil(result);
+}
+
+- (void)testCountUniqueQuerySuccess {
+    id mock = [self queryMockTestHelper:@{@"result": @10} andStatusCode:HTTPCode200OK];
+    
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
+    
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
+    
+    KCLog(@"error: %@", error);
+    KCLog(@"response: %@", response);
+    
+    XCTAssertNil(error);
+    
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+    XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+    
+    NSDictionary *responseDictionary = [NSJSONSerialization
+                                  JSONObjectWithData:queryResponseData
+                                  options:kNilOptions
+                                  error:&error];
+    
+    KCLog(@"response: %@", responseDictionary);
+    
+    NSNumber *result = [responseDictionary objectForKey:@"result"];
+    
+    XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+}
+
+- (void)testCountUniqueQueryWithMissingTargetProperty {
+    id mock = [self queryMockTestHelper:@{} andStatusCode:HTTPCode400BadRequest];
+    
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
+    
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
+    
+    KCLog(@"error: %@", error);
+    KCLog(@"response: %@", response);
+    
+    XCTAssertNil(error);
+    
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+    XCTAssertEqual([httpResponse statusCode], HTTPCode400BadRequest);
+    
+    NSDictionary *responseDictionary = [NSJSONSerialization
+                                  JSONObjectWithData:queryResponseData
+                                  options:kNilOptions
+                                  error:&error];
+    
+    KCLog(@"response: %@", responseDictionary);
+    
+    NSNumber *result = [responseDictionary objectForKey:@"result"];
+    
+    XCTAssertNil(result);
 }
 
 # pragma mark - test filesystem utility methods

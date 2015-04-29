@@ -38,7 +38,7 @@
 }
 
 - (void)testGetQueryData {
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andEventCollection:@"test"];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"awesome code"}];
     
     NSData *data = [query convertQueryToData];
     

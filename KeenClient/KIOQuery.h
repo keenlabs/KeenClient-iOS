@@ -11,9 +11,9 @@
 @interface KIOQuery : NSObject
 
 @property (nonatomic, strong) NSString *queryType;
-@property (nonatomic, strong) NSString *eventCollection;
+@property (nonatomic, strong) NSDictionary *propertiesDictionary;
 
-- (id)initWithQuery:(NSString *)queryType andEventCollection:(NSString *)eventCollection;
+- (id)initWithQuery:(NSString *)queryType andPropertiesDictionary:(NSDictionary *)propertiesDictionary;
 
 + (BOOL)validateQueryType:(NSString *)queryType;
 

@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 #import "KIOEventStore.h"
+#import "KIOQuery.h"
 #import "KeenProperties.h"
 
 // defines a type for the block we'll use with our global properties
@@ -280,6 +281,14 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  * Import fs-based data into the SQLite database.
  */
 - (void)importFileData;
+
+- (void)runAsyncQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error block:(void (^)(NSData*))block;
+/**
+ Runs a synchronous query.
+ 
+ This method is only used for testing.
+ */
+- (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error;
 
 // defines the KCLog macro
 #define KEEN_LOGGING_ENABLED [KeenClient loggingEnabled]

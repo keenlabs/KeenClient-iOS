@@ -10,7 +10,7 @@
 
 @implementation KIOQuery
 
-- (id)initWithQuery:(NSString *)queryType andEventCollection:(NSString *)eventCollection {
+- (id)initWithQuery:(NSString *)queryType andPropertiesDictionary:(NSDictionary *)propertiesDictionary {
     if (![KIOQuery validateQueryType:queryType]) {
         return nil;
     }
@@ -19,14 +19,14 @@
     
     if (self) {
         self.queryType = queryType;
-        self.eventCollection = eventCollection;
+        self.propertiesDictionary = propertiesDictionary;
     }
     
     return self;
 }
 
 + (BOOL)validateQueryType:(NSString *)queryType {
-    // validate that project ID is acceptable
+    // TODO: Validate query type on client side?
     if (!queryType || [queryType length] == 0) {
         return NO;
     }
@@ -36,11 +36,7 @@
 - (NSData *)convertQueryToData {
     NSError *error = nil;
     
-    NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
-    
-    [requestDict setObject:self.eventCollection forKey:@"event_collection"];
-    
-    NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:self.propertiesDictionary options:0 error:&error];
     
     NSString *strData = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
     
