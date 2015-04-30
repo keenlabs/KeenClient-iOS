@@ -9,6 +9,7 @@
 #import "KeenClient.h"
 #import "KeenConstants.h"
 #import "KIOEventStore.h"
+#import "Reachability.h"
 #import <CoreLocation/CoreLocation.h>
 
 
@@ -46,7 +47,7 @@ static KIOEventStore *eventStore;
 @property (nonatomic) dispatch_queue_t uploadQueue;
 
 // If we're running tests.
-@property (nonatomic) Boolean isRunningTests;
+@property (nonatomic) BOOL isRunningTests;
 
 /**
  Initializes KeenClient without setting its project ID or API key.
@@ -186,7 +187,7 @@ static KIOEventStore *eventStore;
     loggingEnabled = YES;
 }
 
-+ (Boolean)isLoggingEnabled {
++ (BOOL)isLoggingEnabled {
     return loggingEnabled;
 }
 
@@ -229,6 +230,8 @@ static KIOEventStore *eventStore;
     [self refreshCurrentLocation];
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
+
+    self.maxAttempts = 3;
 
     return self;
 }
@@ -372,7 +375,7 @@ static KIOEventStore *eventStore;
     // If it's a relatively recent event, turn off updates to save power
     NSDate* eventDate = newLocation.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
-    if (abs(howRecent) < 15.0) {
+    if ((int)fabs(howRecent) < 15.0) {
         KCLog(@"latitude %+.6f, longitude %+.6f\n",
               newLocation.coordinate.latitude,
               newLocation.coordinate.longitude);
@@ -381,13 +384,13 @@ static KIOEventStore *eventStore;
         [self.locationManager stopUpdatingLocation];
         KCLog(@"Done finding location");
     } else {
-        KCLog(@"Event wasn't recent enough: %+.2d", abs(howRecent));
+        KCLog(@"Event wasn't recent enough: %+.2d", (int)fabs(howRecent));
     }
 }
 
 # pragma mark - Add events
 
-- (Boolean)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (BOOL)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     NSString *errorMessage = nil;
     
     if ([eventCollection rangeOfString:@"$"].location == 0) {
@@ -401,7 +404,7 @@ static KIOEventStore *eventStore;
     return YES;
 }
 
-- (Boolean)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
+- (BOOL)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
     NSString *errorMessage = nil;
     
     if (depth == 0) {
@@ -608,7 +611,7 @@ static KIOEventStore *eventStore;
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
     // get data for the API request we'll make
-    NSMutableDictionary *events = [eventStore getEvents];
+    NSMutableDictionary *events = [eventStore getEventsWithMaxAttempts:self.maxAttempts];
     
     NSError *error = nil;
     for (NSString *coll in events) {
@@ -779,10 +782,20 @@ static KIOEventStore *eventStore;
 
 # pragma mark - Uploading
 
+- (BOOL)isNetworkConnected {
+    Reachability *hostReachability = [Reachability reachabilityForInternetConnection];
+    return [hostReachability currentReachabilityStatus] != NotReachable;
+}
+
 - (void)uploadHelper
 {
     // only one thread should be doing an upload at a time.
     @synchronized(self) {
+
+        if (![self isNetworkConnected]) {
+            // no network connection, so don't even attempt to upload
+            return;
+        }
 
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
@@ -799,6 +812,14 @@ static KIOEventStore *eventStore;
         // get data for the API request we'll make
 
         if ([data length] > 0) {
+
+            // loop through events and increment their attempt count
+            for (NSString *collectionName in eventIds) {
+                for (NSNumber *eid in eventIds[collectionName]) {
+                    [eventStore incrementAttempts:eid];
+                }
+            }
+
             // then make an http request to the keen server.
             NSURLResponse *response = nil;
             NSError *error = nil;
@@ -865,8 +886,8 @@ static KIOEventStore *eventStore;
             // (making sure to keep any failures due to server error)
             NSUInteger count = 0;
             for (NSDictionary *result in results) {
-                Boolean deleteFile = YES;
-                Boolean success = [[result objectForKey:kKeenSuccessParam] boolValue];
+                BOOL deleteFile = YES;
+                BOOL success = [[result objectForKey:kKeenSuccessParam] boolValue];
                 if (!success) {
                     // grab error code and description
                     NSDictionary *errorDict = [result objectForKey:kKeenErrorParam];
@@ -883,9 +904,11 @@ static KIOEventStore *eventStore;
                         deleteFile = NO;
                     }
                 }
+
+                NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
+
                 // delete the file if we need to
                 if (deleteFile) {
-                    NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
                     [eventStore deleteEvent: eid];
                     KCLog(@"Successfully deleted event: %@", eid);
                 }
@@ -897,7 +920,7 @@ static KIOEventStore *eventStore;
         KCLog(@"Response code was NOT 200. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
-    }            
+    }
 }
 
 # pragma mark - HTTP request/response management

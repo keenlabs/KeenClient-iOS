@@ -98,6 +98,11 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 @property (nonatomic, strong) CLLocation *currentLocation;
 
 /**
+ The maximum number of times to try POSTing an event before purging it from the DB.
+ */
+@property int maxAttempts;
+
+/**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
  to the given parameters.
  
@@ -166,7 +171,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  @return true if logging is enabled, false if disabled.
  */
-+ (Boolean)isLoggingEnabled;
++ (BOOL)isLoggingEnabled;
 
 
 /**

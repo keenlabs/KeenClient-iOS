@@ -21,9 +21,10 @@
 @property (nonatomic, strong) NSString *readKey;
 
 // If we're running tests.
-@property (nonatomic) Boolean isRunningTests;
+@property (nonatomic) BOOL isRunningTests;
 
 - (NSData *)sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
+- (BOOL)isNetworkConnected;
 - (id)convertDate: (id) date;
 - (id)handleInvalidJSONInObject:(id)value;
 
@@ -214,12 +215,12 @@
     KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
     NSDate *date = [NSDate date];
-    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
+    KeenProperties *keenProperties = [[KeenProperties alloc] init];
     keenProperties.timestamp = date;
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -238,13 +239,13 @@
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
-    KeenProperties *keenProperties = [[[KeenProperties alloc] init] autorelease];
-    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
+    KeenProperties *keenProperties = [[KeenProperties alloc] init];
+    CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     keenProperties.location = location;
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -267,7 +268,7 @@
 
     [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
     [clientI addEvent:eventDictionary toEventCollection:@"foo" error:nil];
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -285,13 +286,13 @@
     KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
-    CLLocation *location = [[[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47] autorelease];
+    CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     client.currentLocation = location;
     // add an event
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     // now get the stored event
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -317,7 +318,7 @@
     // now get the stored event
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"bar"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"bar"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -364,7 +365,7 @@
     STAssertNil(error, @"event should add");
     
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
@@ -375,7 +376,7 @@
     STAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
-- (NSDictionary *)buildResultWithSuccess:(Boolean)success 
+- (NSDictionary *)buildResultWithSuccess:(BOOL)success
                             andErrorCode:(NSString *)errorCode 
                           andDescription:(NSString *)description {
     NSDictionary *result = [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithBool:success]
@@ -388,7 +389,7 @@
     return result;
 }
 
-- (NSDictionary *)buildResponseJsonWithSuccess:(Boolean)success 
+- (NSDictionary *)buildResponseJsonWithSuccess:(BOOL)success
                                  AndErrorCode:(NSString *)errorCode 
                                AndDescription:(NSString *)description {
     NSDictionary *result = [self buildResultWithSuccess:success 
@@ -399,6 +400,10 @@
 }
 
 - (id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code {
+    return [self uploadTestHelperWithData:data andStatusCode:code andNetwork:@YES];
+}
+
+- (id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code andNetwork:(NSNumber *)network {
     if (!data) {
         data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
     }
@@ -409,7 +414,7 @@
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
-    NSHTTPURLResponse *response = [[[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil] autorelease];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
     data = [client handleInvalidJSONInObject:data];
@@ -420,7 +425,9 @@
     [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any] 
                                      returningResponse:[OCMArg setTo:response] 
                                                  error:[OCMArg setTo:nil]];
-    
+
+    [[[mock stub] andReturnValue:network] isNetworkConnected];
+
     return mock;
 }
 
@@ -435,7 +442,7 @@
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
-    NSHTTPURLResponse *response = [[[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil] autorelease];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
     data = [client handleInvalidJSONInObject:data];
@@ -446,6 +453,8 @@
     [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any]
                                      returningResponse:[OCMArg setTo:response]
                                                  error:[OCMArg setTo:nil]];
+
+    [[[mock stub] andReturnValue:@YES] isNetworkConnected];
     
     return mock;
 }
@@ -512,6 +521,68 @@
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one files after a successful upload.");
 }
 
+
+- (void)testDeleteAfterMaxAttempts {
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:500];
+
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+
+    // and "upload" it
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the file wasn't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one file after an unsuccessful attempts.");
+
+
+    // add another event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure both filef weren't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 2, @"There should be two files after 2 unsuccessful attempts.");
+
+
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the first file was deleted from the store, but the second one remains
+    STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3] allKeys].count == 1, @"There should be one files after 3 unsuccessful attempts.");
+
+
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure both files were delete from the store
+    STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
+}
+
+- (void)testIncrementEvenOnNoResponse {
+    // mock an empty response from the server
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:200];
+
+    // add an event
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+
+    // and "upload" it
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the file wasn't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one event after an unsuccessful attempt.");
+
+
+    // add another event
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure both filef weren't deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"There should be one event after 2 unsuccessful attempts.");
+
+
+    [mock uploadWithFinishedBlock:nil];
+
+    // make sure the event was incremented
+    STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
+    STAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:4] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+}
+
 - (void)testUploadFailedBadRequest {
     id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
                                                                    AndErrorCode:@"InvalidCollectionNameError" 
@@ -549,11 +620,21 @@
 
 - (void)testUploadFailedBadRequestUnknownErrorInstanceClient {
     id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:400];
-    
+
     [self addSimpleEventAndUploadWithMock:mock];
-    
+
     // make sure the file wasn't deleted locally
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"An upload that results in an unexpected error should not delete the event.");
+}
+
+- (void)testUploadSkippedNoNetwork {
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:200 andNetwork:@NO];
+
+    NSLog(@"my failure here.");
+    [self addSimpleEventAndUploadWithMock:mock];
+
+    // make sure the file wasn't deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"An upload with no network should not delete the event.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccess {
@@ -822,7 +903,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -877,7 +958,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -933,7 +1014,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -996,7 +1077,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
         
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1060,7 +1141,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1085,7 +1166,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
     
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEvents] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1233,8 +1314,8 @@
     client.isRunningTests = YES;
     
     // result from class method should equal the SDK Version constant
-    STAssertTrue([KeenClient sdkVersion] == kKeenSdkVersion,  @"SDK Version from class method equals the SDK Version constant.");
-    STAssertFalse([KeenClient sdkVersion] != kKeenSdkVersion, @"SDK Version from class method doesn't equal the SDK Version constant.");
+    STAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],  @"SDK Version from class method equals the SDK Version constant.");
+    STAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
 }
 
 - (void)testSDKVersionInstanceClient {
@@ -1242,8 +1323,8 @@
     client.isRunningTests = YES;
     
     // result from class method should equal the SDK Version constant
-    STAssertTrue([KeenClient sdkVersion] == kKeenSdkVersion,  @"SDK Version from class method equals the SDK Version constant.");
-    STAssertFalse([KeenClient sdkVersion] != kKeenSdkVersion, @"SDK Version from class method doesn't equal the SDK Version constant.");
+    STAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],  @"SDK Version from class method equals the SDK Version constant.");
+    STAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
 }
 
 # pragma mark - test filesystem utility methods
@@ -1303,7 +1384,7 @@
 
 - (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
     // write file atomically so we don't ever have a partial event to worry about.
-    Boolean success = [data writeToFile:file atomically:YES];
+    BOOL success = [data writeToFile:file atomically:YES];
     if (!success) {
         KCLog(@"Error when writing event to file: %@", file);
         return NO;

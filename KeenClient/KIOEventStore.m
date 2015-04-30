@@ -31,6 +31,8 @@
     keen_io_sqlite3_stmt *purge_stmt;
     keen_io_sqlite3_stmt *delete_stmt;
     keen_io_sqlite3_stmt *delete_all_stmt;
+    keen_io_sqlite3_stmt *increment_attempts_statement;
+    keen_io_sqlite3_stmt *delete_too_many_attempts_statement;
     keen_io_sqlite3_stmt *age_out_stmt;
     keen_io_sqlite3_stmt *convert_date_stmt;
 }
@@ -48,17 +50,22 @@
                 [self closeDB];
             }
 
+            if (![self migrateTable]) {
+                KCLog(@"Failed to migrate SQLite table!");
+                [self closeDB];
+            }
+
             // Now we'll init prepared statements for all the things we might do.
 
             // This statement inserts events into the table.
-            char *insert_sql = "INSERT INTO events (projectId, collection, eventData, pending) VALUES (?, ?, ?, 0)";
+            char *insert_sql = "INSERT INTO events (projectId, collection, eventData, pending, attempts) VALUES (?, ?, ?, 0, 0)";
             if (keen_io_sqlite3_prepare_v2(keen_dbname, insert_sql, -1, &insert_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare insert statement"];
                 [self closeDB];
             }
             
             // This statement finds non-pending events in the table.
-            char *find_sql = "SELECT id, collection, eventData FROM events WHERE pending=0 AND projectId=?";
+            char *find_sql = "SELECT id, collection, eventData FROM events WHERE pending=0 AND projectId=? AND attempts<?";
             if(keen_io_sqlite3_prepare_v2(keen_dbname, find_sql, -1, &find_stmt, NULL) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"prepare find statement"];
                 [self closeDB];
@@ -115,7 +122,20 @@
             if(keen_io_sqlite3_prepare_v2(keen_dbname, age_out_sql, -1, &age_out_stmt, NULL) != SQLITE_OK) {
                 [self closeDB];
             }
-            
+
+            // This statement increments the attempts count of an event.
+            char *increment_attempt_sql = "UPDATE events SET attempts = attempts + 1 WHERE id=?";
+            if(keen_io_sqlite3_prepare_v2(keen_dbname, increment_attempt_sql, -1, &increment_attempts_statement, NULL) != SQLITE_OK) {
+                [self handleSQLiteFailure:@"prepare increment attempt statement"];
+                [self closeDB];
+            }
+
+            // This statement deletes events exceeding a max attempt limit.
+            char *delete_too_many_attempts_sql = "DELETE FROM events WHERE attempts >= ?";
+            if(keen_io_sqlite3_prepare_v2(keen_dbname, delete_too_many_attempts_sql, -1, &delete_too_many_attempts_statement, NULL) != SQLITE_OK) {
+                [self closeDB];
+            }
+
             // This statement converts an NSDate to an ISO-8601 formatted date/time string (we use sqlite because NSDateFormatter isn't thread-safe)
             char *convert_date_sql = "SELECT strftime('%Y-%m-%dT%H:%M:%S',datetime(?,'unixepoch','localtime'))";
             if(keen_io_sqlite3_prepare_v2(keen_dbname, convert_date_sql, -1, &convert_date_stmt, NULL) != SQLITE_OK) {
@@ -167,7 +187,7 @@
     return wasAdded;
 }
 
-- (NSMutableDictionary *)getEvents{
+- (NSMutableDictionary *)getEventsWithMaxAttempts: (int)maxAttempts {
 
     // Create a dictionary to hold the contents of our select.
     __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
@@ -188,6 +208,12 @@
         if (keen_io_sqlite3_bind_text(find_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to find statement"];
         }
+        
+        if(keen_io_sqlite3_bind_int64(find_stmt, 2, maxAttempts) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind coll to add event statement"];
+            [self closeDB];
+        }
+
 
         while (keen_io_sqlite3_step(find_stmt) == SQLITE_ROW) {
             // Fetch data out the statement
@@ -353,7 +379,7 @@
         KCLog(@"DB is closed, skipping deleteEvent");
         return;
     }
-    
+
     dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_int64(age_out_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind offset to ageOut statement"];
@@ -366,6 +392,26 @@
     });
 }
 
+- (void)incrementAttempts: (NSNumber *)eventId {
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping incrementAttempts");
+        return;
+    }
+
+    dispatch_async(self.dbQueue, ^{
+
+        if (keen_io_sqlite3_bind_int64(increment_attempts_statement, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind eventid to increment attempts statement"];
+        }
+        if (keen_io_sqlite3_step(increment_attempts_statement) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"increment attempts"];
+        };
+        keen_io_sqlite3_reset(increment_attempts_statement);
+        keen_io_sqlite3_clear_bindings(increment_attempts_statement);
+
+    });
+}
 
 - (void)purgePendingEvents {
 
@@ -438,6 +484,178 @@
     return wasCreated;
 }
 
+- (int)queryUserVersion {
+    int databaseVersion = 0;
+
+    // get current database version of schema
+    static keen_io_sqlite3_stmt *stmt_version;
+
+    if(keen_io_sqlite3_prepare_v2(keen_dbname, "PRAGMA user_version;", -1, &stmt_version, NULL) != SQLITE_OK) {
+        return -1;
+    }
+
+    while(keen_io_sqlite3_step(stmt_version) == SQLITE_ROW) {
+        databaseVersion = keen_io_sqlite3_column_int(stmt_version, 0);
+    }
+    keen_io_sqlite3_finalize(stmt_version);
+
+    // -1 means error, >= 1 is a real version number, otherwise it's unversioned
+    if (databaseVersion != -1 && !(databaseVersion >= 1)) {
+        return 0;
+    }
+
+    return databaseVersion;
+}
+
+- (BOOL)beginTransaction {
+    char *err;
+    NSString *sql = @"BEGIN IMMEDIATE TRANSACTION;";
+    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"failed to commit transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        keen_io_sqlite3_free(err); // Free that error message
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)commitTransaction {
+    char *err;
+    NSString *sql = @"COMMIT TRANSACTION;";
+    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"failed to commit transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        keen_io_sqlite3_free(err); // Free that error message
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)rollbackTransaction {
+    char *err;
+    NSString *sql = @"ROLLBACK TRANSACTION;";
+    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"failed to rollback transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        keen_io_sqlite3_free(err); // Free that error message
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)setUserVersion: (int)userVersion {
+    char *err;
+    NSString *sql = [NSString stringWithFormat:@"PRAGMA user_version = %d;", userVersion];
+    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+        KCLog(@"failed to set user_version: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        keen_io_sqlite3_free(err); // Free that error message
+        return NO;
+    }
+
+    return YES;
+}
+
+- (int)runMigration: (int)forVersion {
+    char *err;
+
+    if (forVersion < 0) {
+        // versions less than 0 are an error
+        return -1;
+    } else if (forVersion == 0) {
+        // first migration does nothing, just adds adds a real version number (1).
+        return YES;
+    } else if (forVersion == 1) {
+        NSString *sql = @"ALTER TABLE events ADD COLUMN attempts INTEGER DEFAULT 0;";
+        if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
+            KCLog(@"Failed to add attempts column: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+            keen_io_sqlite3_free(err); // Free that error message
+            return -1;
+        }
+        return YES;
+    } else if (forVersion == 2) {
+        // This is the current version. To add a migration, increment the value of the
+        // RHS of the above if statement and add another else if statement in between
+        // to handle the new version number.
+        // e.g. change `forVersion == 2` to `forVersion == 3`, and then add an
+        // explicit block for handling the forVersion == 2 migration that looks like
+        // the forVersion == 1 block above.
+
+        // IMPORTANT: never remove any existing migration blocks!
+
+        return 0;
+    }
+
+    // versions that aren't integers or are greater than the max version we know about
+    // are errors
+    return -1;
+}
+
+-(BOOL)migrateFromVersion: (int)userVersion {
+    // this is really more of a while loop, but we use a for loop with a limit to avoid
+    // getting stuck in an infinite loop if there is a bug in the loop breaking logic
+    for(int i = 0; i < 1000; i++) {
+        if(![self beginTransaction]) {
+            // deal with error?
+            KCLog(@"Migration failed to begin a transaction with userVersion = %d.", userVersion);
+            return NO;
+        }
+
+        int migrationResult = [self runMigration:userVersion];
+        if (migrationResult == 0) {
+            // we didn't migrate anything, because we're current.
+            return YES;
+        }
+
+        if (migrationResult < 0) {
+            // error
+            if (![self rollbackTransaction]) {
+                KCLog(@"Migration failed to rollback a transaction with userVersion = %d.", userVersion);
+                // yeesh, couldn't rollback
+            }
+            return NO;
+        }
+
+        // we migrated, so increment PRAGMA user_version
+        if (![self setUserVersion:userVersion+1]) {
+            KCLog(@"Migration failed to set the user_version to %d.", userVersion);
+            if (![self rollbackTransaction]) {
+                KCLog(@"Migration failed to rollback a transaction after failing to set user_version (with userVersion = %d).", userVersion);
+                // whoa, double bad news
+            }
+            return NO;
+        }
+        // ok, let's commit this step
+        if (![self commitTransaction]) {
+            KCLog(@"Migration failed to commit a transaction with userVersion = %d.", userVersion);
+            return NO;
+        }
+
+        userVersion++;
+
+        // there might be more migrations, so we loop around again
+    }
+
+    KCLog(@"Migration loop maxed out after 1000 iterations. This is almost certainly a bug. Version %d", [self queryUserVersion]);
+
+    return NO;
+}
+
+- (BOOL)migrateTable {
+    __block BOOL wasMigrated = NO;
+
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping migrateTable");
+        return NO;
+    }
+
+    // we need to wait for the queue to finish because this method has a return value
+    // that we're manipulating in the queue
+    dispatch_sync(self.dbQueue, ^{
+        int userVersion = [self queryUserVersion];
+        KCLog(@"Preparing to migrate DB, current version: %d", userVersion);
+        wasMigrated = [self migrateFromVersion:userVersion];
+    });
+
+    return wasMigrated;
+}
+
 - (void)handleSQLiteFailure: (NSString *) msg {
     NSLog(@"Failed to %@: %@",
           msg, [NSString stringWithCString:keen_io_sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
@@ -454,6 +672,9 @@
     keen_io_sqlite3_finalize(purge_stmt);
     keen_io_sqlite3_finalize(delete_stmt);
     keen_io_sqlite3_finalize(delete_all_stmt);
+
+    keen_io_sqlite3_finalize(increment_attempts_statement);
+    keen_io_sqlite3_finalize(delete_too_many_attempts_statement);
     keen_io_sqlite3_finalize(age_out_stmt);
     keen_io_sqlite3_finalize(convert_date_stmt);
     

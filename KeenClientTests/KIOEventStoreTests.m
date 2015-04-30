@@ -69,7 +69,7 @@
     STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
 
     // Lets get some events out now with the purpose of deleteting them.
-    NSMutableDictionary *events = [store getEvents];
+    NSMutableDictionary *events = [store getEventsWithMaxAttempts:3];
     STAssertTrue([store getPendingEventCount] == 1, @"1 pending events after getEvents");
 
     for (NSString *coll in events) {
@@ -89,7 +89,7 @@
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
     // Lets get some events out now with the purpose of sending them off.
-    NSMutableDictionary *events = [store getEvents];
+    NSMutableDictionary *events = [store getEventsWithMaxAttempts:3];
 
     STAssertTrue([events count] == 1, @"1 collection returned");
     STAssertTrue([[events objectForKey:@"foo"] count] == 2, @"2 events returned");
@@ -110,7 +110,7 @@
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
     // Lets get some events out now with the purpose of sending them off.
-    [store getEvents];
+    [store getEventsWithMaxAttempts:3];
 
     [store purgePendingEvents];
     STAssertTrue([store getTotalEventCount] == 0, @"0 total event after add");
@@ -120,7 +120,7 @@
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
-    [store getEvents];
+    [store getEventsWithMaxAttempts:3];
 
     [store purgePendingEvents];
     STAssertTrue([store getTotalEventCount] == 0, @"0 total event after add");
@@ -134,7 +134,7 @@
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
     // Lets get some events out now with the purpose of sending them off.
-    [store getEvents];
+    [store getEventsWithMaxAttempts:3];
     STAssertTrue([store getTotalEventCount] == 2, @"2 total event after add");
     STAssertTrue([store getPendingEventCount] == 2, @"2 pending event after add");
     STAssertTrue([store hasPendingEvents], @"has pending events!");
@@ -148,7 +148,7 @@
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
 
-    [store getEvents];
+    [store getEventsWithMaxAttempts:3];
 
     [store resetPendingEvents];
     STAssertTrue([store getTotalEventCount] == 4, @"0 total event after add");
@@ -176,7 +176,7 @@
     STAssertFalse([store hasPendingEvents], @"no pending if closed");
     [store resetPendingEvents]; // This shouldn't crash. :P
     STAssertFalse([store addEvent:[@"POOP" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"], @"add event should fail if closed");
-    STAssertTrue([[store getEvents] count] == 0, @"no events if closed");
+    STAssertTrue([[store getEventsWithMaxAttempts:3] count] == 0, @"no events if closed");
     STAssertTrue([store getPendingEventCount] == 0, @"no pending if closed");
     STAssertTrue([store getTotalEventCount] == 0, @"no total if closed");
     [store purgePendingEvents]; // This shouldn't crash. :P
