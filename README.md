@@ -16,7 +16,7 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 	* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) features to enrich your data
 	* [Debugging](#debugging) - How to debug your application using the SDK's built in logging
 * [FAQs](#faqs)
-* [Changelog](#changelog)
+* [Change Log](#change-log)
 * [To Do](#to-do)
 * [Questions & Support](#questions--support)
 * [Contributing](#contributing)
@@ -339,93 +339,9 @@ Here's how it works. You specify when events should be uploaded to Keen (e.g. wh
 If your player is offline when that happens, their data will be collected on the device and it will not be posted to Keen IO.
 However, the next time they trigger the code that send events (e.g. backgrounding the app again) all the data from the previous sessions will also be posted (the timestamps will reflect the times the events actually happened).
 
-### Changelog
+### Change Log
 
-##### 3.2.20
-+ Skipped 3.2.19 due to CocoaPods versioning issue.
-+ Fixed semaphore_wait_trap issue caused by recursive calls of dispatch_sync.
-
-##### 3.2.18
-+ Fixed erroneous removal of disableGeoLocation method call from KeenClient.h.
-
-##### 3.2.17
-+ Fixed bug created in CocoaPods by 3.2.16.
-
-##### 3.2.16
-+ Added support for `requestWhenInUseAuthorization` and `requestAlwaysAuthorization` in iOS 8.
-
-##### 3.2.15
-
-+ Updated GitHub documentation to match documentation found at [keen.io](http://keen.io)
-+ Added KeenClient-Cocoa build target/universal binary to support Mac OS X
-+ Added convertNSDateToISO8601 to dispatch queue
-+ Refactored semaphores to use dispatch_sync and cleaned up instances of dispatch_retain
-
-##### 3.2.14
-
-+ Fixed analyzer warnings.
-+ Fixed methods returning NSErrors as double pointers.
-+ Enabled ARC in Simulator and Device targets.
-
-##### 3.2.13
-
-+ Updated podspec to include c source for sqlite3.
-
-##### 3.2.12
-
-+ Skipped 3.2.11 versioning in favor of 3.2.12 to workaround Cocoapods versioning issue.
-+ Converted KeenClient to use ARC.
-+ Renamed all SQLite files with keen\_io\_ prefix.
-+ Moved keen\_io\_sqlite3.h import to KIOEventStore.m.
-+ Added sdkVersion class method.
-+ Replaced usage of NSDateFormatter with SQLite based date conversion (thread safe).
-+ Fixed KEEN\_LOGGING\_ macro.
-+ Added call to resetPendingEvents in getEvents.
-+ Fixed instance client issues created by KIOEventStore implementation.
-
-##### 3.2.10
-
-+ Fixed array allocation/deallocation bug in prepareJSONData.
-+ Added queuing to KIOEventStore to ensure SQLite calls are serialized.
-+ Added sqlite-amalgamation library to eliminate dependency on libsqlite3.dylib.
-+ Added SDK version string to logging.
-
-##### 3.2.9
-
-+ Replaced use of filesystem's cache directory with SQLite via KIOEventStore.
-
-##### 3.2.8
-
-+ Upload with finished block consistency fix.
-
-##### 3.2.7
-
-+ Support sending addons in events.
-
-##### 3.2.6
-
-+ Bugfix to always invoke callback on upload, even if there are no events to upload.
-
-##### 3.2.5
-
-+ Don't throw exceptions and crash the app when the local cache directory is unavailable.
-+ Remove ISO8601DateFormatter dependency.
-+ Use Grand Central Dispatch to not spawn one thread per upload invocation.
-
-##### 3.2.4
-
-+ Get semantic versioning cleaned up for cocoapods (somehow got confused between 3.2.2 and 3.2.3).
-
-##### 3.2.2
-
-+ Support for iOS 7 and ARM64.
-+ Removed JSONKit dependency in favor of NSJONSerialization.
-
-##### 3.2.1
-
-+ Changed project token -> project ID.
-+ Added support for read and write scoped keys.
-+ Added support for travis.
+You can find the change log [here](CHANGELOG.md).
 
 ### To Do
 
