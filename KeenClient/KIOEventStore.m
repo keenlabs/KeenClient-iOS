@@ -685,6 +685,12 @@
 }
 
 - (id)convertNSDateToISO8601:(id)date {
+    __block NSString *iso8601 = nil;
+    if (!dbIsOpen) {
+        KCLog(@"DB is closed, skipping date conversion");
+        return iso8601;
+    }
+    
     double offset = 0.0f;
     if([date isKindOfClass:[NSDate class]]) {
         offset = [[NSTimeZone localTimeZone] secondsFromGMTForDate:date] / 3600.00;  // need the offset
@@ -715,7 +721,6 @@
         offsetString = [@"-" stringByAppendingString:offsetString];
     }
     
-    __block NSString *iso8601 = nil;
     dispatch_sync(self.dbQueue, ^{
         // bind
         if (keen_io_sqlite3_bind_text(convert_date_stmt, 1, [[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]] UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
