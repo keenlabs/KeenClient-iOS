@@ -21,8 +21,8 @@ class SecondViewController: UIViewController {
     }
     override func viewWillAppear(animated: Bool) {
         
+        super.viewWillAppear(animated);
         let theEvent = ["view_name": "second view Swift", "action": "going to"];
-        
         KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
     }
     

@@ -21,6 +21,7 @@ class FirstViewController: UIViewController {
     }
     override func viewWillAppear(animated: Bool) {
         
+        super.viewWillAppear(animated);
         let theEvent = ["view_name": "first view Swift", "action": "going to"];
         KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
     }
