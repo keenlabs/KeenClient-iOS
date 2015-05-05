@@ -133,6 +133,20 @@
 			remoteGlobalIDString = 1296396219C10AD200B2B653;
 			remoteInfo = "KeenClient-Cocoa";
 		};
+		A58E0C0C1AF85F3D00DF2B71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A58E0BDF1AF85F3C00DF2B71;
+			remoteInfo = KeenSwiftClientExample;
+		};
+		A58E0C0E1AF85F3D00DF2B71 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A58E0BF61AF85F3C00DF2B71;
+			remoteInfo = KeenSwiftClientExampleTests;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -172,6 +186,7 @@
 		1296397519C10AD200B2B653 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		1296398C19C10B8500B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenSwiftClientExample.xcodeproj; path = KeenSwiftClientExample/KeenSwiftClientExample.xcodeproj; sourceTree = "<group>"; };
 		CA6410D618E37E7C00E53E3C /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* KIOEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
 		CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStoreTests.h; sourceTree = "<group>"; };
@@ -273,6 +288,7 @@
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
+				A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */,
 				0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */,
 				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE12314E30C96000F3868 /* KeenClient */,
@@ -386,6 +402,15 @@
 				1296396919C10AD200B2B653 /* AppKit.framework */,
 			);
 			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		A58E0C071AF85F3C00DF2B71 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A58E0C0D1AF85F3D00DF2B71 /* KeenSwiftClientExample.app */,
+				A58E0C0F1AF85F3D00DF2B71 /* KeenSwiftClientExampleTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		DE6955781951FBCC0044D2C4 /* sqlite-amalgamation */ = {
@@ -586,6 +611,10 @@
 					ProductGroup = 0105EE8D14E9A4940048D871 /* Products */;
 					ProjectRef = 0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */;
 				},
+				{
+					ProductGroup = A58E0C071AF85F3C00DF2B71 /* Products */;
+					ProjectRef = A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -605,6 +634,20 @@
 			fileType = wrapper.application;
 			path = KeenClientExample.app;
 			remoteRef = 0105EE9014E9A4960048D871 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A58E0C0D1AF85F3D00DF2B71 /* KeenSwiftClientExample.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = KeenSwiftClientExample.app;
+			remoteRef = A58E0C0C1AF85F3D00DF2B71 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		A58E0C0F1AF85F3D00DF2B71 /* KeenSwiftClientExampleTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = KeenSwiftClientExampleTests.xctest;
+			remoteRef = A58E0C0E1AF85F3D00DF2B71 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
