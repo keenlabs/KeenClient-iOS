@@ -20,8 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         var client : KeenClient;
         client = KeenClient.sharedClientWithProjectId("4f4ed092163d663d3a000000", andWriteKey: "9a9d92907c3e43c3a4742535fc2f78ec", andReadKey: nil);
-        
-        client.globalPropertiesBlock = {(eventCollection : String! ) -> [NSObject : AnyObject] in
+
+        client.globalPropertiesBlock = {(eventCollection : String!) -> [NSObject : AnyObject]! in
             return [ "GLOBALS": "YEAH WHAT SWIFT"]
         };
         
