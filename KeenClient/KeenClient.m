@@ -669,7 +669,6 @@ static KIOEventStore *eventStore;
 
     @try {
         // list all the directories under Keen
-        NSArray *directories = [self keenSubDirectories];
         NSString *rootPath = [self keenDirectory];
 
         // Get a file manager so we can use it later
@@ -682,6 +681,7 @@ static KIOEventStore *eventStore;
             NSError *error = nil;
 
             // iterate through each directory
+            NSArray *directories = [self keenSubDirectories];
             for (NSString *dirName in directories) {
                 KCLog(@"Found directory: %@", dirName);
                 // list contents of each directory

@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added Network Reachability check before uploading events and SystemConfiguration framework.
 - Added SQLite database versioning and migration capabilities.
 - Added max number of upload retries to events. The default value is 3 attempts, and it can be changed by setting the `client.maxAttempts` variable.
+-Fixed first-time app startup Cocoa error 260 bug where keenSubDirectories does not exist yet.
 ### Fixed
 - Fixed Xcode warnings
 
