@@ -60,28 +60,29 @@
   */
 - (void)deleteEvent: (NSNumber *)eventId;
 
-/**
- Delete all events from the store
- */
+ /**
+  Delete all events from the store
+  */
 - (void)deleteAllEvents;
 
 
-/**
- Increment the `attempts` column
- */
+ /**
+  Increment the `attempts` column
+  */
 - (void)incrementAttempts: (NSNumber *)eventId;
 
-/**
- Convert an NSDate to ISO-8601 using SQLite (thread safe)
+ /**
+  Convert an NSDate to ISO-8601 using SQLite (thread safe)
  
- @param date A date.
- */
+  @param date A date.
+  */
 - (id)convertNSDateToISO8601:(NSDate *)date;
 
-/**
- Delete events starting at an offset. Helps to keep the "queue" bounded.
+ /**
+  Delete events starting at an offset. Helps to keep the "queue" bounded.
  
- @param offset The offset to start deleting events from.
- */
+  @param offset The offset to start deleting events from.
+  */
 - (void)deleteEventsFromOffset: (NSNumber *)offset;
+
 @end

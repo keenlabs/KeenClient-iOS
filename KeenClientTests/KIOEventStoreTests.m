@@ -172,7 +172,6 @@
     [store closeDB];
 
     // Verify that these methods all behave with a closed database.
-
     STAssertFalse([store hasPendingEvents], @"no pending if closed");
     [store resetPendingEvents]; // This shouldn't crash. :P
     STAssertFalse([store addEvent:[@"POOP" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"], @"add event should fail if closed");
