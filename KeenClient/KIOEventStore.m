@@ -334,25 +334,21 @@
     dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(insert_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to add event statement"];
-            [self closeDB];
             return;
         }
         
         if (keen_io_sqlite3_bind_text(insert_stmt, 2, [coll UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind coll to add event statement"];
-            [self closeDB];
             return;
         }
         
         if (keen_io_sqlite3_bind_blob(insert_stmt, 3, [eventData bytes], (int) [eventData length], SQLITE_TRANSIENT) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind insert statement"];
-            [self closeDB];
             return;
         }
         
         if (keen_io_sqlite3_step(insert_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"insert event"];
-            [self closeDB];
             return;
         }
         
@@ -386,7 +382,6 @@
         
         if(keen_io_sqlite3_bind_int64(find_stmt, 2, maxAttempts) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind coll to add event statement"];
-            [self closeDB];
         }
 
 
@@ -630,13 +625,11 @@
         // bind
         if (keen_io_sqlite3_bind_text(convert_date_stmt, 1, [[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]] UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind date to date conversion statement"];
-            [self closeDB];
             return;
         }
         
         if (keen_io_sqlite3_step(convert_date_stmt) != SQLITE_ROW) {
             [self handleSQLiteFailure:@"date conversion"];
-            [self closeDB];
             return;
         }
         
@@ -662,7 +655,6 @@
 - (void)prepareSQLStatement:(keen_io_sqlite3_stmt **)sqlStatement sqlQuery:(char *)sqlQuery failureMessage:(NSString *)failureMessage {
     if(keen_io_sqlite3_prepare_v2(keen_dbname, sqlQuery, -1, sqlStatement, NULL) != SQLITE_OK) {
         [self handleSQLiteFailure:failureMessage];
-        [self closeDB];
     }
 }
 
@@ -715,6 +707,7 @@
 - (void)handleSQLiteFailure: (NSString *) msg {
     NSLog(@"Failed to %@: %@",
           msg, [NSString stringWithCString:keen_io_sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
+    [self closeDB];
 }
 
 @end
