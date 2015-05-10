@@ -8,12 +8,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added Network Reachability check before uploading events and SystemConfiguration framework.
 - Added SQLite database versioning and migration capabilities.
 - Added max number of upload retries to events. The default value is 3 attempts, and it can be changed by setting the `client.maxAttempts` variable.
-- Fixed first-time app startup Cocoa error 260 bug where keenSubDirectories does not exist yet.
 - Added KeenSwiftClientExample project and updated README to include Swift code examples.
+
+### Changed
+- Refactored KIOEventStore to reopen connection to database in case it's closed by a SQLite failure.
 - Updated code to accept all HTTP 2xx status codes.
+
 ### Fixed
-- Fixed Xcode warnings
 - Fixed uploading empty data when requests dictionary was empty. PR #75
+- Fixed first-time app startup Cocoa error 260 bug where keenSubDirectories does not exist yet.
+- Fixed Xcode warnings.
 
 ## [3.2.20] - 2014-11-07
 - Skipped 3.2.19 due to CocoaPods versioning issue.
