@@ -9,12 +9,20 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 
 * [Installation](#installation) - How to install `KeenClient` in your application
 * [Usage](#usage) - How to use `KeenClient`
-	* [Add Events](#add-events) - How to add an event
-	* [Global Properties](#global-properties) - How to set global properties
-	* [Geo Location](#geo-location) - How to use Geo Location
-	* [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
-	* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) features to enrich your data
-	* [Debugging](#debugging) - How to debug your application using the SDK's built in logging
+	*  [Usage - Objective C](#usage-objective-c) - Objective C Usage
+		* [Add Events](#add-events) - How to add an event
+		* [Global Properties](#global-properties) - How to set global properties
+		* [Geo Location](#geo-location) - How to use Geo Location
+		* [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
+		* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) features to enrich your data
+		* [Debugging](#debugging) - How to debug your application using the SDK's built in logging
+	*  [Usage - Swift](#usage-swift) - Swift Usage
+		* [Add Events](#add-events-swift) - How to add an event
+		* [Global Properties](#global-properties-swift) - How to set global properties
+		* [Geo Location](#geo-location-swift) - How to use Geo Location
+		* [Upload to Keen](#upload-events-to-keen-io-swift) - How to upload all previously saved events
+		* [Add-ons](#add-ons-swift) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) features to enrich your data
+		* [Debugging](#debugging-swift) - How to debug your application using the SDK's built in logging
 * [FAQs](#faqs)
 * [Change Log](#change-log)
 * [To Do](#to-do)
@@ -85,18 +93,23 @@ Also enable the "-ObjC" linker flag under "Other Linker Flags".
 
 Voila!
 
+
+
 ### Usage
 
 To use this client with the Keen IO API, you have to configure your Keen IO Project ID and its access keys (if you need an account, [sign up here](https://keen.io/) - it's free).
+
+### Usage - Objective C
 
 ##### Register Your Project ID and Access Keys
 
 Register the `KeenClient` shared client with your Project ID and access keys. The recommended place to do this is in one of your application delegates like so:
 
 ```objc
-- (void)applicationDidBecomeActive:(UIApplication *)application
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 	[KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
+	return YES;
 }
 ```
 
@@ -322,6 +335,240 @@ To disable logging, simply call:
 
 ```objc
 [KeenClient disableLogging];
+```
+
+### Usage - Swift
+
+##### Register Your Project ID and Access Keys - Swift
+
+Register the `KeenClient` shared client with your Project ID and access keys. The recommended place to do this is in one of your application delegates like so:
+
+```Swift
+    func application(application: UIApplication, 
+	    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool 
+	{
+	    
+        var client : KeenClient;
+        client = KeenClient.sharedClientWithProjectId("4f4ed092163d663d3a000000",
+											andWriteKey: "9a9d92907c3e43c3a4742535fc2f78ec", 
+											andReadKey: nil);
+        return true
+    }
+```
+
+The write key is required to send events to Keen IO. The read key is required to do analysis on Keen IO.
+
+`KeenClient.sharedClientWithProjectId( "project_id", andWriteKey: "write_key", andReadKey: "read_key")` does the registration. From now on, in your code, you can just reference the shared client by calling `KeenClient.sharedClient()`.
+
+##### Add Events - Swift
+
+Add events to track. Here’s a very basic example for an app that includes two tabs. We want to track when a tab is switched to.
+
+```Swift
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated);
+        let theEvent = ["view_name": "first view Swift", "action": "going to"];
+        KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
+    }
+```
+
+The idea is to first create an arbitrary dictionary of JSON-serializable values. We support the following Objective C types, and their corresponding Swift bridged types:
+
+##### Objective C:
+```objc
+NSString, NSNumber, NSDate, NSDictionary, NSArray, and BOOL
+```
+
+> The JSON spec doesn’t include anything about date values. At Keen, we know dates are important to track. Keen sends dates back and forth through its API in ISO-8601 format. `KeenClient` handles this for you.
+
+Keys must be alphanumeric, with the exception of the underscore (_) character, which can appear anywhere but the beginning of the string. For example, “view_name” is allowed, but “_view_name” is not.
+
+Add as many events as you like. `KeenClient` will cache them on disk until you’re ready to send them.
+
+`KeenClient` will automatically stamp every event you track with a timestamp. If you want to override the system value with your own, use the following example. Note that the “timestamp” key is set in the header properties dictionary.
+
+```Swift
+
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated);
+        
+        let event = ["view_name": "first view Swift", "action": "going to"];
+        var keenProps : KeenProperties = KeenProperties();
+        keenProps.timestamp = NSDate();
+        KeenClient.sharedClient().addEvent(event, 
+									        withKeenProperties:keenProps,
+											error: nil);
+    }
+```
+
+##### Global Properties - Swift
+
+Now you might be thinking, “Okay, that looks pretty easy. But what if I want to send the same properties on _every_ event in a particular collection? Or just _every_ event, period?” We’ve got you covered through something we call Global Properties.
+
+Global properties are properties which are sent with every event. For example, you may wish to always capture device information like OS version, handset type, orientation, etc.
+
+There are two ways to handle Global Properties - one is more simple but more limited, while the other is a bit more complex but much more powerful. For each of them, after you register your client, you’ll need to set a property on the `KeenClient` instance you’re using.
+
+###### Dictionary-based Global Properties
+
+
+Here's an example using a dictionary:
+
+```Swift
+    func applicationDidBecomeActive(application: UIApplication) {
+        KeenClient.sharedClient().globalPropertiesDictionary = 
+					        ["some_standard_key" : "some_standard_value"];
+    }
+```
+
+> If there are two properties with the same name specified in the user-defined event and the global properties, the user-defined event’s property will be the one used.
+
+###### Block-based Global Properties - Swift
+
+
+Here’s an example using blocks:
+
+```Swift
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    KeenClient.sharedClient().globalPropertiesBlock = 
+			    {(eventCollection : String!) -> [NSObject : AnyObject]! in
+			    
+            if (eventCollection.compare("apples") == 
+	            NSComparisonResult.OrderedSame)
+            {
+                return ["color" : "red"];
+            } else if (eventCollection.compare("pears") ==
+						NSComparisonResult.OrderedSame)
+            {
+                return ["color" : "green"];
+            }
+            return nil;
+        };
+}
+```
+
+
+> Because we support a block here, you can create **dynamic** global properties. For example, you might want to capture the orientation of the device, which obviously could change at run-time. With the block, you can use functional programming to ask the OS what the current orientation is, each time you add an event. Pretty useful, right?
+
+> Another note - you can use _both_ the dictionary property and the block property at the same time. If there are conflicts between defined properties, the order of precedence is: user-defined event > block-defined event > dictionary-defined event. Meaning the properties you put in a single event will **always** show up, even if you define the same property in one of your globals.
+
+##### Geo Location - Swift
+
+Like any good mobile-first service, Keen supports geo localization so you can track where events happened. This is enabled by default. Just use the client as you normally would and your users will be asked to allow geo location services. All events will be automatically tagged with the current location.
+
+###### Refreshing Current Location
+
+Every time the app is freshly loaded, the client will automatically ask the device for its current location. It won’t ask again in order to save battery life. You can tell the client to ask the device for location again. Simply call:
+
+```Swift
+KeenClient.sharedClient().refreshCurrentLocation();
+```
+
+###### Manually Setting Location
+
+You can also set the location manually. See the following example:
+
+```Swift
+        let event = ["view_name": "first view Swift", "action": "going to"];
+        var keenProps : KeenProperties = KeenProperties();
+        var location : CLLocation = CLLocation(latitude: 37.73, longitude: -122.47);
+        keenProps.location = location;
+        
+        KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views", error:nil);
+```
+
+###### Requesting Authorization for Location in iOS 8+
+
+iOS 8 introduced a new method for requesting authorization that requires a few additional steps before location will automatically be appended to your events:
+
+1. Add one or both of the following keys to your Info.plist file: `NSLocationWhenInUseUsageDescription`,`NSLocationAlwaysUsageDescription`
+2. Call the appropriate authorization method to authorize your app to use location services. `authorizeGeoLocationWhenInUse` and `authorizeGeoLocationAlways` were both added as of version 3.2.16 of this SDK. `authorizeGeoLocationWhenInUse` is enabled by default as long as `NSLocationWhenInUseUsageDescription` is specified in your Info.plist file, so you don't need to call it if you're going the 'When in Use' route. `authorizeGeoLocationAlways` on the other hand must be called explicitly.
+
+Example:
+
+```Swift
+KeenClient.authorizeGeoLocationAlways();
+KeenClient.sharedClientWithProjectId("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
+```
+
+##### Upload Events to Keen IO - Swift
+
+Upload the captured events to the Keen service. This must be done explicitly. We recommend doing the upload when your application is sent to the background, but you can do it whenever you’d like (for example, if your application typically has very long user sessions). The uploader spawns its own background thread so the main UI thread is not blocked.
+
+```Swift
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+        var taskId : UIBackgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler({() -> Void in
+            NSLog("Background task is being expired.")
+        });
+        KeenClient.sharedClient().uploadWithFinishedBlock({() -> Void in
+            application.endBackgroundTask(taskId)});
+}
+```
+In this example, the upload is done in a background task so that even once the user backgrounds your application, the upload can continue. Here we first start the background task, start the upload, and then end the background task once the upload completes.
+
+If you want to call upload periodically during your application’s execution, you can do so by simply invoking the `uploadWithFinishedBlock` method on your `KeenClient` instance at any point.
+
+```Swift
+KeenClient.sharedClient().uploadWithFinishedBlock(nil);
+```
+
+**An important note:** it's a best practice to issue a single upload at a time. We make a best effort to reduce the number of threads spawned to upload in the background, but if you call upload many many times in a tight loop you're going to cause issues for yourself.
+
+###### Limiting Upload Retries
+
+By default, the client will only attempt to upload a given event 3 times --
+after that it will be purged from the local queue. You can change this number to
+your liking by setting the `client.maxAttempts` value:
+
+```Swift
+// Set the max upload attempts to 10
+KeenClient.sharedClient().maxAttempts = 10;
+```
+
+
+##### Add-ons - Swift
+
+Keen IO can take data you’ve sent and enrich it by parsing the data or joining it with other data sets. This is done through the concept of “add-ons”.
+
+To activate add-ons, you simply add some new properties within the “keen” namespace in your events. Detailed documentation for the configuration of our add-ons is available [here](https://keen.io/docs/data-collection/data-enrichment/#add-ons).
+
+For example, let's say we want to enable the [IP to Geo](https://keen.io/docs/data-collection/data-enrichment/#ip-to-geo) add-on:
+
+```Swift
+        sharedClient.globalPropertiesDictionary = [
+            "keen" : [
+                "addons" : [
+                    [
+                        "name" : "keen:ip_to_geo",
+                        "input" : ["ip" : "ip_address"],
+                        "output" : "ip_geo_info"
+                    ]
+                ]
+            ],
+            "ip_address" : self.getIPAddress(true)
+        ];
+```
+
+In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `self.getIPAddress(true)` method.
+
+**Note:** `self.getIPAddress(true)` is a custom method that you'll have to implement for yourself as there's currently no built-in method to obtain the device's IP address. We've had success using a few of the solutions suggested in [this post](http://stackoverflow.com/questions/7072989/iphone-ipad-osx-how-to-get-my-ip-address-programmatically).
+
+##### Debugging - Swift
+
+`KeenClient` code does a lot of logging, but it’s turned off by default. If you’d like to see the log lines generated by your usage of the client, you can enable logging easily:
+
+```Swift
+KeenClient.enableLogging();
+```
+
+Just put this at any point before you use `KeenClient`. A good place is in your application delegate.
+
+To disable logging, simply call:
+
+```Swift
+KeenClient.disableLogging();
 ```
 
 ##### Do analysis with Keen IO
