@@ -411,6 +411,7 @@ There are two ways to handle Global Properties - one is more simple but more lim
 
 ###### Dictionary-based Global Properties
 
+For this, the property is called `globalPropertiesDictionary`. The property’s value will be a `Dictionary` that you define. Each time an event is added, the client will look at the value of this property and add all its contents to the user-defined event. Use this if you have a bunch of static properties that you want to add to every event.
 
 Here's an example using a dictionary:
 
@@ -425,6 +426,7 @@ Here's an example using a dictionary:
 
 ###### Block-based Global Properties - Swift
 
+For this, the Objective-C property is called `globalPropertiesBlock`. The property’s value will be a block that you define. Every time an event is added, the block will be called. The client expects the block to return a `Dictionary` consisting of the global properties for that event collection. Use this if you have a bunch of dynamic properties (see below) that you want to add to every event.
 
 Here’s an example using blocks:
 
@@ -448,6 +450,7 @@ Here’s an example using blocks:
 }
 ```
 
+The block takes in a single string parameter which corresponds to the name of this particular event. And we expect it to return a `Dictionary` of your construction. This example doesn’t make use of the parameter, but yours could!
 
 > Because we support a block here, you can create **dynamic** global properties. For example, you might want to capture the orientation of the device, which obviously could change at run-time. With the block, you can use functional programming to ask the OS what the current orientation is, each time you add an event. Pretty useful, right?
 
@@ -574,6 +577,7 @@ KeenClient.disableLogging();
 ##### Do analysis with Keen IO
 
     TO DO
+
 
 ### FAQs
 
