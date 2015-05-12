@@ -85,20 +85,38 @@ Also enable the "-ObjC" linker flag under "Other Linker Flags".
 
 Voila!
 
+
+
 ### Usage
 
 To use this client with the Keen IO API, you have to configure your Keen IO Project ID and its access keys (if you need an account, [sign up here](https://keen.io/) - it's free).
+
 
 ##### Register Your Project ID and Access Keys
 
 Register the `KeenClient` shared client with your Project ID and access keys. The recommended place to do this is in one of your application delegates like so:
 
+Objective C
 ```objc
-- (void)applicationDidBecomeActive:(UIApplication *)application
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 	[KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
+	return YES;
 }
 ```
+Swift
+```Swift
+func application(application: UIApplication, 
+	    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool 
+{ 
+	var client : KeenClient;
+	client = KeenClient.sharedClientWithProjectId("your_project_id",
+									andWriteKey: "your_write_key", 
+									andReadKey: nil);
+	return true
+}
+```
+
 
 The write key is required to send events to Keen IO. The read key is required to do analysis on Keen IO.
 
@@ -108,6 +126,7 @@ The write key is required to send events to Keen IO. The read key is required to
 
 Add events to track. Here’s a very basic example for an app that includes two tabs. We want to track when a tab is switched to.
 
+Objective C
 ```objc
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -115,6 +134,15 @@ Add events to track. Here’s a very basic example for an app that includes two 
 
   	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"first view", @"view_name", @"going to", @"action", nil];
   	[[KeenClient sharedClient] addEvent:event toEventCollection:@"tab_views" error:nil];
+}
+```
+Swift
+```Swift
+override func viewWillAppear(animated: Bool) 
+{
+	super.viewWillAppear(animated);
+	let theEvent = ["view_name": "first view Swift", "action": "going to"];
+	KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
 }
 ```
 
@@ -132,6 +160,7 @@ Add as many events as you like. `KeenClient` will cache them on disk until you�
 
 `KeenClient` will automatically stamp every event you track with a timestamp. If you want to override the system value with your own, use the following example. Note that the “timestamp” key is set in the header properties dictionary.
 
+Objective C
 ```objc
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -147,7 +176,21 @@ Add as many events as you like. `KeenClient` will cache them on disk until you�
    	                              error:nil];
 }
 ```
+Swift
+```Swift
 
+override func viewWillAppear(animated: Bool) 
+{
+	super.viewWillAppear(animated);
+        
+	let event = ["view_name": "first view Swift", "action": "going to"];
+	var keenProps : KeenProperties = KeenProperties();
+	keenProps.timestamp = NSDate();
+	KeenClient.sharedClient().addEvent(event,
+									withKeenProperties:keenProps,
+									error: nil);
+}
+```
 ##### Global Properties
 
 Now you might be thinking, “Okay, that looks pretty easy. But what if I want to send the same properties on _every_ event in a particular collection? Or just _every_ event, period?” We’ve got you covered through something we call Global Properties.
@@ -162,11 +205,20 @@ For this, the Objective-C property is called `globalPropertiesDictionary`. The p
 
 Here's an example using a dictionary:
 
+Objective C
 ```objc
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     KeenClient *client = [KeenClient sharedClient];
    	client.globalPropertiesDictionary = @{@"some_standard_key": @"some_standard_value"};
+}
+```
+Swift
+```Swift
+func applicationDidBecomeActive(application: UIApplication) 
+{
+	KeenClient.sharedClient().globalPropertiesDictionary = 
+					        ["some_standard_key" : "some_standard_value"];
 }
 ```
 
@@ -178,6 +230,7 @@ For this, the Objective-C property is called `globalPropertiesBlock`. The proper
 
 Here’s an example using blocks:
 
+Objective C
 ```objc
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
@@ -191,6 +244,26 @@ Here’s an example using blocks:
    	        return nil;
         }
    	};
+}
+```
+Swift
+```Swift
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    KeenClient.sharedClient().globalPropertiesBlock = 
+			    {(eventCollection : String!) -> [NSObject : AnyObject]! in
+			    
+            if (eventCollection.compare("apples") == 
+	            NSComparisonResult.OrderedSame)
+            {
+                return ["color" : "red"];
+            } else if (eventCollection.compare("pears") ==
+						NSComparisonResult.OrderedSame)
+            {
+                return ["color" : "green"];
+            }
+            return nil;
+        };
 }
 ```
 
@@ -208,14 +281,20 @@ Like any good mobile-first service, Keen supports geo localization so you can tr
 
 Every time the app is freshly loaded, the client will automatically ask the device for its current location. It won’t ask again in order to save battery life. You can tell the client to ask the device for location again. Simply call:
 
+Objective C
 ```objc
 [[KeenClient sharedClient] refreshCurrentLocation];
+```
+Swift
+```Swift
+KeenClient.sharedClient().refreshCurrentLocation();
 ```
 
 ###### Manually Setting Location
 
 You can also set the location manually. See the following example:
 
+Objective C
 ```objc
 NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"first view", @"view_name", @"going to", @"action", nil];
 
@@ -224,6 +303,15 @@ CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122
 keenProperties.location = location;
 
 [[KeenClient sharedClient] addEvent:event withKeenProperties:keenProperties toEventCollection:@"tab_views" error:nil];
+```
+Swift
+```Swift
+let event = ["view_name": "first view Swift", "action": "going to"];
+var keenProps : KeenProperties = KeenProperties();
+var location : CLLocation = CLLocation(latitude: 37.73, longitude: -122.47);
+keenProps.location = location;
+
+KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views", error:nil);
 ```
 
 ###### Requesting Authorization for Location in iOS 8+
@@ -235,15 +323,23 @@ iOS 8 introduced a new method for requesting authorization that requires a few a
 
 Example:
 
+Objective C
 ```objc
 [KeenClient authorizeGeoLocationAlways];
 [KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
 ```
+Swift
+```Swift
+KeenClient.authorizeGeoLocationAlways();
+KeenClient.sharedClientWithProjectId("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
+```
+
 
 ##### Upload Events to Keen IO
 
 Upload the captured events to the Keen service. This must be done explicitly. We recommend doing the upload when your application is sent to the background, but you can do it whenever you’d like (for example, if your application typically has very long user sessions). The uploader spawns its own background thread so the main UI thread is not blocked.
 
+Objective C
 ```objc
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
@@ -256,12 +352,28 @@ Upload the captured events to the Keen service. This must be done explicitly. We
     }];
 }
 ```
+Swift
+```Swift
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+        var taskId : UIBackgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler({() -> Void in
+            NSLog("Background task is being expired.")
+        });
+        KeenClient.sharedClient().uploadWithFinishedBlock({() -> Void in
+            application.endBackgroundTask(taskId)});
+}
+```
 In this example, the upload is done in a background task so that even once the user backgrounds your application, the upload can continue. Here we first start the background task, start the upload, and then end the background task once the upload completes.
 
 If you want to call upload periodically during your application’s execution, you can do so by simply invoking the `uploadWithFinishedBlock` method on your `KeenClient` instance at any point.
 
+Objective C
 ```objc
 [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
+```
+Swift
+```Swift
+KeenClient.sharedClient().uploadWithFinishedBlock(nil);
 ```
 
 **An important note:** it's a best practice to issue a single upload at a time. We make a best effort to reduce the number of threads spawned to upload in the background, but if you call upload many many times in a tight loop you're going to cause issues for yourself.
@@ -272,11 +384,16 @@ By default, the client will only attempt to upload a given event 3 times --
 after that it will be purged from the local queue. You can change this number to
 your liking by setting the `client.maxAttempts` value:
 
+Objective C
 ```objc
 // Set the max upload attempts to 10
 [KeenClient sharedClient].maxAttempts = 10;
 ```
-
+Swift
+```Swift
+// Set the max upload attempts to 10
+KeenClient.sharedClient().maxAttempts = 10;
+```
 
 ##### Add-ons
 
@@ -286,6 +403,7 @@ To activate add-ons, you simply add some new properties within the “keen” na
 
 For example, let's say we want to enable the [IP to Geo](https://keen.io/docs/data-collection/data-enrichment/#ip-to-geo) add-on:
 
+Objective C
 ```objc
 KeenClient *client = [KeenClient sharedClient];
 client.globalPropertiesDictionary = @{@"keen":
@@ -303,6 +421,21 @@ client.globalPropertiesDictionary = @{@"keen":
                                            @"ip_address":[self getIPAddress:YES]
                                          };
 ```
+Swift
+```Swift
+KeenClient.sharedClient().globalPropertiesDictionary = [
+	"keen" : [
+		"addons" : [
+			[
+				"name" : "keen:ip_to_geo",
+				"input" : ["ip" : "ip_address"],
+				"output" : "ip_geo_info"
+			]
+		]
+	],
+	"ip_address" : self.getIPAddress(true)
+];
+```
 
 In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `[self getIPAddress:YES]` method.
 
@@ -312,21 +445,32 @@ In this example, we add a global property for the IP to Geo information that all
 
 `KeenClient` code does a lot of logging, but it’s turned off by default. If you’d like to see the log lines generated by your usage of the client, you can enable logging easily:
 
+Objective C
 ```objc
 [KeenClient enableLogging];
+```
+Swift
+```Swift
+KeenClient.enableLogging();
 ```
 
 Just put this at any point before you use `KeenClient`. A good place is in your application delegate.
 
 To disable logging, simply call:
 
+Objective C
 ```objc
 [KeenClient disableLogging];
+```
+Swift
+```Swift
+KeenClient.disableLogging();
 ```
 
 ##### Do analysis with Keen IO
 
     TO DO
+
 
 ### FAQs
 
