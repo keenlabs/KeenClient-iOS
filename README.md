@@ -106,16 +106,15 @@ Objective C
 ```
 Swift
 ```Swift
-    func application(application: UIApplication, 
+func application(application: UIApplication, 
 	    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool 
-	{
-	    
-        var client : KeenClient;
-        client = KeenClient.sharedClientWithProjectId("your_project_id",
+{ 
+	var client : KeenClient;
+	client = KeenClient.sharedClientWithProjectId("your_project_id",
 									andWriteKey: "your_write_key", 
 									andReadKey: nil);
-        return true
-    }
+	return true
+}
 ```
 
 
@@ -139,11 +138,12 @@ Objective C
 ```
 Swift
 ```Swift
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated);
-        let theEvent = ["view_name": "first view Swift", "action": "going to"];
-        KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
-    }
+override func viewWillAppear(animated: Bool) 
+{
+	super.viewWillAppear(animated);
+	let theEvent = ["view_name": "first view Swift", "action": "going to"];
+	KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
+}
 ```
 
 The idea is to first create an arbitrary dictionary of JSON-serializable values. We support:
@@ -179,16 +179,17 @@ Objective C
 Swift
 ```Swift
 
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated);
+override func viewWillAppear(animated: Bool) 
+{
+	super.viewWillAppear(animated);
         
-        let event = ["view_name": "first view Swift", "action": "going to"];
-        var keenProps : KeenProperties = KeenProperties();
-        keenProps.timestamp = NSDate();
-        KeenClient.sharedClient().addEvent(event, 
-									        withKeenProperties:keenProps,
-											error: nil);
-    }
+	let event = ["view_name": "first view Swift", "action": "going to"];
+	var keenProps : KeenProperties = KeenProperties();
+	keenProps.timestamp = NSDate();
+	KeenClient.sharedClient().addEvent(event,
+									withKeenProperties:keenProps,
+									error: nil);
+}
 ```
 ##### Global Properties
 
@@ -214,10 +215,11 @@ Objective C
 ```
 Swift
 ```Swift
-    func applicationDidBecomeActive(application: UIApplication) {
-        KeenClient.sharedClient().globalPropertiesDictionary = 
+func applicationDidBecomeActive(application: UIApplication) 
+{
+	KeenClient.sharedClient().globalPropertiesDictionary = 
 					        ["some_standard_key" : "some_standard_value"];
-    }
+}
 ```
 
 > If there are two properties with the same name specified in the user-defined event and the global properties, the user-defined event’s property will be the one used.
@@ -304,12 +306,12 @@ keenProperties.location = location;
 ```
 Swift
 ```Swift
-        let event = ["view_name": "first view Swift", "action": "going to"];
-        var keenProps : KeenProperties = KeenProperties();
-        var location : CLLocation = CLLocation(latitude: 37.73, longitude: -122.47);
-        keenProps.location = location;
-        
-        KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views", error:nil);
+let event = ["view_name": "first view Swift", "action": "going to"];
+var keenProps : KeenProperties = KeenProperties();
+var location : CLLocation = CLLocation(latitude: 37.73, longitude: -122.47);
+keenProps.location = location;
+
+KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views", error:nil);
 ```
 
 ###### Requesting Authorization for Location in iOS 8+
@@ -421,18 +423,18 @@ client.globalPropertiesDictionary = @{@"keen":
 ```
 Swift
 ```Swift
-        sharedClient.globalPropertiesDictionary = [
-            "keen" : [
-                "addons" : [
-                    [
-                        "name" : "keen:ip_to_geo",
-                        "input" : ["ip" : "ip_address"],
-                        "output" : "ip_geo_info"
-                    ]
-                ]
-            ],
-            "ip_address" : self.getIPAddress(true)
-        ];
+KeenClient.sharedClient().globalPropertiesDictionary = [
+	"keen" : [
+		"addons" : [
+			[
+				"name" : "keen:ip_to_geo",
+				"input" : ["ip" : "ip_address"],
+				"output" : "ip_geo_info"
+			]
+		]
+	],
+	"ip_address" : self.getIPAddress(true)
+];
 ```
 
 In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `[self getIPAddress:YES]` method.
