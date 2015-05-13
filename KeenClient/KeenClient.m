@@ -10,6 +10,7 @@
 #import "KeenConstants.h"
 #import "KIOEventStore.h"
 #import "Reachability.h"
+#import "HTTPCodes.h"
 #import <CoreLocation/CoreLocation.h>
 
 
@@ -866,7 +867,7 @@ static KIOEventStore *eventStore;
     }
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
     // if the request succeeded, dig into the response to figure out which events succeeded and which failed
-    if (responseCode == 200) {
+    if ([HTTPCodes httpCodeType:(responseCode)] == HTTPCode2XXSuccess) {
         // deserialize the response
         NSError *error = nil;
         NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData
@@ -916,8 +917,8 @@ static KIOEventStore *eventStore;
             }
         }
     } else {
-        // response code was NOT 200, which means something else happened. log this.
-        KCLog(@"Response code was NOT 200. It was: %ld", (long)responseCode);
+        // response code was NOT 2xx, which means something else happened. log this.
+        KCLog(@"Response code was NOT 2xx. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
     }
