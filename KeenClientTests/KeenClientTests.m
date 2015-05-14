@@ -11,6 +11,7 @@
 #import <OCMock/OCMock.h>
 #import "KeenConstants.h"
 #import "KeenProperties.h"
+#import "HTTPCodes.h"
 
 
 @interface KeenClient (testability)
@@ -468,7 +469,7 @@
 }
 
 - (void)testUploadSuccess {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:200];
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -477,7 +478,25 @@
 }
 
 - (void)testUploadSuccessInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:200];
+    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:HTTPCode200OK];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+    
+    // make sure the event was deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0, @"There should be no files after a successful upload.");
+}
+
+- (void)testUploadSuccessCreated {
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode201Created];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+    
+    // make sure the event was deleted from the store
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0, @"There should be no files after a successful upload.");
+}
+
+- (void)testUploadSuccessCreatedInstanceClient {
+    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:HTTPCode201Created];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -486,7 +505,7 @@
 }
 
 - (void)testUploadFailedServerDown {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:500];
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode500InternalServerError];
     
     [self addSimpleEventAndUploadWithMock:mock];
 
@@ -495,7 +514,7 @@
 }
 
 - (void)testUploadFailedServerDownInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:500];
+    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:HTTPCode500InternalServerError];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -504,7 +523,7 @@
 }
 
 - (void)testUploadFailedServerDownNonJsonResponse {
-    id mock = [self uploadTestHelperWithData:@{} andStatusCode:500];
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode500InternalServerError];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -513,7 +532,7 @@
 }
 
 - (void)testUploadFailedServerDownNonJsonResponseInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:500];
+    id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode500InternalServerError];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -523,7 +542,7 @@
 
 
 - (void)testDeleteAfterMaxAttempts {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:500];
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode500InternalServerError];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -557,7 +576,7 @@
 
 - (void)testIncrementEvenOnNoResponse {
     // mock an empty response from the server
-    id mock = [self uploadTestHelperWithData:@{} andStatusCode:200];
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -587,7 +606,7 @@
     id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
                                                                    AndErrorCode:@"InvalidCollectionNameError" 
                                                                  AndDescription:@"anything"] 
-                               andStatusCode:200];
+                               andStatusCode:HTTPCode200OK];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -600,7 +619,7 @@
     id mock = [self uploadTestHelperWithDataInstanceClient:[self buildResponseJsonWithSuccess:NO
                                                                    AndErrorCode:@"InvalidCollectionNameError"
                                                                  AndDescription:@"anything"]
-                               andStatusCode:200];
+                               andStatusCode:HTTPCode200OK];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -610,7 +629,7 @@
 }
 
 - (void)testUploadFailedBadRequestUnknownError {
-    id mock = [self uploadTestHelperWithData:@{} andStatusCode:400];
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode400BadRequest];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
@@ -619,7 +638,7 @@
 }
 
 - (void)testUploadFailedBadRequestUnknownErrorInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:400];
+    id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode400BadRequest];
 
     [self addSimpleEventAndUploadWithMock:mock];
 
@@ -627,8 +646,26 @@
     STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
+- (void)testUploadFailedRedirectionStatus {
+    id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode300MultipleChoices];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+    
+    // make sure the file wasn't deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"An upload that results in an unexpected error should not delete the event.");
+}
+
+- (void)testUploadFailedRedirectionStatusInstanceClient {
+    id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode300MultipleChoices];
+    
+    [self addSimpleEventAndUploadWithMock:mock];
+    
+    // make sure the file wasn't deleted locally
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 1, @"An upload that results in an unexpected error should not delete the event.");
+}
+
 - (void)testUploadSkippedNoNetwork {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:200 andNetwork:@NO];
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK andNetwork:@NO];
 
     NSLog(@"my failure here.");
     [self addSimpleEventAndUploadWithMock:mock];
@@ -646,7 +683,7 @@
                                           andDescription:nil];
     NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
                                                        forKey:@"foo"];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -668,7 +705,7 @@
                                           andDescription:nil];
     NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
                                                        forKey:@"foo"];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -691,7 +728,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo", 
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -714,7 +751,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -736,7 +773,7 @@
                                           andDescription:@"something"];
     NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
                                                        forKey:@"foo"];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -758,7 +795,7 @@
                                           andDescription:@"something"];
     NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
                                                        forKey:@"foo"];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -781,7 +818,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -804,7 +841,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -827,7 +864,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -850,7 +887,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:200];
+    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
     
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
