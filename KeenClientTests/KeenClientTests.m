@@ -468,6 +468,14 @@
     [mock uploadWithFinishedBlock:nil];
 }
 
+-(void)testUploadWithNoEvents {
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK];
+    
+    [mock uploadWithFinishedBlock:nil];
+    
+    STAssertTrue([[KeenClient getEventStore] getTotalEventCount] == 0, @"Upload method should return with message Request data is empty.");
+}
+
 - (void)testUploadSuccess {
     id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK];
     
