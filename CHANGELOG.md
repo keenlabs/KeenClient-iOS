@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Updated code to accept all HTTP 2xx status codes.
 ### Fixed
 - Fixed Xcode warnings
+- Fixed uploading empty data when requests dictionary was empty. PR #75
 
 ## [3.2.20] - 2014-11-07
 - Skipped 3.2.19 due to CocoaPods versioning issue.
