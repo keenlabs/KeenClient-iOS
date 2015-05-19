@@ -3,6 +3,12 @@ Keen IO iOS SDK
 
 [![Build Status](https://travis-ci.org/keenlabs/KeenClient-iOS.png)](https://travis-ci.org/keenlabs/KeenClient-iOS)
 
+---
+
+**Important**: Starting in version 3.21, you'll need to add the SystemConfiguration framework to your project. Check the ["Build Settings"](#build-settings) section for more information.
+
+---
+
 The Keen IO iOS client is designed to be simple to develop with, yet incredibly flexible. Our goal is to let you decide what events are important to you, use your own vocabulary to describe them, and decide when you want to send them to Keen IO.
 
 While the name of this repo implies that this SDK is strictly for iOS, it can also be used in Mac OS applications by using the Cocoa version as outlined below. The code base is the same, but the build targets are different. :)
