@@ -51,6 +51,8 @@ Uncompress the archive. It should contain a folder called “KeenClient-Cocoa”
 * KeenClient.h
 * KeenProperties.h
 * KIOEventStore.h
+* HTTPCodes.h
+* Reachability.h
 
 ##### Add Files to XCode - Cocoa
 
@@ -64,6 +66,8 @@ Uncompress the archive. It should contain a folder called “KeenClient” with 
 * KeenClient.h
 * KeenProperties.h
 * KIOEventStore.h
+* HTTPCodes.h
+* Reachability.h
 
 ##### Add Files to XCode - iOS
 
