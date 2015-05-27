@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [3.3.0] - 2015-05-27
+## [3.3.0](https://github.com/keenlabs/KeenClient-iOS/compare/3.2.20...3.3.0) - 2015-05-27
 ### Added
 - Added Network Reachability check before uploading events and SystemConfiguration framework.
 - Added SQLite database versioning and migration capabilities.
