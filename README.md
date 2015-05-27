@@ -5,7 +5,7 @@ Keen IO iOS SDK
 
 ---
 
-**Important**: Starting in version 3.21, you'll need to add the SystemConfiguration framework to your project. Check the ["Build Settings"](#build-settings) section for more information.
+**Important**: Starting in version 3.3.0, you'll need to add the SystemConfiguration framework to your project. Check the ["Build Settings"](#build-settings) section for more information.
 
 ---
 
@@ -89,7 +89,10 @@ pod install
 
 ##### Build Settings
 
-Make sure to add CoreLocation.framework and SystemConfiguration.framework to the "Link Binary with Libraries" section.
+Make sure to add the following libraries in the "Link Binary with Libraries" section:
+
+* CoreLocation.framework
+* SystemConfiguration.framework
 
 Also enable the "-ObjC" linker flag under "Other Linker Flags".
 
@@ -506,7 +509,7 @@ You can find the change log [here](CHANGELOG.md).
 
 If you have any questions, bugs, or suggestions, please
 report them via Github Issues. Or, come chat with us anytime
-at [users.keen.io](http://users.keen.io). We'd love to hear your feedback and ideas!
+at [slack.keen.io](http://slack.keen.io). We'd love to hear your feedback and ideas!
 
 ### Contributing
 This is an open source project and we love involvement from the community! Hit us up with pull requests and issues.
