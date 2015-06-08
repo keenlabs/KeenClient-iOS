@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased][unreleased]
+### Fixed
+- Fixed warning about deprecated SenTestingKit, converted it to XCTest.
+
 ## [3.3.0](https://github.com/keenlabs/KeenClient-iOS/compare/3.2.20...3.3.0) - 2015-05-27
 ### Added
 - Added Network Reachability check before uploading events and SystemConfiguration framework.
@@ -127,7 +131,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.20...HEAD
+[unreleased]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.3.0...HEAD
+[3.3.0]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.20...3.3.0
 [3.2.20]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.18...3.2.20
 [3.2.18]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.17...3.2.18
 [3.2.17]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.16...3.2.17
