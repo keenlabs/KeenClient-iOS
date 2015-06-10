@@ -71,10 +71,13 @@
 		1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 		1296399719C10D2C00B2B653 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		1296399819C10D4000B2B653 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-checker"; }; };
+		1C53877B15D3E196B58B1336 /* libPods-KeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2097DACA1F3958A6C4FE73B0 /* libPods-KeenClient.a */; };
+		3306A3A4D0E586FB355903F8 /* libPods-KeenClient-Cocoa.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72B42AB613DFC72A5417E340 /* libPods-KeenClient-Cocoa.a */; };
 		3EE5CA9D1AF0697200D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 		3EE5CA9F1AF069D900D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 		3EE5CAA01AF069E300D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 		3EE5CAA21AF06A0700D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */; };
+		9FFBF90C09AED7DC59075EB9 /* libPods-KeenClient-Simulator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BD89859F30D2F143AC7BEA /* libPods-KeenClient-Simulator.a */; };
 		A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
 		CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -93,14 +96,7 @@
 		DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6021A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6031A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6041A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6051A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6061A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
-		F4D3B6081A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
-		F4D3B6091A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
-		F4D3B60A1A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
+		EB7A1969EB349CEED54ADB07 /* libPods-KeenClient-Device.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B856252268046BC8C7880F9 /* libPods-KeenClient-Device.a */; };
 		F4D3B61E1A0D98B4000825FE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
 
@@ -177,6 +173,8 @@
 		01A9A34414FE953D0082AB22 /* index.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = index.markdown; path = docs/index.markdown; sourceTree = "<group>"; };
 		01BA1B0314E895BC00CF9F84 /* KeenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenConstants.h; sourceTree = "<group>"; };
 		01BA1B0414E895BC00CF9F84 /* KeenConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenConstants.m; sourceTree = "<group>"; };
+		01BD89859F30D2F143AC7BEA /* libPods-KeenClient-Simulator.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClient-Simulator.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B856252268046BC8C7880F9 /* libPods-KeenClient-Device.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClient-Device.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1296396319C10AD200B2B653 /* libKeenClient-Cocoa.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libKeenClient-Cocoa.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1296396419C10AD200B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		1296396719C10AD200B2B653 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -184,13 +182,23 @@
 		1296396919C10AD200B2B653 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		1296397519C10AD200B2B653 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		1296398C19C10B8500B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		2097DACA1F3958A6C4FE73B0 /* libPods-KeenClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClient.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		382297FF8A253337B1DDEF9E /* Pods-KeenClient-Cocoa.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClient-Cocoa.release.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClient-Cocoa/Pods-KeenClient-Cocoa.release.xcconfig"; sourceTree = "<group>"; };
+		3A4459774406F15F0756FA6B /* Pods-KeenClient.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClient.release.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClient/Pods-KeenClient.release.xcconfig"; sourceTree = "<group>"; };
+		3AB9113ACB7C9547F9B81C54 /* Pods-KeenClient-Simulator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClient-Simulator.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClient-Simulator/Pods-KeenClient-Simulator.debug.xcconfig"; sourceTree = "<group>"; };
 		3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		616132E56A57103E63EAC4B2 /* Pods-KeenClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClientTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClientTests/Pods-KeenClientTests.debug.xcconfig"; sourceTree = "<group>"; };
+		6C74954C108AB54D5206F441 /* Pods-KeenClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClient.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClient/Pods-KeenClient.debug.xcconfig"; sourceTree = "<group>"; };
+		72B42AB613DFC72A5417E340 /* libPods-KeenClient-Cocoa.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClient-Cocoa.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		733B578C89C05C1DFF725BBF /* Pods-KeenClient-Device.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClient-Device.release.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClient-Device/Pods-KeenClient-Device.release.xcconfig"; sourceTree = "<group>"; };
 		7FF7AA12F9C7120F4F922A1F /* libPods-KeenClientTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClientTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		84B957D67781F220450341A7 /* Pods-KeenClient-Cocoa.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClient-Cocoa.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClient-Cocoa/Pods-KeenClient-Cocoa.debug.xcconfig"; sourceTree = "<group>"; };
 		A51E31221B03C6EF00008248 /* HTTPCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPCodes.h; sourceTree = "<group>"; };
 		A51E31231B03C6EF00008248 /* HTTPCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPCodes.m; sourceTree = "<group>"; };
 		A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenSwiftClientExample.xcodeproj; path = KeenSwiftClientExample/KeenSwiftClientExample.xcodeproj; sourceTree = "<group>"; };
+		AAFE39F90E4210B09303346C /* Pods-KeenClient-Device.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClient-Device.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClient-Device/Pods-KeenClient-Device.debug.xcconfig"; sourceTree = "<group>"; };
 		B9A295AAB93FDB1ECFC19207 /* Pods-KeenClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClientTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClientTests/Pods-KeenClientTests.release.xcconfig"; sourceTree = "<group>"; };
+		C09287CB67E252F3363FC438 /* Pods-KeenClient-Simulator.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClient-Simulator.release.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClient-Simulator/Pods-KeenClient-Simulator.release.xcconfig"; sourceTree = "<group>"; };
 		CA6410D618E37E7C00E53E3C /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* KIOEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
 		CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStoreTests.h; sourceTree = "<group>"; };
@@ -200,8 +208,6 @@
 		DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = keen_io_sqlite3.c; sourceTree = "<group>"; };
 		DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3.h; sourceTree = "<group>"; };
 		DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3ext.h; sourceTree = "<group>"; };
-		F4D3B6001A0D8EB4000825FE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
-		F4D3B6011A0D8EB4000825FE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -212,6 +218,7 @@
 			files = (
 				3EE5CA9F1AF069D900D6C48D /* SystemConfiguration.framework in Frameworks */,
 				0111012314EF709A009794A5 /* Foundation.framework in Frameworks */,
+				9FFBF90C09AED7DC59075EB9 /* libPods-KeenClient-Simulator.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +228,7 @@
 			files = (
 				3EE5CAA01AF069E300D6C48D /* SystemConfiguration.framework in Frameworks */,
 				0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */,
+				EB7A1969EB349CEED54ADB07 /* libPods-KeenClient-Device.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -231,6 +239,7 @@
 				3EE5CA9D1AF0697200D6C48D /* SystemConfiguration.framework in Frameworks */,
 				012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */,
 				017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */,
+				1C53877B15D3E196B58B1336 /* libPods-KeenClient.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,6 +262,7 @@
 			files = (
 				3EE5CAA21AF06A0700D6C48D /* SystemConfiguration.framework in Frameworks */,
 				1296398D19C10B8500B2B653 /* Cocoa.framework in Frameworks */,
+				3306A3A4D0E586FB355903F8 /* libPods-KeenClient-Cocoa.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,6 +318,10 @@
 				1296397519C10AD200B2B653 /* XCTest.framework */,
 				1296396619C10AD200B2B653 /* Other Frameworks */,
 				7FF7AA12F9C7120F4F922A1F /* libPods-KeenClientTests.a */,
+				2097DACA1F3958A6C4FE73B0 /* libPods-KeenClient.a */,
+				72B42AB613DFC72A5417E340 /* libPods-KeenClient-Cocoa.a */,
+				0B856252268046BC8C7880F9 /* libPods-KeenClient-Device.a */,
+				01BD89859F30D2F143AC7BEA /* libPods-KeenClient-Simulator.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -371,7 +385,6 @@
 		01BA1AD414E77DC600CF9F84 /* Library */ = {
 			isa = PBXGroup;
 			children = (
-				F4D3B5FF1A0D8EB4000825FE /* Reachability */,
 				DE6955781951FBCC0044D2C4 /* sqlite-amalgamation */,
 			);
 			path = Library;
@@ -392,6 +405,14 @@
 			children = (
 				616132E56A57103E63EAC4B2 /* Pods-KeenClientTests.debug.xcconfig */,
 				B9A295AAB93FDB1ECFC19207 /* Pods-KeenClientTests.release.xcconfig */,
+				6C74954C108AB54D5206F441 /* Pods-KeenClient.debug.xcconfig */,
+				3A4459774406F15F0756FA6B /* Pods-KeenClient.release.xcconfig */,
+				84B957D67781F220450341A7 /* Pods-KeenClient-Cocoa.debug.xcconfig */,
+				382297FF8A253337B1DDEF9E /* Pods-KeenClient-Cocoa.release.xcconfig */,
+				AAFE39F90E4210B09303346C /* Pods-KeenClient-Device.debug.xcconfig */,
+				733B578C89C05C1DFF725BBF /* Pods-KeenClient-Device.release.xcconfig */,
+				3AB9113ACB7C9547F9B81C54 /* Pods-KeenClient-Simulator.debug.xcconfig */,
+				C09287CB67E252F3363FC438 /* Pods-KeenClient-Simulator.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -415,15 +436,6 @@
 			path = "sqlite-amalgamation";
 			sourceTree = "<group>";
 		};
-		F4D3B5FF1A0D8EB4000825FE /* Reachability */ = {
-			isa = PBXGroup;
-			children = (
-				F4D3B6001A0D8EB4000825FE /* Reachability.h */,
-				F4D3B6011A0D8EB4000825FE /* Reachability.m */,
-			);
-			path = Reachability;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -435,7 +447,6 @@
 				010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */,
 				DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */,
 				125D31A51B0E331800DFCC97 /* HTTPCodes.h in Headers */,
-				F4D3B6031A0D8EB4000825FE /* Reachability.h in Headers */,
 				DE34F6F7197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
@@ -450,7 +461,6 @@
 				010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */,
 				DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */,
 				125D31A71B0E333900DFCC97 /* HTTPCodes.h in Headers */,
-				F4D3B6041A0D8EB4000825FE /* Reachability.h in Headers */,
 				DE34F6F8197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
@@ -465,7 +475,6 @@
 				012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */,
 				CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */,
 				A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */,
-				F4D3B6021A0D8EB4000825FE /* Reachability.h in Headers */,
 				DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
@@ -480,7 +489,6 @@
 				1296399119C10D0000B2B653 /* KeenProperties.h in Headers */,
 				1296399319C10D0000B2B653 /* KIOEventStore.h in Headers */,
 				125D31A91B0E335300DFCC97 /* HTTPCodes.h in Headers */,
-				F4D3B6051A0D8EB4000825FE /* Reachability.h in Headers */,
 				1296398E19C10D0000B2B653 /* keen_io_sqlite3.h in Headers */,
 				1296398F19C10D0000B2B653 /* keen_io_sqlite3ext.h in Headers */,
 				1296399219C10D0000B2B653 /* KeenConstants.h in Headers */,
@@ -494,9 +502,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0111013014EF709A009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Simulator" */;
 			buildPhases = (
+				C47284BA3B6652D441C719C6 /* Check Pods Manifest.lock */,
 				0111011D14EF709A009794A5 /* Sources */,
 				0111012214EF709A009794A5 /* Frameworks */,
 				0111012514EF709A009794A5 /* Headers */,
+				0B9CC9F2F9E68FC8CC5226F4 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -511,9 +521,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0111014814EF70AB009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Device" */;
 			buildPhases = (
+				48BDABA49D3341DB242E9461 /* Check Pods Manifest.lock */,
 				0111013514EF70AB009794A5 /* Sources */,
 				0111013A14EF70AB009794A5 /* Frameworks */,
 				0111013D14EF70AB009794A5 /* Headers */,
+				74B8019D0423958255978C3A /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -528,9 +540,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 017EE14214E30C96000F3868 /* Build configuration list for PBXNativeTarget "KeenClient" */;
 			buildPhases = (
+				100FE79CECB3A27C70132FE5 /* Check Pods Manifest.lock */,
 				017EE11A14E30C96000F3868 /* Sources */,
 				017EE11B14E30C96000F3868 /* Frameworks */,
 				017EE11C14E30C96000F3868 /* Headers */,
+				A2A70B03C78F11A2FD35A8D2 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -566,9 +580,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1296398819C10AD200B2B653 /* Build configuration list for PBXNativeTarget "KeenClient-Cocoa" */;
 			buildPhases = (
+				EDFFF74345BBF40F1092961C /* Check Pods Manifest.lock */,
 				1296395F19C10AD200B2B653 /* Sources */,
 				1296396019C10AD200B2B653 /* Frameworks */,
 				1296396119C10AD200B2B653 /* Headers */,
+				2C8BEEC6C3DE1F0A3C71DB8F /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -688,6 +704,51 @@
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
+		0B9CC9F2F9E68FC8CC5226F4 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KeenClient-Simulator/Pods-KeenClient-Simulator-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		100FE79CECB3A27C70132FE5 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		2C8BEEC6C3DE1F0A3C71DB8F /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KeenClient-Cocoa/Pods-KeenClient-Cocoa-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		451A220AE4F397A0721A50C6 /* Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -701,6 +762,36 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		48BDABA49D3341DB242E9461 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		74B8019D0423958255978C3A /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KeenClient-Device/Pods-KeenClient-Device-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		89E50E791A9488D0D72C5551 /* Copy Pods Resources */ = {
@@ -718,6 +809,51 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KeenClientTests/Pods-KeenClientTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A2A70B03C78F11A2FD35A8D2 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KeenClient/Pods-KeenClient-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C47284BA3B6652D441C719C6 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		EDFFF74345BBF40F1092961C /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -730,7 +866,6 @@
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
 				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
 				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
-				F4D3B6081A0D8EB4000825FE /* Reachability.m in Sources */,
 				DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -744,7 +879,6 @@
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
 				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
 				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
-				F4D3B6091A0D8EB4000825FE /* Reachability.m in Sources */,
 				DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -757,7 +891,6 @@
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
 				CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */,
 				012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */,
-				F4D3B6061A0D8EB4000825FE /* Reachability.m in Sources */,
 				A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */,
 				DE34F6F3197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
@@ -781,7 +914,6 @@
 				1296399419C10D2C00B2B653 /* KeenClient.m in Sources */,
 				1296399519C10D2C00B2B653 /* KeenProperties.m in Sources */,
 				1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */,
-				F4D3B60A1A0D8EB4000825FE /* Reachability.m in Sources */,
 				1296399719C10D2C00B2B653 /* KIOEventStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -825,6 +957,7 @@
 /* Begin XCBuildConfiguration section */
 		0111013114EF709A009794A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3AB9113ACB7C9547F9B81C54 /* Pods-KeenClient-Simulator.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -837,7 +970,7 @@
 					"\"$(SRCROOT)/Library\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "KeenClient-Simulator";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphonesimulator;
@@ -847,6 +980,7 @@
 		};
 		0111013214EF709A009794A5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C09287CB67E252F3363FC438 /* Pods-KeenClient-Simulator.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -859,7 +993,7 @@
 					"\"$(SRCROOT)/Library\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "KeenClient-Simulator";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphonesimulator;
@@ -869,6 +1003,7 @@
 		};
 		0111014914EF70AB009794A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AAFE39F90E4210B09303346C /* Pods-KeenClient-Device.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -880,7 +1015,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "KeenClient-Device";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -890,6 +1025,7 @@
 		};
 		0111014A14EF70AB009794A5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 733B578C89C05C1DFF725BBF /* Pods-KeenClient-Device.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -901,7 +1037,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "KeenClient-Device";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -969,6 +1105,7 @@
 		};
 		017EE14314E30C96000F3868 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6C74954C108AB54D5206F441 /* Pods-KeenClient.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -982,7 +1119,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -990,6 +1127,7 @@
 		};
 		017EE14414E30C96000F3868 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3A4459774406F15F0756FA6B /* Pods-KeenClient.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -1001,7 +1139,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/Library\"",
 				);
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -1066,6 +1204,7 @@
 		};
 		1296398319C10AD200B2B653 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 84B957D67781F220450341A7 /* Pods-KeenClient-Cocoa.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1105,6 +1244,7 @@
 		};
 		1296398419C10AD200B2B653 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 382297FF8A253337B1DDEF9E /* Pods-KeenClient-Cocoa.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";

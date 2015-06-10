@@ -8,9 +8,8 @@ workspace 'KeenClient'
 xcodeproj 'KeenClient'
 
 target 'KeenClient' do
-  #platform :ios, '6.0'
-  #link_with 'KeenClientTests'
-  #default_pods
+  platform :ios, '6.0'
+  default_pods
 end
 
 target 'KeenClientTests', :exclusive => true do
@@ -18,18 +17,18 @@ target 'KeenClientTests', :exclusive => true do
 end
 
 target 'KeenClient-Simulator' do
-  #platform :ios, '6.0'
-  #default_pods
+  platform :ios, '6.0'
+  default_pods
 end
 
 target 'KeenClient-Device' do
-  #platform :ios, '6.0'
-  #default_pods
+  platform :ios, '6.0'
+  default_pods
 end
 
 target 'KeenClient-Cocoa' do
-  #platform :osx, '10.8'
-  #default_pods
+  platform :osx, '10.8'
+  default_pods
 end
 
 post_install do |installer|
