@@ -1,7 +1,7 @@
 # Mac crap
 .DS_Store
 
-# xcode noise
+# Xcode noise
 build/
 xcuserdata/
 *.pbxuser
@@ -12,3 +12,7 @@ xcuserdata/
 KeenClient.xcworkspace/xcshareddata/
 .idea
 KeenClient.xcodeproj/project.xcworkspace/xcshareddata/KeenClient.xccheckout
+
+# CocoaPods
+Pods
+Podfile.lock

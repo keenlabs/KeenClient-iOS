@@ -43,7 +43,6 @@
 		012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
 		012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; };
-		015D308B1822E8D200F8735B /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 015D308A1822E8D200F8735B /* libOCMock.a */; };
 		017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
 		017EE12814E30C96000F3868 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		017EE13214E30C96000F3868 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE13114E30C96000F3868 /* UIKit.framework */; };
@@ -53,6 +52,7 @@
 		017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE13E14E30C96000F3868 /* KeenClientTests.m */; };
 		01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
+		02746B72325E95887A5C4871 /* libPods-KeenClientTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7FF7AA12F9C7120F4F922A1F /* libPods-KeenClientTests.a */; };
 		125D31A41B0E330900DFCC97 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
 		125D31A51B0E331800DFCC97 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		125D31A61B0E333400DFCC97 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
@@ -163,13 +163,6 @@
 		012E8A541672B9A90021F6FA /* KeenProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenProperties.h; sourceTree = "<group>"; };
 		012E8A551672B9A90021F6FA /* KeenProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenProperties.m; sourceTree = "<group>"; };
 		012E8A5C1672BE860021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		015D30841822E8D200F8735B /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
-		015D30851822E8D200F8735B /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
-		015D30861822E8D200F8735B /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
-		015D30871822E8D200F8735B /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
-		015D30881822E8D200F8735B /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
-		015D30891822E8D200F8735B /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
-		015D308A1822E8D200F8735B /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		017EE11E14E30C96000F3868 /* libKeenClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKeenClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		017EE12114E30C96000F3868 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		017EE12514E30C96000F3868 /* KeenClient-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "KeenClient-Prefix.pch"; sourceTree = "<group>"; };
@@ -192,9 +185,12 @@
 		1296397519C10AD200B2B653 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		1296398C19C10B8500B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		616132E56A57103E63EAC4B2 /* Pods-KeenClientTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClientTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClientTests/Pods-KeenClientTests.debug.xcconfig"; sourceTree = "<group>"; };
+		7FF7AA12F9C7120F4F922A1F /* libPods-KeenClientTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClientTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A51E31221B03C6EF00008248 /* HTTPCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPCodes.h; sourceTree = "<group>"; };
 		A51E31231B03C6EF00008248 /* HTTPCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPCodes.m; sourceTree = "<group>"; };
 		A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenSwiftClientExample.xcodeproj; path = KeenSwiftClientExample/KeenSwiftClientExample.xcodeproj; sourceTree = "<group>"; };
+		B9A295AAB93FDB1ECFC19207 /* Pods-KeenClientTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClientTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClientTests/Pods-KeenClientTests.release.xcconfig"; sourceTree = "<group>"; };
 		CA6410D618E37E7C00E53E3C /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* KIOEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
 		CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStoreTests.h; sourceTree = "<group>"; };
@@ -243,11 +239,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4D3B61E1A0D98B4000825FE /* SystemConfiguration.framework in Frameworks */,
-				015D308B1822E8D200F8735B /* libOCMock.a in Frameworks */,
 				012E8A5E1672BFA00021F6FA /* CoreLocation.framework in Frameworks */,
 				017EE13214E30C96000F3868 /* UIKit.framework in Frameworks */,
 				017EE13314E30C96000F3868 /* Foundation.framework in Frameworks */,
 				017EE13614E30C96000F3868 /* libKeenClient.a in Frameworks */,
+				02746B72325E95887A5C4871 /* libPods-KeenClientTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,27 +267,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		015D30821822E8D200F8735B /* Headers */ = {
-			isa = PBXGroup;
-			children = (
-				015D30831822E8D200F8735B /* OCMock */,
-			);
-			path = Headers;
-			sourceTree = "<group>";
-		};
-		015D30831822E8D200F8735B /* OCMock */ = {
-			isa = PBXGroup;
-			children = (
-				015D30841822E8D200F8735B /* NSNotificationCenter+OCMAdditions.h */,
-				015D30851822E8D200F8735B /* OCMArg.h */,
-				015D30861822E8D200F8735B /* OCMConstraint.h */,
-				015D30871822E8D200F8735B /* OCMock.h */,
-				015D30881822E8D200F8735B /* OCMockObject.h */,
-				015D30891822E8D200F8735B /* OCMockRecorder.h */,
-			);
-			path = OCMock;
-			sourceTree = "<group>";
-		};
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
@@ -303,6 +278,7 @@
 				017EE12014E30C96000F3868 /* Frameworks */,
 				017EE11F14E30C96000F3868 /* Products */,
 				01A9A34314FE95210082AB22 /* docs */,
+				A2D03ADEDB76CB657FE227A4 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -331,6 +307,7 @@
 				1296396419C10AD200B2B653 /* Cocoa.framework */,
 				1296397519C10AD200B2B653 /* XCTest.framework */,
 				1296396619C10AD200B2B653 /* Other Frameworks */,
+				7FF7AA12F9C7120F4F922A1F /* libPods-KeenClientTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -396,8 +373,6 @@
 			children = (
 				F4D3B5FF1A0D8EB4000825FE /* Reachability */,
 				DE6955781951FBCC0044D2C4 /* sqlite-amalgamation */,
-				015D30821822E8D200F8735B /* Headers */,
-				015D308A1822E8D200F8735B /* libOCMock.a */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -410,6 +385,15 @@
 				1296396919C10AD200B2B653 /* AppKit.framework */,
 			);
 			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		A2D03ADEDB76CB657FE227A4 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				616132E56A57103E63EAC4B2 /* Pods-KeenClientTests.debug.xcconfig */,
+				B9A295AAB93FDB1ECFC19207 /* Pods-KeenClientTests.release.xcconfig */,
+			);
+			name = Pods;
 			sourceTree = "<group>";
 		};
 		A58E0C071AF85F3C00DF2B71 /* Products */ = {
@@ -561,10 +545,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 017EE14514E30C96000F3868 /* Build configuration list for PBXNativeTarget "KeenClientTests" */;
 			buildPhases = (
+				451A220AE4F397A0721A50C6 /* Check Pods Manifest.lock */,
 				017EE12914E30C96000F3868 /* Sources */,
 				017EE12A14E30C96000F3868 /* Frameworks */,
 				017EE12B14E30C96000F3868 /* Resources */,
 				017EE12C14E30C96000F3868 /* ShellScript */,
+				89E50E791A9488D0D72C5551 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -701,6 +687,36 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+		451A220AE4F397A0721A50C6 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		89E50E791A9488D0D72C5551 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KeenClientTests/Pods-KeenClientTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -993,6 +1009,7 @@
 		};
 		017EE14614E30C96000F3868 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 616132E56A57103E63EAC4B2 /* Pods-KeenClientTests.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = YES;
@@ -1008,13 +1025,13 @@
 					"$(inherited)",
 				);
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
-				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/Library/Headers/**";
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Library",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "armv7 armv7s";
 				WARNING_CFLAGS = "";
@@ -1023,6 +1040,7 @@
 		};
 		017EE14714E30C96000F3868 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B9A295AAB93FDB1ECFC19207 /* Pods-KeenClientTests.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = YES;
@@ -1033,13 +1051,13 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
-				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/Library/Headers/**";
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Library",
 				);
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALID_ARCHS = "armv7 armv7s";
 				WARNING_CFLAGS = "";
