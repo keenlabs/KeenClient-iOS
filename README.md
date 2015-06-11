@@ -87,6 +87,16 @@ Then run:
 pod install
 ```
 
+#### Swift
+
+Add a header file “ProjectName-Bridging-Header.h”. In the bridging header file, add: 
+
+```
+#import “KeenClient.h”
+```
+
+In Build Settings, set the "Objective-C Bridging Header” section to your newly-created bridging header file ProjectName-Bridging-Header.h.
+
 ##### Build Settings
 
 Make sure to add the following libraries in the "Link Binary with Libraries" section:
