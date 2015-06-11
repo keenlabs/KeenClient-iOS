@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Fixed warning about deprecated SenTestingKit, converted it to XCTest.
 
+### Changed
+- Added the prefix KIO to Reachability files and all its methods to avoid duplicate erros with other projects or Pods. #97
+
 ## [3.3.0](https://github.com/keenlabs/KeenClient-iOS/compare/3.2.20...3.3.0) - 2015-05-27
 ### Added
 - Added Network Reachability check before uploading events and SystemConfiguration framework.
