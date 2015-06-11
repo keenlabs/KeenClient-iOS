@@ -9,7 +9,7 @@
 #import "KeenClient.h"
 #import "KeenConstants.h"
 #import "KIOEventStore.h"
-#import "Reachability.h"
+#import "KIOReachability.h"
 #import "HTTPCodes.h"
 #import <CoreLocation/CoreLocation.h>
 
@@ -789,8 +789,8 @@ static KIOEventStore *eventStore;
 # pragma mark - Uploading
 
 - (BOOL)isNetworkConnected {
-    Reachability *hostReachability = [Reachability reachabilityForInternetConnection];
-    return [hostReachability currentReachabilityStatus] != NotReachable;
+    KIOReachability *hostReachability = [KIOReachability KIOreachabilityForInternetConnection];
+    return [hostReachability KIOcurrentReachabilityStatus] != NotReachable;
 }
 
 - (void)uploadHelper

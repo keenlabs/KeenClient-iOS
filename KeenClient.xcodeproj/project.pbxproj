@@ -93,14 +93,14 @@
 		DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6021A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6031A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6041A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6051A0D8EB4000825FE /* Reachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* Reachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6061A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
-		F4D3B6081A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
-		F4D3B6091A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
-		F4D3B60A1A0D8EB4000825FE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* Reachability.m */; };
+		F4D3B6021A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F4D3B6031A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F4D3B6041A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F4D3B6051A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F4D3B6061A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
+		F4D3B6081A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
+		F4D3B6091A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
+		F4D3B60A1A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
 		F4D3B61E1A0D98B4000825FE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
 
@@ -204,8 +204,8 @@
 		DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = keen_io_sqlite3.c; sourceTree = "<group>"; };
 		DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3.h; sourceTree = "<group>"; };
 		DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3ext.h; sourceTree = "<group>"; };
-		F4D3B6001A0D8EB4000825FE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
-		F4D3B6011A0D8EB4000825FE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		F4D3B6001A0D8EB4000825FE /* KIOReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOReachability.h; sourceTree = "<group>"; };
+		F4D3B6011A0D8EB4000825FE /* KIOReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOReachability.m; sourceTree = "<group>"; };
 		F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -434,8 +434,8 @@
 		F4D3B5FF1A0D8EB4000825FE /* Reachability */ = {
 			isa = PBXGroup;
 			children = (
-				F4D3B6001A0D8EB4000825FE /* Reachability.h */,
-				F4D3B6011A0D8EB4000825FE /* Reachability.m */,
+				F4D3B6001A0D8EB4000825FE /* KIOReachability.h */,
+				F4D3B6011A0D8EB4000825FE /* KIOReachability.m */,
 			);
 			path = Reachability;
 			sourceTree = "<group>";
@@ -451,7 +451,7 @@
 				010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */,
 				DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */,
 				125D31A51B0E331800DFCC97 /* HTTPCodes.h in Headers */,
-				F4D3B6031A0D8EB4000825FE /* Reachability.h in Headers */,
+				F4D3B6031A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				DE34F6F7197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
@@ -466,7 +466,7 @@
 				010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */,
 				DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */,
 				125D31A71B0E333900DFCC97 /* HTTPCodes.h in Headers */,
-				F4D3B6041A0D8EB4000825FE /* Reachability.h in Headers */,
+				F4D3B6041A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				DE34F6F8197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
@@ -481,7 +481,7 @@
 				012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */,
 				CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */,
 				A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */,
-				F4D3B6021A0D8EB4000825FE /* Reachability.h in Headers */,
+				F4D3B6021A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
@@ -496,7 +496,7 @@
 				1296399119C10D0000B2B653 /* KeenProperties.h in Headers */,
 				1296399319C10D0000B2B653 /* KIOEventStore.h in Headers */,
 				125D31A91B0E335300DFCC97 /* HTTPCodes.h in Headers */,
-				F4D3B6051A0D8EB4000825FE /* Reachability.h in Headers */,
+				F4D3B6051A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				1296398E19C10D0000B2B653 /* keen_io_sqlite3.h in Headers */,
 				1296398F19C10D0000B2B653 /* keen_io_sqlite3ext.h in Headers */,
 				1296399219C10D0000B2B653 /* KeenConstants.h in Headers */,
@@ -687,7 +687,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export TMP_DIR=/tmp/keenios\nexport TMP_DIR_COCOA=/tmp/keenios-cocoa\n\nrm -rf ${TMP_DIR}\nrm -rf ${TMP_DIR_COCOA}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Cocoa.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\nmkdir -p ${TMP_DIR_COCOA}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/HTTPCodes.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/Reachability.h\" ${TMP_DIR}/.\n\ncp -r \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}/libKeenClient-Cocoa.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/HTTPCodes.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/Reachability.h\" ${TMP_DIR_COCOA}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *\n\ncd ${TMP_DIR_COCOA}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\" *";
+			shellScript = "export TMP_DIR=/tmp/keenios\nexport TMP_DIR_COCOA=/tmp/keenios-cocoa\n\nrm -rf ${TMP_DIR}\nrm -rf ${TMP_DIR_COCOA}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Cocoa.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\nmkdir -p ${TMP_DIR_COCOA}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/HTTPCodes.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOReachability.h\" ${TMP_DIR}/.\n\ncp -r \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}/libKeenClient-Cocoa.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOEventStore.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/HTTPCodes.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOReachability.h\" ${TMP_DIR_COCOA}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *\n\ncd ${TMP_DIR_COCOA}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\" *";
 		};
 		017EE12C14E30C96000F3868 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -714,7 +714,7 @@
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
 				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
 				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
-				F4D3B6081A0D8EB4000825FE /* Reachability.m in Sources */,
+				F4D3B6081A0D8EB4000825FE /* KIOReachability.m in Sources */,
 				DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -728,7 +728,7 @@
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
 				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
 				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
-				F4D3B6091A0D8EB4000825FE /* Reachability.m in Sources */,
+				F4D3B6091A0D8EB4000825FE /* KIOReachability.m in Sources */,
 				DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -741,7 +741,7 @@
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
 				CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */,
 				012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */,
-				F4D3B6061A0D8EB4000825FE /* Reachability.m in Sources */,
+				F4D3B6061A0D8EB4000825FE /* KIOReachability.m in Sources */,
 				A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */,
 				DE34F6F3197586EE00051390 /* keen_io_sqlite3.c in Sources */,
 			);
@@ -765,7 +765,7 @@
 				1296399419C10D2C00B2B653 /* KeenClient.m in Sources */,
 				1296399519C10D2C00B2B653 /* KeenProperties.m in Sources */,
 				1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */,
-				F4D3B60A1A0D8EB4000825FE /* Reachability.m in Sources */,
+				F4D3B60A1A0D8EB4000825FE /* KIOReachability.m in Sources */,
 				1296399719C10D2C00B2B653 /* KIOEventStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -1,5 +1,5 @@
 /*
-     File: Reachability.m
+     File: KIOReachability.m
  Abstract: Basic demonstration of how to use the SystemConfiguration Reachablity APIs.
   Version: 3.5
 
@@ -52,17 +52,17 @@
 
 #import <CoreFoundation/CoreFoundation.h>
 
-#import "Reachability.h"
+#import "KIOReachability.h"
 
 
-NSString *kReachabilityChangedNotification = @"kNetworkReachabilityChangedNotification";
+NSString *KIOkReachabilityChangedNotification = @"kNetworkReachabilityChangedNotification";
 
 
 #pragma mark - Supporting functions
 
 #define kShouldPrintReachabilityFlags 0
 
-static void PrintReachabilityFlags(SCNetworkReachabilityFlags flags, const char* comment)
+static void KIOPrintReachabilityFlags(SCNetworkReachabilityFlags flags, const char* comment)
 {
 #if kShouldPrintReachabilityFlags
 
@@ -87,29 +87,29 @@ static void PrintReachabilityFlags(SCNetworkReachabilityFlags flags, const char*
 }
 
 
-static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void* info)
+static void KIOReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void* info)
 {
 #pragma unused (target, flags)
 	NSCAssert(info != NULL, @"info was NULL in ReachabilityCallback");
-	NSCAssert([(__bridge NSObject*) info isKindOfClass: [Reachability class]], @"info was wrong class in ReachabilityCallback");
+	NSCAssert([(__bridge NSObject*) info isKindOfClass: [KIOReachability class]], @"info was wrong class in ReachabilityCallback");
 
-    Reachability* noteObject = (__bridge Reachability *)info;
+    KIOReachability* noteObject = (__bridge KIOReachability *)info;
     // Post a notification to notify the client that the network reachability changed.
-    [[NSNotificationCenter defaultCenter] postNotificationName: kReachabilityChangedNotification object: noteObject];
+    [[NSNotificationCenter defaultCenter] postNotificationName: KIOkReachabilityChangedNotification object: noteObject];
 }
 
 
 #pragma mark - Reachability implementation
 
-@implementation Reachability
+@implementation KIOReachability
 {
 	BOOL _alwaysReturnLocalWiFiStatus; //default is NO
 	SCNetworkReachabilityRef _reachabilityRef;
 }
 
-+ (instancetype)reachabilityWithHostName:(NSString *)hostName
++ (instancetype)KIOreachabilityWithHostName:(NSString *)hostName
 {
-	Reachability* returnValue = NULL;
+	KIOReachability* returnValue = NULL;
 	SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithName(NULL, [hostName UTF8String]);
 	if (reachability != NULL)
 	{
@@ -124,11 +124,11 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 }
 
 
-+ (instancetype)reachabilityWithAddress:(const struct sockaddr_in *)hostAddress
++ (instancetype)KIOreachabilityWithAddress:(const struct sockaddr_in *)hostAddress
 {
 	SCNetworkReachabilityRef reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (const struct sockaddr *)hostAddress);
 
-	Reachability* returnValue = NULL;
+	KIOReachability* returnValue = NULL;
 
 	if (reachability != NULL)
 	{
@@ -144,18 +144,18 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 
 
 
-+ (instancetype)reachabilityForInternetConnection
++ (instancetype)KIOreachabilityForInternetConnection
 {
 	struct sockaddr_in zeroAddress;
 	bzero(&zeroAddress, sizeof(zeroAddress));
 	zeroAddress.sin_len = sizeof(zeroAddress);
 	zeroAddress.sin_family = AF_INET;
 
-	return [self reachabilityWithAddress:&zeroAddress];
+	return [self KIOreachabilityWithAddress:&zeroAddress];
 }
 
 
-+ (instancetype)reachabilityForLocalWiFi
++ (instancetype)KIOreachabilityForLocalWiFi
 {
 	struct sockaddr_in localWifiAddress;
 	bzero(&localWifiAddress, sizeof(localWifiAddress));
@@ -165,7 +165,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 	// IN_LINKLOCALNETNUM is defined in <netinet/in.h> as 169.254.0.0.
 	localWifiAddress.sin_addr.s_addr = htonl(IN_LINKLOCALNETNUM);
 
-	Reachability* returnValue = [self reachabilityWithAddress: &localWifiAddress];
+	KIOReachability* returnValue = [self KIOreachabilityWithAddress: &localWifiAddress];
 	if (returnValue != NULL)
 	{
 		returnValue->_alwaysReturnLocalWiFiStatus = YES;
@@ -177,12 +177,12 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 
 #pragma mark - Start and stop notifier
 
-- (BOOL)startNotifier
+- (BOOL)KIOstartNotifier
 {
 	BOOL returnValue = NO;
 	SCNetworkReachabilityContext context = {0, (__bridge void *)(self), NULL, NULL, NULL};
 
-	if (SCNetworkReachabilitySetCallback(_reachabilityRef, ReachabilityCallback, &context))
+	if (SCNetworkReachabilitySetCallback(_reachabilityRef, KIOReachabilityCallback, &context))
 	{
 		if (SCNetworkReachabilityScheduleWithRunLoop(_reachabilityRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode))
 		{
@@ -194,7 +194,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 }
 
 
-- (void)stopNotifier
+- (void)KIOstopNotifier
 {
 	if (_reachabilityRef != NULL)
 	{
@@ -205,7 +205,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 
 - (void)dealloc
 {
-	[self stopNotifier];
+	[self KIOstopNotifier];
 	if (_reachabilityRef != NULL)
 	{
 		CFRelease(_reachabilityRef);
@@ -215,10 +215,10 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 
 #pragma mark - Network Flag Handling
 
-- (NetworkStatus)localWiFiStatusForFlags:(SCNetworkReachabilityFlags)flags
+- (KIONetworkStatus)KIOlocalWiFiStatusForFlags:(SCNetworkReachabilityFlags)flags
 {
-	PrintReachabilityFlags(flags, "localWiFiStatusForFlags");
-	NetworkStatus returnValue = NotReachable;
+	KIOPrintReachabilityFlags(flags, "localWiFiStatusForFlags");
+	KIONetworkStatus returnValue = NotReachable;
 
 	if ((flags & kSCNetworkReachabilityFlagsReachable) && (flags & kSCNetworkReachabilityFlagsIsDirect))
 	{
@@ -229,16 +229,16 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 }
 
 
-- (NetworkStatus)networkStatusForFlags:(SCNetworkReachabilityFlags)flags
+- (KIONetworkStatus)KIOnetworkStatusForFlags:(SCNetworkReachabilityFlags)flags
 {
-	PrintReachabilityFlags(flags, "networkStatusForFlags");
+	KIOPrintReachabilityFlags(flags, "networkStatusForFlags");
 	if ((flags & kSCNetworkReachabilityFlagsReachable) == 0)
 	{
 		// The target host is not reachable.
 		return NotReachable;
 	}
 
-    NetworkStatus returnValue = NotReachable;
+    KIONetworkStatus returnValue = NotReachable;
 
 	if ((flags & kSCNetworkReachabilityFlagsConnectionRequired) == 0)
 	{
@@ -278,7 +278,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 }
 
 
-- (BOOL)connectionRequired
+- (BOOL)KIOconnectionRequired
 {
 	NSAssert(_reachabilityRef != NULL, @"connectionRequired called with NULL reachabilityRef");
 	SCNetworkReachabilityFlags flags;
@@ -292,21 +292,21 @@ static void ReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
 }
 
 
-- (NetworkStatus)currentReachabilityStatus
+- (KIONetworkStatus)KIOcurrentReachabilityStatus
 {
 	NSAssert(_reachabilityRef != NULL, @"currentNetworkStatus called with NULL SCNetworkReachabilityRef");
-	NetworkStatus returnValue = NotReachable;
+	KIONetworkStatus returnValue = NotReachable;
 	SCNetworkReachabilityFlags flags;
 
 	if (SCNetworkReachabilityGetFlags(_reachabilityRef, &flags))
 	{
 		if (_alwaysReturnLocalWiFiStatus)
 		{
-			returnValue = [self localWiFiStatusForFlags:flags];
+			returnValue = [self KIOlocalWiFiStatusForFlags:flags];
 		}
 		else
 		{
-			returnValue = [self networkStatusForFlags:flags];
+			returnValue = [self KIOnetworkStatusForFlags:flags];
 		}
 	}
 
