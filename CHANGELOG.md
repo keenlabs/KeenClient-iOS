@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.3.1](https://github.com/keenlabs/KeenClient-iOS/compare/3.3.0...3.3.1) - 2015-06-12
 ### Fixed
 - Fixed warning about deprecated SenTestingKit, converted it to XCTest.
 
