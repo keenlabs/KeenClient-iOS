@@ -9,8 +9,8 @@
 #import "AppDelegate.h"
 
 #import "FirstViewController.h"
-
 #import "SecondViewController.h"
+#import "ThirdViewController.h"
 
 #import "KeenClient.h"
 
@@ -22,7 +22,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [KeenClient enableLogging];
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"4f4ed092163d663d3a000000" andWriteKey:@"9a9d92907c3e43c3a4742535fc2f78ec" andReadKey:nil];
+    KeenClient *client = [KeenClient sharedClientWithProjectId:@"pi" andWriteKey:@"wk" andReadKey:@"rk"];
     client.globalPropertiesBlock = ^NSDictionary *(NSString *eventCollection) {
         return @{ @"GLOBALS": @"YEAH WHAT"};
     };
@@ -32,8 +32,9 @@
     // Override point for customization after application launch.
     UIViewController *viewController1 = [[[FirstViewController alloc] initWithNibName:@"FirstViewController" bundle:nil] autorelease];
     UIViewController *viewController2 = [[[SecondViewController alloc] initWithNibName:@"SecondViewController" bundle:nil] autorelease];
+    UIViewController *viewController3 = [[[ThirdViewController alloc] initWithNibName:@"ThirdViewController" bundle:nil] autorelease];
     self.tabBarController = [[[UITabBarController alloc] init] autorelease];
-    self.tabBarController.viewControllers = [NSArray arrayWithObjects:viewController1, viewController2, nil];
+    self.tabBarController.viewControllers = [NSArray arrayWithObjects:viewController1, viewController2, viewController3, nil];
     self.window.rootViewController = self.tabBarController;
     [self.window makeKeyAndVisible];
     return YES;
