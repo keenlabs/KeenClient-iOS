@@ -25,6 +25,22 @@
     return self;
 }
 
+- (id)initWithQuery:(NSString *)queryType andQueryName:(NSString *)queryName andPropertiesDictionary:(NSDictionary *)propertiesDictionary {
+    if (![KIOQuery validateQueryType:queryType]) {
+        return nil;
+    }
+    
+    self = [self init];
+    
+    if (self) {
+        self.queryType = queryType;
+        self.queryName = queryName;
+        self.propertiesDictionary = propertiesDictionary;
+    }
+    
+    return self;
+}
+
 + (BOOL)validateQueryType:(NSString *)queryType {
     // TODO: Validate query type on client side?
     if (!queryType || [queryType length] == 0) {
@@ -37,7 +53,8 @@
     NSError *error = nil;
     
     NSData *data = [NSJSONSerialization dataWithJSONObject:self.propertiesDictionary options:0 error:&error];
-    
+
+#warning REMOVE THIS BEFORE MERGING
     NSString *strData = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
     
     NSLog(@"data: %@", strData);

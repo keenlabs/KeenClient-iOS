@@ -975,9 +975,8 @@ static KIOEventStore *eventStore;
 
 # pragma mark - Querying
 
-- (void)runAsyncQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error block:(void (^)(NSData *))block {
-    dispatch_async(self.queryQueue, ^{
-        NSData *dataResponse = [self runQuery:keenQuery returningResponse:response error:error];
+# pragma mark Async methods
+
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
     dispatch_async(self.uploadQueue, ^{
         NSURLResponse *response = nil;
@@ -999,25 +998,33 @@ static KIOEventStore *eventStore;
     });
 }
 
-- (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
-    
-    if (block) {
-        KCLog(@"Running user-specified query block.");
-        @try {
-            block(dataResponse, response, error);
-        } @finally {
-            // do nothing
-        }
-    }
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
+    dispatch_async(self.uploadQueue, ^{
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *dataResponse = [self runMultiAnalysisWithQueries:keenQueries returningResponse:&response error:&error];
+        
+        // we're done querying, call the main queue and execute the block
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // run the user-specific block (if there is one)
+            if (block) {
+                KCLog(@"Running user-specified block.");
+                @try {
+                    block(dataResponse, response, error);
+                } @finally {
+                    // do nothing
+                }
+            }
+        });
+    });
 }
+
+# pragma mark Sync methods
 
 - (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error {
     @synchronized(self) {
         NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                           kKeenServerAddress, kKeenApiVersion, self.projectId, keenQuery.queryType];
+                               kKeenServerAddress, kKeenApiVersion, self.projectId, keenQuery.queryType];
         KCLog(@"Sending request to: %@", urlString);
         NSURL *url = [NSURL URLWithString:urlString];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
@@ -1030,6 +1037,86 @@ static KIOEventStore *eventStore;
         NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
         
         return responseData;
+    }
+}
+
+- (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error {
+    @synchronized(self) {
+        NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
+                               kKeenServerAddress, kKeenApiVersion, self.projectId, @"multi_analysis"];
+        KCLog(@"Sending request to: %@", urlString);
+        
+        NSMutableDictionary *analysesDictionary = [[NSMutableDictionary alloc] init];
+        NSString *queriesEventCollection;
+        int queryNumber = 0;
+        for (id query in keenQueries) {
+            if (![query isKindOfClass:[KIOQuery class]]) {
+                KCLog(@"keenQueries array contain objects that are not of class KIOQuery");
+                return nil;
+            } else {
+                //check that all keen queries have the same event collection
+                NSString *queryEventCollection = [[query propertiesDictionary] objectForKey:@"event_collection"];
+                if (queriesEventCollection == nil) {
+                    queriesEventCollection = queryEventCollection;
+                } else if (![queriesEventCollection isEqualToString:queryEventCollection]) {
+                    KCLog(@"queries eventCollection properties don't match");
+                    return nil;
+                }
+                
+                queryNumber++;
+
+                NSMutableDictionary *queryMutablePropertiesDictionary = [[query propertiesDictionary] mutableCopy];
+                [queryMutablePropertiesDictionary removeObjectForKey:@"event_collection"];
+                [queryMutablePropertiesDictionary setObject:[query queryType] forKey:@"analysis_type"];
+                
+                NSString *queryName = [query queryName] ? : [[NSString alloc] initWithFormat:@"query%d", queryNumber];
+                [analysesDictionary setObject:queryMutablePropertiesDictionary forKey:queryName];
+            }
+        }
+        
+        //create final dictionary
+        NSMutableDictionary *multiAnalysisDictionary = [[NSMutableDictionary alloc] init];
+        [multiAnalysisDictionary setObject:queriesEventCollection forKey:@"event_collection"];
+        [multiAnalysisDictionary setObject:analysesDictionary forKey:@"analyses"];
+        
+        //convert the resulting dictionary to data and set it as HTTPBody
+        NSError *dictionarySerializationError = nil;
+        
+        NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
+        
+        if(dictionarySerializationError != nil) {
+            KCLog(@"error with dictionary serialization");
+            return nil;
+        }
+        
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
+        [request setHTTPMethod:@"POST"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
+        [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [multiAnalysisData length]] forHTTPHeaderField:@"Content-Length"];
+        [request setHTTPBody:multiAnalysisData];
+        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+        
+        return responseData;
+    }
+}
+
+# pragma mark Helper Methods
+
+- (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+    
+    if (block) {
+        KCLog(@"Running user-specified query block.");
+        @try {
+            block(dataResponse, response, error);
+        } @finally {
+            // do nothing
+        }
     }
 }
 

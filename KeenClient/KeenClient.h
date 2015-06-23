@@ -271,7 +271,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 - (void)refreshCurrentLocation;
 
 /**
- Returns the Keen SDK Version
+ Returns the Keen SDK Version.
  
  @return The current SDK version string.
  */
@@ -282,13 +282,47 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  */
 - (void)importFileData;
 
-- (void)runAsyncQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error block:(void (^)(NSData*))block;
+/**
+ Runs an asynchronous query.
+ 
+ See detailed documentation here: https://keen.io/docs/api/#analyses
+ 
+ @param keenQuery The KIOQuery object containing the information about the query.
+ @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ */
+- (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block;
+
+/**
+ Runs an asynchronous multi-analysis query.
+ 
+ See detailed documentation here: https://keen.io/docs/api/#multi-analysis
+ 
+ @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
+ @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ */
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block;
+
 /**
  Runs a synchronous query.
  
  This method is only used for testing.
+ 
+ @param keenQuery The KIOQuery object containing the information about the query.
+ @param returningResponse The NSURLResponse for the query.
+ @param error The NSError (if any) for the query.
  */
 - (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error;
+
+/**
+ Runs a synchronous multi-analysis query.
+ 
+ This method is only used for testing.
+ 
+ @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
+ @param returningResponse The NSURLResponse for the query.
+ @param error The NSError (if any) for the query.
+ */
+- (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error;
 
 // defines the KCLog macro
 #define KEEN_LOGGING_ENABLED [KeenClient loggingEnabled]
