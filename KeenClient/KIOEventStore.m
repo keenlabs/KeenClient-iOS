@@ -705,7 +705,7 @@
 }
 
 - (void)handleSQLiteFailure: (NSString *) msg {
-    NSLog(@"Failed to %@: %@",
+    KCLog(@"Failed to %@: %@",
           msg, [NSString stringWithCString:keen_io_sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
     [self closeDB];
 }

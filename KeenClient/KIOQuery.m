@@ -53,11 +53,6 @@
     NSError *error = nil;
     
     NSData *data = [NSJSONSerialization dataWithJSONObject:self.propertiesDictionary options:0 error:&error];
-
-#warning REMOVE THIS BEFORE MERGING
-    NSString *strData = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
-    
-    NSLog(@"data: %@", strData);
     
     return data;
 }
