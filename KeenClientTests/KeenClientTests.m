@@ -1628,6 +1628,45 @@
     XCTAssertEqual(result, [NSNumber numberWithInt:10]);
 }
 
+- (void)testFunnelQuerySuccess {
+    id mock = [self queryMockTestHelper:@{@"result": @[@10, @5],
+                                          @"steps":@[@{@"actor_property": @[@"user.id"],
+                                                       @"event_collection": @"user_signed_up"},
+                                                     @{@"actor_property": @[@"user.id"],
+                                                       @"event_collection": @"user_completed_profile"}]} andStatusCode:HTTPCode200OK];
+    
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up", @"actor_property": @"user.id"},
+          @{@"event_collection": @"user_completed_profile", @"actor_property": @"user.id"}]}];
+    
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
+    
+    KCLog(@"error: %@", error);
+    KCLog(@"response: %@", response);
+    
+    XCTAssertNil(error);
+    
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+    XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+    
+    NSDictionary *responseDictionary = [NSJSONSerialization
+                                        JSONObjectWithData:queryResponseData
+                                        options:kNilOptions
+                                        error:&error];
+    
+    KCLog(@"response: %@", responseDictionary);
+    
+    NSArray *result = [responseDictionary objectForKey:@"result"];
+    NSArray *resultArray = @[@10, @5];
+    
+    KCLog(@"result: %@", [result class]);
+    KCLog(@"resultArray: %@", [resultArray class]);
+    
+    XCTAssertEqual([result count], (NSUInteger)2);
+    XCTAssertEqualObjects(result, resultArray);
+}
+
 # pragma mark - test filesystem utility methods
 
 - (NSString *)cacheDirectory {

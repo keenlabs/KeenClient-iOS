@@ -57,6 +57,10 @@
         
         NSLog(@"result: %@", result);
         
+        // Get result value when querying with group_by property
+        //NSNumber *resultValue = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"result"];
+        //NSLog(@"resultValue: %@", resultValue);
+        
         if(error || [responseDictionary objectForKey:@"error_code"]) {
             self.resultTextView.text = [NSString stringWithFormat:@"Failure! 😞 \n\n error: %@\n\n response: %@", [error localizedDescription] ,[responseDictionary description]];
         } else {
@@ -68,6 +72,26 @@
     KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
     
     [[KeenClient sharedClient] runAsyncQuery:countQuery block:countQueryCompleted];
+    
+    // Multi-analysis querying example
+    /*
+    KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key"}];
+    
+    [countQuery setQueryName:@"count_query"];
+    [countUniqueQuery setQueryName:@"count_unique_query"];
+    
+    [[KeenClient sharedClient] runAsyncMultiAnalysisWithQueries:@[countQuery, countUniqueQuery] block:countQueryCompleted];
+     */
+    
+    // Funnel example
+    /*
+    KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up",
+            @"actor_property": @"user.id"},
+          @{@"event_collection": @"user_completed_profile",
+            @"actor_property": @"user.id"}]}];
+    
+    [[KeenClient sharedClient] runAsyncQuery:funnelQuery block:countQueryCompleted];
+     */
 }
 
 @end
