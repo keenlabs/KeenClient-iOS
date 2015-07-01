@@ -20,6 +20,12 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 	* [Geo Location](#geo-location) - How to use Geo Location
 	* [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
 	* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) features to enrich your data
+	* [Querying](#querying) - How to query and analyze your data
+		* [Examples](#examples) - Example of queries
+		* [Count Example](#count-example) - Count query example
+		* [Count Unique Example](#count-unique-example) - Count Unique query example
+		* [Multi-Analysis Example](#multi-analysis-example) - Multi-Analysis query example
+		* [Funnel Example](#funnel-example) - Funnel query example
 	* [Debugging](#debugging) - How to debug your application using the SDK's built in logging
 * [FAQs](#faqs)
 * [Change Log](#change-log)
@@ -464,7 +470,161 @@ In this example, we add a global property for the IP to Geo information that all
 
 **Note:** `[self getIPAddress:YES]` is a custom method that you'll have to implement for yourself as there's currently no built-in method to obtain the device's IP address. We've had success using a few of the solutions suggested in [this post](http://stackoverflow.com/questions/7072989/iphone-ipad-osx-how-to-get-my-ip-address-programmatically).
 
+##### Querying
+
+After collecting event data inside your application, you might want to analyze it by running certain queries. You can do so by using the class `KIOQuery` and the methods `KeenClient.runAsyncQuery` and `KeenClient.runAsyncMultiAnalysisWithQueries`.
+
+There's a whole bunch of different queries you can run depending on the questions you're trying to answer. You can find more detailed information in our documentation [here](https://keen.io/docs/api/#analyses), but the list of analysis types is:
+
+- [Count](https://keen.io/docs/api/#count) - Return the total number of events found in a given collection.
+- [Count Unique](https://keen.io/docs/api/#count-unique) - Return the number of unique values for a given property.
+- [Minimum](https://keen.io/docs/api/#minimum) - Return the minimum of all numeric values for a given property.
+- [Maximum](https://keen.io/docs/api/#maximum) - Return the maximum of all numeric values for a given property.
+- [Sum](https://keen.io/docs/api/#sum) - Calculate the sum of all numeric values for a given property.
+- [Average](https://keen.io/docs/api/#average) - Calculate the average of all numeric values for a given property.
+- [Median](https://keen.io/docs/api/#median) - Calculate the median of all numeric values for a given property.
+- [Percentile](https://keen.io/docs/api/#percentile) - Calculate a given percentile of all numeric values for a given property.
+- [Select Unique](https://keen.io/docs/api/#select-unique) - Return a list of all unique values found for a given property.
+
+Besides that, you can also run:
+
+- [Multi-Analysis](https://keen.io/docs/api/#multi-analysis) - Run multiple analyses with a single request.
+- [Funnels](https://keen.io/docs/api/#funnels) - Track the completion of a sequence of events.
+
+###### Examples
+
+Creating a query is as simple as instantiating a `KIOQuery` object:
+
+Objective-C:
+```objc
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+```
+
+Swift:
+```Swift
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+```
+
+Let's show a few examples of running different queries. The last parameter of both `KeenClient.runAsyncQuery` and `KeenClient.runAsyncMultiAnalysisWithQueries` is a block. To avoid copy+pasting we'll use the same block for all the queries. It is going to print out the results in case of a successful query, or print out the errors in case the query fails:
+
+Objective-C:
+```objc
+// Create block to run after query completes
+void (^countQueryCompleted)(NSData *, NSURLResponse *, NSError *) = ^(NSData *responseData, NSURLResponse *returningResponse, NSError *error) {
+    NSDictionary *responseDictionary = [NSJSONSerialization
+                                        JSONObjectWithData:responseData
+                                        options:kNilOptions
+                                        error:nil];
+    
+    NSNumber *result = [responseDictionary objectForKey:@"result"];
+    
+    if(error || [responseDictionary objectForKey:@"error_code"]) {
+        NSLog([NSString stringWithFormat:@"Failure! 😞 \n\n error: %@\n\n response: %@", [error localizedDescription] ,[responseDictionary description]]);
+    } else {
+        NSLog([NSString stringWithFormat:@"Success! 😄 \n\n response: %@", [responseDictionary description]]);
+    }
+};
+```
+
+Swift:
+```Swift
+// Create block to run after query completes
+let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResponse!, error: NSError!) -> Void in
+    var error: NSError?;
+    
+    var responseDictionary: NSDictionary? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers, error: &error) as? NSDictionary;
+		
+    var result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber;
+		
+    if let actualError = error, errorCode = responseDictionary!.objectForKey("error_code") as? String {
+        println(NSString(format:"Failure! 😞 \n\n error: %@\n\n response: %@", actualError, errorCode));
+    } else {
+			println(NSString(format:"Success! 😄 \n\n response: %@", responseDictionary!.description));
+    }
+}
+```
+
+###### Count Example
+
+Objective-C:
+```objc
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+[[KeenClient sharedClient] runAsyncQuery:countQuery block:countQueryCompleted];
+```
+
+Swift:
+```Swift
+// KIOQuery object containing the query type and properties
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+
+// Run the query
+KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted);
+```
+
+###### Count Unique Example
+
+Objective-C:
+```objc
+KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key"}];
+    
+[[KeenClient sharedClient] runAsyncQuery:countUniqueQuery block:countQueryCompleted];
+```
+
+Swift:
+```Swift
+var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key"]);
+
+KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompleted);
+```
+
+###### Multi-Analysis Example
+
+Objective-C:
+```objc
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key"}];
+
+// Optionally set a name for your queries, so it's easier to check the results
+[countQuery setQueryName:@"count_query"];
+[countUniqueQuery setQueryName:@"count_unique_query"];
+
+[[KeenClient sharedClient] runAsyncMultiAnalysisWithQueries:@[countQuery, countUniqueQuery] block:countQueryCompleted];
+```
+
+Swift:
+```Swift
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key"]);
+
+// Optionally set a name for your queries, so it's easier to check the results
+countQuery.queryName = "count_query";
+countUniqueQuery.queryName = "count_unique_query";
+
+KeenClient.sharedClient().runAsyncMultiAnalysisWithQueries([countQuery, countUniqueQuery], block: countQueryCompleted);
+```
+
+###### Funnel Example
+
+Objective-C:
+```objc
+KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up",
+            @"actor_property": @"user.id"},
+          @{@"event_collection": @"user_completed_profile",
+            @"actor_property": @"user.id"}]}];
+    
+[[KeenClient sharedClient] runAsyncQuery:funnelQuery block:countQueryCompleted];
+```
+
+Swift:
+```Swift
+var funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["steps": [["event_collection": "user_signed_up", @"actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
+
+KeenClient.sharedClient().runAsyncQuery(funnelQuery, block: countQueryCompleted);
+```
+
 ##### Debugging
+
 
 `KeenClient` code does a lot of logging, but it’s turned off by default. If you’d like to see the log lines generated by your usage of the client, you can enable logging easily:
 
@@ -490,11 +650,6 @@ Swift
 KeenClient.disableLogging();
 ```
 
-##### Do analysis with Keen IO
-
-    TO DO
-
-
 ### FAQs
 
 Q: What happens when the device is offline? Will events automatically be sent when the device connects to wifi again?
@@ -512,7 +667,6 @@ You can find the change log [here](CHANGELOG.md).
 
 ### To Do
 
-* Support analysis APIs.
 * Native iOS visualizations.
 
 ### Questions & Support
