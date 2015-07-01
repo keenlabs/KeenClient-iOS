@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3EBA49FF1B4372B100403842 /* ThirdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EBA49FE1B4372B100403842 /* ThirdViewController.swift */; };
 		A58E0BE51AF85F3C00DF2B71 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58E0BE41AF85F3C00DF2B71 /* AppDelegate.swift */; };
 		A58E0BE71AF85F3C00DF2B71 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58E0BE61AF85F3C00DF2B71 /* FirstViewController.swift */; };
 		A58E0BE91AF85F3C00DF2B71 /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58E0BE81AF85F3C00DF2B71 /* SecondViewController.swift */; };
@@ -30,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3EBA49FE1B4372B100403842 /* ThirdViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThirdViewController.swift; sourceTree = "<group>"; };
 		A58E0BDF1AF85F3C00DF2B71 /* KeenSwiftClientExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenSwiftClientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A58E0BE31AF85F3C00DF2B71 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A58E0BE41AF85F3C00DF2B71 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 				A58E0BE41AF85F3C00DF2B71 /* AppDelegate.swift */,
 				A58E0BE61AF85F3C00DF2B71 /* FirstViewController.swift */,
 				A58E0BE81AF85F3C00DF2B71 /* SecondViewController.swift */,
+				3EBA49FE1B4372B100403842 /* ThirdViewController.swift */,
 				A58E0BEA1AF85F3C00DF2B71 /* Main.storyboard */,
 				A58E0BED1AF85F3C00DF2B71 /* Images.xcassets */,
 				A58E0BEF1AF85F3C00DF2B71 /* LaunchScreen.xib */,
@@ -241,6 +244,7 @@
 			files = (
 				A58E0BE91AF85F3C00DF2B71 /* SecondViewController.swift in Sources */,
 				A58E0BE51AF85F3C00DF2B71 /* AppDelegate.swift in Sources */,
+				3EBA49FF1B4372B100403842 /* ThirdViewController.swift in Sources */,
 				A58E0BE71AF85F3C00DF2B71 /* FirstViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -443,6 +447,7 @@
 				A58E0C021AF85F3C00DF2B71 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A58E0C031AF85F3C00DF2B71 /* Build configuration list for PBXNativeTarget "KeenSwiftClientExampleTests" */ = {
 			isa = XCConfigurationList;
@@ -451,6 +456,7 @@
 				A58E0C051AF85F3C00DF2B71 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
