@@ -5,7 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
-## [3.3.1](https://github.com/keenlabs/KeenClient-iOS/compare/3.3.0...3.3.1) - 2015-06-12
+### Added
+- Added querying capability to SDK. 
+
+## [3.3.1] - 2015-06-12
 ### Fixed
 - Fixed warning about deprecated SenTestingKit, converted it to XCTest.
 
@@ -13,7 +16,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Added the prefix KIO to Reachability files and all its methods to avoid duplicate erros with other projects or Pods. #97
 - Moved sqlite files to a subspec inside the KeenClient.podspec file, and added compiler flags to them to suppress warnings in other projects.
 
-## [3.3.0](https://github.com/keenlabs/KeenClient-iOS/compare/3.2.20...3.3.0) - 2015-05-27
+## [3.3.0] - 2015-05-27
 ### Added
 - Added Network Reachability check before uploading events and SystemConfiguration framework.
 - Added SQLite database versioning and migration capabilities.
@@ -137,7 +140,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.3.0...HEAD
+[unreleased]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.3.1...HEAD
+[3.3.1]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.3.0...3.3.1
 [3.3.0]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.20...3.3.0
 [3.2.20]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.18...3.2.20
 [3.2.18]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.17...3.2.18
