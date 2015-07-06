@@ -71,7 +71,13 @@
 		1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 		1296399719C10D2C00B2B653 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
 		1296399819C10D4000B2B653 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
-		3E63D9F01AE7356C00E57A17 /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; };
+		12AE4C3A1B4AD26D0015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		12AE4C3B1B4AD27D0015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		12AE4C3C1B4AD2880015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		12AE4C3D1B4AD2980015F41F /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
+		12AE4C3E1B4AD2A00015F41F /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
+		12AE4C3F1B4AD2AD0015F41F /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
+		3E63D9F01AE7356C00E57A17 /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3E63D9F11AE7356C00E57A17 /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
 		3E63D9F71AE7425000E57A17 /* KIOQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */; };
 		3EE5CA9D1AF0697200D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
@@ -463,6 +469,7 @@
 				DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */,
 				125D31A51B0E331800DFCC97 /* HTTPCodes.h in Headers */,
 				F4D3B6031A0D8EB4000825FE /* KIOReachability.h in Headers */,
+				12AE4C3A1B4AD26D0015F41F /* KIOQuery.h in Headers */,
 				DE34F6F7197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
@@ -478,6 +485,7 @@
 				DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */,
 				125D31A71B0E333900DFCC97 /* HTTPCodes.h in Headers */,
 				F4D3B6041A0D8EB4000825FE /* KIOReachability.h in Headers */,
+				12AE4C3B1B4AD27D0015F41F /* KIOQuery.h in Headers */,
 				DE34F6F8197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
@@ -493,8 +501,8 @@
 				CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */,
 				A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */,
 				F4D3B6021A0D8EB4000825FE /* KIOReachability.h in Headers */,
-				DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				3E63D9F01AE7356C00E57A17 /* KIOQuery.h in Headers */,
+				DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
 			);
@@ -509,6 +517,7 @@
 				1296399319C10D0000B2B653 /* KIOEventStore.h in Headers */,
 				125D31A91B0E335300DFCC97 /* HTTPCodes.h in Headers */,
 				F4D3B6051A0D8EB4000825FE /* KIOReachability.h in Headers */,
+				12AE4C3C1B4AD2880015F41F /* KIOQuery.h in Headers */,
 				1296398E19C10D0000B2B653 /* keen_io_sqlite3.h in Headers */,
 				1296398F19C10D0000B2B653 /* keen_io_sqlite3ext.h in Headers */,
 				1296399219C10D0000B2B653 /* KeenConstants.h in Headers */,
@@ -721,6 +730,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12AE4C3D1B4AD2980015F41F /* KIOQuery.m in Sources */,
 				125D31A41B0E330900DFCC97 /* HTTPCodes.m in Sources */,
 				DEFA50181947A66200F78E13 /* KIOEventStore.m in Sources */,
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
@@ -735,6 +745,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12AE4C3E1B4AD2A00015F41F /* KIOQuery.m in Sources */,
 				125D31A61B0E333400DFCC97 /* HTTPCodes.m in Sources */,
 				DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */,
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
@@ -774,6 +785,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12AE4C3F1B4AD2AD0015F41F /* KIOQuery.m in Sources */,
 				125D31A81B0E334D00DFCC97 /* HTTPCodes.m in Sources */,
 				1296399819C10D4000B2B653 /* keen_io_sqlite3.c in Sources */,
 				1296399419C10D2C00B2B653 /* KeenClient.m in Sources */,
