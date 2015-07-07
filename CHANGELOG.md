@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 
+## [3.4.0] - 2015-07-08
+
 ### Added
 - Added querying capability to SDK. 
 
@@ -140,23 +142,24 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.3.1...HEAD
-[3.3.1]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.3.0...3.3.1
-[3.3.0]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.20...3.3.0
-[3.2.20]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.18...3.2.20
-[3.2.18]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.17...3.2.18
-[3.2.17]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.16...3.2.17
-[3.2.16]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.15...3.2.16
-[3.2.15]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.14...3.2.15
-[3.2.14]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.13...3.2.14
-[3.2.13]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.12...3.2.13
-[3.2.12]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.10...3.2.12
-[3.2.10]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.9...3.2.10
-[3.2.9]: https://github.com/heitortsergent/KeenClient-iOS/compare/3.2.8...3.2.9
-[3.2.8]: https://github.com/heitortsergent/KeenClient-iOS/compare/v3.2.7...3.2.8
-[3.2.7]: https://github.com/heitortsergent/KeenClient-iOS/compare/v3.2.6...v3.2.7
-[3.2.6]: https://github.com/heitortsergent/KeenClient-iOS/compare/v3.2.5...v3.2.6
-[3.2.5]: https://github.com/heitortsergent/KeenClient-iOS/compare/v3.2.4...v3.2.5
-[3.2.4]: https://github.com/heitortsergent/KeenClient-iOS/compare/v3.2.2...v3.2.4
-[3.2.2]: https://github.com/heitortsergent/KeenClient-iOS/compare/v3.2.1...v3.2.2
-[3.2.1]: https://github.com/heitortsergent/KeenClient-iOS/compare/v3.2.0...v3.2.1
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.0...HEAD
+[3.4.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.3.1...3.4.0
+[3.3.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.3.0...3.3.1
+[3.3.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.20...3.3.0
+[3.2.20]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.18...3.2.20
+[3.2.18]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.17...3.2.18
+[3.2.17]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.16...3.2.17
+[3.2.16]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.15...3.2.16
+[3.2.15]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.14...3.2.15
+[3.2.14]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.13...3.2.14
+[3.2.13]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.12...3.2.13
+[3.2.12]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.10...3.2.12
+[3.2.10]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.9...3.2.10
+[3.2.9]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.8...3.2.9
+[3.2.8]: https://github.com/keenlabs/KeenClient-iOS/compare/v3.2.7...3.2.8
+[3.2.7]: https://github.com/keenlabs/KeenClient-iOS/compare/v3.2.6...v3.2.7
+[3.2.6]: https://github.com/keenlabs/KeenClient-iOS/compare/v3.2.5...v3.2.6
+[3.2.5]: https://github.com/keenlabs/KeenClient-iOS/compare/v3.2.4...v3.2.5
+[3.2.4]: https://github.com/keenlabs/KeenClient-iOS/compare/v3.2.2...v3.2.4
+[3.2.2]: https://github.com/keenlabs/KeenClient-iOS/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/keenlabs/KeenClient-iOS/compare/v3.2.0...v3.2.1
