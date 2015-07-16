@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         KeenClient.enableLogging();
         
         var client : KeenClient;
-        client = KeenClient.sharedClientWithProjectId("project_id", andWriteKey: "wk", andReadKey: "rk");
+        client = KeenClient.sharedClientWithProjectID("project_id", andWriteKey: "wk", andReadKey: "rk");
 
         client.globalPropertiesBlock = {(eventCollection : String!) -> [NSObject : AnyObject]! in
             return [ "GLOBALS": "YEAH WHAT SWIFT"]

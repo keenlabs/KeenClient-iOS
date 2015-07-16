@@ -133,7 +133,7 @@
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
         char *err;
-        NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectId TEXT, eventData BLOB, pending INTEGER, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
+        NSString *sql = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectID TEXT, eventData BLOB, pending INTEGER, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
         if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
             KCLog(@"Failed to create table: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
             keen_io_sqlite3_free(err); // Free that error message
@@ -665,25 +665,25 @@
 
 - (void)prepareAllSQLiteStatements {
     // This statement inserts events into the table.
-    [self prepareSQLStatement:&insert_stmt sqlQuery:"INSERT INTO events (projectId, collection, eventData, pending, attempts) VALUES (?, ?, ?, 0, 0)" failureMessage:@"prepare insert statement"];
+    [self prepareSQLStatement:&insert_stmt sqlQuery:"INSERT INTO events (projectID, collection, eventData, pending, attempts) VALUES (?, ?, ?, 0, 0)" failureMessage:@"prepare insert statement"];
     
     // This statement finds non-pending events in the table.
-    [self prepareSQLStatement:&find_stmt sqlQuery:"SELECT id, collection, eventData FROM events WHERE pending=0 AND projectId=? AND attempts<?" failureMessage:@"prepare find non-pending events statement"];
+    [self prepareSQLStatement:&find_stmt sqlQuery:"SELECT id, collection, eventData FROM events WHERE pending=0 AND projectID=? AND attempts<?" failureMessage:@"prepare find non-pending events statement"];
     
     // This statement counts the total number of events (pending or not)
     [self prepareSQLStatement:&count_all_stmt sqlQuery:"SELECT count(*) FROM events WHERE projectID=?" failureMessage:@"prepare count all events statement"];
     
     // This statement counts the number of pending events.
-    [self prepareSQLStatement:&count_pending_stmt sqlQuery:"SELECT count(*) FROM events WHERE pending=1 AND projectId=?" failureMessage:@"prepare count pending events statement"];
+    [self prepareSQLStatement:&count_pending_stmt sqlQuery:"SELECT count(*) FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare count pending events statement"];
     
     // This statement marks an event as pending.
     [self prepareSQLStatement:&make_pending_stmt sqlQuery:"UPDATE events SET pending=1 WHERE id=?" failureMessage:@"prepare mark event as pending statement"];
     
     // This statement resets pending events back to normal.
-    [self prepareSQLStatement:&reset_pending_stmt sqlQuery:"UPDATE events SET pending=0 WHERE projectId=?" failureMessage:@"prepare reset pending statement"];
+    [self prepareSQLStatement:&reset_pending_stmt sqlQuery:"UPDATE events SET pending=0 WHERE projectID=?" failureMessage:@"prepare reset pending statement"];
     
     // This statement purges all pending events.
-    [self prepareSQLStatement:&purge_stmt sqlQuery:"DELETE FROM events WHERE pending=1 AND projectId=?" failureMessage:@"prepare purge pending events statement"];
+    [self prepareSQLStatement:&purge_stmt sqlQuery:"DELETE FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare purge pending events statement"];
     
     // This statement deletes a specific event.
     [self prepareSQLStatement:&delete_stmt sqlQuery:"DELETE FROM events WHERE id=?" failureMessage:@"prepare delete specific event statement"];

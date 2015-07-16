@@ -25,7 +25,7 @@ static KIOEventStore *eventStore;
 @interface KeenClient ()
 
 // The project ID for this particular client.
-@property (nonatomic, strong) NSString *projectId;
+@property (nonatomic, strong) NSString *projectID;
 
 // The Write Key for this particular client.
 @property (nonatomic, strong) NSString *writeKey;
@@ -62,10 +62,10 @@ static KIOEventStore *eventStore;
 
 /**
  Validates that the given project ID is valid.
- @param projectId The Keen project ID.
+ @param projectID The Keen project ID.
  @returns YES if project id is valid, NO otherwise.
  */
-+ (BOOL)validateProjectId:(NSString *)projectId;
++ (BOOL)validateProjectID:(NSString *)projectID;
 
 /**
  Validates that the given key is valid.
@@ -154,7 +154,7 @@ static KIOEventStore *eventStore;
 
 @implementation KeenClient
 
-@synthesize projectId=_projectId;
+@synthesize projectID=_projectID;
 @synthesize writeKey=_writeKey;
 @synthesize readKey=_readKey;
 @synthesize locationManager=_locationManager;
@@ -245,9 +245,9 @@ static KIOEventStore *eventStore;
     return self;
 }
 
-+ (BOOL)validateProjectId:(NSString *)projectId {
++ (BOOL)validateProjectID:(NSString *)projectID {
     // validate that project ID is acceptable
-    if (!projectId || [projectId length] == 0) {
+    if (!projectID || [projectID length] == 0) {
         return NO;
     }
     return YES;
@@ -255,11 +255,11 @@ static KIOEventStore *eventStore;
 
 + (BOOL)validateKey:(NSString *)key {
     // for now just use the same rules as project ID
-    return [KeenClient validateProjectId:key];
+    return [KeenClient validateProjectID:key];
 }
 
-- (id)initWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
-    if (![KeenClient validateProjectId:projectId]) {
+- (id)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
+    if (![KeenClient validateProjectID:projectID]) {
         return nil;
     }
     
@@ -269,7 +269,7 @@ static KIOEventStore *eventStore;
     
     self = [self init];
     if (self) {
-        self.projectId = projectId;
+        self.projectID = projectID;
         if (writeKey) {
             if (![KeenClient validateKey:writeKey]) {
                 return nil;
@@ -289,18 +289,18 @@ static KIOEventStore *eventStore;
 
 # pragma mark - Get a shared client
 
-+ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
++ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
     if (!sharedClient) {
         sharedClient = [[KeenClient alloc] init];
     }
-    if (![KeenClient validateProjectId:projectId]) {
+    if (![KeenClient validateProjectID:projectID]) {
         return nil;
     }
 
     if (!eventStore) {
         eventStore = [[KIOEventStore alloc] init];
     }
-    sharedClient.projectId = projectId;
+    sharedClient.projectID = projectID;
 
     if (writeKey) {
         // only validate a non-nil value
@@ -325,7 +325,7 @@ static KIOEventStore *eventStore;
     if (!sharedClient) {
         sharedClient = [[KeenClient alloc] init];
     }
-    if (![KeenClient validateProjectId:sharedClient.projectId]) {
+    if (![KeenClient validateProjectID:sharedClient.projectID]) {
         KCLog(@"sharedClient requested before registering project ID!");
         return nil;
     }
@@ -495,7 +495,7 @@ static KIOEventStore *eventStore;
     event = newEvent;
     
     // now make sure that we haven't hit the max number of events in this collection already
-    NSUInteger eventCount = [eventStore getTotalEventCountWithProjectID:self.projectId];
+    NSUInteger eventCount = [eventStore getTotalEventCountWithProjectID:self.projectID];
     
     // We add 1 because we want to know if this will push us over the limit
     if (eventCount + 1 > self.maxEventsPerCollection) {
@@ -538,7 +538,7 @@ static KIOEventStore *eventStore;
     }
     
     // write JSON to store
-    [eventStore addEvent:jsonData collection: eventCollection projectID:self.projectId];
+    [eventStore addEvent:jsonData collection: eventCollection projectID:self.projectID];
     
     // log the event
     if ([KeenClient isLoggingEnabled]) {
@@ -619,7 +619,7 @@ static KIOEventStore *eventStore;
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
     // get data for the API request we'll make
-    NSMutableDictionary *events = [eventStore getEventsWithMaxAttempts:self.maxAttempts andProjectID:self.projectId];
+    NSMutableDictionary *events = [eventStore getEventsWithMaxAttempts:self.maxAttempts andProjectID:self.projectID];
     
     NSError *error = nil;
     for (NSString *coll in events) {
@@ -719,7 +719,7 @@ static KIOEventStore *eventStore;
                             KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                         } else {
                             // All's well: Add it!
-                            [eventStore addEvent:data collection:dirName projectID:self.projectId];
+                            [eventStore addEvent:data collection:dirName projectID:self.projectID];
                         }
 
                     }
@@ -744,7 +744,7 @@ static KIOEventStore *eventStore;
 
 - (NSString *)keenDirectory {
     NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
-    return [keenDirPath stringByAppendingPathComponent:self.projectId];
+    return [keenDirPath stringByAppendingPathComponent:self.projectID];
 }
 
 - (NSArray *)keenSubDirectories {
@@ -939,7 +939,7 @@ static KIOEventStore *eventStore;
 
 - (NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
-                           kKeenServerAddress, kKeenApiVersion, self.projectId];
+                           kKeenServerAddress, kKeenApiVersion, self.projectID];
     KCLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
@@ -1022,7 +1022,7 @@ static KIOEventStore *eventStore;
 - (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error {
     @synchronized(self) {
         NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                               kKeenServerAddress, kKeenApiVersion, self.projectId, keenQuery.queryType];
+                               kKeenServerAddress, kKeenApiVersion, self.projectID, keenQuery.queryType];
         KCLog(@"Sending request to: %@", urlString);
         NSURL *url = [NSURL URLWithString:urlString];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
@@ -1041,7 +1041,7 @@ static KIOEventStore *eventStore;
 - (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error {
     @synchronized(self) {
         NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                               kKeenServerAddress, kKeenApiVersion, self.projectId, @"multi_analysis"];
+                               kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
         KCLog(@"Sending request to: %@", urlString);
         
         NSMutableDictionary *analysesDictionary = [[NSMutableDictionary alloc] init];

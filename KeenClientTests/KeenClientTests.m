@@ -18,7 +18,7 @@
 @interface KeenClient (testability)
 
 // The project ID for this particular client.
-@property (nonatomic, strong) NSString *projectId;
+@property (nonatomic, strong) NSString *projectID;
 @property (nonatomic, strong) NSString *writeKey;
 @property (nonatomic, strong) NSString *readKey;
 
@@ -48,7 +48,7 @@
     [super setUp];
 
     // Set-up code here.
-    [[KeenClient sharedClient] setProjectId:nil];
+    [[KeenClient sharedClient] setProjectID:nil];
     [[KeenClient sharedClient] setWriteKey:nil];
     [[KeenClient sharedClient] setReadKey:nil];
     [KeenClient enableLogging];
@@ -77,24 +77,24 @@
 }
 
 - (void)testInitWithProjectID{
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"something" andWriteKey:@"wk" andReadKey:@"rk"];
-    XCTAssertEqualObjects(@"something", client.projectId, @"init with a valid project id should work");
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"something" andWriteKey:@"wk" andReadKey:@"rk"];
+    XCTAssertEqualObjects(@"something", client.projectID, @"init with a valid project id should work");
     XCTAssertEqualObjects(@"wk", client.writeKey, @"init with a valid project id should work");
     XCTAssertEqualObjects(@"rk", client.readKey, @"init with a valid project id should work");
     
-    KeenClient *client2 = [[KeenClient alloc] initWithProjectId:@"another" andWriteKey:@"wk2" andReadKey:@"rk2"];
-    XCTAssertEqualObjects(@"another", client2.projectId, @"init with a valid project id should work");
+    KeenClient *client2 = [[KeenClient alloc] initWithProjectID:@"another" andWriteKey:@"wk2" andReadKey:@"rk2"];
+    XCTAssertEqualObjects(@"another", client2.projectID, @"init with a valid project id should work");
     XCTAssertEqualObjects(@"wk2", client2.writeKey, @"init with a valid project id should work");
     XCTAssertEqualObjects(@"rk2", client2.readKey, @"init with a valid project id should work");
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
     
-    client = [[KeenClient alloc] initWithProjectId:nil andWriteKey:@"wk" andReadKey:@"rk"];
+    client = [[KeenClient alloc] initWithProjectID:nil andWriteKey:@"wk" andReadKey:@"rk"];
     XCTAssertNil(client, @"init with a nil project ID should return nil");
 }
 
 - (void)testInstanceClient {
     KeenClient *client = [[KeenClient alloc] init];
-    XCTAssertNil(client.projectId, @"a client's project id should be nil at first");
+    XCTAssertNil(client.projectID, @"a client's project id should be nil at first");
     XCTAssertNil(client.writeKey, @"a client's write key should be nil at first");
     XCTAssertNil(client.readKey, @"a client's read key should be nil at first");
 
@@ -102,24 +102,24 @@
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
 }
 
-- (void)testSharedClientWithProjectId{
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    XCTAssertEqual(@"id", client.projectId, @"sharedClientWithProjectId with a non-nil project id should work.");
+- (void)testSharedClientWithProjectID{
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    XCTAssertEqual(@"id", client.projectID, @"sharedClientWithProjectID with a non-nil project id should work.");
     XCTAssertEqualObjects(@"wk", client.writeKey, @"init with a valid project id should work");
     XCTAssertEqualObjects(@"rk", client.readKey, @"init with a valid project id should work");
     
-    KeenClient *client2 = [KeenClient sharedClientWithProjectId:@"other" andWriteKey:@"wk2" andReadKey:@"rk2"];
+    KeenClient *client2 = [KeenClient sharedClientWithProjectID:@"other" andWriteKey:@"wk2" andReadKey:@"rk2"];
     XCTAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
     XCTAssertEqualObjects(@"wk2", client2.writeKey, @"sharedClient with a valid project id should work");
     XCTAssertEqualObjects(@"rk2", client2.readKey, @"sharedClient with a valid project id should work");
     
-    client = [KeenClient sharedClientWithProjectId:nil andWriteKey:@"wk" andReadKey:@"rk"];
+    client = [KeenClient sharedClientWithProjectID:nil andWriteKey:@"wk" andReadKey:@"rk"];
     XCTAssertNil(client, @"sharedClient with an invalid project id should return nil");
 }
 
 - (void)testSharedClient {
     KeenClient *client = [KeenClient sharedClient];
-    XCTAssertNil(client.projectId, @"a client's project id should be nil at first");
+    XCTAssertNil(client.projectID, @"a client's project id should be nil at first");
     XCTAssertNil(client.writeKey, @"a client's write key should be nil at first");
     XCTAssertNil(client.readKey, @"a client's read key should be nil at first");
     
@@ -128,8 +128,8 @@
 }
 
 - (void)testAddEvent {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
     // nil dict should should do nothing
     NSError *error = nil;
@@ -202,8 +202,8 @@
 }
 
 - (void)testAddEventNoWriteKey {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:nil andReadKey:nil];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:nil andReadKey:nil];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:nil andReadKey:nil];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:nil andReadKey:nil];
     
     NSArray *keys = [NSArray arrayWithObjects:@"a", @"b", @"c", nil];
     NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSNull null], nil];
@@ -213,8 +213,8 @@
 }
 
 - (void)testEventWithTimestamp {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
     NSDate *date = [NSDate date];
     KeenProperties *keenProperties = [[KeenProperties alloc] init];
@@ -222,7 +222,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -238,8 +238,8 @@
 }
 
 - (void)testEventWithLocation {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
     KeenProperties *keenProperties = [[KeenProperties alloc] init];
     CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
@@ -247,7 +247,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -262,15 +262,15 @@
 }
 
 - (void)testEventWithDictionary {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
     NSString* json = @"{\"test_str_array\":[\"val1\",\"val2\",\"val3\"]}";
     NSDictionary* eventDictionary = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
 
     [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
     [clientI addEvent:eventDictionary toEventCollection:@"foo" error:nil];
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -285,8 +285,8 @@
 
 - (void)testGeoLocation {
     // set up a client with a location
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
     CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     client.currentLocation = location;
@@ -294,7 +294,7 @@
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     // now get the stored event
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -310,8 +310,8 @@
 
 - (void)testGeoLocationDisabled {
     // now try the same thing but disable geo location
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
     [KeenClient disableGeoLocation];
     // add an event
@@ -320,7 +320,7 @@
     // now get the stored event
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:@"bar"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -333,8 +333,8 @@
 }
 
 - (void)testEventWithNonDictionaryKeen {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
     NSDictionary *theEvent = @{@"keen": @"abc"};
     NSError *error = nil;
@@ -344,8 +344,8 @@
 }
 
 - (void)testBasicAddon {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
     NSDictionary *theEvent = @{
                                @"keen":@{
@@ -367,7 +367,7 @@
     XCTAssertNil(error, @"event should add");
     
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
@@ -413,7 +413,7 @@
     }
     
     // set up the partial mock
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -441,7 +441,7 @@
     }
     
     // set up the partial mock
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -465,7 +465,7 @@
 
 - (id)queryMockTestHelper:(id)responseData andStatusCode:(NSInteger)code {
     // set up the partial mock
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -485,7 +485,7 @@
 
 - (id)queryMultiAnalysisMockTestHelper:(id)responseData andStatusCode:(NSInteger)code {
     // set up the partial mock
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -518,7 +518,7 @@
     
     [mock uploadWithFinishedBlock:nil];
     
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0, @"Upload method should return with message Request data is empty.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"Upload method should return with message Request data is empty.");
 }
 
 - (void)testUploadSuccess {
@@ -527,7 +527,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0, @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadSuccessInstanceClient {
@@ -536,7 +536,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0, @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadSuccessCreated {
@@ -545,7 +545,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0, @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadSuccessCreatedInstanceClient {
@@ -554,7 +554,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0, @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadFailedServerDown {
@@ -563,16 +563,16 @@
     [self addSimpleEventAndUploadWithMock:mock];
 
     // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"There should be one files after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
 }
 
 - (void)testUploadFailedServerDownInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:[mock projectId] andStatusCode:HTTPCode500InternalServerError];
+    id mock = [self uploadTestHelperWithDataInstanceClient:[mock projectID] andStatusCode:HTTPCode500InternalServerError];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"There should be one files after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
 }
 
 - (void)testUploadFailedServerDownNonJsonResponse {
@@ -581,7 +581,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"There should be one files after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
 }
 
 - (void)testUploadFailedServerDownNonJsonResponseInstanceClient {
@@ -590,7 +590,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"There should be one files after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
 }
 
 
@@ -604,7 +604,7 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"There should be one file after an unsuccessful attempts.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
 
 
     // add another event
@@ -612,19 +612,19 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure both filef weren't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 2, @"There should be two files after 2 unsuccessful attempts.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
 
 
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the first file was deleted from the store, but the second one remains
-    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectId]] allKeys].count == 1, @"There should be one files after 3 unsuccessful attempts.");
+    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one files after 3 unsuccessful attempts.");
 
 
     [mock uploadWithFinishedBlock:nil];
 
     // make sure both files were delete from the store
-    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectId]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
+    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
 }
 
 - (void)testIncrementEvenOnNoResponse {
@@ -638,21 +638,21 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"There should be one event after an unsuccessful attempt.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
 
 
     // add another event
     [mock uploadWithFinishedBlock:nil];
 
     // make sure both filef weren't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"There should be one event after 2 unsuccessful attempts.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
 
 
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the event was incremented
-    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectId]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
-    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:4 andProjectID:[mock projectId]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
+    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
 }
 
 - (void)testUploadFailedBadRequest {
@@ -687,7 +687,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
 - (void)testUploadFailedBadRequestUnknownErrorInstanceClient {
@@ -696,7 +696,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
 
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
 - (void)testUploadFailedRedirectionStatus {
@@ -705,7 +705,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
 - (void)testUploadFailedRedirectionStatusInstanceClient {
@@ -714,7 +714,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
 - (void)testUploadSkippedNoNetwork {
@@ -724,7 +724,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
 
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1, @"An upload with no network should not delete the event.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccess {
@@ -836,7 +836,7 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the file were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionOneFailsInstanceClient {
@@ -858,7 +858,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the file were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFails {
@@ -881,7 +881,7 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsInstanceClient {
@@ -904,7 +904,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
@@ -927,7 +927,7 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1,  @"There should be 1 events after a partial upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReasonInstanceClient {
@@ -950,41 +950,41 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectId]] == 1,  @"There should be 1 events after a partial upload.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
 }
 
 - (void)testTooManyEventsCached {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
     // create 5 events
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectId] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectId] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testTooManyEventsCachedInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
     // create 5 events
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectId] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectId] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testGlobalPropertiesDictionary {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
@@ -993,7 +993,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1039,7 +1039,7 @@
 }
 
 - (void)testGlobalPropertiesDictionaryInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
@@ -1048,7 +1048,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1094,7 +1094,7 @@
 }
 
 - (void)testGlobalPropertiesBlock {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
@@ -1104,7 +1104,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1157,7 +1157,7 @@
 }
 
 - (void)testGlobalPropertiesBlockInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
@@ -1167,7 +1167,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
         
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1220,7 +1220,7 @@
 }
 
 - (void)testGlobalPropertiesTogether {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     // properties from the block should take precedence over properties from the dictionary
@@ -1231,7 +1231,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1245,7 +1245,7 @@
 }
 
 - (void)testGlobalPropertiesTogetherInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     // properties from the block should take precedence over properties from the dictionary
@@ -1256,7 +1256,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
     
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectId] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1270,7 +1270,7 @@
 }
 
 - (void)testInvalidEventCollection {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary *event = @{@"a": @"b"};
@@ -1290,7 +1290,7 @@
 }
 
 - (void)testInvalidEventCollectionInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     NSDictionary *event = @{@"a": @"b"};
@@ -1310,7 +1310,7 @@
 }
 
 - (void)testUploadMultipleTimes {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     [client uploadWithFinishedBlock:nil];
@@ -1319,7 +1319,7 @@
 }
 
 - (void)testUploadMultipleTimesInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     [client uploadWithFinishedBlock:nil];
@@ -1329,7 +1329,7 @@
 
 - (void)testMigrateFSEvents {
 
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
 
     // make sure the directory we want to write the file to exists
@@ -1359,12 +1359,12 @@
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectId] == 3,  @"There should be 3 events after an import.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
     XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
 - (void)testMigrateFSEventsInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     // make sure the directory we want to write the file to exists
@@ -1394,12 +1394,12 @@
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
     
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectId] == 3,  @"There should be 3 events after an import.");
+    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
     XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
 - (void)testSDKVersion {
-    KeenClient *client = [KeenClient sharedClientWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     // result from class method should equal the SDK Version constant
@@ -1408,7 +1408,7 @@
 }
 
 - (void)testSDKVersionInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectId:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     client.isRunningTests = YES;
     
     // result from class method should equal the SDK Version constant
