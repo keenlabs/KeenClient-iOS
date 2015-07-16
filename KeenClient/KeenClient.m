@@ -270,7 +270,6 @@ static KIOEventStore *eventStore;
     self = [self init];
     if (self) {
         self.projectId = projectId;
-        eventStore.projectId = projectId;
         if (writeKey) {
             if (![KeenClient validateKey:writeKey]) {
                 return nil;
@@ -302,7 +301,6 @@ static KIOEventStore *eventStore;
         eventStore = [[KIOEventStore alloc] init];
     }
     sharedClient.projectId = projectId;
-    eventStore.projectId = projectId;
 
     if (writeKey) {
         // only validate a non-nil value
@@ -495,8 +493,10 @@ static KIOEventStore *eventStore;
     }
     [newEvent addEntriesFromDictionary:event];
     event = newEvent;
+    
     // now make sure that we haven't hit the max number of events in this collection already
-    NSUInteger eventCount = [eventStore getTotalEventCount];
+    NSUInteger eventCount = [eventStore getTotalEventCountWithProjectID:self.projectId];
+    
     // We add 1 because we want to know if this will push us over the limit
     if (eventCount + 1 > self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
@@ -538,7 +538,7 @@ static KIOEventStore *eventStore;
     }
     
     // write JSON to store
-    [eventStore addEvent:jsonData collection: eventCollection];
+    [eventStore addEvent:jsonData collection: eventCollection projectID:self.projectId];
     
     // log the event
     if ([KeenClient isLoggingEnabled]) {
@@ -612,7 +612,6 @@ static KIOEventStore *eventStore;
 }
 
 - (void)prepareJSONData:(NSData **)jsonData andEventIds:(NSMutableDictionary **)eventIds {
-    
     // set up the request dictionary we'll send out.
     NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
     
@@ -620,7 +619,7 @@ static KIOEventStore *eventStore;
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
     // get data for the API request we'll make
-    NSMutableDictionary *events = [eventStore getEventsWithMaxAttempts:self.maxAttempts];
+    NSMutableDictionary *events = [eventStore getEventsWithMaxAttempts:self.maxAttempts andProjectID:self.projectId];
     
     NSError *error = nil;
     for (NSString *coll in events) {
@@ -720,7 +719,7 @@ static KIOEventStore *eventStore;
                             KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                         } else {
                             // All's well: Add it!
-                            [eventStore addEvent:data collection:dirName];
+                            [eventStore addEvent:data collection:dirName projectID:self.projectId];
                         }
 
                     }
@@ -807,7 +806,6 @@ static KIOEventStore *eventStore;
     @synchronized(self) {
 
         if (![self isNetworkConnected]) {
-            // no network connection, so don't even attempt to upload
             return;
         }
 

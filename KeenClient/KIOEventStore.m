@@ -323,7 +323,7 @@
 
 # pragma mark - Handle Events -
 
-- (BOOL)addEvent:(NSData *)eventData collection: (NSString *)coll {
+- (BOOL)addEvent:(NSData *)eventData collection:(NSString *)eventCollection projectID:(NSString *)projectID {
     __block BOOL wasAdded = NO;
 
     if(![self checkOpenDB:@"DB is closed, skipping addEvent"]) {
@@ -332,12 +332,12 @@
     
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(insert_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(insert_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to add event statement"];
             return;
         }
         
-        if (keen_io_sqlite3_bind_text(insert_stmt, 2, [coll UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(insert_stmt, 2, [eventCollection UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind coll to add event statement"];
             return;
         }
@@ -360,7 +360,7 @@
     return wasAdded;
 }
 
-- (NSMutableDictionary *)getEventsWithMaxAttempts: (int)maxAttempts {
+- (NSMutableDictionary *)getEventsWithMaxAttempts:(int)maxAttempts andProjectID:(NSString *)projectID {
 
     // Create a dictionary to hold the contents of our select.
     __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
@@ -370,13 +370,13 @@
     }
     
     // reset pending events, if necessary
-    if([self hasPendingEvents]) {
-        [self resetPendingEvents];
+    if([self hasPendingEventsWithProjectID:projectID]) {
+        [self resetPendingEventsWithProjectID:projectID];
     }
     
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(find_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(find_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to find statement"];
         }
         
@@ -422,13 +422,13 @@
     return events;
 }
 
-- (void)resetPendingEvents{
+- (void)resetPendingEventsWithProjectID:(NSString *)projectID {
     if(![self checkOpenDB:@"DB is closed, skipping resetPendingEvents"]) {
         return;
     }
     
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(reset_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(reset_pending_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to reset pending statement"];
         }
         if (keen_io_sqlite3_step(reset_pending_stmt) != SQLITE_DONE) {
@@ -439,20 +439,20 @@
     });
 }
 
-- (BOOL)hasPendingEvents {
+- (BOOL)hasPendingEventsWithProjectID:(NSString *)projectID {
     BOOL hasRows = NO;
 
     if(![self checkOpenDB:@"DB is closed, skipping hasPendingEvents"]) {
         return hasRows;
     }
 
-    if ([self getPendingEventCount] > 0) {
+    if ([self getPendingEventCountWithProjectID:projectID] > 0) {
         hasRows = TRUE;
     }
     return hasRows;
 }
 
-- (NSUInteger)getPendingEventCount {
+- (NSUInteger)getPendingEventCountWithProjectID:(NSString *)projectID {
     __block NSUInteger eventCount = 0;
 
     if(![self checkOpenDB:@"DB is closed, skipping getPendingEventcount"]) {
@@ -461,7 +461,7 @@
 
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(count_pending_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(count_pending_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to count pending statement"];
         }
         if (keen_io_sqlite3_step(count_pending_stmt) == SQLITE_ROW) {
@@ -476,7 +476,7 @@
     return eventCount;
 }
 
-- (NSUInteger)getTotalEventCount {
+- (NSUInteger)getTotalEventCountWithProjectID:(NSString *)projectID {
     __block NSUInteger eventCount = 0;
 
     if(![self checkOpenDB:@"DB is closed, skipping getTotalEventCount"]) {
@@ -485,7 +485,7 @@
 
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(count_all_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(count_all_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to total event statement"];
         }
         if (keen_io_sqlite3_step(count_all_stmt) == SQLITE_ROW) {
@@ -566,13 +566,13 @@
     });
 }
 
-- (void)purgePendingEvents {
+- (void)purgePendingEventsWithProjectID:(NSString *)projectID {
     if(![self checkOpenDB:@"DB is closed, skipping purgePendingEvents"]) {
         return;
     }
 
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(purge_stmt, 1, [self.projectId UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(purge_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to purge statement"];
         }
         if (keen_io_sqlite3_step(purge_stmt) != SQLITE_DONE) {
