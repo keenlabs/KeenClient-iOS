@@ -4,9 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Fixed
+- Fixed uploading events with multiple instances of KeenClient. 
 
 ## [3.4.0] - 2015-07-08
-
 ### Added
 - Added querying capability to SDK. 
 
