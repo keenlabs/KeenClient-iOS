@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [3.4.1] - 2015-07-22
 ### Fixed
-- Fixed uploading events with multiple instances of KeenClient. 
+- Fixed uploading events with multiple instances of KeenClient. All instances of `sharedClientWithProjectId` must now use `sharedClientWithProjectID` instead.
 
 ## [3.4.0] - 2015-07-08
 ### Added
