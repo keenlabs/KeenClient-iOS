@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'KeenClient'
-  spec.version      = '3.4.0'
+  spec.version      = '3.4.1'
   spec.license      = { :type => 'MIT' }
   spec.ios.deployment_target = '6.0'
   spec.osx.deployment_target = '10.9'
