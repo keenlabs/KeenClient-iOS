@@ -4,8 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.4.1] - 2015-07-22
 ### Fixed
-- Fixed uploading events with multiple instances of KeenClient. 
+- Fixed uploading events with multiple instances of KeenClient. All instances of `sharedClientWithProjectId` must now use `sharedClientWithProjectID` instead.
 
 ## [3.4.0] - 2015-07-08
 ### Added
@@ -143,7 +145,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.0...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.1...HEAD
+[3.4.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.0...3.4.1
 [3.4.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.3.1...3.4.0
 [3.3.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.3.0...3.3.1
 [3.3.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.2.20...3.3.0
