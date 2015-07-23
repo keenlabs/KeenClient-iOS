@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 #import "KIOEventStore.h"
+#import "KIOQuery.h"
 #import "KeenProperties.h"
 
 // defines a type for the block we'll use with our global properties
@@ -20,7 +21,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  Example usage:
  
-    [KeenClient sharedClientWithProjectId:@"my_project_id" 
+    [KeenClient sharedClientWithProjectID:@"my_project_id"
                               andWriteKey:@"my_write_key" 
                                andReadKey:@"my_read_key"];
     NSDictionary *myEvent = [NSDictionary dictionary];
@@ -98,25 +99,30 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 @property (nonatomic, strong) CLLocation *currentLocation;
 
 /**
+ The maximum number of times to try POSTing an event before purging it from the DB.
+ */
+@property int maxAttempts;
+
+/**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
  to the given parameters.
  
  You'll generally want to call this the first time you ask for the shared client.  Once you've called
  this, you can simply call [KeenClient sharedClient] afterwards.
  
- @param projectId Your Keen IO Project ID.
+ @param projectID Your Keen IO Project ID.
  @param writeKey Your Keen IO Write Key.
  @param readKey Your Keen IO Read Key.
- @return A managed instance of KeenClient, or nil if projectId is invalid.
+ @return A managed instance of KeenClient, or nil if projectID is invalid.
  */
-+ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
++ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
 
 /**
  Call this to retrieve the managed instance of KeenClient.
  
  If you only have to use a single Keen project, just use this.
  
- @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectId:andWriteKey:andReadKey:].
+ @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectID:andWriteKey:andReadKey:].
  */
 + (KeenClient *)sharedClient;
 
@@ -166,7 +172,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  @return true if logging is enabled, false if disabled.
  */
-+ (Boolean)isLoggingEnabled;
++ (BOOL)isLoggingEnabled;
 
 
 /**
@@ -188,12 +194,12 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  Otherwise, just use [KeenClient sharedClient].
  
- @param projectId Your Keen IO Project ID.
+ @param projectID Your Keen IO Project ID.
  @param writeKey Your Keen IO Write Key.
  @param readKey Your Keen IO Read Key.
  @return An initialized instance of KeenClient.
  */
-- (id)initWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
+- (id)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
 
 /**
  Call this to set the global properties block for this instance of the KeenClient. The block is invoked
@@ -265,7 +271,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 - (void)refreshCurrentLocation;
 
 /**
- Returns the Keen SDK Version
+ Returns the Keen SDK Version.
  
  @return The current SDK version string.
  */
@@ -275,6 +281,48 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  * Import fs-based data into the SQLite database.
  */
 - (void)importFileData;
+
+/**
+ Runs an asynchronous query.
+ 
+ See detailed documentation here: https://keen.io/docs/api/#analyses
+ 
+ @param keenQuery The KIOQuery object containing the information about the query.
+ @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ */
+- (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block;
+
+/**
+ Runs an asynchronous multi-analysis query.
+ 
+ See detailed documentation here: https://keen.io/docs/api/#multi-analysis
+ 
+ @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
+ @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ */
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block;
+
+/**
+ Runs a synchronous query.
+ 
+ This method is only used for testing.
+ 
+ @param keenQuery The KIOQuery object containing the information about the query.
+ @param returningResponse The NSURLResponse for the query.
+ @param error The NSError (if any) for the query.
+ */
+- (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error;
+
+/**
+ Runs a synchronous multi-analysis query.
+ 
+ This method is only used for testing.
+ 
+ @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
+ @param returningResponse The NSURLResponse for the query.
+ @param error The NSError (if any) for the query.
+ */
+- (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error;
 
 // defines the KCLog macro
 #define KEEN_LOGGING_ENABLED [KeenClient loggingEnabled]

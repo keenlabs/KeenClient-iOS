@@ -9,6 +9,9 @@
 #import "KeenClient.h"
 #import "KeenConstants.h"
 #import "KIOEventStore.h"
+#import "KIOReachability.h"
+#import "HTTPCodes.h"
+#import "KIOQuery.h"
 #import <CoreLocation/CoreLocation.h>
 
 
@@ -22,7 +25,7 @@ static KIOEventStore *eventStore;
 @interface KeenClient ()
 
 // The project ID for this particular client.
-@property (nonatomic, strong) NSString *projectId;
+@property (nonatomic, strong) NSString *projectID;
 
 // The Write Key for this particular client.
 @property (nonatomic, strong) NSString *writeKey;
@@ -45,8 +48,11 @@ static KIOEventStore *eventStore;
 // A dispatch queue used for uploads.
 @property (nonatomic) dispatch_queue_t uploadQueue;
 
+// A dispatch queue used for querying.
+@property (nonatomic) dispatch_queue_t queryQueue;
+
 // If we're running tests.
-@property (nonatomic) Boolean isRunningTests;
+@property (nonatomic) BOOL isRunningTests;
 
 /**
  Initializes KeenClient without setting its project ID or API key.
@@ -56,10 +62,10 @@ static KIOEventStore *eventStore;
 
 /**
  Validates that the given project ID is valid.
- @param projectId The Keen project ID.
+ @param projectID The Keen project ID.
  @returns YES if project id is valid, NO otherwise.
  */
-+ (BOOL)validateProjectId:(NSString *)projectId;
++ (BOOL)validateProjectID:(NSString *)projectID;
 
 /**
  Validates that the given key is valid.
@@ -148,7 +154,7 @@ static KIOEventStore *eventStore;
 
 @implementation KeenClient
 
-@synthesize projectId=_projectId;
+@synthesize projectID=_projectID;
 @synthesize writeKey=_writeKey;
 @synthesize readKey=_readKey;
 @synthesize locationManager=_locationManager;
@@ -158,6 +164,7 @@ static KIOEventStore *eventStore;
 @synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
 @synthesize globalPropertiesBlock=_globalPropertiesBlock;
 @synthesize uploadQueue;
+@synthesize queryQueue;
 
 # pragma mark - Class lifecycle
 
@@ -186,7 +193,7 @@ static KIOEventStore *eventStore;
     loggingEnabled = YES;
 }
 
-+ (Boolean)isLoggingEnabled {
++ (BOOL)isLoggingEnabled {
     return loggingEnabled;
 }
 
@@ -230,12 +237,17 @@ static KIOEventStore *eventStore;
     
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
 
+    // use global concurrent dispatch queue to run queries in parallel
+    self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+    self.maxAttempts = 3;
+
     return self;
 }
 
-+ (BOOL)validateProjectId:(NSString *)projectId {
++ (BOOL)validateProjectID:(NSString *)projectID {
     // validate that project ID is acceptable
-    if (!projectId || [projectId length] == 0) {
+    if (!projectID || [projectID length] == 0) {
         return NO;
     }
     return YES;
@@ -243,11 +255,11 @@ static KIOEventStore *eventStore;
 
 + (BOOL)validateKey:(NSString *)key {
     // for now just use the same rules as project ID
-    return [KeenClient validateProjectId:key];
+    return [KeenClient validateProjectID:key];
 }
 
-- (id)initWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
-    if (![KeenClient validateProjectId:projectId]) {
+- (id)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
+    if (![KeenClient validateProjectID:projectID]) {
         return nil;
     }
     
@@ -257,8 +269,7 @@ static KIOEventStore *eventStore;
     
     self = [self init];
     if (self) {
-        self.projectId = projectId;
-        eventStore.projectId = projectId;
+        self.projectID = projectID;
         if (writeKey) {
             if (![KeenClient validateKey:writeKey]) {
                 return nil;
@@ -278,19 +289,18 @@ static KIOEventStore *eventStore;
 
 # pragma mark - Get a shared client
 
-+ (KeenClient *)sharedClientWithProjectId:(NSString *)projectId andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
++ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
     if (!sharedClient) {
         sharedClient = [[KeenClient alloc] init];
     }
-    if (![KeenClient validateProjectId:projectId]) {
+    if (![KeenClient validateProjectID:projectID]) {
         return nil;
     }
 
     if (!eventStore) {
         eventStore = [[KIOEventStore alloc] init];
     }
-    sharedClient.projectId = projectId;
-    eventStore.projectId = projectId;
+    sharedClient.projectID = projectID;
 
     if (writeKey) {
         // only validate a non-nil value
@@ -315,7 +325,7 @@ static KIOEventStore *eventStore;
     if (!sharedClient) {
         sharedClient = [[KeenClient alloc] init];
     }
-    if (![KeenClient validateProjectId:sharedClient.projectId]) {
+    if (![KeenClient validateProjectID:sharedClient.projectID]) {
         KCLog(@"sharedClient requested before registering project ID!");
         return nil;
     }
@@ -372,7 +382,7 @@ static KIOEventStore *eventStore;
     // If it's a relatively recent event, turn off updates to save power
     NSDate* eventDate = newLocation.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
-    if (abs(howRecent) < 15.0) {
+    if ((int)fabs(howRecent) < 15.0) {
         KCLog(@"latitude %+.6f, longitude %+.6f\n",
               newLocation.coordinate.latitude,
               newLocation.coordinate.longitude);
@@ -381,13 +391,13 @@ static KIOEventStore *eventStore;
         [self.locationManager stopUpdatingLocation];
         KCLog(@"Done finding location");
     } else {
-        KCLog(@"Event wasn't recent enough: %+.2d", abs(howRecent));
+        KCLog(@"Event wasn't recent enough: %+.2d", (int)fabs(howRecent));
     }
 }
 
 # pragma mark - Add events
 
-- (Boolean)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (BOOL)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     NSString *errorMessage = nil;
     
     if ([eventCollection rangeOfString:@"$"].location == 0) {
@@ -401,7 +411,7 @@ static KIOEventStore *eventStore;
     return YES;
 }
 
-- (Boolean)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
+- (BOOL)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
     NSString *errorMessage = nil;
     
     if (depth == 0) {
@@ -483,8 +493,10 @@ static KIOEventStore *eventStore;
     }
     [newEvent addEntriesFromDictionary:event];
     event = newEvent;
+    
     // now make sure that we haven't hit the max number of events in this collection already
-    NSUInteger eventCount = [eventStore getTotalEventCount];
+    NSUInteger eventCount = [eventStore getTotalEventCountWithProjectID:self.projectID];
+    
     // We add 1 because we want to know if this will push us over the limit
     if (eventCount + 1 > self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
@@ -526,7 +538,7 @@ static KIOEventStore *eventStore;
     }
     
     // write JSON to store
-    [eventStore addEvent:jsonData collection: eventCollection];
+    [eventStore addEvent:jsonData collection: eventCollection projectID:self.projectID];
     
     // log the event
     if ([KeenClient isLoggingEnabled]) {
@@ -600,7 +612,6 @@ static KIOEventStore *eventStore;
 }
 
 - (void)prepareJSONData:(NSData **)jsonData andEventIds:(NSMutableDictionary **)eventIds {
-    
     // set up the request dictionary we'll send out.
     NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
     
@@ -608,7 +619,7 @@ static KIOEventStore *eventStore;
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
     // get data for the API request we'll make
-    NSMutableDictionary *events = [eventStore getEvents];
+    NSMutableDictionary *events = [eventStore getEventsWithMaxAttempts:self.maxAttempts andProjectID:self.projectID];
     
     NSError *error = nil;
     for (NSString *coll in events) {
@@ -639,6 +650,11 @@ static KIOEventStore *eventStore;
         [requestDict setObject:eventsArray forKey:coll];
     }
     
+    if ([requestDict count] == 0) {
+        KCLog(@"Request data is empty");
+        return;
+    }
+    
     NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
     if (error) {
         KCLog(@"An error occurred when serializing the final request data back to JSON: %@",
@@ -666,7 +682,6 @@ static KIOEventStore *eventStore;
 
     @try {
         // list all the directories under Keen
-        NSArray *directories = [self keenSubDirectories];
         NSString *rootPath = [self keenDirectory];
 
         // Get a file manager so we can use it later
@@ -679,6 +694,7 @@ static KIOEventStore *eventStore;
             NSError *error = nil;
 
             // iterate through each directory
+            NSArray *directories = [self keenSubDirectories];
             for (NSString *dirName in directories) {
                 KCLog(@"Found directory: %@", dirName);
                 // list contents of each directory
@@ -703,7 +719,7 @@ static KIOEventStore *eventStore;
                             KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                         } else {
                             // All's well: Add it!
-                            [eventStore addEvent:data collection:dirName];
+                            [eventStore addEvent:data collection:dirName projectID:self.projectID];
                         }
 
                     }
@@ -728,7 +744,7 @@ static KIOEventStore *eventStore;
 
 - (NSString *)keenDirectory {
     NSString *keenDirPath = [[self cacheDirectory] stringByAppendingPathComponent:@"keen"];
-    return [keenDirPath stringByAppendingPathComponent:self.projectId];
+    return [keenDirPath stringByAppendingPathComponent:self.projectID];
 }
 
 - (NSArray *)keenSubDirectories {
@@ -779,10 +795,19 @@ static KIOEventStore *eventStore;
 
 # pragma mark - Uploading
 
+- (BOOL)isNetworkConnected {
+    KIOReachability *hostReachability = [KIOReachability KIOreachabilityForInternetConnection];
+    return [hostReachability KIOcurrentReachabilityStatus] != NotReachable;
+}
+
 - (void)uploadHelper
 {
     // only one thread should be doing an upload at a time.
     @synchronized(self) {
+
+        if (![self isNetworkConnected]) {
+            return;
+        }
 
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 
@@ -799,6 +824,14 @@ static KIOEventStore *eventStore;
         // get data for the API request we'll make
 
         if ([data length] > 0) {
+
+            // loop through events and increment their attempt count
+            for (NSString *collectionName in eventIds) {
+                for (NSNumber *eid in eventIds[collectionName]) {
+                    [eventStore incrementAttempts:eid];
+                }
+            }
+
             // then make an http request to the keen server.
             NSURLResponse *response = nil;
             NSError *error = nil;
@@ -845,7 +878,7 @@ static KIOEventStore *eventStore;
     }
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
     // if the request succeeded, dig into the response to figure out which events succeeded and which failed
-    if (responseCode == 200) {
+    if ([HTTPCodes httpCodeType:(responseCode)] == HTTPCode2XXSuccess) {
         // deserialize the response
         NSError *error = nil;
         NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData
@@ -865,8 +898,8 @@ static KIOEventStore *eventStore;
             // (making sure to keep any failures due to server error)
             NSUInteger count = 0;
             for (NSDictionary *result in results) {
-                Boolean deleteFile = YES;
-                Boolean success = [[result objectForKey:kKeenSuccessParam] boolValue];
+                BOOL deleteFile = YES;
+                BOOL success = [[result objectForKey:kKeenSuccessParam] boolValue];
                 if (!success) {
                     // grab error code and description
                     NSDictionary *errorDict = [result objectForKey:kKeenErrorParam];
@@ -883,9 +916,11 @@ static KIOEventStore *eventStore;
                         deleteFile = NO;
                     }
                 }
+
+                NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
+
                 // delete the file if we need to
                 if (deleteFile) {
-                    NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
                     [eventStore deleteEvent: eid];
                     KCLog(@"Successfully deleted event: %@", eid);
                 }
@@ -893,18 +928,18 @@ static KIOEventStore *eventStore;
             }
         }
     } else {
-        // response code was NOT 200, which means something else happened. log this.
-        KCLog(@"Response code was NOT 200. It was: %ld", (long)responseCode);
+        // response code was NOT 2xx, which means something else happened. log this.
+        KCLog(@"Response code was NOT 2xx. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
-    }            
+    }
 }
 
 # pragma mark - HTTP request/response management
 
 - (NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
-                           kKeenServerAddress, kKeenApiVersion, self.projectId];
+                           kKeenServerAddress, kKeenApiVersion, self.projectID];
     KCLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
@@ -934,6 +969,153 @@ static KIOEventStore *eventStore;
     }
 
     return NO;
+}
+
+# pragma mark - Querying
+
+# pragma mark Async methods
+
+- (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
+    dispatch_async(self.uploadQueue, ^{
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+        
+        // we're done querying, call the main queue and execute the block
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // run the user-specific block (if there is one)
+            if (block) {
+                KCLog(@"Running user-specified block.");
+                @try {
+                    block(dataResponse, response, error);
+                } @finally {
+                    // do nothing
+                }
+            }
+        });
+    });
+}
+
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
+    dispatch_async(self.uploadQueue, ^{
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *dataResponse = [self runMultiAnalysisWithQueries:keenQueries returningResponse:&response error:&error];
+        
+        // we're done querying, call the main queue and execute the block
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // run the user-specific block (if there is one)
+            if (block) {
+                KCLog(@"Running user-specified block.");
+                @try {
+                    block(dataResponse, response, error);
+                } @finally {
+                    // do nothing
+                }
+            }
+        });
+    });
+}
+
+# pragma mark Sync methods
+
+- (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error {
+    @synchronized(self) {
+        NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
+                               kKeenServerAddress, kKeenApiVersion, self.projectID, keenQuery.queryType];
+        KCLog(@"Sending request to: %@", urlString);
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
+        [request setHTTPMethod:@"POST"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
+        [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
+        [request setHTTPBody:[keenQuery convertQueryToData]];
+        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+        
+        return responseData;
+    }
+}
+
+- (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error {
+    @synchronized(self) {
+        NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
+                               kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
+        KCLog(@"Sending request to: %@", urlString);
+        
+        NSMutableDictionary *analysesDictionary = [[NSMutableDictionary alloc] init];
+        NSString *queriesEventCollection;
+        int queryNumber = 0;
+        for (id query in keenQueries) {
+            if (![query isKindOfClass:[KIOQuery class]]) {
+                KCLog(@"keenQueries array contain objects that are not of class KIOQuery");
+                return nil;
+            } else {
+                //check that all keen queries have the same event collection
+                NSString *queryEventCollection = [[query propertiesDictionary] objectForKey:@"event_collection"];
+                if (queriesEventCollection == nil) {
+                    queriesEventCollection = queryEventCollection;
+                } else if (![queriesEventCollection isEqualToString:queryEventCollection]) {
+                    KCLog(@"queries eventCollection properties don't match");
+                    return nil;
+                }
+                
+                queryNumber++;
+
+                NSMutableDictionary *queryMutablePropertiesDictionary = [[query propertiesDictionary] mutableCopy];
+                [queryMutablePropertiesDictionary removeObjectForKey:@"event_collection"];
+                [queryMutablePropertiesDictionary setObject:[query queryType] forKey:@"analysis_type"];
+                
+                NSString *queryName = [query queryName] ? : [[NSString alloc] initWithFormat:@"query%d", queryNumber];
+                [analysesDictionary setObject:queryMutablePropertiesDictionary forKey:queryName];
+            }
+        }
+        
+        //create final dictionary
+        NSMutableDictionary *multiAnalysisDictionary = [[NSMutableDictionary alloc] init];
+        [multiAnalysisDictionary setObject:queriesEventCollection forKey:@"event_collection"];
+        [multiAnalysisDictionary setObject:analysesDictionary forKey:@"analyses"];
+        
+        //convert the resulting dictionary to data and set it as HTTPBody
+        NSError *dictionarySerializationError = nil;
+        
+        NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
+        
+        if(dictionarySerializationError != nil) {
+            KCLog(@"error with dictionary serialization");
+            return nil;
+        }
+        
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
+        [request setHTTPMethod:@"POST"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
+        [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [multiAnalysisData length]] forHTTPHeaderField:@"Content-Length"];
+        [request setHTTPBody:multiAnalysisData];
+        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+        
+        return responseData;
+    }
+}
+
+# pragma mark Helper Methods
+
+- (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+    
+    if (block) {
+        KCLog(@"Running user-specified query block.");
+        @try {
+            block(dataResponse, response, error);
+        } @finally {
+            // do nothing
+        }
+    }
 }
 
 # pragma mark - NSDate => NSString

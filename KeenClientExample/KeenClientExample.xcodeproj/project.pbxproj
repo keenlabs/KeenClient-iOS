@@ -24,6 +24,11 @@
 		012E8A7716765C330021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5F1672C30C0021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		015D307F1822DE7D00F8735B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 015D307E1822DE7D00F8735B /* Default-568h@2x.png */; };
 		015D30811822DEE300F8735B /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 015D30801822DEE300F8735B /* libKeenClient.a */; };
+		3E0EC09F1B11701B00195A42 /* third.png in Resources */ = {isa = PBXBuildFile; fileRef = 3E0EC09D1B11701B00195A42 /* third.png */; };
+		3E0EC0A01B11701B00195A42 /* third@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3E0EC09E1B11701B00195A42 /* third@2x.png */; };
+		3E0EC0AA1B11740900195A42 /* ThirdViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E0EC0A81B11740900195A42 /* ThirdViewController.m */; };
+		3E0EC0AB1B11740900195A42 /* ThirdViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3E0EC0A91B11740900195A42 /* ThirdViewController.xib */; };
+		3EE5CAA41AF0730B00D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE5CAA31AF0730B00D6C48D /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +57,12 @@
 		015D307E1822DE7D00F8735B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		015D30801822DEE300F8735B /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKeenClient.a; path = "../build/Debug-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
 		01F90AF514F36C2800DD3DE2 /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeenClient.h; path = ../KeenClient/KeenClient.h; sourceTree = "<group>"; };
+		3E0EC09D1B11701B00195A42 /* third.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = third.png; path = "../../../../Github/KeenClient-iOS/KeenClientExample/KeenClientExample/third.png"; sourceTree = "<group>"; };
+		3E0EC09E1B11701B00195A42 /* third@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "third@2x.png"; path = "../../../../Github/KeenClient-iOS/KeenClientExample/KeenClientExample/third@2x.png"; sourceTree = "<group>"; };
+		3E0EC0A71B11740900195A42 /* ThirdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThirdViewController.h; sourceTree = "<group>"; };
+		3E0EC0A81B11740900195A42 /* ThirdViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThirdViewController.m; sourceTree = "<group>"; };
+		3E0EC0A91B11740900195A42 /* ThirdViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ThirdViewController.xib; sourceTree = "<group>"; };
+		3EE5CAA31AF0730B00D6C48D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		CA795C4A18E329FB00EBDFC4 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -60,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3EE5CAA41AF0730B00D6C48D /* SystemConfiguration.framework in Frameworks */,
 				015D30811822DEE300F8735B /* libKeenClient.a in Frameworks */,
 				012E8A7716765C330021F6FA /* CoreLocation.framework in Frameworks */,
 				0105EE6214E9A4940048D871 /* UIKit.framework in Frameworks */,
@@ -95,6 +107,7 @@
 		0105EE6014E9A4940048D871 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3EE5CAA31AF0730B00D6C48D /* SystemConfiguration.framework */,
 				CA795C4A18E329FB00EBDFC4 /* libsqlite3.dylib */,
 				015D30801822DEE300F8735B /* libKeenClient.a */,
 				0105EE6114E9A4940048D871 /* UIKit.framework */,
@@ -117,8 +130,13 @@
 				0105EE7B14E9A4940048D871 /* SecondViewController.m */,
 				0105EE7D14E9A4940048D871 /* second.png */,
 				0105EE7F14E9A4940048D871 /* second@2x.png */,
+				3E0EC0A71B11740900195A42 /* ThirdViewController.h */,
+				3E0EC0A81B11740900195A42 /* ThirdViewController.m */,
+				3E0EC09D1B11701B00195A42 /* third.png */,
+				3E0EC09E1B11701B00195A42 /* third@2x.png */,
 				0105EE8114E9A4940048D871 /* FirstViewController.xib */,
 				0105EE8414E9A4940048D871 /* SecondViewController.xib */,
+				3E0EC0A91B11740900195A42 /* ThirdViewController.xib */,
 				0105EE6814E9A4940048D871 /* Supporting Files */,
 			);
 			path = KeenClientExample;
@@ -198,10 +216,13 @@
 				0105EE7714E9A4940048D871 /* first.png in Resources */,
 				0105EE7914E9A4940048D871 /* first@2x.png in Resources */,
 				0105EE7E14E9A4940048D871 /* second.png in Resources */,
+				3E0EC0AB1B11740900195A42 /* ThirdViewController.xib in Resources */,
 				0105EE8014E9A4940048D871 /* second@2x.png in Resources */,
 				015D307F1822DE7D00F8735B /* Default-568h@2x.png in Resources */,
 				0105EE8314E9A4940048D871 /* FirstViewController.xib in Resources */,
 				0105EE8614E9A4940048D871 /* SecondViewController.xib in Resources */,
+				3E0EC0A01B11701B00195A42 /* third@2x.png in Resources */,
+				3E0EC09F1B11701B00195A42 /* third.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -213,6 +234,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0105EE6E14E9A4940048D871 /* main.m in Sources */,
+				3E0EC0AA1B11740900195A42 /* ThirdViewController.m in Sources */,
 				0105EE7214E9A4940048D871 /* AppDelegate.m in Sources */,
 				0105EE7514E9A4940048D871 /* FirstViewController.m in Sources */,
 				0105EE7C14E9A4940048D871 /* SecondViewController.m in Sources */,

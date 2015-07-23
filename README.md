@@ -3,6 +3,12 @@ Keen IO iOS SDK
 
 [![Build Status](https://travis-ci.org/keenlabs/KeenClient-iOS.png)](https://travis-ci.org/keenlabs/KeenClient-iOS)
 
+---
+
+**Important**: Starting in version 3.3.0, you'll need to add the SystemConfiguration framework to your project. Check the ["Build Settings"](#build-settings) section for more information.
+
+---
+
 The Keen IO iOS client is designed to be simple to develop with, yet incredibly flexible. Our goal is to let you decide what events are important to you, use your own vocabulary to describe them, and decide when you want to send them to Keen IO.
 
 While the name of this repo implies that this SDK is strictly for iOS, it can also be used in Mac OS applications by using the Cocoa version as outlined below. The code base is the same, but the build targets are different. :)
@@ -14,9 +20,15 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 	* [Geo Location](#geo-location) - How to use Geo Location
 	* [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
 	* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) features to enrich your data
+	* [Querying](#querying) - How to query and analyze your data
+		* [Examples](#examples) - Example of queries
+		* [Count Example](#count-example) - Count query example
+		* [Count Unique Example](#count-unique-example) - Count Unique query example
+		* [Multi-Analysis Example](#multi-analysis-example) - Multi-Analysis query example
+		* [Funnel Example](#funnel-example) - Funnel query example
 	* [Debugging](#debugging) - How to debug your application using the SDK's built in logging
 * [FAQs](#faqs)
-* [Changelog](#changelog)
+* [Change Log](#change-log)
 * [To Do](#to-do)
 * [Questions & Support](#questions--support)
 * [Contributing](#contributing)
@@ -45,6 +57,8 @@ Uncompress the archive. It should contain a folder called “KeenClient-Cocoa”
 * KeenClient.h
 * KeenProperties.h
 * KIOEventStore.h
+* HTTPCodes.h
+* Reachability.h
 
 ##### Add Files to XCode - Cocoa
 
@@ -58,6 +72,8 @@ Uncompress the archive. It should contain a folder called “KeenClient” with 
 * KeenClient.h
 * KeenProperties.h
 * KIOEventStore.h
+* HTTPCodes.h
+* Reachability.h
 
 ##### Add Files to XCode - iOS
 
@@ -77,28 +93,59 @@ Then run:
 pod install
 ```
 
+#### Swift
+
+Add a header file “ProjectName-Bridging-Header.h”. In the bridging header file, add: 
+
+```
+#import “KeenClient.h”
+```
+
+In Build Settings, set the "Objective-C Bridging Header” section to your newly-created bridging header file ProjectName-Bridging-Header.h.
+
 ##### Build Settings
 
-Make sure to add CoreLocation.framework to the "Link Binary with Libraries" section.
+Make sure to add the following libraries in the "Link Binary with Libraries" section:
+
+* CoreLocation.framework
+* SystemConfiguration.framework
 
 Also enable the "-ObjC" linker flag under "Other Linker Flags".
 
 Voila!
 
+
+
 ### Usage
 
 To use this client with the Keen IO API, you have to configure your Keen IO Project ID and its access keys (if you need an account, [sign up here](https://keen.io/) - it's free).
+
 
 ##### Register Your Project ID and Access Keys
 
 Register the `KeenClient` shared client with your Project ID and access keys. The recommended place to do this is in one of your application delegates like so:
 
+Objective C
 ```objc
-- (void)applicationDidBecomeActive:(UIApplication *)application
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 	[KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
+	return YES;
 }
 ```
+Swift
+```Swift
+func application(application: UIApplication, 
+	    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool 
+{ 
+	var client : KeenClient;
+	client = KeenClient.sharedClientWithProjectId("your_project_id",
+									andWriteKey: "your_write_key", 
+									andReadKey: nil);
+	return true
+}
+```
+
 
 The write key is required to send events to Keen IO. The read key is required to do analysis on Keen IO.
 
@@ -108,6 +155,7 @@ The write key is required to send events to Keen IO. The read key is required to
 
 Add events to track. Here’s a very basic example for an app that includes two tabs. We want to track when a tab is switched to.
 
+Objective C
 ```objc
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -117,10 +165,19 @@ Add events to track. Here’s a very basic example for an app that includes two 
   	[[KeenClient sharedClient] addEvent:event toEventCollection:@"tab_views" error:nil];
 }
 ```
+Swift
+```Swift
+override func viewWillAppear(animated: Bool) 
+{
+	super.viewWillAppear(animated);
+	let theEvent = ["view_name": "first view Swift", "action": "going to"];
+	KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
+}
+```
 
 The idea is to first create an arbitrary dictionary of JSON-serializable values. We support:
 
-```objc 
+```objc
 NSString, NSNumber, NSDate, NSDictionary, NSArray, and BOOL
 ```
 
@@ -132,6 +189,7 @@ Add as many events as you like. `KeenClient` will cache them on disk until you�
 
 `KeenClient` will automatically stamp every event you track with a timestamp. If you want to override the system value with your own, use the following example. Note that the “timestamp” key is set in the header properties dictionary.
 
+Objective C
 ```objc
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -147,7 +205,21 @@ Add as many events as you like. `KeenClient` will cache them on disk until you�
    	                              error:nil];
 }
 ```
+Swift
+```Swift
 
+override func viewWillAppear(animated: Bool) 
+{
+	super.viewWillAppear(animated);
+        
+	let event = ["view_name": "first view Swift", "action": "going to"];
+	var keenProps : KeenProperties = KeenProperties();
+	keenProps.timestamp = NSDate();
+	KeenClient.sharedClient().addEvent(event,
+									withKeenProperties:keenProps,
+									error: nil);
+}
+```
 ##### Global Properties
 
 Now you might be thinking, “Okay, that looks pretty easy. But what if I want to send the same properties on _every_ event in a particular collection? Or just _every_ event, period?” We’ve got you covered through something we call Global Properties.
@@ -162,11 +234,20 @@ For this, the Objective-C property is called `globalPropertiesDictionary`. The p
 
 Here's an example using a dictionary:
 
+Objective C
 ```objc
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     KeenClient *client = [KeenClient sharedClient];
    	client.globalPropertiesDictionary = @{@"some_standard_key": @"some_standard_value"};
+}
+```
+Swift
+```Swift
+func applicationDidBecomeActive(application: UIApplication) 
+{
+	KeenClient.sharedClient().globalPropertiesDictionary = 
+					        ["some_standard_key" : "some_standard_value"];
 }
 ```
 
@@ -178,6 +259,7 @@ For this, the Objective-C property is called `globalPropertiesBlock`. The proper
 
 Here’s an example using blocks:
 
+Objective C
 ```objc
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
@@ -191,6 +273,26 @@ Here’s an example using blocks:
    	        return nil;
         }
    	};
+}
+```
+Swift
+```Swift
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    KeenClient.sharedClient().globalPropertiesBlock = 
+			    {(eventCollection : String!) -> [NSObject : AnyObject]! in
+			    
+            if (eventCollection.compare("apples") == 
+	            NSComparisonResult.OrderedSame)
+            {
+                return ["color" : "red"];
+            } else if (eventCollection.compare("pears") ==
+						NSComparisonResult.OrderedSame)
+            {
+                return ["color" : "green"];
+            }
+            return nil;
+        };
 }
 ```
 
@@ -208,14 +310,20 @@ Like any good mobile-first service, Keen supports geo localization so you can tr
 
 Every time the app is freshly loaded, the client will automatically ask the device for its current location. It won’t ask again in order to save battery life. You can tell the client to ask the device for location again. Simply call:
 
+Objective C
 ```objc
 [[KeenClient sharedClient] refreshCurrentLocation];
+```
+Swift
+```Swift
+KeenClient.sharedClient().refreshCurrentLocation();
 ```
 
 ###### Manually Setting Location
 
 You can also set the location manually. See the following example:
 
+Objective C
 ```objc
 NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"first view", @"view_name", @"going to", @"action", nil];
 
@@ -224,6 +332,15 @@ CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122
 keenProperties.location = location;
 
 [[KeenClient sharedClient] addEvent:event withKeenProperties:keenProperties toEventCollection:@"tab_views" error:nil];
+```
+Swift
+```Swift
+let event = ["view_name": "first view Swift", "action": "going to"];
+var keenProps : KeenProperties = KeenProperties();
+var location : CLLocation = CLLocation(latitude: 37.73, longitude: -122.47);
+keenProps.location = location;
+
+KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views", error:nil);
 ```
 
 ###### Requesting Authorization for Location in iOS 8+
@@ -235,15 +352,23 @@ iOS 8 introduced a new method for requesting authorization that requires a few a
 
 Example:
 
+Objective C
 ```objc
 [KeenClient authorizeGeoLocationAlways];
 [KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
 ```
+Swift
+```Swift
+KeenClient.authorizeGeoLocationAlways();
+KeenClient.sharedClientWithProjectId("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
+```
+
 
 ##### Upload Events to Keen IO
 
 Upload the captured events to the Keen service. This must be done explicitly. We recommend doing the upload when your application is sent to the background, but you can do it whenever you’d like (for example, if your application typically has very long user sessions). The uploader spawns its own background thread so the main UI thread is not blocked.
 
+Objective C
 ```objc
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
@@ -256,15 +381,48 @@ Upload the captured events to the Keen service. This must be done explicitly. We
     }];
 }
 ```
+Swift
+```Swift
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+        var taskId : UIBackgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler({() -> Void in
+            NSLog("Background task is being expired.")
+        });
+        KeenClient.sharedClient().uploadWithFinishedBlock({() -> Void in
+            application.endBackgroundTask(taskId)});
+}
+```
 In this example, the upload is done in a background task so that even once the user backgrounds your application, the upload can continue. Here we first start the background task, start the upload, and then end the background task once the upload completes.
 
 If you want to call upload periodically during your application’s execution, you can do so by simply invoking the `uploadWithFinishedBlock` method on your `KeenClient` instance at any point.
 
+Objective C
 ```objc
 [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
 ```
+Swift
+```Swift
+KeenClient.sharedClient().uploadWithFinishedBlock(nil);
+```
 
 **An important note:** it's a best practice to issue a single upload at a time. We make a best effort to reduce the number of threads spawned to upload in the background, but if you call upload many many times in a tight loop you're going to cause issues for yourself.
+
+###### Limiting Upload Retries
+
+By default, the client will only attempt to upload a given event 3 times --
+after that it will be purged from the local queue. You can change this number to
+your liking by setting the `client.maxAttempts` value:
+
+Objective C
+```objc
+// Set the max upload attempts to 10
+[KeenClient sharedClient].maxAttempts = 10;
+```
+Swift
+```Swift
+// Set the max upload attempts to 10
+KeenClient.sharedClient().maxAttempts = 10;
+```
 
 ##### Add-ons
 
@@ -274,6 +432,7 @@ To activate add-ons, you simply add some new properties within the “keen” na
 
 For example, let's say we want to enable the [IP to Geo](https://keen.io/docs/data-collection/data-enrichment/#ip-to-geo) add-on:
 
+Objective C
 ```objc
 KeenClient *client = [KeenClient sharedClient];
 client.globalPropertiesDictionary = @{@"keen":
@@ -291,30 +450,205 @@ client.globalPropertiesDictionary = @{@"keen":
                                            @"ip_address":[self getIPAddress:YES]
                                          };
 ```
+Swift
+```Swift
+KeenClient.sharedClient().globalPropertiesDictionary = [
+	"keen" : [
+		"addons" : [
+			[
+				"name" : "keen:ip_to_geo",
+				"input" : ["ip" : "ip_address"],
+				"output" : "ip_geo_info"
+			]
+		]
+	],
+	"ip_address" : self.getIPAddress(true)
+];
+```
 
-In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `[self getIPAddress:YES]` method. 
+In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `[self getIPAddress:YES]` method.
 
 **Note:** `[self getIPAddress:YES]` is a custom method that you'll have to implement for yourself as there's currently no built-in method to obtain the device's IP address. We've had success using a few of the solutions suggested in [this post](http://stackoverflow.com/questions/7072989/iphone-ipad-osx-how-to-get-my-ip-address-programmatically).
 
+##### Querying
+
+After collecting event data inside your application, you might want to analyze it by running certain queries. You can do so by using the class `KIOQuery` and the methods `KeenClient.runAsyncQuery` and `KeenClient.runAsyncMultiAnalysisWithQueries`.
+
+There's a whole bunch of different queries you can run depending on the questions you're trying to answer. You can find more detailed information in our documentation [here](https://keen.io/docs/api/#analyses), but the list of analysis types is:
+
+- [Count](https://keen.io/docs/api/#count) - Return the total number of events found in a given collection.
+- [Count Unique](https://keen.io/docs/api/#count-unique) - Return the number of unique values for a given property.
+- [Minimum](https://keen.io/docs/api/#minimum) - Return the minimum of all numeric values for a given property.
+- [Maximum](https://keen.io/docs/api/#maximum) - Return the maximum of all numeric values for a given property.
+- [Sum](https://keen.io/docs/api/#sum) - Calculate the sum of all numeric values for a given property.
+- [Average](https://keen.io/docs/api/#average) - Calculate the average of all numeric values for a given property.
+- [Median](https://keen.io/docs/api/#median) - Calculate the median of all numeric values for a given property.
+- [Percentile](https://keen.io/docs/api/#percentile) - Calculate a given percentile of all numeric values for a given property.
+- [Select Unique](https://keen.io/docs/api/#select-unique) - Return a list of all unique values found for a given property.
+
+Besides that, you can also run:
+
+- [Multi-Analysis](https://keen.io/docs/api/#multi-analysis) - Run multiple analyses with a single request.
+- [Funnels](https://keen.io/docs/api/#funnels) - Track the completion of a sequence of events.
+
+###### Examples
+
+Creating a query is as simple as instantiating a `KIOQuery` object:
+
+Objective-C:
+```objc
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+```
+
+Swift:
+```Swift
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+```
+
+Let's show a few examples of running different queries. The last parameter of both `KeenClient.runAsyncQuery` and `KeenClient.runAsyncMultiAnalysisWithQueries` is a block. To avoid copy+pasting we'll use the same block for all the queries. It is going to print out the results in case of a successful query, or print out the errors in case the query fails:
+
+Objective-C:
+```objc
+// Create block to run after query completes
+void (^countQueryCompleted)(NSData *, NSURLResponse *, NSError *) = ^(NSData *responseData, NSURLResponse *returningResponse, NSError *error) {
+    NSDictionary *responseDictionary = [NSJSONSerialization
+                                        JSONObjectWithData:responseData
+                                        options:kNilOptions
+                                        error:nil];
+    
+    NSNumber *result = [responseDictionary objectForKey:@"result"];
+    
+    if(error || [responseDictionary objectForKey:@"error_code"]) {
+        NSLog([NSString stringWithFormat:@"Failure! 😞 \n\n error: %@\n\n response: %@", [error localizedDescription] ,[responseDictionary description]]);
+    } else {
+        NSLog([NSString stringWithFormat:@"Success! 😄 \n\n response: %@", [responseDictionary description]]);
+    }
+};
+```
+
+Swift:
+```Swift
+// Create block to run after query completes
+let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResponse!, error: NSError!) -> Void in
+    var error: NSError?;
+    
+    var responseDictionary: NSDictionary? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers, error: &error) as? NSDictionary;
+		
+    var result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber;
+		
+    if let actualError = error, errorCode = responseDictionary!.objectForKey("error_code") as? String {
+        println(NSString(format:"Failure! 😞 \n\n error: %@\n\n response: %@", actualError, errorCode));
+    } else {
+			println(NSString(format:"Success! 😄 \n\n response: %@", responseDictionary!.description));
+    }
+}
+```
+
+###### Count Example
+
+Objective-C:
+```objc
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+[[KeenClient sharedClient] runAsyncQuery:countQuery block:countQueryCompleted];
+```
+
+Swift:
+```Swift
+// KIOQuery object containing the query type and properties
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+
+// Run the query
+KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted);
+```
+
+###### Count Unique Example
+
+Objective-C:
+```objc
+KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key"}];
+    
+[[KeenClient sharedClient] runAsyncQuery:countUniqueQuery block:countQueryCompleted];
+```
+
+Swift:
+```Swift
+var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key"]);
+
+KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompleted);
+```
+
+###### Multi-Analysis Example
+
+Objective-C:
+```objc
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key"}];
+
+// Optionally set a name for your queries, so it's easier to check the results
+[countQuery setQueryName:@"count_query"];
+[countUniqueQuery setQueryName:@"count_unique_query"];
+
+[[KeenClient sharedClient] runAsyncMultiAnalysisWithQueries:@[countQuery, countUniqueQuery] block:countQueryCompleted];
+```
+
+Swift:
+```Swift
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key"]);
+
+// Optionally set a name for your queries, so it's easier to check the results
+countQuery.queryName = "count_query";
+countUniqueQuery.queryName = "count_unique_query";
+
+KeenClient.sharedClient().runAsyncMultiAnalysisWithQueries([countQuery, countUniqueQuery], block: countQueryCompleted);
+```
+
+###### Funnel Example
+
+Objective-C:
+```objc
+KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up",
+            @"actor_property": @"user.id"},
+          @{@"event_collection": @"user_completed_profile",
+            @"actor_property": @"user.id"}]}];
+    
+[[KeenClient sharedClient] runAsyncQuery:funnelQuery block:countQueryCompleted];
+```
+
+Swift:
+```Swift
+var funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["steps": [["event_collection": "user_signed_up", @"actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
+
+KeenClient.sharedClient().runAsyncQuery(funnelQuery, block: countQueryCompleted);
+```
+
 ##### Debugging
+
 
 `KeenClient` code does a lot of logging, but it’s turned off by default. If you’d like to see the log lines generated by your usage of the client, you can enable logging easily:
 
+Objective C
 ```objc
 [KeenClient enableLogging];
+```
+Swift
+```Swift
+KeenClient.enableLogging();
 ```
 
 Just put this at any point before you use `KeenClient`. A good place is in your application delegate.
 
 To disable logging, simply call:
 
+Objective C
 ```objc
 [KeenClient disableLogging];
 ```
-
-##### Do analysis with Keen IO
-
-    TO DO
+Swift
+```Swift
+KeenClient.disableLogging();
+```
 
 ### FAQs
 
@@ -326,105 +660,20 @@ Here's how it works. You specify when events should be uploaded to Keen (e.g. wh
 
 If your player is offline when that happens, their data will be collected on the device and it will not be posted to Keen IO.
 However, the next time they trigger the code that send events (e.g. backgrounding the app again) all the data from the previous sessions will also be posted (the timestamps will reflect the times the events actually happened).
-    
-### Changelog
 
-##### 3.2.20
-+ Skipped 3.2.19 due to CocoaPods versioning issue.
-+ Fixed semaphore_wait_trap issue caused by recursive calls of dispatch_sync.
+### Change Log
 
-##### 3.2.18
-+ Fixed erroneous removal of disableGeoLocation method call from KeenClient.h.
-
-##### 3.2.17
-+ Fixed bug created in CocoaPods by 3.2.16.
-
-##### 3.2.16
-+ Added support for `requestWhenInUseAuthorization` and `requestAlwaysAuthorization` in iOS 8.
-
-##### 3.2.15
-
-+ Updated GitHub documentation to match documentation found at [keen.io](http://keen.io)
-+ Added KeenClient-Cocoa build target/universal binary to support Mac OS X
-+ Added convertNSDateToISO8601 to dispatch queue
-+ Refactored semaphores to use dispatch_sync and cleaned up instances of dispatch_retain
-
-##### 3.2.14
-
-+ Fixed analyzer warnings.
-+ Fixed methods returning NSErrors as double pointers.
-+ Enabled ARC in Simulator and Device targets.
-
-##### 3.2.13
-
-+ Updated podspec to include c source for sqlite3.
-
-##### 3.2.12
-
-+ Skipped 3.2.11 versioning in favor of 3.2.12 to workaround Cocoapods versioning issue.
-+ Converted KeenClient to use ARC.
-+ Renamed all SQLite files with keen\_io\_ prefix.
-+ Moved keen\_io\_sqlite3.h import to KIOEventStore.m.
-+ Added sdkVersion class method.
-+ Replaced usage of NSDateFormatter with SQLite based date conversion (thread safe).
-+ Fixed KEEN\_LOGGING\_ macro.
-+ Added call to resetPendingEvents in getEvents.
-+ Fixed instance client issues created by KIOEventStore implementation.
-
-##### 3.2.10
-
-+ Fixed array allocation/deallocation bug in prepareJSONData.
-+ Added queuing to KIOEventStore to ensure SQLite calls are serialized.
-+ Added sqlite-amalgamation library to eliminate dependency on libsqlite3.dylib.
-+ Added SDK version string to logging.
-
-##### 3.2.9
-
-+ Replaced use of filesystem's cache directory with SQLite via KIOEventStore.
-
-##### 3.2.8
-
-+ Upload with finished block consistency fix.
-
-##### 3.2.7
-
-+ Support sending addons in events.
-
-##### 3.2.6
-
-+ Bugfix to always invoke callback on upload, even if there are no events to upload.
-
-##### 3.2.5
-
-+ Don't throw exceptions and crash the app when the local cache directory is unavailable.
-+ Remove ISO8601DateFormatter dependency.
-+ Use Grand Central Dispatch to not spawn one thread per upload invocation.
-
-##### 3.2.4
-
-+ Get semantic versioning cleaned up for cocoapods (somehow got confused between 3.2.2 and 3.2.3).
-
-##### 3.2.2
-
-+ Support for iOS 7 and ARM64.
-+ Removed JSONKit dependency in favor of NSJONSerialization.
-
-##### 3.2.1
-
-+ Changed project token -> project ID.
-+ Added support for read and write scoped keys.
-+ Added support for travis.
+You can find the change log [here](CHANGELOG.md).
 
 ### To Do
 
-* Support analysis APIs.
 * Native iOS visualizations.
 
 ### Questions & Support
 
 If you have any questions, bugs, or suggestions, please
 report them via Github Issues. Or, come chat with us anytime
-at [users.keen.io](http://users.keen.io). We'd love to hear your feedback and ideas!
+at [slack.keen.io](http://slack.keen.io). We'd love to hear your feedback and ideas!
 
 ### Contributing
 This is an open source project and we love involvement from the community! Hit us up with pull requests and issues.

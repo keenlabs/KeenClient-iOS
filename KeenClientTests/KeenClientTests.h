@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Keen Labs. All rights reserved.
 //
 
-#import <SenTestingKit/SenTestingKit.h>
+#import <XCTest/XCTest.h>
 
-@interface KeenClientTests : SenTestCase
+@interface KeenClientTests : XCTestCase
 
 @end

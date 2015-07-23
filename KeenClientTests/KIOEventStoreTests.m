@@ -12,11 +12,15 @@
 
 @interface KIOEventStoreTests ()
 
+@property NSString *projectID;
+
 - (NSString *)databaseFile;
 
 @end
 
 @implementation KIOEventStoreTests
+
+@synthesize projectID;
 
 - (void)setUp {
     // Clean up, just in case.
@@ -26,7 +30,9 @@
     } else {
         NSLog(@"Failed to remove database file.");
     }
-
+    
+    projectID = @"pid";
+    
     [super setUp];
 }
 
@@ -46,31 +52,28 @@
 
 - (void)testInit{
     KIOEventStore *store = [[KIOEventStore alloc] init];
-    store.projectId = @"1234";
-    STAssertNotNil(store, @"init is not null");
+    XCTAssertNotNil(store, @"init is not null");
     NSString *dbPath = [self databaseFile];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    STAssertTrue([fileManager fileExistsAtPath:dbPath], @"Database file exists.");
+    XCTAssertTrue([fileManager fileExistsAtPath:dbPath], @"Database file exists.");
 }
 
 - (void)testAdd{
     KIOEventStore *store = [[KIOEventStore alloc] init];
-    store.projectId = @"1234";
-    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    STAssertTrue([store getTotalEventCount] == 1, @"1 total event after add");
-    STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 1, @"1 total event after add");
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after add");
 }
 
 - (void)testDelete{
     KIOEventStore *store = [[KIOEventStore alloc] init];
-    store.projectId = @"1234";
-    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    STAssertTrue([store getTotalEventCount] == 1, @"1 total event after add");
-    STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 1, @"1 total event after add");
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after add");
 
     // Lets get some events out now with the purpose of deleteting them.
-    NSMutableDictionary *events = [store getEvents];
-    STAssertTrue([store getPendingEventCount] == 1, @"1 pending events after getEvents");
+    NSMutableDictionary *events = [store getEventsWithMaxAttempts:3 andProjectID:projectID];
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 1, @"1 pending events after getEvents");
 
     for (NSString *coll in events) {
         for (NSNumber *eid in [events objectForKey:coll]) {
@@ -78,108 +81,98 @@
         }
     }
 
-    STAssertTrue([store getTotalEventCount] == 0, @"0 total events after delete");
-    STAssertTrue([store getPendingEventCount] == 0, @"0 pending events after delete");
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 0, @"0 total events after delete");
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after delete");
 }
 
 - (void)testGetPending{
     KIOEventStore *store = [[KIOEventStore alloc] init];
-    store.projectId = @"1234";
-    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
     // Lets get some events out now with the purpose of sending them off.
-    NSMutableDictionary *events = [store getEvents];
+    NSMutableDictionary *events = [store getEventsWithMaxAttempts:3 andProjectID:projectID];
 
-    STAssertTrue([events count] == 1, @"1 collection returned");
-    STAssertTrue([[events objectForKey:@"foo"] count] == 2, @"2 events returned");
+    XCTAssertTrue([events count] == 1, @"1 collection returned");
+    XCTAssertTrue([[events objectForKey:@"foo"] count] == 2, @"2 events returned");
 
-    STAssertTrue([store getTotalEventCount] == 2, @"2 total event after add");
-    STAssertTrue([store getPendingEventCount] == 2, @"2 pending event after add");
-    STAssertTrue([store hasPendingEvents], @"has pending events!");
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 2, @"2 total event after add");
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 2, @"2 pending event after add");
+    XCTAssertTrue([store hasPendingEventsWithProjectID:projectID], @"has pending events!");
 
-    [store addEvent:[@"I AM NOT AN EVENT BUT A STRING" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    STAssertTrue([store getTotalEventCount] == 3, @"3 total event after non-pending add");
-    STAssertTrue([store getPendingEventCount] == 2, @"2 pending event after add");
+    [store addEvent:[@"I AM NOT AN EVENT BUT A STRING" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo" projectID:projectID];
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 3, @"3 total event after non-pending add");
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 2, @"2 pending event after add");
 }
 
 - (void)testCleanupOfPending{
     KIOEventStore *store = [[KIOEventStore alloc] init];
-    store.projectId = @"1234";
-    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
     // Lets get some events out now with the purpose of sending them off.
-    [store getEvents];
+    [store getEventsWithMaxAttempts:3 andProjectID:projectID];
 
-    [store purgePendingEvents];
-    STAssertTrue([store getTotalEventCount] == 0, @"0 total event after add");
-    STAssertFalse([store hasPendingEvents], @"No pending events now!");
+    [store purgePendingEventsWithProjectID:projectID];
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 0, @"0 total event after add");
+    XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"No pending events now!");
 
     // Again for good measure
-    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
-    [store getEvents];
+    [store getEventsWithMaxAttempts:3 andProjectID:projectID];
 
-    [store purgePendingEvents];
-    STAssertTrue([store getTotalEventCount] == 0, @"0 total event after add");
-    STAssertFalse([store hasPendingEvents], @"No pending events now!");
+    [store purgePendingEventsWithProjectID:projectID];
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 0, @"0 total event after add");
+    XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"No pending events now!");
 }
 
 - (void)testResetOfPending{
     KIOEventStore *store = [[KIOEventStore alloc] init];
-    store.projectId = @"1234";
-    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
     // Lets get some events out now with the purpose of sending them off.
-    [store getEvents];
-    STAssertTrue([store getTotalEventCount] == 2, @"2 total event after add");
-    STAssertTrue([store getPendingEventCount] == 2, @"2 pending event after add");
-    STAssertTrue([store hasPendingEvents], @"has pending events!");
+    [store getEventsWithMaxAttempts:3 andProjectID:projectID];
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 2, @"2 total event after add");
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 2, @"2 pending event after add");
+    XCTAssertTrue([store hasPendingEventsWithProjectID:projectID], @"has pending events!");
 
-    [store resetPendingEvents];
-    STAssertTrue([store getTotalEventCount] == 2, @"0 total event after reset");
-    STAssertTrue([store getPendingEventCount] == 0, @"2 pending event after reset");
-    STAssertFalse([store hasPendingEvents], @"has NO pending events!");
+    [store resetPendingEventsWithProjectID:projectID];
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 2, @"0 total event after reset");
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"2 pending event after reset");
+    XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"has NO pending events!");
 
     // Again for good measure
-    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
-    [store getEvents];
+    [store getEventsWithMaxAttempts:3 andProjectID:projectID];
 
-    [store resetPendingEvents];
-    STAssertTrue([store getTotalEventCount] == 4, @"0 total event after add");
-    STAssertFalse([store hasPendingEvents], @"No pending events now!");
+    [store resetPendingEventsWithProjectID:projectID];
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 4, @"0 total event after add");
+    XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"No pending events now!");
 }
 
 - (void)testDeleteFromOffset{
     KIOEventStore *store = [[KIOEventStore alloc] init];
-    store.projectId = @"1234";
-    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-    [store addEvent:[@"I AM AN BUT ANOTHER EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
+    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    [store addEvent:[@"I AM AN BUT ANOTHER EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
     [store deleteEventsFromOffset:@2];
-    STAssertTrue([store getTotalEventCount] == 2, @"2 total events after deleteEventsFromOffset");
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 2, @"2 total events after deleteEventsFromOffset");
 }
 
 - (void)testClosedDB{
     KIOEventStore *store = [[KIOEventStore alloc] init];
-    store.projectId = @"1234";
     [store closeDB];
 
     // Verify that these methods all behave with a closed database.
-
-    STAssertFalse([store hasPendingEvents], @"no pending if closed");
-    [store resetPendingEvents]; // This shouldn't crash. :P
-    STAssertFalse([store addEvent:[@"POOP" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"], @"add event should fail if closed");
-    STAssertTrue([[store getEvents] count] == 0, @"no events if closed");
-    STAssertTrue([store getPendingEventCount] == 0, @"no pending if closed");
-    STAssertTrue([store getTotalEventCount] == 0, @"no total if closed");
-    [store purgePendingEvents]; // This shouldn't crash. :P
+    XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"no pending if closed");
+    [store resetPendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
+    [store purgePendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
 }
 
 - (NSString *)databaseFile {
