@@ -214,6 +214,10 @@
         int migrationResult = [self runMigration:userVersion];
         if (migrationResult == 0) {
             // we didn't migrate anything, because we're current.
+            if (![self endTransaction]) {
+                KCLog(@"Migration failed to end a transaction with userVersion = %d.", userVersion);
+                return NO;
+            }
             return YES;
         }
         
@@ -235,6 +239,7 @@
             }
             return NO;
         }
+        
         // ok, let's commit this step
         if (![self commitTransaction]) {
             KCLog(@"Migration failed to commit a transaction with userVersion = %d.", userVersion);
@@ -288,37 +293,31 @@
 
 # pragma mark Transaction Methods
 
-- (BOOL)beginTransaction {
+- (BOOL)doTransaction:(NSString *)sqlTransaction {
     char *err;
-    NSString *sql = @"BEGIN IMMEDIATE TRANSACTION;";
+    NSString *sql = sqlTransaction;
     if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-        KCLog(@"failed to commit transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        KCLog(@"failed to do transaction:%@, with error: %@", sqlTransaction, [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
         keen_io_sqlite3_free(err); // Free that error message
         return NO;
     }
     return YES;
+}
+
+- (BOOL)beginTransaction {
+    return [self doTransaction:@"BEGIN IMMEDIATE TRANSACTION;"];
 }
 
 - (BOOL)commitTransaction {
-    char *err;
-    NSString *sql = @"COMMIT TRANSACTION;";
-    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-        KCLog(@"failed to commit transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
-        keen_io_sqlite3_free(err); // Free that error message
-        return NO;
-    }
-    return YES;
+    return [self doTransaction:@"COMMIT TRANSACTION;"];
 }
 
 - (BOOL)rollbackTransaction {
-    char *err;
-    NSString *sql = @"ROLLBACK TRANSACTION;";
-    if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-        KCLog(@"failed to rollback transaction: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
-        keen_io_sqlite3_free(err); // Free that error message
-        return NO;
-    }
-    return YES;
+    return [self doTransaction:@"ROLLBACK TRANSACTION;"];
+}
+
+- (BOOL)endTransaction {
+    return [self doTransaction:@"END TRANSACTION;"];
 }
 
 # pragma mark - Handle Events -
