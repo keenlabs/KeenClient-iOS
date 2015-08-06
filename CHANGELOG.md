@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Fixed
+- Fixed sqlite migration error that was starting a transaction and not finishing it,  keeping events from being saved. #113
 
 ## [3.4.1] - 2015-07-22
 ### Fixed
