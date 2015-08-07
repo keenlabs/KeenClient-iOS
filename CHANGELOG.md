@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.4.2] - 2015-08-07
 ### Fixed
 - Fixed sqlite migration error that was starting a transaction and not finishing it,  keeping events from being saved. #113
 
@@ -147,7 +149,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.1...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.2...HEAD
+[3.4.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.1...3.4.2
 [3.4.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.0...3.4.1
 [3.4.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.3.1...3.4.0
 [3.3.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.3.0...3.3.1
