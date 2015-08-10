@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Fixed
+- Fixed sqlite EXC_BAD_ACCESS crash that was happening because of `NSString UTF8String` calls inside `KIOEventStore` dispatch_sync blocks, followed by a call to `resetSQLiteStatement`. #114
 
 ## [3.4.2] - 2015-08-07
 ### Fixed
