@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.4.3] - 2015-08-10
 ### Fixed
 - Fixed sqlite EXC_BAD_ACCESS crash that was happening because of `NSString UTF8String` calls inside `KIOEventStore` dispatch_sync blocks, followed by a call to `resetSQLiteStatement`. #114
 
@@ -151,7 +153,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.2...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.3...HEAD
+[3.4.3]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.2...3.4.3
 [3.4.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.1...3.4.2
 [3.4.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.0...3.4.1
 [3.4.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.3.1...3.4.0
