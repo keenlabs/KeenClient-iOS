@@ -329,14 +329,16 @@
         return wasAdded;
     }
     
+    const char *projectIDUTF8 = projectID.UTF8String;
+    const char *eventCollectionUTF8 = eventCollection.UTF8String;
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(insert_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(insert_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to add event statement"];
             return;
         }
         
-        if (keen_io_sqlite3_bind_text(insert_stmt, 2, [eventCollection UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(insert_stmt, 2, eventCollectionUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind coll to add event statement"];
             return;
         }
@@ -373,9 +375,10 @@
         [self resetPendingEventsWithProjectID:projectID];
     }
     
+    const char *projectIDUTF8 = projectID.UTF8String;
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(find_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(find_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to find statement"];
         }
         
@@ -426,8 +429,9 @@
         return;
     }
     
+    const char *projectIDUTF8 = projectID.UTF8String;
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(reset_pending_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(reset_pending_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to reset pending statement"];
         }
         if (keen_io_sqlite3_step(reset_pending_stmt) != SQLITE_DONE) {
@@ -458,9 +462,10 @@
         return eventCount;
     }
 
+    const char *projectIDUTF8 = projectID.UTF8String;
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(count_pending_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(count_pending_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to count pending statement"];
         }
         if (keen_io_sqlite3_step(count_pending_stmt) == SQLITE_ROW) {
@@ -482,9 +487,10 @@
         return eventCount;
     }
 
+    const char *projectIDUTF8 = projectID.UTF8String;
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(count_all_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(count_all_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to total event statement"];
         }
         if (keen_io_sqlite3_step(count_all_stmt) == SQLITE_ROW) {
@@ -492,7 +498,7 @@
         } else {
             [self handleSQLiteFailure:@"get count of total rows"];
         }
-
+        
         [self resetSQLiteStatement:count_all_stmt];
     });
     
@@ -570,8 +576,9 @@
         return;
     }
 
+    const char *projectIDUTF8 = [projectID UTF8String];
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(purge_stmt, 1, [projectID UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(purge_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to purge statement"];
         }
         if (keen_io_sqlite3_step(purge_stmt) != SQLITE_DONE) {
@@ -621,7 +628,6 @@
     }
     
     dispatch_sync(self.dbQueue, ^{
-        // bind
         if (keen_io_sqlite3_bind_text(convert_date_stmt, 1, [[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]] UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind date to date conversion statement"];
             return;
