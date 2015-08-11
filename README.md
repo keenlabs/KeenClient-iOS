@@ -497,12 +497,12 @@ Creating a query is as simple as instantiating a `KIOQuery` object:
 
 Objective-C:
 ```objc
-KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": "this_14_days"}];
 ```
 
 Swift:
 ```Swift
-var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
 ```
 
 Let's show a few examples of running different queries. The last parameter of both `KeenClient.runAsyncQuery` and `KeenClient.runAsyncMultiAnalysisWithQueries` is a block. To avoid copy+pasting we'll use the same block for all the queries. It is going to print out the results in case of a successful query, or print out the errors in case the query fails:
@@ -548,7 +548,7 @@ let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResp
 
 Objective-C:
 ```objc
-KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": "this_14_days"}];
     
 [[KeenClient sharedClient] runAsyncQuery:countQuery block:countQueryCompleted];
 ```
@@ -556,7 +556,7 @@ KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDic
 Swift:
 ```Swift
 // KIOQuery object containing the query type and properties
-var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
 
 // Run the query
 KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted);
@@ -566,14 +566,14 @@ KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted);
 
 Objective-C:
 ```objc
-KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key"}];
+KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key", @"timeframe": "this_14_days"}];
     
 [[KeenClient sharedClient] runAsyncQuery:countUniqueQuery block:countQueryCompleted];
 ```
 
 Swift:
 ```Swift
-var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key"]);
+var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"]);
 
 KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompleted);
 ```
@@ -582,8 +582,8 @@ KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompl
 
 Objective-C:
 ```objc
-KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
-KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key"}];
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": "this_14_days"}];
+KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key", @"timeframe": "this_14_days"}];
 
 // Optionally set a name for your queries, so it's easier to check the results
 [countQuery setQueryName:@"count_query"];
@@ -594,8 +594,8 @@ KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" and
 
 Swift:
 ```Swift
-var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
-var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key"]);
+var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
+var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"]);
 
 // Optionally set a name for your queries, so it's easier to check the results
 countQuery.queryName = "count_query";
@@ -608,7 +608,7 @@ KeenClient.sharedClient().runAsyncMultiAnalysisWithQueries([countQuery, countUni
 
 Objective-C:
 ```objc
-KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up",
+KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"timeframe": "this_14_days", @"steps": @[@{@"event_collection": @"user_signed_up",
             @"actor_property": @"user.id"},
           @{@"event_collection": @"user_completed_profile",
             @"actor_property": @"user.id"}]}];
@@ -618,7 +618,7 @@ KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesD
 
 Swift:
 ```Swift
-var funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["steps": [["event_collection": "user_signed_up", @"actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
+var funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["timeframe": "this_14_days", "steps": [["event_collection": "user_signed_up", @"actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
 
 KeenClient.sharedClient().runAsyncQuery(funnelQuery, block: countQueryCompleted);
 ```
