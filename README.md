@@ -497,7 +497,7 @@ Creating a query is as simple as instantiating a `KIOQuery` object:
 
 Objective-C:
 ```objc
-KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": "this_14_days"}];
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": @"this_14_days"}];
 ```
 
 Swift:
@@ -548,7 +548,7 @@ let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResp
 
 Objective-C:
 ```objc
-KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": "this_14_days"}];
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": @"this_14_days"}];
     
 [[KeenClient sharedClient] runAsyncQuery:countQuery block:countQueryCompleted];
 ```
@@ -566,7 +566,7 @@ KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted);
 
 Objective-C:
 ```objc
-KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key", @"timeframe": "this_14_days"}];
+KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key", @"timeframe": @"this_14_days"}];
     
 [[KeenClient sharedClient] runAsyncQuery:countUniqueQuery block:countQueryCompleted];
 ```
@@ -582,8 +582,8 @@ KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompl
 
 Objective-C:
 ```objc
-KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": "this_14_days"}];
-KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key", @"timeframe": "this_14_days"}];
+KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": @"this_14_days"}];
+KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key", @"timeframe": @"this_14_days"}];
 
 // Optionally set a name for your queries, so it's easier to check the results
 [countQuery setQueryName:@"count_query"];
@@ -608,7 +608,7 @@ KeenClient.sharedClient().runAsyncMultiAnalysisWithQueries([countQuery, countUni
 
 Objective-C:
 ```objc
-KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"timeframe": "this_14_days", @"steps": @[@{@"event_collection": @"user_signed_up",
+KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"timeframe": @"this_14_days", @"steps": @[@{@"event_collection": @"user_signed_up",
             @"actor_property": @"user.id"},
           @{@"event_collection": @"user_completed_profile",
             @"actor_property": @"user.id"}]}];
