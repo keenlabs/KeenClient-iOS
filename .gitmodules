@@ -1,6 +1,0 @@
-[submodule "JSONKit"]
-	path = JSONKit
-	url = git://github.com/johnezang/JSONKit.git
-[submodule "iso-8601-parser-unparser"]
-	path = iso-8601-parser-unparser
-	url = git://github.com/nixme/iso-8601-parser-unparser.git
