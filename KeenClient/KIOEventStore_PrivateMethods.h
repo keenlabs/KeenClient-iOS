@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Keen Labs. All rights reserved.
 //
 
-#import "KIOEventStore.h"
+#import "KIODBStore.h"
 
-@interface KIOEventStore ()
+@interface KIODBStore ()
 - (void)closeDB;
 @end

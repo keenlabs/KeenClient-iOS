@@ -8,7 +8,7 @@
 
 #import "KeenClient.h"
 #import "KeenConstants.h"
-#import "KIOEventStore.h"
+#import "KIODBStore.h"
 #import "KIOReachability.h"
 #import "HTTPCodes.h"
 #import "KIOQuery.h"
@@ -20,7 +20,7 @@ static BOOL authorizedGeoLocationAlways = NO;
 static BOOL authorizedGeoLocationWhenInUse = NO;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
-static KIOEventStore *eventStore;
+static KIODBStore *dbStore;
 
 @interface KeenClient ()
 
@@ -218,11 +218,11 @@ static KIOEventStore *eventStore;
 }
 
 + (void)clearAllEvents {
-    [eventStore deleteAllEvents];
+    [dbStore deleteAllEvents];
 }
 
-+ (KIOEventStore *) getEventStore {
-    return eventStore;
++ (KIODBStore *) getEventStore {
+    return dbStore;
 }
 
 - (id)init {
@@ -263,8 +263,8 @@ static KIOEventStore *eventStore;
         return nil;
     }
     
-    if (!eventStore) {
-        eventStore = [[KIOEventStore alloc] init];
+    if (!dbStore) {
+        dbStore = [[KIODBStore alloc] init];
     }
     
     self = [self init];
@@ -297,8 +297,8 @@ static KIOEventStore *eventStore;
         return nil;
     }
 
-    if (!eventStore) {
-        eventStore = [[KIOEventStore alloc] init];
+    if (!dbStore) {
+        dbStore = [[KIODBStore alloc] init];
     }
     sharedClient.projectID = projectID;
 
@@ -495,14 +495,14 @@ static KIOEventStore *eventStore;
     event = newEvent;
     
     // now make sure that we haven't hit the max number of events in this collection already
-    NSUInteger eventCount = [eventStore getTotalEventCountWithProjectID:self.projectID];
+    NSUInteger eventCount = [dbStore getTotalEventCountWithProjectID:self.projectID];
     
     // We add 1 because we want to know if this will push us over the limit
     if (eventCount + 1 > self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
         KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
         KCLog(@"Count: %lu and Max: %lu", (unsigned long)eventCount, (unsigned long)self.maxEventsPerCollection);
-        [eventStore deleteEventsFromOffset:[NSNumber numberWithUnsignedInteger: eventCount - self.numberEventsToForget]];
+        [dbStore deleteEventsFromOffset:[NSNumber numberWithUnsignedInteger: eventCount - self.numberEventsToForget]];
     }
 
     if (!keenProperties) {
@@ -538,7 +538,7 @@ static KIOEventStore *eventStore;
     }
     
     // write JSON to store
-    [eventStore addEvent:jsonData collection: eventCollection projectID:self.projectID];
+    [dbStore addEvent:jsonData collection: eventCollection projectID:self.projectID];
     
     // log the event
     if ([KeenClient isLoggingEnabled]) {
@@ -619,7 +619,7 @@ static KIOEventStore *eventStore;
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
     // get data for the API request we'll make
-    NSMutableDictionary *events = [eventStore getEventsWithMaxAttempts:self.maxAttempts andProjectID:self.projectID];
+    NSMutableDictionary *events = [dbStore getEventsWithMaxAttempts:self.maxAttempts andProjectID:self.projectID];
     
     NSError *error = nil;
     for (NSString *coll in events) {
@@ -719,7 +719,7 @@ static KIOEventStore *eventStore;
                             KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                         } else {
                             // All's well: Add it!
-                            [eventStore addEvent:data collection:dirName projectID:self.projectID];
+                            [dbStore addEvent:data collection:dirName projectID:self.projectID];
                         }
 
                     }
@@ -828,7 +828,7 @@ static KIOEventStore *eventStore;
             // loop through events and increment their attempt count
             for (NSString *collectionName in eventIds) {
                 for (NSNumber *eid in eventIds[collectionName]) {
-                    [eventStore incrementAttempts:eid];
+                    [dbStore incrementAttempts:eid];
                 }
             }
 
@@ -921,7 +921,7 @@ static KIOEventStore *eventStore;
 
                 // delete the file if we need to
                 if (deleteFile) {
-                    [eventStore deleteEvent: eid];
+                    [dbStore deleteEvent: eid];
                     KCLog(@"Successfully deleted event: %@", eid);
                 }
                 count++;
@@ -1121,7 +1121,7 @@ static KIOEventStore *eventStore;
 # pragma mark - NSDate => NSString
 
 - (id)convertDate:(id)date {
-    NSString *string = [eventStore convertNSDateToISO8601:date];
+    NSString *string = [dbStore convertNSDateToISO8601:date];
     return string;
 }
 

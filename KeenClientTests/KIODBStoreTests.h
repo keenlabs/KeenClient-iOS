@@ -8,6 +8,6 @@
 
 #import <XCTest/XCTest.h>
 
-@interface KIOEventStoreTests : XCTestCase
+@interface KIODBStoreTests : XCTestCase
 
 @end

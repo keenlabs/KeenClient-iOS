@@ -1,5 +1,5 @@
 //
-//  EventStore.h
+//  KIODBStore.h
 //  KeenClient
 //
 //  Created by Cory Watson on 3/26/14.
@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface KIOEventStore : NSObject
+@interface KIODBStore : NSObject
 
  /**
   Reset any pending events so they can be resent.

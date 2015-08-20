@@ -7,11 +7,11 @@
 //
 
 #import "KeenClient.h"
-#import "KIOEventStore.h"
+#import "KIODBStore.h"
 #import "KIOEventStore_PrivateMethods.h"
 #import "keen_io_sqlite3.h"
 
-@interface KIOEventStore()
+@interface KIODBStore()
 - (void)closeDB;
 
 // A dispatch queue used for sqlite.
@@ -19,7 +19,7 @@
 
 @end
 
-@implementation KIOEventStore {
+@implementation KIODBStore {
     keen_io_sqlite3 *keen_dbname;
     BOOL dbIsOpen;
     keen_io_sqlite3_stmt *insert_stmt;

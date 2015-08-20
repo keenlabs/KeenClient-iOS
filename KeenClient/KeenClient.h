@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
-#import "KIOEventStore.h"
+#import "KIODBStore.h"
 #import "KIOQuery.h"
 #import "KeenProperties.h"
 
@@ -186,7 +186,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  @return An instance of KIOEventStore.
  */
-+ (KIOEventStore *)getEventStore;
++ (KIODBStore *)getEventStore;
 
 /**
  Call this if your code needs to use more than one Keen project.  By convention, if you

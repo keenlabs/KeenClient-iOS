@@ -6,11 +6,11 @@
 //  Copyright (c) 2014 Keen Labs. All rights reserved.
 //
 
-#import "KIOEventStore.h"
-#import "KIOEventStoreTests.h"
+#import "KIODBStore.h"
+#import "KIODBStoreTests.h"
 #import "KIOEventStore_PrivateMethods.h"
 
-@interface KIOEventStoreTests ()
+@interface KIODBStoreTests ()
 
 @property NSString *projectID;
 
@@ -18,7 +18,7 @@
 
 @end
 
-@implementation KIOEventStoreTests
+@implementation KIODBStoreTests
 
 @synthesize projectID;
 
@@ -50,23 +50,23 @@
     [super tearDown];
 }
 
-- (void)testInit{
-    KIOEventStore *store = [[KIOEventStore alloc] init];
+- (void)testInit {
+    KIODBStore *store = [[KIODBStore alloc] init];
     XCTAssertNotNil(store, @"init is not null");
     NSString *dbPath = [self databaseFile];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     XCTAssertTrue([fileManager fileExistsAtPath:dbPath], @"Database file exists.");
 }
 
-- (void)testAdd{
-    KIOEventStore *store = [[KIOEventStore alloc] init];
+- (void)testEventAdd {
+    KIODBStore *store = [[KIODBStore alloc] init];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 1, @"1 total event after add");
     XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after add");
 }
 
-- (void)testDelete{
-    KIOEventStore *store = [[KIOEventStore alloc] init];
+- (void)testEventDelete {
+    KIODBStore *store = [[KIODBStore alloc] init];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 1, @"1 total event after add");
     XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after add");
@@ -85,8 +85,8 @@
     XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after delete");
 }
 
-- (void)testGetPending{
-    KIOEventStore *store = [[KIOEventStore alloc] init];
+- (void)testEventGetPending {
+    KIODBStore *store = [[KIODBStore alloc] init];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
@@ -105,8 +105,8 @@
     XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 2, @"2 pending event after add");
 }
 
-- (void)testCleanupOfPending{
-    KIOEventStore *store = [[KIOEventStore alloc] init];
+- (void)testEventCleanupOfPending {
+    KIODBStore *store = [[KIODBStore alloc] init];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
@@ -128,8 +128,8 @@
     XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"No pending events now!");
 }
 
-- (void)testResetOfPending{
-    KIOEventStore *store = [[KIOEventStore alloc] init];
+- (void)testEventResetOfPending {
+    KIODBStore *store = [[KIODBStore alloc] init];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
 
@@ -155,8 +155,8 @@
     XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"No pending events now!");
 }
 
-- (void)testDeleteFromOffset{
-    KIOEventStore *store = [[KIOEventStore alloc] init];
+- (void)testEventDeleteFromOffset {
+    KIODBStore *store = [[KIODBStore alloc] init];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
     [store addEvent:[@"I AM AN EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
     [store addEvent:[@"I AM AN BUT ANOTHER EVENT ALSO" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
@@ -165,8 +165,8 @@
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 2, @"2 total events after deleteEventsFromOffset");
 }
 
-- (void)testClosedDB{
-    KIOEventStore *store = [[KIOEventStore alloc] init];
+- (void)testClosedDB {
+    KIODBStore *store = [[KIODBStore alloc] init];
     [store closeDB];
 
     // Verify that these methods all behave with a closed database.

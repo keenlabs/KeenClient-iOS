@@ -65,11 +65,11 @@
 		1296399019C10D0000B2B653 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1296399119C10D0000B2B653 /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1296399219C10D0000B2B653 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
-		1296399319C10D0000B2B653 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		1296399319C10D0000B2B653 /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1296399419C10D2C00B2B653 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
 		1296399519C10D2C00B2B653 /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
 		1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
-		1296399719C10D2C00B2B653 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
+		1296399719C10D2C00B2B653 /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
 		1296399819C10D4000B2B653 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		12AE4C3A1B4AD26D0015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		12AE4C3B1B4AD27D0015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -86,9 +86,9 @@
 		3EE5CAA21AF06A0700D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */; };
 		A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
-		CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
-		CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */; };
+		CA6410D818E37E7C00E53E3C /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CA6410D918E37E7C00E53E3C /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
+		CA6410E218E39F3A00E53E3C /* KIODBStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* KIODBStoreTests.m */; };
 		DE34F6F3197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
@@ -98,10 +98,10 @@
 		DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		DEFA50181947A66200F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
-		DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIOEventStore.m */; };
-		DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIOEventStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DEFA50181947A66200F78E13 /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
+		DEFA50191947A67E00F78E13 /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
+		DEFA501A1947A70800F78E13 /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DEFA501B1947A72600F78E13 /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4D3B6021A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4D3B6031A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4D3B6041A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -208,10 +208,10 @@
 		A51E31221B03C6EF00008248 /* HTTPCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPCodes.h; sourceTree = "<group>"; };
 		A51E31231B03C6EF00008248 /* HTTPCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPCodes.m; sourceTree = "<group>"; };
 		A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenSwiftClientExample.xcodeproj; path = KeenSwiftClientExample/KeenSwiftClientExample.xcodeproj; sourceTree = "<group>"; };
-		CA6410D618E37E7C00E53E3C /* KIOEventStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStore.h; sourceTree = "<group>"; };
-		CA6410D718E37E7C00E53E3C /* KIOEventStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStore.m; sourceTree = "<group>"; wrapsLines = 0; };
-		CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOEventStoreTests.h; sourceTree = "<group>"; };
-		CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOEventStoreTests.m; sourceTree = "<group>"; };
+		CA6410D618E37E7C00E53E3C /* KIODBStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIODBStore.h; sourceTree = "<group>"; };
+		CA6410D718E37E7C00E53E3C /* KIODBStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIODBStore.m; sourceTree = "<group>"; wrapsLines = 0; };
+		CA6410E018E39F3A00E53E3C /* KIODBStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIODBStoreTests.h; sourceTree = "<group>"; };
+		CA6410E118E39F3A00E53E3C /* KIODBStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIODBStoreTests.m; sourceTree = "<group>"; };
 		CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		CACE78C918EA0CD800A4AB5B /* KIOEventStore_PrivateMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KIOEventStore_PrivateMethods.h; sourceTree = "<group>"; };
 		DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = keen_io_sqlite3.c; sourceTree = "<group>"; };
@@ -360,8 +360,8 @@
 				01BA1B0314E895BC00CF9F84 /* KeenConstants.h */,
 				01BA1B0414E895BC00CF9F84 /* KeenConstants.m */,
 				017EE12414E30C96000F3868 /* Supporting Files */,
-				CA6410D618E37E7C00E53E3C /* KIOEventStore.h */,
-				CA6410D718E37E7C00E53E3C /* KIOEventStore.m */,
+				CA6410D618E37E7C00E53E3C /* KIODBStore.h */,
+				CA6410D718E37E7C00E53E3C /* KIODBStore.m */,
 				CACE78C918EA0CD800A4AB5B /* KIOEventStore_PrivateMethods.h */,
 				3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */,
 				3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */,
@@ -383,8 +383,8 @@
 				017EE13D14E30C96000F3868 /* KeenClientTests.h */,
 				017EE13E14E30C96000F3868 /* KeenClientTests.m */,
 				017EE13814E30C96000F3868 /* Supporting Files */,
-				CA6410E018E39F3A00E53E3C /* KIOEventStoreTests.h */,
-				CA6410E118E39F3A00E53E3C /* KIOEventStoreTests.m */,
+				CA6410E018E39F3A00E53E3C /* KIODBStoreTests.h */,
+				CA6410E118E39F3A00E53E3C /* KIODBStoreTests.m */,
 				3E63D9F51AE7425000E57A17 /* KIOQueryTests.h */,
 				3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */,
 			);
@@ -466,7 +466,7 @@
 			files = (
 				0111012614EF709A009794A5 /* KeenClient.h in Headers */,
 				010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */,
-				DEFA501B1947A72600F78E13 /* KIOEventStore.h in Headers */,
+				DEFA501B1947A72600F78E13 /* KIODBStore.h in Headers */,
 				125D31A51B0E331800DFCC97 /* HTTPCodes.h in Headers */,
 				F4D3B6031A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				12AE4C3A1B4AD26D0015F41F /* KIOQuery.h in Headers */,
@@ -482,7 +482,7 @@
 			files = (
 				0111013E14EF70AB009794A5 /* KeenClient.h in Headers */,
 				010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */,
-				DEFA501A1947A70800F78E13 /* KIOEventStore.h in Headers */,
+				DEFA501A1947A70800F78E13 /* KIODBStore.h in Headers */,
 				125D31A71B0E333900DFCC97 /* HTTPCodes.h in Headers */,
 				F4D3B6041A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				12AE4C3B1B4AD27D0015F41F /* KIOQuery.h in Headers */,
@@ -498,7 +498,7 @@
 			files = (
 				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
 				012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */,
-				CA6410D818E37E7C00E53E3C /* KIOEventStore.h in Headers */,
+				CA6410D818E37E7C00E53E3C /* KIODBStore.h in Headers */,
 				A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */,
 				F4D3B6021A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				3E63D9F01AE7356C00E57A17 /* KIOQuery.h in Headers */,
@@ -514,7 +514,7 @@
 			files = (
 				1296399019C10D0000B2B653 /* KeenClient.h in Headers */,
 				1296399119C10D0000B2B653 /* KeenProperties.h in Headers */,
-				1296399319C10D0000B2B653 /* KIOEventStore.h in Headers */,
+				1296399319C10D0000B2B653 /* KIODBStore.h in Headers */,
 				125D31A91B0E335300DFCC97 /* HTTPCodes.h in Headers */,
 				F4D3B6051A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				12AE4C3C1B4AD2880015F41F /* KIOQuery.h in Headers */,
@@ -732,7 +732,7 @@
 			files = (
 				12AE4C3D1B4AD2980015F41F /* KIOQuery.m in Sources */,
 				125D31A41B0E330900DFCC97 /* HTTPCodes.m in Sources */,
-				DEFA50181947A66200F78E13 /* KIOEventStore.m in Sources */,
+				DEFA50181947A66200F78E13 /* KIODBStore.m in Sources */,
 				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
 				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
 				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
@@ -747,7 +747,7 @@
 			files = (
 				12AE4C3E1B4AD2A00015F41F /* KIOQuery.m in Sources */,
 				125D31A61B0E333400DFCC97 /* HTTPCodes.m in Sources */,
-				DEFA50191947A67E00F78E13 /* KIOEventStore.m in Sources */,
+				DEFA50191947A67E00F78E13 /* KIODBStore.m in Sources */,
 				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
 				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
 				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
@@ -763,7 +763,7 @@
 				3E63D9F11AE7356C00E57A17 /* KIOQuery.m in Sources */,
 				017EE12814E30C96000F3868 /* KeenClient.m in Sources */,
 				01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */,
-				CA6410D918E37E7C00E53E3C /* KIOEventStore.m in Sources */,
+				CA6410D918E37E7C00E53E3C /* KIODBStore.m in Sources */,
 				012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */,
 				F4D3B6061A0D8EB4000825FE /* KIOReachability.m in Sources */,
 				A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */,
@@ -775,7 +775,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CA6410E218E39F3A00E53E3C /* KIOEventStoreTests.m in Sources */,
+				CA6410E218E39F3A00E53E3C /* KIODBStoreTests.m in Sources */,
 				3E63D9F71AE7425000E57A17 /* KIOQueryTests.m in Sources */,
 				017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */,
 			);
@@ -792,7 +792,7 @@
 				1296399519C10D2C00B2B653 /* KeenProperties.m in Sources */,
 				1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */,
 				F4D3B60A1A0D8EB4000825FE /* KIOReachability.m in Sources */,
-				1296399719C10D2C00B2B653 /* KIOEventStore.m in Sources */,
+				1296399719C10D2C00B2B653 /* KIODBStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
