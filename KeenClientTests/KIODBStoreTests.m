@@ -58,6 +58,15 @@
     XCTAssertTrue([fileManager fileExistsAtPath:dbPath], @"Database file exists.");
 }
 
+- (void)testClosedDB {
+    KIODBStore *store = [[KIODBStore alloc] init];
+    [store closeDB];
+    
+    // Verify that these methods all behave with a closed database.
+    XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"no pending if closed");
+    [store resetPendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
+    [store purgePendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
+}
 - (void)testEventAdd {
     KIODBStore *store = [[KIODBStore alloc] init];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];

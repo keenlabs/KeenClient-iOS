@@ -66,7 +66,7 @@
  /**
   Increment the `attempts` column
   */
-- (void)incrementAttempts: (NSNumber *)eventId;
+- (void)incrementEventUploadAttempts: (NSNumber *)eventId;
 
  /**
   Convert an NSDate to ISO-8601 using SQLite (thread safe)

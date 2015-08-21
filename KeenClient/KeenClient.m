@@ -828,7 +828,7 @@ static KIODBStore *dbStore;
             // loop through events and increment their attempt count
             for (NSString *collectionName in eventIds) {
                 for (NSNumber *eid in eventIds[collectionName]) {
-                    [dbStore incrementAttempts:eid];
+                    [dbStore incrementEventUploadAttempts:eid];
                 }
             }
 
