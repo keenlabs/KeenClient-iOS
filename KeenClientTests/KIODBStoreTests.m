@@ -67,6 +67,9 @@
     [store resetPendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
     [store purgePendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
 }
+
+# pragma mark - Event Methods
+
 - (void)testEventAdd {
     KIODBStore *store = [[KIODBStore alloc] init];
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
@@ -174,15 +177,17 @@
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 2, @"2 total events after deleteEventsFromOffset");
 }
 
-- (void)testClosedDB {
-    KIODBStore *store = [[KIODBStore alloc] init];
-    [store closeDB];
+# pragma mark - Query Methods
 
-    // Verify that these methods all behave with a closed database.
-    XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"no pending if closed");
-    [store resetPendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
-    [store purgePendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
+- (void)testQueryAdd {
+    KIODBStore *store = [[KIODBStore alloc] init];
+    [store addQuery:[@"I AM A QUERY" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total event after add");
 }
+
+
+
+# pragma mark - Helper Methods
 
 - (NSString *)databaseFile {
     NSString *databasePath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];

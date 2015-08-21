@@ -82,4 +82,8 @@
   */
 - (void)deleteEventsFromOffset: (NSNumber *)offset;
 
+- (BOOL)addQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+
+- (NSUInteger)getTotalQueryCountWithProjectID:(NSString *)projectID;
+
 @end
