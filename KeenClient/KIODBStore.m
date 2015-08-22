@@ -40,6 +40,8 @@
     // Keen Query SQL Statements
     keen_io_sqlite3_stmt *insert_query_stmt;
     keen_io_sqlite3_stmt *count_all_queries_stmt;
+    keen_io_sqlite3_stmt *get_query_stmt;
+    keen_io_sqlite3_stmt *increment_query_attempts_statement;
     
     keen_io_sqlite3_stmt *convert_date_stmt;
 }
@@ -124,6 +126,8 @@
     
     keen_io_sqlite3_finalize(insert_query_stmt);
     keen_io_sqlite3_finalize(count_all_queries_stmt);
+    keen_io_sqlite3_finalize(get_query_stmt);
+    keen_io_sqlite3_finalize(increment_query_attempts_statement);
     
     keen_io_sqlite3_finalize(convert_date_stmt);
     
@@ -526,7 +530,7 @@
     return eventCount;
 }
 
-- (void)deleteEvent: (NSNumber *)eventId {
+- (void)deleteEvent:(NSNumber *)eventId {
     if(![self checkOpenDB:@"DB is closed, skipping deleteEvent"]) {
         return;
     }
@@ -557,7 +561,7 @@
     });
 }
 
-- (void)deleteEventsFromOffset: (NSNumber *)offset {
+- (void)deleteEventsFromOffset:(NSNumber *)offset {
     if(![self checkOpenDB:@"DB is closed, skipping deleteEvent"]) {
         return;
     }
@@ -574,7 +578,7 @@
     });
 }
 
-- (void)incrementEventUploadAttempts: (NSNumber *)eventId {
+- (void)incrementEventUploadAttempts:(NSNumber *)eventId {
     if(![self checkOpenDB:@"DB is closed, skipping incrementAttempts"]) {
         return;
     }
@@ -708,6 +712,95 @@
     return wasAdded;
 }
 
+- (NSMutableDictionary *)getQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID {
+    // Create a dictionary to hold the contents of our select.
+    __block NSMutableDictionary *query = [NSMutableDictionary dictionary];
+    
+    if(![self checkOpenDB:@"DB is closed, skipping getQuery"]) {
+        return query;
+    }
+    
+    const char *projectIDUTF8 = projectID.UTF8String;
+    const char *eventCollectionUTF8 = eventCollection.UTF8String;
+    // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
+    dispatch_sync(self.dbQueue, ^{
+        if (keen_io_sqlite3_bind_text(get_query_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind pid to get query statement"];
+        }
+        
+        if (keen_io_sqlite3_bind_text(get_query_stmt, 2, eventCollectionUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind collection to get query statement"];
+            return;
+        }
+        
+        if (keen_io_sqlite3_bind_blob(get_query_stmt, 3, [queryData bytes], (int) [queryData length], SQLITE_TRANSIENT) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind query data to get query statement"];
+            return;
+        }
+        
+        if (keen_io_sqlite3_step(get_query_stmt) == SQLITE_ROW) {
+            // Fetch data out the statement
+            NSNumber *queryID = [NSNumber numberWithUnsignedLongLong:keen_io_sqlite3_column_int64(get_query_stmt, 0)];
+            
+            NSString *eventCollection = [NSString stringWithUTF8String:(char *)keen_io_sqlite3_column_text(get_query_stmt, 1)];
+            
+            const void *dataPtr = keen_io_sqlite3_column_blob(get_query_stmt, 2);
+            int dataSize = keen_io_sqlite3_column_bytes(get_query_stmt, 2);
+            
+            NSData *data = [[NSData alloc] initWithBytes:dataPtr length:dataSize];
+            
+            NSNumber *attempts = [NSNumber numberWithUnsignedLong:keen_io_sqlite3_column_int(get_query_stmt, 3)];
+            
+            [query setObject:queryID forKey:@"queryID"];
+            [query setObject:eventCollection forKey:@"event_collection"];
+            [query setObject:data forKey:@"queryData"];
+            [query setObject:attempts forKey:@"attempts"];
+        } else {
+            [self handleSQLiteFailure:@"find query"];
+        }
+        
+        [self resetSQLiteStatement:get_query_stmt];
+    });
+    
+    return query;
+}
+
+- (BOOL)incrementQueryAttempts:(NSNumber *)queryID {
+    __block BOOL wasUpdated = NO;
+    
+    if(![self checkOpenDB:@"DB is closed, skipping query increment attempt"]) {
+        return wasUpdated;
+    }
+    
+    dispatch_sync(self.dbQueue, ^{
+        if (keen_io_sqlite3_bind_int64(increment_query_attempts_statement, 1, [queryID unsignedLongLongValue]) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind eventid to increment attempts statement"];
+            return;
+        }
+        if (keen_io_sqlite3_step(increment_query_attempts_statement) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"increment attempts"];
+            return;
+        };
+        
+        wasUpdated = YES;
+        
+        [self resetSQLiteStatement:increment_query_attempts_statement];
+    });
+    
+    return wasUpdated;
+}
+
+- (void)findOrUpdateQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID {
+    NSMutableDictionary *returnedQuery = [self getQuery:queryData collection:eventCollection projectID:projectID];
+    if(returnedQuery != nil) {
+        // if query is found, update query attempts
+        [self incrementQueryAttempts:[returnedQuery objectForKey:@"queryID"]];
+    } else {
+        // else add it to the database
+        [self addQuery:queryData collection:eventCollection projectID:projectID];
+    }
+}
+
 - (NSUInteger)getTotalQueryCountWithProjectID:(NSString *)projectID {
     __block NSUInteger queryCount = 0;
     
@@ -790,7 +883,7 @@
     [self prepareSQLStatement:&age_out_events_stmt sqlQuery:"DELETE FROM events WHERE id <= (SELECT id FROM events ORDER BY id DESC LIMIT 1 OFFSET ?)" failureMessage:@"prepare delete old events at offset statement"];
     
     // This statement increments the attempts count of an event.
-    [self prepareSQLStatement:&increment_event_attempts_statement sqlQuery:"UPDATE events SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare increment attempt statement"];
+    [self prepareSQLStatement:&increment_event_attempts_statement sqlQuery:"UPDATE events SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare event increment attempt statement"];
     
     // This statement deletes events exceeding a max attempt limit.
     [self prepareSQLStatement:&delete_too_many_attempts_events_statement sqlQuery:"DELETE FROM events WHERE attempts >= ?" failureMessage:@"prepare delete max attempts events statement"];
@@ -803,12 +896,20 @@
     
     // This statement counts the total number of queries
     [self prepareSQLStatement:&count_all_queries_stmt sqlQuery:"SELECT count(*) FROM queries WHERE projectID=?" failureMessage:@"prepare count all queries statement"];
+ 
+    // This statement counts the number of pending events.
+    [self prepareSQLStatement:&get_query_stmt sqlQuery:"SELECT id, collection, queryData, attempts FROM queries WHERE projectID=? AND collection=? AND queryData=?" failureMessage:@"prepare find query statement"];
+    
+    // This statement increments the attempts count of an event.
+    [self prepareSQLStatement:&increment_query_attempts_statement sqlQuery:"UPDATE queries SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare query increment attempt statement"];
+    
+    // HELPER STATEMENTS
     
     // This statement converts an NSDate to an ISO-8601 formatted date/time string (we use sqlite because NSDateFormatter isn't thread-safe)
     [self prepareSQLStatement:&convert_date_stmt sqlQuery:"SELECT strftime('%Y-%m-%dT%H:%M:%S',datetime(?,'unixepoch','localtime'))" failureMessage:@"prepare convert date statement"];
 }
 
-- (void)handleSQLiteFailure: (NSString *) msg {
+- (void)handleSQLiteFailure:(NSString *) msg {
     KCLog(@"Failed to %@: %@",
           msg, [NSString stringWithCString:keen_io_sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
     [self closeDB];

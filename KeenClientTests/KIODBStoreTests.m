@@ -9,6 +9,7 @@
 #import "KIODBStore.h"
 #import "KIODBStoreTests.h"
 #import "KIOEventStore_PrivateMethods.h"
+#import "KIOQuery.h"
 
 @interface KIODBStoreTests ()
 
@@ -181,11 +182,62 @@
 
 - (void)testQueryAdd {
     KIODBStore *store = [[KIODBStore alloc] init];
-    [store addQuery:[@"I AM A QUERY" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
     XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total event after add");
 }
 
+- (void)testQueryGet {
+    KIODBStore *store = [[KIODBStore alloc] init];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    KIOQuery *query2 = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection2"}];
+    
+    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    [store addQuery:[query2 convertQueryToData] collection:[query2.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 2, @"2 total event after add");
+    
+    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    XCTAssertNotNil(returnedQuery, @"returned query is not nil");
+    XCTAssertEqualObjects([query.propertiesDictionary objectForKey:@"event_collection"], [returnedQuery objectForKey:@"event_collection"], @"event collection is the same");
+    XCTAssertEqualObjects([query convertQueryToData], [returnedQuery objectForKey:@"queryData"], @"query data is the same");
+    XCTAssertEqual([returnedQuery objectForKey:@"attempts"], [NSNumber numberWithInt:0], @"attempts is 0");
+    
+    NSMutableDictionary *returnedQuery2 = [store getQuery:[query2 convertQueryToData] collection:[query2.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    XCTAssertNotNil(returnedQuery2, @"returned query is not nil");
+    XCTAssertEqualObjects([query2.propertiesDictionary objectForKey:@"event_collection"], [returnedQuery2 objectForKey:@"event_collection"], @"event collection is the same");
+    XCTAssertEqualObjects([query2 convertQueryToData], [returnedQuery2 objectForKey:@"queryData"], @"query data is the same");
+    XCTAssertEqual([returnedQuery2 objectForKey:@"attempts"], [NSNumber numberWithInt:0], @"attempts is 0");
+}
 
+- (void) testQueryUpdate {
+    KIODBStore *store = [[KIODBStore alloc] init];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+    // first add and retrieve query, make sure attempts is 0
+    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    XCTAssertEqual([returnedQuery objectForKey:@"attempts"], [NSNumber numberWithInt:0], @"attempts is 0");
+    
+    // update query attempts
+    BOOL wasQueryUpdated = [store incrementQueryAttempts:[returnedQuery objectForKey:@"queryID"]];
+    
+    XCTAssertTrue(wasQueryUpdated);
+    
+    // grab updated query and check attempt number
+    NSMutableDictionary *returnUpdateQuery = [store getQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    XCTAssertNotNil(returnUpdateQuery, @"returned query is not nil");
+    XCTAssertEqualObjects([query.propertiesDictionary objectForKey:@"event_collection"], [returnUpdateQuery objectForKey:@"event_collection"], @"event collection is the same");
+    XCTAssertEqualObjects([query convertQueryToData], [returnUpdateQuery objectForKey:@"queryData"], @"query data is the same");
+    XCTAssertEqual([returnUpdateQuery objectForKey:@"attempts"], [NSNumber numberWithInt:1], @"attempts is 1");
+}
 
 # pragma mark - Helper Methods
 

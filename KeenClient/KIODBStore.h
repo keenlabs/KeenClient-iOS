@@ -84,6 +84,12 @@
 
 - (BOOL)addQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
+- (NSMutableDictionary *)getQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+
+- (BOOL)incrementQueryAttempts:(NSNumber *)queryID;
+
+- (void)findOrUpdateQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+
 - (NSUInteger)getTotalQueryCountWithProjectID:(NSString *)projectID;
 
 @end
