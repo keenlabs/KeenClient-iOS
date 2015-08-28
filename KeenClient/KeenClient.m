@@ -221,7 +221,7 @@ static KIODBStore *dbStore;
     [dbStore deleteAllEvents];
 }
 
-+ (KIODBStore *) getEventStore {
++ (KIODBStore *) getDBStore {
     return dbStore;
 }
 

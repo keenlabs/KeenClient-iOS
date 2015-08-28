@@ -222,7 +222,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -247,7 +247,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -270,7 +270,7 @@
 
     [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
     [clientI addEvent:eventDictionary toEventCollection:@"foo" error:nil];
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -294,7 +294,7 @@
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     // now get the stored event
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -320,7 +320,7 @@
     // now get the stored event
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
+    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -367,7 +367,7 @@
     XCTAssertNil(error, @"event should add");
     
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
@@ -518,7 +518,7 @@
     
     [mock uploadWithFinishedBlock:nil];
     
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"Upload method should return with message Request data is empty.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"Upload method should return with message Request data is empty.");
 }
 
 - (void)testUploadSuccess {
@@ -527,7 +527,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadSuccessInstanceClient {
@@ -536,7 +536,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadSuccessCreated {
@@ -545,7 +545,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadSuccessCreatedInstanceClient {
@@ -554,7 +554,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadFailedServerDown {
@@ -563,7 +563,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
 
     // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
 }
 
 - (void)testUploadFailedServerDownInstanceClient {
@@ -572,7 +572,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
 }
 
 - (void)testUploadFailedServerDownNonJsonResponse {
@@ -581,7 +581,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
 }
 
 - (void)testUploadFailedServerDownNonJsonResponseInstanceClient {
@@ -590,7 +590,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
 }
 
 
@@ -604,7 +604,7 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
 
 
     // add another event
@@ -612,19 +612,19 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure both filef weren't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
 
 
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the first file was deleted from the store, but the second one remains
-    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one files after 3 unsuccessful attempts.");
+    XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one files after 3 unsuccessful attempts.");
 
 
     [mock uploadWithFinishedBlock:nil];
 
     // make sure both files were delete from the store
-    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
+    XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
 }
 
 - (void)testIncrementEvenOnNoResponse {
@@ -638,21 +638,21 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
 
 
     // add another event
     [mock uploadWithFinishedBlock:nil];
 
     // make sure both filef weren't deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
 
 
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the event was incremented
-    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
-    XCTAssertTrue([[[KeenClient getEventStore] getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+    XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
+    XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
 }
 
 - (void)testUploadFailedBadRequest {
@@ -665,7 +665,7 @@
     
     // make sure the file was deleted locally
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
 }
 
 - (void)testUploadFailedBadRequestInstanceClient {
@@ -678,7 +678,7 @@
     
     // make sure the file was deleted locally
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
 }
 
 - (void)testUploadFailedBadRequestUnknownError {
@@ -687,7 +687,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
 - (void)testUploadFailedBadRequestUnknownErrorInstanceClient {
@@ -696,7 +696,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
 
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
 - (void)testUploadFailedRedirectionStatus {
@@ -705,7 +705,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
 - (void)testUploadFailedRedirectionStatusInstanceClient {
@@ -714,7 +714,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
     
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
 }
 
 - (void)testUploadSkippedNoNetwork {
@@ -724,7 +724,7 @@
     [self addSimpleEventAndUploadWithMock:mock];
 
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccess {
@@ -746,7 +746,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the events were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccessInstanceClient {
@@ -768,7 +768,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the events were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionSuccess {
@@ -791,7 +791,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionSuccessInstanceClient {
@@ -814,7 +814,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionOneFails {
@@ -836,7 +836,7 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the file were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionOneFailsInstanceClient {
@@ -858,7 +858,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the file were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFails {
@@ -881,7 +881,7 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsInstanceClient {
@@ -904,7 +904,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
@@ -927,7 +927,7 @@
     [mock uploadWithFinishedBlock:nil];
 
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReasonInstanceClient {
@@ -950,7 +950,7 @@
     [mock uploadWithFinishedBlock:nil];
     
     // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
 }
 
 - (void)testTooManyEventsCached {
@@ -961,11 +961,11 @@
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testTooManyEventsCachedInstanceClient {
@@ -976,11 +976,11 @@
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testGlobalPropertiesDictionary {
@@ -993,7 +993,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1048,7 +1048,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1104,7 +1104,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1167,7 +1167,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
         
-        NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1231,7 +1231,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1256,7 +1256,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
     
-    NSDictionary *eventsForCollection = [[[KeenClient getEventStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1359,7 +1359,7 @@
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
     XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
@@ -1394,7 +1394,7 @@
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
     
-    XCTAssertTrue([[KeenClient getEventStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
+    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
     XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 

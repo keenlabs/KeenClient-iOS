@@ -186,7 +186,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  @return An instance of KIOEventStore.
  */
-+ (KIODBStore *)getEventStore;
++ (KIODBStore *)getDBStore;
 
 /**
  Call this if your code needs to use more than one Keen project.  By convention, if you
