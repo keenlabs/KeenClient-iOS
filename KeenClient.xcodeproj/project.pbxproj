@@ -172,12 +172,6 @@
 		012E8A541672B9A90021F6FA /* KeenProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenProperties.h; sourceTree = "<group>"; };
 		012E8A551672B9A90021F6FA /* KeenProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenProperties.m; sourceTree = "<group>"; };
 		012E8A5C1672BE860021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		015D30841822E8D200F8735B /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
-		015D30851822E8D200F8735B /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
-		015D30861822E8D200F8735B /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
-		015D30871822E8D200F8735B /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
-		015D30881822E8D200F8735B /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
-		015D30891822E8D200F8735B /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
 		015D308A1822E8D200F8735B /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
 		017EE11E14E30C96000F3868 /* libKeenClient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libKeenClient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		017EE12114E30C96000F3868 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -204,6 +198,15 @@
 		3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOQuery.m; sourceTree = "<group>"; };
 		3E63D9F51AE7425000E57A17 /* KIOQueryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOQueryTests.h; sourceTree = "<group>"; };
 		3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOQueryTests.m; sourceTree = "<group>"; };
+		3E8CC5681B8FDE1900CDA01B /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
+		3E8CC5691B8FDE1900CDA01B /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
+		3E8CC56A1B8FDE1900CDA01B /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
+		3E8CC56B1B8FDE1900CDA01B /* OCMLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMLocation.h; sourceTree = "<group>"; };
+		3E8CC56C1B8FDE1900CDA01B /* OCMMacroState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMMacroState.h; sourceTree = "<group>"; };
+		3E8CC56D1B8FDE1900CDA01B /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
+		3E8CC56E1B8FDE1900CDA01B /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
+		3E8CC56F1B8FDE1900CDA01B /* OCMRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMRecorder.h; sourceTree = "<group>"; };
+		3E8CC5701B8FDE1900CDA01B /* OCMStubRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMStubRecorder.h; sourceTree = "<group>"; };
 		3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
 		A51E31221B03C6EF00008248 /* HTTPCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPCodes.h; sourceTree = "<group>"; };
 		A51E31231B03C6EF00008248 /* HTTPCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPCodes.m; sourceTree = "<group>"; };
@@ -295,12 +298,15 @@
 		015D30831822E8D200F8735B /* OCMock */ = {
 			isa = PBXGroup;
 			children = (
-				015D30841822E8D200F8735B /* NSNotificationCenter+OCMAdditions.h */,
-				015D30851822E8D200F8735B /* OCMArg.h */,
-				015D30861822E8D200F8735B /* OCMConstraint.h */,
-				015D30871822E8D200F8735B /* OCMock.h */,
-				015D30881822E8D200F8735B /* OCMockObject.h */,
-				015D30891822E8D200F8735B /* OCMockRecorder.h */,
+				3E8CC5681B8FDE1900CDA01B /* NSNotificationCenter+OCMAdditions.h */,
+				3E8CC5691B8FDE1900CDA01B /* OCMArg.h */,
+				3E8CC56A1B8FDE1900CDA01B /* OCMConstraint.h */,
+				3E8CC56B1B8FDE1900CDA01B /* OCMLocation.h */,
+				3E8CC56C1B8FDE1900CDA01B /* OCMMacroState.h */,
+				3E8CC56D1B8FDE1900CDA01B /* OCMock.h */,
+				3E8CC56E1B8FDE1900CDA01B /* OCMockObject.h */,
+				3E8CC56F1B8FDE1900CDA01B /* OCMRecorder.h */,
+				3E8CC5701B8FDE1900CDA01B /* OCMStubRecorder.h */,
 			);
 			path = OCMock;
 			sourceTree = "<group>";
