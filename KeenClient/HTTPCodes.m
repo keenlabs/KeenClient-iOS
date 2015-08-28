@@ -374,15 +374,15 @@
 #pragma mark HTTP Code Types
 
 + (HTTPCodeType)httpCodeType:(HTTPCode)code {
-    if (code >= 100 && code < 200) {
+    if ((code >= 100 && code < 200) || code == 1) {
         return HTTPCode1XXInformational;
-    } else if (code >= 200 && code < 300) {
+    } else if ((code >= 200 && code < 300) || code == 2) {
         return HTTPCode2XXSuccess;
-    } else if (code >= 300 && code < 400) {
+    } else if ((code >= 300 && code < 400) || code == 3) {
         return HTTPCode3XXRedirect;
-    } else if (code >= 400 && code < 500) {
+    } else if ((code >= 400 && code < 500) || code == 4) {
         return HTTPCode4XXClientError;
-    } else if (code >= 500 && code < 600) {
+    } else if ((code >= 500 && code < 600) || code == 5) {
         return HTTPCode5XXServerError;
     }
 
