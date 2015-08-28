@@ -231,6 +231,10 @@ static KIODBStore *dbStore;
     [dbStore deleteAllEvents];
 }
 
++ (void)clearAllQueries {
+    [dbStore deleteAllQueries];
+}
+
 + (KIODBStore *) getDBStore {
     return dbStore;
 }

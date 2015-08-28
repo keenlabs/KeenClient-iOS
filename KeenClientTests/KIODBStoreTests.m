@@ -239,6 +239,19 @@
     XCTAssertEqual([returnUpdateQuery objectForKey:@"attempts"], [NSNumber numberWithInt:1], @"attempts is 1");
 }
 
+- (void) testQueryDeleteAll {
+    KIODBStore *store = [[KIODBStore alloc] init];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total event after add");
+    
+    [store deleteAllQueries];
+    
+    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 0, @"0 total event after deleteAllQueries");
+}
+
 # pragma mark - Helper Methods
 
 - (NSString *)databaseFile {

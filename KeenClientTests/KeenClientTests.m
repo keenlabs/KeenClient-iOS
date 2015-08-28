@@ -60,6 +60,7 @@
     // Tear-down code here.
     NSLog(@"\n");
     [KeenClient clearAllEvents];
+    [KeenClient clearAllQueries];
 
     [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];

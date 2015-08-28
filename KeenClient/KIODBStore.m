@@ -42,6 +42,7 @@
     keen_io_sqlite3_stmt *count_all_queries_stmt;
     keen_io_sqlite3_stmt *get_query_stmt;
     keen_io_sqlite3_stmt *increment_query_attempts_statement;
+    keen_io_sqlite3_stmt *delete_all_queries_stmt;
     
     keen_io_sqlite3_stmt *convert_date_stmt;
 }
@@ -128,6 +129,7 @@
     keen_io_sqlite3_finalize(count_all_queries_stmt);
     keen_io_sqlite3_finalize(get_query_stmt);
     keen_io_sqlite3_finalize(increment_query_attempts_statement);
+    keen_io_sqlite3_finalize(delete_all_queries_stmt);
     
     keen_io_sqlite3_finalize(convert_date_stmt);
     
@@ -458,9 +460,11 @@
     dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(reset_pending_events_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to reset pending statement"];
+            return;
         }
         if (keen_io_sqlite3_step(reset_pending_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"reset pending events"];
+            return;
         }
 
         [self resetSQLiteStatement:reset_pending_events_stmt];
@@ -492,11 +496,13 @@
     dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(count_pending_events_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to count pending statement"];
+            return;
         }
         if (keen_io_sqlite3_step(count_pending_events_stmt) == SQLITE_ROW) {
             eventCount = (NSInteger) keen_io_sqlite3_column_int(count_pending_events_stmt, 0);
         } else {
             [self handleSQLiteFailure:@"get count of pending rows"];
+            return;
         }
 
         [self resetSQLiteStatement:count_pending_events_stmt];
@@ -517,11 +523,13 @@
     dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(count_all_events_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to total event statement"];
+            return;
         }
         if (keen_io_sqlite3_step(count_all_events_stmt) == SQLITE_ROW) {
             eventCount = (NSInteger) keen_io_sqlite3_column_int(count_all_events_stmt, 0);
         } else {
             [self handleSQLiteFailure:@"get count of total rows"];
+            return;
         }
         
         [self resetSQLiteStatement:count_all_events_stmt];
@@ -538,9 +546,11 @@
     dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_int64(delete_event_stmt, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind eventid to delete statement"];
+            return;
         }
         if (keen_io_sqlite3_step(delete_event_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete event"];
+            return;
         };
 
         [self resetSQLiteStatement:delete_event_stmt];
@@ -555,8 +565,9 @@
     dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_step(delete_all_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete all events"];
+            return;
         };
-
+        
         [self resetSQLiteStatement:delete_all_events_stmt];
     });
 }
@@ -569,9 +580,11 @@
     dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_int64(age_out_events_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind offset to ageOut statement"];
+            return;
         }
         if (keen_io_sqlite3_step(age_out_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete all events"];
+            return;
         };
 
         [self resetSQLiteStatement:age_out_events_stmt];
@@ -584,12 +597,13 @@
     }
 
     dispatch_async(self.dbQueue, ^{
-
         if (keen_io_sqlite3_bind_int64(increment_event_attempts_statement, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind eventid to increment attempts statement"];
+            return;
         }
         if (keen_io_sqlite3_step(increment_event_attempts_statement) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"increment attempts"];
+            return;
         };
 
         [self resetSQLiteStatement:increment_event_attempts_statement];
@@ -605,10 +619,11 @@
     dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(purge_events_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to purge statement"];
+            return;
         }
         if (keen_io_sqlite3_step(purge_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"purge pending events"];
-            // XXX What to do here?
+            return;
         };
 
         [self resetSQLiteStatement:purge_events_stmt];
@@ -714,7 +729,7 @@
 
 - (NSMutableDictionary *)getQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID {
     // Create a dictionary to hold the contents of our select.
-    __block NSMutableDictionary *query = [NSMutableDictionary dictionary];
+    __block NSMutableDictionary *query = nil;
     
     if(![self checkOpenDB:@"DB is closed, skipping getQuery"]) {
         return query;
@@ -726,6 +741,7 @@
     dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(get_query_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to get query statement"];
+            return;
         }
         
         if (keen_io_sqlite3_bind_text(get_query_stmt, 2, eventCollectionUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
@@ -733,13 +749,15 @@
             return;
         }
         
-        if (keen_io_sqlite3_bind_blob(get_query_stmt, 3, [queryData bytes], (int) [queryData length], SQLITE_TRANSIENT) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_blob(get_query_stmt, 3, [queryData bytes], (int)[queryData length], SQLITE_TRANSIENT) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind query data to get query statement"];
             return;
         }
         
         if (keen_io_sqlite3_step(get_query_stmt) == SQLITE_ROW) {
             // Fetch data out the statement
+            query = [NSMutableDictionary dictionary];
+            
             NSNumber *queryID = [NSNumber numberWithUnsignedLongLong:keen_io_sqlite3_column_int64(get_query_stmt, 0)];
             
             NSString *eventCollection = [NSString stringWithUTF8String:(char *)keen_io_sqlite3_column_text(get_query_stmt, 1)];
@@ -757,6 +775,7 @@
             [query setObject:attempts forKey:@"attempts"];
         } else {
             [self handleSQLiteFailure:@"find query"];
+            return;
         }
         
         [self resetSQLiteStatement:get_query_stmt];
@@ -824,6 +843,21 @@
     });
 
     return queryCount;
+}
+
+- (void)deleteAllQueries {
+    if(![self checkOpenDB:@"DB is closed, skipping deleteAllQueries"]) {
+        return;
+    }
+    
+    dispatch_async(self.dbQueue, ^{
+        if (keen_io_sqlite3_step(delete_all_queries_stmt) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"delete all queries"];
+            return;
+        };
+        
+        [self resetSQLiteStatement:delete_all_queries_stmt];
+    });
 }
 
 # pragma mark - Helper Methods -
@@ -897,11 +931,14 @@
     // This statement counts the total number of queries
     [self prepareSQLStatement:&count_all_queries_stmt sqlQuery:"SELECT count(*) FROM queries WHERE projectID=?" failureMessage:@"prepare count all queries statement"];
  
-    // This statement counts the number of pending events.
+    // This statement searches for and returns a query.
     [self prepareSQLStatement:&get_query_stmt sqlQuery:"SELECT id, collection, queryData, attempts FROM queries WHERE projectID=? AND collection=? AND queryData=?" failureMessage:@"prepare find query statement"];
     
-    // This statement increments the attempts count of an event.
+    // This statement increments the attempts count of a query.
     [self prepareSQLStatement:&increment_query_attempts_statement sqlQuery:"UPDATE queries SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare query increment attempt statement"];
+    
+    // This statement deletes all queries.
+    [self prepareSQLStatement:&delete_all_queries_stmt sqlQuery:"DELETE FROM queries" failureMessage:@"prepare delete all queries statement"];
     
     // HELPER STATEMENTS
     

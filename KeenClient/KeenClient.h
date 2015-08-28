@@ -334,6 +334,11 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
                        andData:(NSData *)responseData
                       andQuery:(KIOQuery *)query;
 
+/**
+ Call this to indiscriminately delete all queries.
+ */
++ (void)clearAllQueries;
+
 // defines the KCLog macro
 #define KEEN_LOGGING_ENABLED [KeenClient loggingEnabled]
 #define KCLog(message, ...)if([KeenClient isLoggingEnabled]) NSLog(message, ##__VA_ARGS__)

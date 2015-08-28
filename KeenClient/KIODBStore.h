@@ -92,4 +92,9 @@
 
 - (NSUInteger)getTotalQueryCountWithProjectID:(NSString *)projectID;
 
+/**
+ Delete all queries from the store
+ */
+- (void)deleteAllQueries;
+
 @end
