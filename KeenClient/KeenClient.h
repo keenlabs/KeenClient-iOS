@@ -324,6 +324,16 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  */
 - (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error;
 
+/**
+ Handles the HTTP response from the Keen Query API.
+ @param response The response from the server.
+ @param responseData The data returned from the server.
+ @param query The query that was passed to the Keen API.
+ */
+- (void)handleQueryAPIResponse:(NSURLResponse *)response
+                       andData:(NSData *)responseData
+                      andQuery:(KIOQuery *)query;
+
 // defines the KCLog macro
 #define KEEN_LOGGING_ENABLED [KeenClient loggingEnabled]
 #define KCLog(message, ...)if([KeenClient isLoggingEnabled]) NSLog(message, ##__VA_ARGS__)

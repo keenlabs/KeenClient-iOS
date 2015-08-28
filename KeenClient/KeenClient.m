@@ -126,15 +126,25 @@ static KIODBStore *dbStore;
                  error:(NSError **)error;
 
 /**
- Handles the HTTP response from the keen API.  This involves deserializing the JSON response
+ Handles the HTTP response from the Keen Event API.  This involves deserializing the JSON response
  and then removing any events from the local filesystem that have been handled by the keen API.
  @param response The response from the server.
  @param responseData The data returned from the server.
  @param eventPaths A dictionary that maps events to their paths on the file system.
  */
-- (void)handleAPIResponse:(NSURLResponse *)response 
-                  andData:(NSData *)responseData 
-                forEvents:(NSDictionary *)events;
+- (void)handleEventAPIResponse:(NSURLResponse *)response
+                       andData:(NSData *)responseData
+                     forEvents:(NSDictionary *)events;
+
+/**
+ Handles the HTTP response from the Keen Query API.
+ @param response The response from the server.
+ @param responseData The data returned from the server.
+ @param query The query that was passed to the Keen API.
+ */
+- (void)handleQueryAPIResponse:(NSURLResponse *)response
+                       andData:(NSData *)responseData
+                      andQuery:(KIOQuery *)query;
 
 /**
  Converts an NSDate* instance into a correctly formatted ISO-8601 compatible string.
@@ -838,7 +848,7 @@ static KIODBStore *dbStore;
             NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
             
             // then parse the http response and deal with it appropriately
-            [self handleAPIResponse:response andData:responseData forEvents:eventIds];
+            [self handleEventAPIResponse:response andData:responseData forEvents:eventIds];
         }
     }
 }
@@ -868,7 +878,7 @@ static KIODBStore *dbStore;
     }
 }
 
-- (void)handleAPIResponse:(NSURLResponse *)response 
+- (void)handleEventAPIResponse:(NSURLResponse *)response 
                   andData:(NSData *)responseData
                 forEvents:(NSDictionary *)eventIds {
     if (!responseData) {
@@ -976,24 +986,43 @@ static KIODBStore *dbStore;
 # pragma mark Async methods
 
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
-    dispatch_async(self.uploadQueue, ^{
+    if(self.isRunningTests) {
         NSURLResponse *response = nil;
         NSError *error = nil;
         NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
         
-        // we're done querying, call the main queue and execute the block
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // run the user-specific block (if there is one)
-            if (block) {
-                KCLog(@"Running user-specified block.");
-                @try {
-                    block(dataResponse, response, error);
-                } @finally {
-                    // do nothing
-                }
+        [self handleQueryAPIResponse:response andData:dataResponse andQuery:keenQuery];
+        
+        if (block) {
+            KCLog(@"Running user-specified block.");
+            @try {
+                block(dataResponse, response, error);
+            } @finally {
+                // do nothing
             }
+        }
+    } else {
+        dispatch_async(self.uploadQueue, ^{
+            NSURLResponse *response = nil;
+            NSError *error = nil;
+            NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+            
+            [self handleQueryAPIResponse:response andData:dataResponse andQuery:keenQuery];
+            
+            // we're done querying, call the main queue and execute the block
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // run the user-specific block (if there is one)
+                if (block) {
+                    KCLog(@"Running user-specified block.");
+                    @try {
+                        block(dataResponse, response, error);
+                    } @finally {
+                        // do nothing
+                    }
+                }
+            });
         });
-    });
+    }
 }
 
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
@@ -1108,6 +1137,8 @@ static KIODBStore *dbStore;
     NSError *error = nil;
     NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
     
+    [self handleQueryAPIResponse:response andData:dataResponse andQuery:keenQuery];
+    
     if (block) {
         KCLog(@"Running user-specified query block.");
         @try {
@@ -1115,6 +1146,31 @@ static KIODBStore *dbStore;
         } @finally {
             // do nothing
         }
+    }
+}
+
+- (void)handleQueryAPIResponse:(NSURLResponse *)response
+                       andData:(NSData *)responseData
+                      andQuery:(KIOQuery *)query {
+    // Check if call to the Query API failed
+    if (!responseData) {
+        KCLog(@"responseData was nil for some reason.  That's not great.");
+        KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
+        return;
+    }
+    
+    NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
+    
+    // if the query failed because of a client error, let's add it to the database
+    if ([HTTPCodes httpCodeType:(responseCode)] == HTTPCode4XXClientError && query != nil) {
+        // log what happened
+        KCLog(@"Response code was 4xx Client Error. It was: %ld", (long)responseCode);
+        NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+        KCLog(@"Response body was: %@", responseString);
+        
+        // check if query is inside the database, and if so increment attempts counter
+        // if not, add it
+        [dbStore findOrUpdateQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID];
     }
 }
 

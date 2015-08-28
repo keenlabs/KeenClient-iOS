@@ -1419,7 +1419,7 @@
 # pragma mark - test query
 
 - (void)testCountQueryFailure {
-    id mock = [self queryMockTestHelper:@{} andStatusCode:HTTPCode400BadRequest];
+    id mock = [self queryMockTestHelper:@{} andStatusCode:HTTPCode5XXServerError];
     
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{}];
     
@@ -1433,7 +1433,7 @@
     XCTAssertNil(error);
     
     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-    XCTAssertEqual([httpResponse statusCode], HTTPCode400BadRequest);
+    XCTAssertEqual([httpResponse statusCode], HTTPCode5XXServerError);
     
     NSDictionary *responseDictionary = [NSJSONSerialization
                                         JSONObjectWithData:queryResponseData
@@ -1665,6 +1665,65 @@
     
     XCTAssertEqual([result count], (NSUInteger)2);
     XCTAssertEqualObjects(result, resultArray);
+}
+
+- (void) testSuccessfulQueryAPIResponse {
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"url"] statusCode:HTTPCode2XXSuccess HTTPVersion:@"HTTP/1.1" headerFields:@{}];
+    NSData *responseData = [@"query failed" dataUsingEncoding:NSUTF8StringEncoding];
+    NSLog(@"%@", responseData);
+    [client handleQueryAPIResponse:response andData:responseData andQuery:nil];
+    
+    // test that there are no entries in the query database
+    XCTAssertEqual([[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"], (NSUInteger)0, @"There should be no queries after a successful query API call");
+}
+
+- (void) testFailedQueryAPIResponse {
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"url"] statusCode:HTTPCode4XXClientError HTTPVersion:@"HTTP/1.1" headerFields:@{}];
+    NSData *responseData = [@"query failed" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+    [client handleQueryAPIResponse:response andData:responseData andQuery:query];
+    
+    NSUInteger numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
+    
+    // test that there is 1 entry in the query database after a failed query API call
+    XCTAssertEqual(numberOfQueries, (NSUInteger)1, @"There should be 1 query in the database after a failed query API call");
+    
+    KIOQuery *query2 = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection2"}];
+    
+    [client handleQueryAPIResponse:response andData:responseData andQuery:query2];
+    
+    numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
+    XCTAssertEqual(numberOfQueries, (NSUInteger)2, @"There should be 2 queries in the database after two failed query API calls");
+}
+
+- (void) testFailedQueryAPIResponseMultipleTimes {
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    client.isRunningTests = YES;
+    
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"url"] statusCode:HTTPCode4XXClientError HTTPVersion:@"HTTP/1.1" headerFields:@{}];
+    NSData *responseData = [@"query failed" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+    [client handleQueryAPIResponse:response andData:responseData andQuery:query];
+    
+    NSUInteger numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
+    
+    // test that there is 1 entry in the query database after a failed query API call
+    XCTAssertEqual(numberOfQueries, (NSUInteger)1, @"There should be 1 query in the database after a failed query API call");
+    
+    [client handleQueryAPIResponse:response andData:responseData andQuery:query];
+    
+    numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
+    XCTAssertEqual(numberOfQueries, (NSUInteger)1, @"There should be 1 query in the database after two failed query API calls with the same query");
 }
 
 # pragma mark - test filesystem utility methods
