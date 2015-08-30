@@ -80,24 +80,70 @@
  
   @param offset The offset to start deleting events from.
   */
-- (void)deleteEventsFromOffset: (NSNumber *)offset;
+- (void)deleteEventsFromOffset:(NSNumber *)offset;
 
+/**
+ Add a query to the store.
+ 
+ @param queryData Your query data.
+ @param eventCollection Your event collection.
+ @param projectID Your project ID.
+ */
 - (BOOL)addQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
+/**
+ Get a dictionary of the found query parameters.
+ 
+ @param queryData Your query data.
+ @param eventCollection Your event collection.
+ @param projectID Your project ID.
+ */
 - (NSMutableDictionary *)getQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
+/**
+ Increment the query `attempts` column
+ 
+ @param queryID The query database id.
+ */
 - (BOOL)incrementQueryAttempts:(NSNumber *)queryID;
 
+/**
+ Helper method to find or update the `attempts` column of a query.
+ 
+ @param queryData Your query data.
+ @param eventCollection Your event collection.
+ @param projectID Your project ID.
+ */
 - (void)findOrUpdateQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
+/**
+ Get a count of total queries.
+ 
+ @param projectID Your project ID.
+ */
 - (NSUInteger)getTotalQueryCountWithProjectID:(NSString *)projectID;
 
+/**
+ Determine if the query in the database has the `attempts` column equal or higher than
+ the maxAttempts value.
+ 
+ @param queryData Your query data.
+ @param eventCollection Your event collection.
+ @param projectID Your project ID.
+ @param maxAttempts The threshold for trying a query API call.
+ @param querySecondsLifespan The threshold in seconds for deleting old queries.
+ */
 - (BOOL)hasQueryWithMaxAttempts:(NSData *)queryData
                      collection:(NSString *)eventCollection
                       projectID:(NSString *)projectID
                     maxAttempts:(int)maxAttempts
                querySecondsLifespan:(int)querySecondsLifespan;
 
+/**
+ Delete all the queries older than X seconds.
+ 
+ @param seconds The seconds to delete events older than.
+ */
 - (void)deleteQueriesOlderThan:(NSNumber *)seconds;
 
 /**
