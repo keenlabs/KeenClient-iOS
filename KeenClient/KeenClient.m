@@ -995,7 +995,7 @@ static KIODBStore *dbStore;
 
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
     dispatch_async(self.uploadQueue, ^{
-        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
+        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
         
         if(hasQueryWithMaxAttempts) {
             KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
@@ -1048,7 +1048,7 @@ static KIODBStore *dbStore;
 - (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error {
     @synchronized(self) {
         NSData *responseData = nil;
-        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
+        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
         
         if(hasQueryWithMaxAttempts) {
             KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
@@ -1138,7 +1138,7 @@ static KIODBStore *dbStore;
 # pragma mark Helper Methods
 
 - (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
-    BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
+    BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
     
     if(hasQueryWithMaxAttempts) {
         KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
@@ -1163,8 +1163,8 @@ static KIODBStore *dbStore;
 - (BOOL)hasQueryReachedMaxAttempts:(KIOQuery *)keenQuery {
     BOOL queryReachedMaxAttempts = NO;
     
-    // call dbstore method to find query and check it's attempts column
-    queryReachedMaxAttempts = [dbStore getQuery:[keenQuery convertQueryToData] collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID];
+    // call dbstore method to find query and check the attempts column
+    queryReachedMaxAttempts = [dbStore getQuery:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID];
     
     return queryReachedMaxAttempts;
 }
@@ -1190,7 +1190,7 @@ static KIODBStore *dbStore;
         
         // check if query is inside the database, and if so increment attempts counter
         // if not, add it
-        [dbStore findOrUpdateQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID];
+        [dbStore findOrUpdateQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID];
     }
 }
 

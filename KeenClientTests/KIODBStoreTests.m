@@ -184,7 +184,7 @@
     KIODBStore *store = [[KIODBStore alloc] init];
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
     
-    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    [store addQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total event after add");
 }
@@ -194,19 +194,20 @@
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
     KIOQuery *query2 = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection2"}];
     
-    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
-    [store addQuery:[query2 convertQueryToData] collection:[query2.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    [store addQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    [store addQuery:[query2 convertQueryToData] queryType:query2.queryType collection:[query2.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 2, @"2 total event after add");
     
-    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     XCTAssertNotNil(returnedQuery, @"returned query is not nil");
     XCTAssertEqualObjects([query.propertiesDictionary objectForKey:@"event_collection"], [returnedQuery objectForKey:@"event_collection"], @"event collection is the same");
     XCTAssertEqualObjects([query convertQueryToData], [returnedQuery objectForKey:@"queryData"], @"query data is the same");
+    XCTAssertEqualObjects(query.queryType, [returnedQuery objectForKey:@"queryType"], @"query type is the same");
     XCTAssertEqual([returnedQuery objectForKey:@"attempts"], [NSNumber numberWithInt:0], @"attempts is 0");
     
-    NSMutableDictionary *returnedQuery2 = [store getQuery:[query2 convertQueryToData] collection:[query2.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    NSMutableDictionary *returnedQuery2 = [store getQuery:[query2 convertQueryToData] queryType:query2.queryType collection:[query2.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     XCTAssertNotNil(returnedQuery2, @"returned query is not nil");
     XCTAssertEqualObjects([query2.propertiesDictionary objectForKey:@"event_collection"], [returnedQuery2 objectForKey:@"event_collection"], @"event collection is the same");
@@ -219,9 +220,9 @@
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
     
     // first add and retrieve query, make sure attempts is 0
-    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    [store addQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
-    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     XCTAssertEqual([returnedQuery objectForKey:@"attempts"], [NSNumber numberWithInt:0], @"attempts is 0");
     
@@ -231,7 +232,7 @@
     XCTAssertTrue(wasQueryUpdated);
     
     // grab updated query and check attempt number
-    NSMutableDictionary *returnUpdateQuery = [store getQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    NSMutableDictionary *returnUpdateQuery = [store getQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     XCTAssertNotNil(returnUpdateQuery, @"returned query is not nil");
     XCTAssertEqualObjects([query.propertiesDictionary objectForKey:@"event_collection"], [returnUpdateQuery objectForKey:@"event_collection"], @"event collection is the same");
@@ -243,7 +244,7 @@
     KIODBStore *store = [[KIODBStore alloc] init];
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
     
-    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    [store addQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total query after add");
     
@@ -256,30 +257,30 @@
     KIODBStore *store = [[KIODBStore alloc] init];
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
     
-    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    [store addQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total query after add");
     
     // test that query succeds with maxAttempts set to 0
     int maxAttempts = 0;
     
-    BOOL hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
+    BOOL hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
     
     XCTAssertTrue(hasQueryWithMaxAttempts, @"query found with attempts equal to or over 0");
     
     // test that query fails with maxAttempts set to 1
     maxAttempts = 1;
     
-    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
+    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
     
     XCTAssertFalse(hasQueryWithMaxAttempts, @"query not found with attempts equal to or over 1");
     
     // test that query succeds after query attempts value is incremented
-    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     [store incrementQueryAttempts:[returnedQuery objectForKey:@"queryID"]];
     
-    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
+    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
     
     XCTAssertTrue(hasQueryWithMaxAttempts, @"query found with attempts equal to or over 1");
 }
@@ -288,7 +289,7 @@
     KIODBStore *store = [[KIODBStore alloc] init];
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
     
-    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    [store addQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
     int totalQueries = [store getTotalQueryCountWithProjectID:projectID];
     XCTAssertTrue(totalQueries == 1, @"1 total query after add");

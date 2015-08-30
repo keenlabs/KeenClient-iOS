@@ -89,7 +89,7 @@
  @param eventCollection Your event collection.
  @param projectID Your project ID.
  */
-- (BOOL)addQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+- (BOOL)addQuery:(NSData *)queryData queryType:(NSString*)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
 /**
  Get a dictionary of the found query parameters.
@@ -98,7 +98,7 @@
  @param eventCollection Your event collection.
  @param projectID Your project ID.
  */
-- (NSMutableDictionary *)getQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+- (NSMutableDictionary *)getQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
 /**
  Increment the query `attempts` column
@@ -114,7 +114,7 @@
  @param eventCollection Your event collection.
  @param projectID Your project ID.
  */
-- (void)findOrUpdateQuery:(NSData *)queryData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+- (void)findOrUpdateQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
 /**
  Get a count of total queries.
@@ -134,6 +134,7 @@
  @param querySecondsLifespan The threshold in seconds for deleting old queries.
  */
 - (BOOL)hasQueryWithMaxAttempts:(NSData *)queryData
+                      queryType:(NSString *)queryType
                      collection:(NSString *)eventCollection
                       projectID:(NSString *)projectID
                     maxAttempts:(int)maxAttempts
