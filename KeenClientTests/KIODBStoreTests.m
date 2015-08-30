@@ -263,14 +263,14 @@
     // test that query succeds with maxAttempts set to 0
     int maxAttempts = 0;
     
-    BOOL hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts maxQueryTimespan:1];
+    BOOL hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
     
     XCTAssertTrue(hasQueryWithMaxAttempts, @"query found with attempts equal to or over 0");
     
     // test that query fails with maxAttempts set to 1
     maxAttempts = 1;
     
-    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts maxQueryTimespan:1];
+    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
     
     XCTAssertFalse(hasQueryWithMaxAttempts, @"query not found with attempts equal to or over 1");
     
@@ -279,7 +279,7 @@
     
     [store incrementQueryAttempts:[returnedQuery objectForKey:@"queryID"]];
     
-    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts maxQueryTimespan:1];
+    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts querySecondsLifespan:1];
     
     XCTAssertTrue(hasQueryWithMaxAttempts, @"query found with attempts equal to or over 1");
 }

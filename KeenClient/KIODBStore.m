@@ -862,6 +862,9 @@
         return hasFoundEventWithMaxAttempts;
     }
     
+    // clear query database based on timespan
+    [self deleteQueriesOlderThan:[NSNumber numberWithInt:querySecondsLifespan]];
+    
     const char *projectIDUTF8 = projectID.UTF8String;
     const char *eventCollectionUTF8 = eventCollection.UTF8String;
     // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
@@ -888,7 +891,6 @@
         if (keen_io_sqlite3_step(get_query_with_attempts_stmt) == SQLITE_ROW) {
             // Fetch data out the statement
             NSNumber *queryID = [NSNumber numberWithUnsignedLongLong:keen_io_sqlite3_column_int64(get_query_with_attempts_stmt, 0)];
-            NSLog(@"found query with ID: %@", queryID);
             hasFoundEventWithMaxAttempts = YES;
         } else {
             [self handleSQLiteFailure:@"couldn't find query with max attempts"];

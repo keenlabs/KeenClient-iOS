@@ -96,7 +96,7 @@
                      collection:(NSString *)eventCollection
                       projectID:(NSString *)projectID
                     maxAttempts:(int)maxAttempts
-               maxQueryTimespan:(int)maxQueryTimespan;
+               querySecondsLifespan:(int)querySecondsLifespan;
 
 - (void)deleteQueriesOlderThan:(NSNumber *)seconds;
 

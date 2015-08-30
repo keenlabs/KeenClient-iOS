@@ -994,23 +994,12 @@ static KIODBStore *dbStore;
 # pragma mark Async methods
 
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
-    if(self.isRunningTests) {
-        NSURLResponse *response = nil;
-        NSError *error = nil;
-        NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+    dispatch_async(self.uploadQueue, ^{
+        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
         
-        [self handleQueryAPIResponse:response andData:dataResponse andQuery:keenQuery];
-        
-        if (block) {
-            KCLog(@"Running user-specified block.");
-            @try {
-                block(dataResponse, response, error);
-            } @finally {
-                // do nothing
-            }
-        }
-    } else {
-        dispatch_async(self.uploadQueue, ^{
+        if(hasQueryWithMaxAttempts) {
+            KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
+        } else {
             NSURLResponse *response = nil;
             NSError *error = nil;
             NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
@@ -1029,8 +1018,8 @@ static KIODBStore *dbStore;
                     }
                 }
             });
-        });
-    }
+        }
+    });
 }
 
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
@@ -1058,18 +1047,26 @@ static KIODBStore *dbStore;
 
 - (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error {
     @synchronized(self) {
-        NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                               kKeenServerAddress, kKeenApiVersion, self.projectID, keenQuery.queryType];
-        KCLog(@"Sending request to: %@", urlString);
-        NSURL *url = [NSURL URLWithString:urlString];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
-        [request setHTTPMethod:@"POST"];
-        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
-        [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
-        [request setHTTPBody:[keenQuery convertQueryToData]];
-        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+        NSData *responseData = nil;
+        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
+        
+        if(hasQueryWithMaxAttempts) {
+            KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
+        } else {
+            NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
+                                   kKeenServerAddress, kKeenApiVersion, self.projectID, keenQuery.queryType];
+            KCLog(@"Sending request to: %@", urlString);
+            NSURL *url = [NSURL URLWithString:urlString];
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
+            [request setHTTPMethod:@"POST"];
+            [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+            [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+            [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
+            [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
+            [request setHTTPBody:[keenQuery convertQueryToData]];
+            
+            responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+        }
         
         return responseData;
     }
@@ -1141,18 +1138,24 @@ static KIODBStore *dbStore;
 # pragma mark Helper Methods
 
 - (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+    BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
     
-    [self handleQueryAPIResponse:response andData:dataResponse andQuery:keenQuery];
-    
-    if (block) {
-        KCLog(@"Running user-specified query block.");
-        @try {
-            block(dataResponse, response, error);
-        } @finally {
-            // do nothing
+    if(hasQueryWithMaxAttempts) {
+        KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
+    } else {
+        NSURLResponse *response = nil;
+        NSError *error = nil;
+        NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
+        
+        [self handleQueryAPIResponse:response andData:dataResponse andQuery:keenQuery];
+        
+        if (block) {
+            KCLog(@"Running user-specified query block.");
+            @try {
+                block(dataResponse, response, error);
+            } @finally {
+                // do nothing
+            }
         }
     }
 }
@@ -1161,7 +1164,7 @@ static KIODBStore *dbStore;
     BOOL queryReachedMaxAttempts = NO;
     
     // call dbstore method to find query and check it's attempts column
-    queryReachedMaxAttempts = [dbStore getQuery:nil collection:nil projectID:nil];
+    queryReachedMaxAttempts = [dbStore getQuery:[keenQuery convertQueryToData] collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID];
     
     return queryReachedMaxAttempts;
 }
