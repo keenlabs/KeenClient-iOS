@@ -254,7 +254,7 @@ static KIODBStore *dbStore;
     // use global concurrent dispatch queue to run queries in parallel
     self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
-    self.maxAttempts = 3;
+    self.maxEventUploadAttempts = 3;
 
     return self;
 }
@@ -633,7 +633,7 @@ static KIODBStore *dbStore;
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
     
     // get data for the API request we'll make
-    NSMutableDictionary *events = [dbStore getEventsWithMaxAttempts:self.maxAttempts andProjectID:self.projectID];
+    NSMutableDictionary *events = [dbStore getEventsWithMaxAttempts:self.maxEventUploadAttempts andProjectID:self.projectID];
     
     NSError *error = nil;
     for (NSString *coll in events) {

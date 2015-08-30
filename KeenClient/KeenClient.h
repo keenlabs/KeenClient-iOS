@@ -101,7 +101,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 /**
  The maximum number of times to try POSTing an event before purging it from the DB.
  */
-@property int maxAttempts;
+@property int maxEventUploadAttempts;
 
 /**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
