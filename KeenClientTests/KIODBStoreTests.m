@@ -245,11 +245,11 @@
     
     [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
-    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total event after add");
+    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total query after add");
     
     [store deleteAllQueries];
     
-    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 0, @"0 total event after deleteAllQueries");
+    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 0, @"0 total query after deleteAllQueries");
 }
 
 - (void) testHasQueryWithMaxAttempts {
@@ -258,7 +258,7 @@
     
     [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
     
-    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total event after add");
+    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total query after add");
     
     // test that query succeds with maxAttempts set to 0
     int maxAttempts = 0;
@@ -282,6 +282,31 @@
     hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts maxQueryTimespan:1];
     
     XCTAssertTrue(hasQueryWithMaxAttempts, @"query found with attempts equal to or over 1");
+}
+
+- (void)testDeleteQueriesOlderThanXSeconds {
+    KIODBStore *store = [[KIODBStore alloc] init];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    int totalQueries = [store getTotalQueryCountWithProjectID:projectID];
+    XCTAssertTrue(totalQueries == 1, @"1 total query after add");
+    
+    // wait for 2 seconds
+    [NSThread sleepForTimeInterval:2.0];
+
+    // try to delete queries older than 10 seconds
+    [store deleteQueriesOlderThan:[NSNumber numberWithInt:10]];
+    
+    totalQueries = [store getTotalQueryCountWithProjectID:projectID];
+    XCTAssertTrue(totalQueries == 1, @"1 total query after trying to delete queries older than 10 seconds");
+    
+    // try to delete queries older than 1 second
+    [store deleteQueriesOlderThan:[NSNumber numberWithInt:1]];
+    
+    totalQueries = [store getTotalQueryCountWithProjectID:projectID];
+    XCTAssertTrue(totalQueries == 0, @"0 total query after trying to delete queries older than 1 seconds");
 }
 
 # pragma mark - Helper Methods

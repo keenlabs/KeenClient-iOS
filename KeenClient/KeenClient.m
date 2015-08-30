@@ -257,6 +257,8 @@ static KIODBStore *dbStore;
     self.maxEventUploadAttempts = 3;
     
     self.maxQueryAttempts = 10;
+    
+    self.querySecondsLifespan = 3600;
 
     return self;
 }

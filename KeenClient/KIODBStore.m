@@ -44,6 +44,7 @@
     keen_io_sqlite3_stmt *get_query_with_attempts_stmt;
     keen_io_sqlite3_stmt *increment_query_attempts_statement;
     keen_io_sqlite3_stmt *delete_all_queries_stmt;
+    keen_io_sqlite3_stmt *age_out_queries_stmt;
     
     keen_io_sqlite3_stmt *convert_date_stmt;
 }
@@ -132,6 +133,7 @@
     keen_io_sqlite3_finalize(increment_query_attempts_statement);
     keen_io_sqlite3_finalize(delete_all_queries_stmt);
     keen_io_sqlite3_finalize(get_query_with_attempts_stmt);
+    keen_io_sqlite3_finalize(age_out_queries_stmt);
     
     keen_io_sqlite3_finalize(convert_date_stmt);
     
@@ -833,11 +835,13 @@
     dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(count_all_queries_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to total query statement"];
+            return;
         }
         if (keen_io_sqlite3_step(count_all_queries_stmt) == SQLITE_ROW) {
             queryCount = (NSInteger) keen_io_sqlite3_column_int(count_all_queries_stmt, 0);
         } else {
             [self handleSQLiteFailure:@"get count of total query rows"];
+            return;
         }
         
         [self resetSQLiteStatement:count_all_queries_stmt];
@@ -850,7 +854,7 @@
                      collection:(NSString *)eventCollection
                       projectID:(NSString *)projectID
                     maxAttempts:(int)maxAttempts
-               maxQueryTimespan:(int)maxQueryTimespan {
+               querySecondsLifespan:(int)querySecondsLifespan {
     
     __block BOOL hasFoundEventWithMaxAttempts = NO;
     
@@ -909,6 +913,27 @@
         };
         
         [self resetSQLiteStatement:delete_all_queries_stmt];
+    });
+}
+
+- (void)deleteQueriesOlderThan:(NSNumber *)seconds {
+    if(![self checkOpenDB:@"DB is closed, skipping deleteQueries"]) {
+        return;
+    }
+    
+    const char *secondsSQLUTF8String = [[NSString stringWithFormat:@"-%@ seconds", seconds] UTF8String];
+    dispatch_sync(self.dbQueue, ^{
+        if (keen_io_sqlite3_bind_text(age_out_queries_stmt, 1, secondsSQLUTF8String, -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind seconds to delete query statement"];
+            return;
+        }
+        
+        if (keen_io_sqlite3_step(age_out_queries_stmt) != SQLITE_DONE) {
+            [self handleSQLiteFailure:@"delete old queries"];
+            return;
+        };
+        
+        [self resetSQLiteStatement:age_out_queries_stmt];
     });
 }
 
@@ -994,6 +1019,9 @@
     
     // This statement deletes all queries.
     [self prepareSQLStatement:&delete_all_queries_stmt sqlQuery:"DELETE FROM queries" failureMessage:@"prepare delete all queries statement"];
+    
+    // This statement deletes old queries at a given time.
+    [self prepareSQLStatement:&age_out_queries_stmt sqlQuery:"DELETE FROM queries WHERE dateCreated <= datetime('now', ?)" failureMessage:@"prepare delete old queries at seconds statement"];
     
     // HELPER STATEMENTS
     

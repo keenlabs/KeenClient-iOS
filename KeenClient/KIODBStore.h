@@ -98,6 +98,8 @@
                     maxAttempts:(int)maxAttempts
                maxQueryTimespan:(int)maxQueryTimespan;
 
+- (void)deleteQueriesOlderThan:(NSNumber *)seconds;
+
 /**
  Delete all queries from the store
  */
