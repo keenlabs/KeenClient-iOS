@@ -255,6 +255,8 @@ static KIODBStore *dbStore;
     self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
     self.maxEventUploadAttempts = 3;
+    
+    self.maxQueryAttempts = 10;
 
     return self;
 }
@@ -1151,6 +1153,15 @@ static KIODBStore *dbStore;
             // do nothing
         }
     }
+}
+
+- (BOOL)hasQueryReachedMaxAttempts:(KIOQuery *)keenQuery {
+    BOOL queryReachedMaxAttempts = NO;
+    
+    // call dbstore method to find query and check it's attempts column
+    queryReachedMaxAttempts = [dbStore getQuery:nil collection:nil projectID:nil];
+    
+    return queryReachedMaxAttempts;
 }
 
 - (void)handleQueryAPIResponse:(NSURLResponse *)response

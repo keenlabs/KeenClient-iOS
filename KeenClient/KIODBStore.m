@@ -41,6 +41,7 @@
     keen_io_sqlite3_stmt *insert_query_stmt;
     keen_io_sqlite3_stmt *count_all_queries_stmt;
     keen_io_sqlite3_stmt *get_query_stmt;
+    keen_io_sqlite3_stmt *get_query_with_attempts_stmt;
     keen_io_sqlite3_stmt *increment_query_attempts_statement;
     keen_io_sqlite3_stmt *delete_all_queries_stmt;
     
@@ -130,6 +131,7 @@
     keen_io_sqlite3_finalize(get_query_stmt);
     keen_io_sqlite3_finalize(increment_query_attempts_statement);
     keen_io_sqlite3_finalize(delete_all_queries_stmt);
+    keen_io_sqlite3_finalize(get_query_with_attempts_stmt);
     
     keen_io_sqlite3_finalize(convert_date_stmt);
     
@@ -389,7 +391,6 @@
 }
 
 - (NSMutableDictionary *)getEventsWithMaxAttempts:(int)maxAttempts andProjectID:(NSString *)projectID {
-
     // Create a dictionary to hold the contents of our select.
     __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
@@ -845,6 +846,57 @@
     return queryCount;
 }
 
+- (BOOL)hasQueryWithMaxAttempts:(NSData *)queryData
+                     collection:(NSString *)eventCollection
+                      projectID:(NSString *)projectID
+                    maxAttempts:(int)maxAttempts
+               maxQueryTimespan:(int)maxQueryTimespan {
+    
+    __block BOOL hasFoundEventWithMaxAttempts = NO;
+    
+    if(![self checkOpenDB:@"DB is closed, skipping hasQueryWithMaxAttempts"]) {
+        return hasFoundEventWithMaxAttempts;
+    }
+    
+    const char *projectIDUTF8 = projectID.UTF8String;
+    const char *eventCollectionUTF8 = eventCollection.UTF8String;
+    // we need to wait for the queue to finish because this method has a return value that we're manipulating in the queue
+    dispatch_sync(self.dbQueue, ^{
+        if (keen_io_sqlite3_bind_text(get_query_with_attempts_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind pid to has query with max attempts statement"];
+            return;
+        }
+        
+        if (keen_io_sqlite3_bind_text(get_query_with_attempts_stmt, 2, eventCollectionUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind collection to has query with max attempts statement"];
+            return;
+        }
+        
+        if (keen_io_sqlite3_bind_blob(get_query_with_attempts_stmt, 3, [queryData bytes], (int)[queryData length], SQLITE_TRANSIENT) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind query data to has query with max attempts statement"];
+            return;
+        }
+        
+        if(keen_io_sqlite3_bind_int64(get_query_with_attempts_stmt, 4, maxAttempts) != SQLITE_OK) {
+            [self handleSQLiteFailure:@"bind attempts to has query with max attempts statement"];
+        }
+        
+        if (keen_io_sqlite3_step(get_query_with_attempts_stmt) == SQLITE_ROW) {
+            // Fetch data out the statement
+            NSNumber *queryID = [NSNumber numberWithUnsignedLongLong:keen_io_sqlite3_column_int64(get_query_with_attempts_stmt, 0)];
+            NSLog(@"found query with ID: %@", queryID);
+            hasFoundEventWithMaxAttempts = YES;
+        } else {
+            [self handleSQLiteFailure:@"couldn't find query with max attempts"];
+            return;
+        }
+        
+        [self resetSQLiteStatement:get_query_with_attempts_stmt];
+    });
+    
+    return hasFoundEventWithMaxAttempts;
+}
+
 - (void)deleteAllQueries {
     if(![self checkOpenDB:@"DB is closed, skipping deleteAllQueries"]) {
         return;
@@ -933,6 +985,9 @@
  
     // This statement searches for and returns a query.
     [self prepareSQLStatement:&get_query_stmt sqlQuery:"SELECT id, collection, queryData, attempts FROM queries WHERE projectID=? AND collection=? AND queryData=?" failureMessage:@"prepare find query statement"];
+    
+    // This statement searches for and returns a query given an attempts value.
+    [self prepareSQLStatement:&get_query_with_attempts_stmt sqlQuery:"SELECT id FROM queries WHERE projectID=? AND collection=? AND queryData=? AND attempts >=?" failureMessage:@"prepare find query with attempts statement"];
     
     // This statement increments the attempts count of a query.
     [self prepareSQLStatement:&increment_query_attempts_statement sqlQuery:"UPDATE queries SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare query increment attempt statement"];

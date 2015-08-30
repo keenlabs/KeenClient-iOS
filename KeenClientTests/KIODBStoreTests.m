@@ -252,6 +252,38 @@
     XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 0, @"0 total event after deleteAllQueries");
 }
 
+- (void) testHasQueryWithMaxAttempts {
+    KIODBStore *store = [[KIODBStore alloc] init];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    
+    [store addQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total event after add");
+    
+    // test that query succeds with maxAttempts set to 0
+    int maxAttempts = 0;
+    
+    BOOL hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts maxQueryTimespan:1];
+    
+    XCTAssertTrue(hasQueryWithMaxAttempts, @"query found with attempts equal to or over 0");
+    
+    // test that query fails with maxAttempts set to 1
+    maxAttempts = 1;
+    
+    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts maxQueryTimespan:1];
+    
+    XCTAssertFalse(hasQueryWithMaxAttempts, @"query not found with attempts equal to or over 1");
+    
+    // test that query succeds after query attempts value is incremented
+    NSMutableDictionary *returnedQuery = [store getQuery:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID];
+    
+    [store incrementQueryAttempts:[returnedQuery objectForKey:@"queryID"]];
+    
+    hasQueryWithMaxAttempts = [store hasQueryWithMaxAttempts:[query convertQueryToData] collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:projectID maxAttempts:maxAttempts maxQueryTimespan:1];
+    
+    XCTAssertTrue(hasQueryWithMaxAttempts, @"query found with attempts equal to or over 1");
+}
+
 # pragma mark - Helper Methods
 
 - (NSString *)databaseFile {

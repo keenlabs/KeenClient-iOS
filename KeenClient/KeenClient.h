@@ -104,6 +104,11 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 @property int maxEventUploadAttempts;
 
 /**
+ The maximum number of times to try a query before stop attempting it.
+ */
+@property int maxQueryAttempts;
+
+/**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
  to the given parameters.
  

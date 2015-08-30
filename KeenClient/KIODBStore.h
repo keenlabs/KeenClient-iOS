@@ -92,6 +92,12 @@
 
 - (NSUInteger)getTotalQueryCountWithProjectID:(NSString *)projectID;
 
+- (BOOL)hasQueryWithMaxAttempts:(NSData *)queryData
+                     collection:(NSString *)eventCollection
+                      projectID:(NSString *)projectID
+                    maxAttempts:(int)maxAttempts
+               maxQueryTimespan:(int)maxQueryTimespan;
+
 /**
  Delete all queries from the store
  */
