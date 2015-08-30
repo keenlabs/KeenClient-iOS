@@ -411,17 +411,17 @@ KeenClient.sharedClient().uploadWithFinishedBlock(nil);
 
 By default, the client will only attempt to upload a given event 3 times --
 after that it will be purged from the local queue. You can change this number to
-your liking by setting the `client.maxAttempts` value:
+your liking by setting the `client.maxEventUploadAttempts` value:
 
 Objective C
 ```objc
 // Set the max upload attempts to 10
-[KeenClient sharedClient].maxAttempts = 10;
+[KeenClient sharedClient].maxEventUploadAttempts = 10;
 ```
 Swift
 ```Swift
 // Set the max upload attempts to 10
-KeenClient.sharedClient().maxAttempts = 10;
+KeenClient.sharedClient().maxEventUploadAttempts = 10;
 ```
 
 ##### Add-ons

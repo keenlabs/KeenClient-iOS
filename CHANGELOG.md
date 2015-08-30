@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Added
+- Added a query attempts limit functionality, to help users avoid running into rate limit issues. This only works for calls to the Keen Query API that return a 4XX response. Two variables were added to the `KeenClient` class, `maxQueryUploadAttempts` and `querySecondsLifespan`. The first one is a threshold for how many times a query should be attempted. The second is a threshold in seconds for how long the failed queries attempts should stay in the database. #105
+
+### Changed
+- Changed `maxAttempts` variable to `maxEventUploadAttempts`.
 
 ## [3.4.3] - 2015-08-10
 ### Fixed
