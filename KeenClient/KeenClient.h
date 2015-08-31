@@ -111,7 +111,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 /**
  The number of seconds before deleting a failed query from the database.
  */
-@property int querySecondsLifespan;
+@property int queryTTL;
 
 /**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys

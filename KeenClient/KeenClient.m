@@ -258,7 +258,7 @@ static KIODBStore *dbStore;
     
     self.maxQueryAttempts = 10;
     
-    self.querySecondsLifespan = 3600;
+    self.queryTTL = 3600;
 
     return self;
 }
@@ -995,7 +995,7 @@ static KIODBStore *dbStore;
 
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
     dispatch_async(self.uploadQueue, ^{
-        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
+        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts queryTTL:self.queryTTL];
         
         if(hasQueryWithMaxAttempts) {
             KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
@@ -1048,7 +1048,7 @@ static KIODBStore *dbStore;
 - (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error {
     @synchronized(self) {
         NSData *responseData = nil;
-        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
+        BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts queryTTL:self.queryTTL];
         
         if(hasQueryWithMaxAttempts) {
             KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
@@ -1079,7 +1079,7 @@ static KIODBStore *dbStore;
         KCLog(@"Sending request to: %@", urlString);
         
         NSMutableDictionary *analysesDictionary = [[NSMutableDictionary alloc] init];
-        NSString *queriesEventCollection;
+        NSString *queriesEventCollection = @"";
         int queryNumber = 0;
         for (id query in keenQueries) {
             if (![query isKindOfClass:[KIOQuery class]]) {
@@ -1138,7 +1138,7 @@ static KIODBStore *dbStore;
 # pragma mark Helper Methods
 
 - (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
-    BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts querySecondsLifespan:self.querySecondsLifespan];
+    BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts queryTTL:self.queryTTL];
     
     if(hasQueryWithMaxAttempts) {
         KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);

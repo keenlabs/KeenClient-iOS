@@ -870,7 +870,7 @@
                      collection:(NSString *)eventCollection
                       projectID:(NSString *)projectID
                     maxAttempts:(int)maxAttempts
-               querySecondsLifespan:(int)querySecondsLifespan {
+                       queryTTL:(int)queryTTL {
     
     __block BOOL hasFoundEventWithMaxAttempts = NO;
     
@@ -879,7 +879,7 @@
     }
     
     // clear query database based on timespan
-    [self deleteQueriesOlderThan:[NSNumber numberWithInt:querySecondsLifespan]];
+    [self deleteQueriesOlderThan:[NSNumber numberWithInt:queryTTL]];
     
     const char *projectIDUTF8 = projectID.UTF8String;
     const char *eventCollectionUTF8 = eventCollection.UTF8String;

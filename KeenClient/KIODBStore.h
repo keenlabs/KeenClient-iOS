@@ -131,14 +131,14 @@
  @param eventCollection Your event collection.
  @param projectID Your project ID.
  @param maxAttempts The threshold for trying a query API call.
- @param querySecondsLifespan The threshold in seconds for deleting old queries.
+ @param queryTTL The threshold in seconds for deleting old queries.
  */
 - (BOOL)hasQueryWithMaxAttempts:(NSData *)queryData
                       queryType:(NSString *)queryType
                      collection:(NSString *)eventCollection
                       projectID:(NSString *)projectID
                     maxAttempts:(int)maxAttempts
-               querySecondsLifespan:(int)querySecondsLifespan;
+                       queryTTL:(int)queryTTL;
 
 /**
  Delete all the queries older than X seconds.
