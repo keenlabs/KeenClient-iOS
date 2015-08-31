@@ -5,6 +5,8 @@ Keen IO iOS SDK
 
 ---
 
+**Important**: Starting in version 3.5.0, the variable `maxAttempts` was renamed to `maxEventUploadAttempts` to avoid any confusion with the query functionality for limiting failed attempts.
+
 **Important**: Starting in version 3.3.0, you'll need to add the SystemConfiguration framework to your project. Check the ["Build Settings"](#build-settings) section for more information.
 
 ---
