@@ -1079,7 +1079,7 @@ static KIODBStore *dbStore;
         KCLog(@"Sending request to: %@", urlString);
         
         NSMutableDictionary *analysesDictionary = [[NSMutableDictionary alloc] init];
-        NSString *queriesEventCollection = @"";
+        NSString *queriesEventCollection = nil;
         int queryNumber = 0;
         for (id query in keenQueries) {
             if (![query isKindOfClass:[KIOQuery class]]) {
