@@ -1080,13 +1080,14 @@ static KIODBStore *dbStore;
         
         NSMutableDictionary *analysesDictionary = [[NSMutableDictionary alloc] init];
         NSString *queriesEventCollection = nil;
+        NSString *queriesTimeframe = nil;
         int queryNumber = 0;
         for (id query in keenQueries) {
             if (![query isKindOfClass:[KIOQuery class]]) {
                 KCLog(@"keenQueries array contain objects that are not of class KIOQuery");
                 return nil;
             } else {
-                //check that all keen queries have the same event collection
+                //check that all keen queries have the same event collection and timeframe (if any)
                 NSString *queryEventCollection = [[query propertiesDictionary] objectForKey:@"event_collection"];
                 if (queriesEventCollection == nil) {
                     queriesEventCollection = queryEventCollection;
@@ -1095,10 +1096,21 @@ static KIODBStore *dbStore;
                     return nil;
                 }
                 
+                NSString *queryTimeframe = [[query propertiesDictionary] objectForKey:@"timeframe"];
+                if (queryTimeframe != nil) {
+                    if(queriesTimeframe == nil) {
+                        queriesTimeframe = queryTimeframe;
+                    } else if (![queriesTimeframe isEqualToString:queryTimeframe]) {
+                        KCLog(@"queries timeframe properties don't match");
+                        return nil;
+                    }
+                }
+                
                 queryNumber++;
 
                 NSMutableDictionary *queryMutablePropertiesDictionary = [[query propertiesDictionary] mutableCopy];
                 [queryMutablePropertiesDictionary removeObjectForKey:@"event_collection"];
+                [queryMutablePropertiesDictionary removeObjectForKey:@"timeframe"];
                 [queryMutablePropertiesDictionary setObject:[query queryType] forKey:@"analysis_type"];
                 
                 NSString *queryName = [query queryName] ? : [[NSString alloc] initWithFormat:@"query%d", queryNumber];
@@ -1109,6 +1121,9 @@ static KIODBStore *dbStore;
         //create final dictionary
         NSMutableDictionary *multiAnalysisDictionary = [[NSMutableDictionary alloc] init];
         [multiAnalysisDictionary setObject:queriesEventCollection forKey:@"event_collection"];
+        if (queriesTimeframe != nil) {
+            [multiAnalysisDictionary setObject:queriesTimeframe forKey:@"timeframe"];
+        }
         [multiAnalysisDictionary setObject:analysesDictionary forKey:@"analyses"];
         
         //convert the resulting dictionary to data and set it as HTTPBody
