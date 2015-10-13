@@ -1078,53 +1078,10 @@ static KIODBStore *dbStore;
                                kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
         KCLog(@"Sending request to: %@", urlString);
         
-        NSMutableDictionary *analysesDictionary = [[NSMutableDictionary alloc] init];
-        NSString *queriesEventCollection = nil;
-        NSString *queriesTimeframe = nil;
-        int queryNumber = 0;
-        for (id query in keenQueries) {
-            if (![query isKindOfClass:[KIOQuery class]]) {
-                KCLog(@"keenQueries array contain objects that are not of class KIOQuery");
-                return nil;
-            } else {
-                //check that all keen queries have the same event collection and timeframe (if any)
-                NSString *queryEventCollection = [[query propertiesDictionary] objectForKey:@"event_collection"];
-                if (queriesEventCollection == nil) {
-                    queriesEventCollection = queryEventCollection;
-                } else if (![queriesEventCollection isEqualToString:queryEventCollection]) {
-                    KCLog(@"queries eventCollection properties don't match");
-                    return nil;
-                }
-                
-                NSString *queryTimeframe = [[query propertiesDictionary] objectForKey:@"timeframe"];
-                if (queryTimeframe != nil) {
-                    if(queriesTimeframe == nil) {
-                        queriesTimeframe = queryTimeframe;
-                    } else if (![queriesTimeframe isEqualToString:queryTimeframe]) {
-                        KCLog(@"queries timeframe properties don't match");
-                        return nil;
-                    }
-                }
-                
-                queryNumber++;
-
-                NSMutableDictionary *queryMutablePropertiesDictionary = [[query propertiesDictionary] mutableCopy];
-                [queryMutablePropertiesDictionary removeObjectForKey:@"event_collection"];
-                [queryMutablePropertiesDictionary removeObjectForKey:@"timeframe"];
-                [queryMutablePropertiesDictionary setObject:[query queryType] forKey:@"analysis_type"];
-                
-                NSString *queryName = [query queryName] ? : [[NSString alloc] initWithFormat:@"query%d", queryNumber];
-                [analysesDictionary setObject:queryMutablePropertiesDictionary forKey:queryName];
-            }
+        NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
+        if (multiAnalysisDictionary == nil) {
+            return nil;
         }
-        
-        //create final dictionary
-        NSMutableDictionary *multiAnalysisDictionary = [[NSMutableDictionary alloc] init];
-        [multiAnalysisDictionary setObject:queriesEventCollection forKey:@"event_collection"];
-        if (queriesTimeframe != nil) {
-            [multiAnalysisDictionary setObject:queriesTimeframe forKey:@"timeframe"];
-        }
-        [multiAnalysisDictionary setObject:analysesDictionary forKey:@"analyses"];
         
         //convert the resulting dictionary to data and set it as HTTPBody
         NSError *dictionarySerializationError = nil;
@@ -1151,6 +1108,43 @@ static KIODBStore *dbStore;
 }
 
 # pragma mark Helper Methods
+
+- (NSDictionary *)prepareQueriesDictionaryForMultiAnalysis:(NSArray *)keenQueries {
+    NSMutableDictionary *multiAnalysisDictionary = [@{@"event_collection": [NSNull null], @"filters": [NSNull null], @"timeframe": [NSNull null], @"timezone": [NSNull null], @"group_by": [NSNull null], @"interval": [NSNull null]} mutableCopy];
+    NSMutableDictionary *queriesDictionary = [[NSMutableDictionary alloc] init];
+    for (int i = 0; i < keenQueries.count; i++) {
+        if (![keenQueries[i] isKindOfClass:[KIOQuery class]]) {
+            KCLog(@"keenQueries array contain objects that are not of class KIOQuery");
+            return nil;
+        }
+        
+        KIOQuery *query = keenQueries[i];
+        NSMutableDictionary *queryMutablePropertiesDictionary = [[query propertiesDictionary] mutableCopy];
+        
+        //check that Keen queries have the same parameters
+        for (NSString *key in [multiAnalysisDictionary allKeys]) {
+            NSString *queryProperty = [[query propertiesDictionary] objectForKey:key];
+            if (queryProperty != nil) {
+                if ([multiAnalysisDictionary objectForKey:key] == [NSNull null]) {
+                    [multiAnalysisDictionary setObject:queryProperty forKey:key];
+                } else if (![[multiAnalysisDictionary    objectForKey:key] isEqualToString:queryProperty]) {
+                    KCLog(@"queries %@ property doesn't match", key);
+                    return nil;
+                }
+                [queryMutablePropertiesDictionary removeObjectForKey:key];
+            }
+        }
+        
+        [queryMutablePropertiesDictionary setObject:[query queryType] forKey:@"analysis_type"];
+        
+        NSString *queryName = [query queryName] ? : [[NSString alloc] initWithFormat:@"query%d", i];
+        [queriesDictionary setObject:queryMutablePropertiesDictionary forKey:queryName];
+    }
+    
+    [multiAnalysisDictionary setObject:queriesDictionary forKey:@"analyses"];
+    
+    return [multiAnalysisDictionary copy];
+}
 
 - (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
     BOOL hasQueryWithMaxAttempts = [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts queryTTL:self.queryTTL];
