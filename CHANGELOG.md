@@ -10,6 +10,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed `maxAttempts` variable to `maxEventUploadAttempts`.
 
+### Fixed
+- Fixed error with `MultiAnalysisQueries` method on running an invalid comparison when trying to insure all `KIOQuery` had the same `eventCollection` properties, and also moved all properties (filters, timeframe, timezone, group_by, interval) from the `KIOQuery` objects to the final multi-analysis dictionary. #124 #125
+
 ## [3.4.3] - 2015-08-10
 ### Fixed
 - Fixed sqlite EXC_BAD_ACCESS crash that was happening because of `NSString UTF8String` calls inside `KIOEventStore` dispatch_sync blocks, followed by a call to `resetSQLiteStatement`. #114
