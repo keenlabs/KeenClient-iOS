@@ -1123,11 +1123,11 @@ static KIODBStore *dbStore;
         
         //check that Keen queries have the same parameters
         for (NSString *key in [multiAnalysisDictionary allKeys]) {
-            NSString *queryProperty = [[query propertiesDictionary] objectForKey:key];
+            NSObject *queryProperty = [[query propertiesDictionary] objectForKey:key];
             if (queryProperty != nil) {
                 if ([multiAnalysisDictionary objectForKey:key] == [NSNull null]) {
                     [multiAnalysisDictionary setObject:queryProperty forKey:key];
-                } else if (![[multiAnalysisDictionary    objectForKey:key] isEqualToString:queryProperty]) {
+                } else if (![[multiAnalysisDictionary objectForKey:key] isEqual:queryProperty]) {
                     KCLog(@"queries %@ property doesn't match", key);
                     return nil;
                 }
