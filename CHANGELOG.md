@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.5.0] - 2015-11-02
 ### Added
 - Added a query attempts limit functionality, to help users avoid running into rate limit issues. This only works for calls to the Keen Query API that return a 4XX response. Two variables were added to the `KeenClient` class, `maxQueryUploadAttempts` and `querySecondsLifespan`. The first one is a threshold for how many times a query should be attempted. The second is a threshold in seconds for how long the failed queries attempts should stay in the database. #105
 
@@ -11,7 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed `maxAttempts` variable to `maxEventUploadAttempts`.
 
 ### Fixed
-- Fixed error with `MultiAnalysisQueries` method on running an invalid comparison when trying to insure all `KIOQuery` had the same `eventCollection` properties, and also moved all properties (filters, timeframe, timezone, group_by, interval) from the `KIOQuery` objects to the final multi-analysis dictionary. #124 #125
+- Fixed error with `MultiAnalysisQueries` method on running an invalid comparison when trying to insure all `KIOQuery` had the same `eventCollection` properties, and also moved all properties (filters, timeframe, timezone, group_by, interval) from the `KIOQuery` objects to the final multi-analysis dictionary. #124 #125 #128
 
 ## [3.4.3] - 2015-08-10
 ### Fixed
@@ -161,7 +163,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.3...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.0...HEAD
+[3.5.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.3...3.5.0
 [3.4.3]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.2...3.4.3
 [3.4.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.1...3.4.2
 [3.4.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.0...3.4.1
