@@ -186,6 +186,7 @@
 		A58E0BD71AF85F3C00DF2B71 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0620;
 				ORGANIZATIONNAME = Keen.IO;
 				TargetAttributes = {
