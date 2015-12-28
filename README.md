@@ -493,6 +493,28 @@ Besides that, you can also run:
 - [Multi-Analysis](https://keen.io/docs/api/#multi-analysis) - Run multiple analyses with a single request.
 - [Funnels](https://keen.io/docs/api/#funnels) - Track the completion of a sequence of events.
 
+###### Limiting Query Attempts
+
+Keen IO has rate limits for Queries (more information can be found [here](https://keen.io/docs/api/#limits). For that reason, and taking into account the long approval process that apps go through, a small error in a query statement or changing your event collection properties could cause your app to hit that query limit and in turn create a bad experience for your users.
+
+By default, the client will only attempt to run a failed query up to 10 times. After that it will only try to run it again after 3600 seconds (1 hour). You can change these numbers to your liking by setting the `client.maxQueryAttempts` and the `client.queryTTL` values:
+
+Objective C
+```objc
+[KeenClient sharedClient].maxQueryAttempts = 10;
+
+// Change the default value to 10 minutes
+[KeenClient sharedClient].queryTTL = 600;
+```
+
+Swift
+```Swift
+KeenClient.sharedClient().maxQueryAttempts = 10;
+
+// Change the default value to 10 minutes
+KeenClient.sharedClient().queryTTL = 600;
+```
+
 ###### Examples
 
 Creating a query is as simple as instantiating a `KIOQuery` object:
