@@ -4,10 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Fixed
+- Updated Swift example project to conform with new Swift 2 syntax. Also added the timeframe parameter to all queries in example projects to conform with Keen query requirements. #132
 
-## [3.5.0] - 2015-11-02
+## [3.5.0] - 2015-12-29
 ### Added
-- Added a query attempts limit functionality, to help users avoid running into rate limit issues. This only works for calls to the Keen Query API that return a 4XX response. Two variables were added to the `KeenClient` class, `maxQueryUploadAttempts` and `querySecondsLifespan`. The first one is a threshold for how many times a query should be attempted. The second is a threshold in seconds for how long the failed queries attempts should stay in the database. #105
+- Added a query attempts limit functionality, to help users avoid running into rate limit issues. This only works for calls to the Keen Query API that return a 4XX response. Two variables were added to the `KeenClient` class, `maxQueryUploadAttempts` and `queryTTL`. The first one is a threshold for how many times a query should be attempted. The second is a threshold in seconds for how long the failed queries attempts should stay in the database. #105
 
 ### Changed
 - Changed `maxAttempts` variable to `maxEventUploadAttempts`.
