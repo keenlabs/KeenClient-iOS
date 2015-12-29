@@ -69,13 +69,13 @@
     };
     
     // Async querying
-    KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": @"this_7_days"}];
     
     [[KeenClient sharedClient] runAsyncQuery:countQuery block:countQueryCompleted];
     
     // Multi-analysis querying example
     /*
-    KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key"}];
+    KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key", @"timeframe": @"this_7_days"}];
     
     [countQuery setQueryName:@"count_query"];
     [countUniqueQuery setQueryName:@"count_unique_query"];
@@ -85,7 +85,7 @@
     
     // Funnel example
     /*
-    KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up",
+    KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"timeframe": @"this_7_days", @"steps": @[@{@"event_collection": @"user_signed_up",
             @"actor_property": @"user.id"},
           @{@"event_collection": @"user_completed_profile",
             @"actor_property": @"user.id"}]}];

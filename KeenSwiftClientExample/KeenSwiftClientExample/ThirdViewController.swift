@@ -44,13 +44,13 @@ import UIKit
         }
         
         // Async querying
-        var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection"]);
+        let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "tab_views", "timeframe": "this_7_days"]);
         
         KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted);
         
         // Multi-analysis querying example
         /*
-        var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key"]);
+        var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_7_days"]);
         
         countQuery.queryName = "count_query";
         countUniqueQuery.queryName = "count_unique_query";
@@ -60,7 +60,7 @@ import UIKit
         
         // Funnel example
         /*
-        var funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["steps": [["event_collection": "user_signed_up", @"actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
+        var funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["timeframe": "this_7_days", "steps": [["event_collection": "user_signed_up", @"actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
         
         KeenClient.sharedClient().runAsyncQuery(funnelQuery, block: countQueryCompleted);
         */
