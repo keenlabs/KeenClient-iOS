@@ -913,7 +913,7 @@
         if (keen_io_sqlite3_step(get_query_with_attempts_stmt) == SQLITE_ROW) {
             hasFoundEventWithMaxAttempts = YES;
         } else {
-            [self handleSQLiteFailure:@"couldn't find query with max attempts"];
+            [self handleSQLiteFailure:@"find query with max attempts"];
             return;
         }
         
