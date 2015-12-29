@@ -23,14 +23,20 @@ class FirstViewController: UIViewController {
         
         super.viewWillAppear(animated);
         let theEvent = ["view_name": "first view Swift", "action": "going to"];
-        KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
+        do {
+            try KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views")
+        } catch _ {
+        };
     }
     
     override func viewWillDisappear(animated : Bool) {
         
         super.viewWillDisappear(animated);
         let theEvent = ["view_name" : "first view Swift", "action" : "leaving from"];
-        KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
+        do {
+            try KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views")
+        } catch _ {
+        };
     }
 
 }

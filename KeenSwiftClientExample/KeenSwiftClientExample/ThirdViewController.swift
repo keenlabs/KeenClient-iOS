@@ -15,29 +15,31 @@ import UIKit
     @IBAction func sendQueryButtonPressed(sender: AnyObject) {
         
         let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResponse!, error: NSError!) -> Void in
-            var error: NSError?;
-            
-            var responseDictionary: NSDictionary? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers, error: &error) as? NSDictionary;
-            
-            NSLog("response: %@", responseDictionary!);
-            if let actualError = error {
-                println("error: \(actualError)");
-            }
-            var result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber;
-            
-            NSLog("result: %@", result);
-            
-            // Get result value when querying with group_by property
-            //var resultArray: NSArray = responseDictionary!.objectForKey("result") as! NSArray;
-            //var resultDictionary: NSDictionary = resultArray[0] as! NSDictionary;
-            //var resultValue: NSNumber = resultDictionary.objectForKey("result") as! NSNumber;
-            //NSLog("resultValue: %@", resultValue);
-            
-            if let actualError = error, errorCode = responseDictionary!.objectForKey("error_code") as? String {
-                println(NSString(format:"Failure! 😞 \n\n error: %@\n\n response: %@", actualError, errorCode));
-                self.resultTextView.text = NSString(format:"Failure! 😞 \n\n error: %@\n\n response: %@", actualError, errorCode) as String;
-            } else {
-                self.resultTextView.text = NSString(format:"Success! 😄 \n\n response: %@", responseDictionary!.description) as String;
+            do {
+                let responseDictionary: NSDictionary? = try NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers) as? NSDictionary;
+                
+                NSLog("response: %@", responseDictionary!);
+                
+                if error != nil {
+                    self.resultTextView.text = "Error! 😞 \n\n error: \(error.localizedDescription)";
+                } else if let errorCode = responseDictionary!.objectForKey("error_code"),
+                              errorMessage = responseDictionary!.objectForKey("message") as? String {
+                    self.resultTextView.text = "Failure! 😞 \n\n error code: \(errorCode)\n\n message: \(errorMessage)";
+                } else {
+                    let result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber;
+                    
+                    NSLog("result: %@", result);
+                    
+                    // Get result value when querying with group_by property
+                    //var resultArray: NSArray = responseDictionary!.objectForKey("result") as! NSArray;
+                    //var resultDictionary: NSDictionary = resultArray[0] as! NSDictionary;
+                    //var resultValue: NSNumber = resultDictionary.objectForKey("result") as! NSNumber;
+                    //NSLog("resultValue: %@", resultValue);
+                    
+                    self.resultTextView.text = "Success! 😄 \n\n response: \(responseDictionary!.description)";
+                }
+            } catch let error as NSError {
+                print("Error: \(error.localizedDescription)")
             }
         }
         
@@ -76,14 +78,20 @@ import UIKit
         
         super.viewWillAppear(animated);
         let theEvent = ["view_name": "third view Swift", "action": "going to"];
-        KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
+        do {
+            try KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views")
+        } catch _ {
+        };
     }
     
     override func viewWillDisappear(animated : Bool) {
         
         super.viewWillDisappear(animated);
         let theEvent = ["view_name" : "third view Swift", "action" : "leaving from"];
-        KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
+        do {
+            try KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views")
+        } catch _ {
+        };
     }
     
 }
