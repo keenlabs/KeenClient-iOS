@@ -58,7 +58,7 @@ Uncompress the archive. It should contain a folder called “KeenClient-Cocoa”
 * libKeenClient-Cocoa.a
 * KeenClient.h
 * KeenProperties.h
-* KIOEventStore.h
+* KIODBStore.h
 * HTTPCodes.h
 * Reachability.h
 
@@ -73,7 +73,7 @@ Uncompress the archive. It should contain a folder called “KeenClient” with 
 * libKeenClient-Aggregate.a
 * KeenClient.h
 * KeenProperties.h
-* KIOEventStore.h
+* KIODBStore.h
 * HTTPCodes.h
 * Reachability.h
 
@@ -131,7 +131,7 @@ Objective C
 ```objc
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-	[KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
+	[KeenClient sharedClientWithProjectID:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
 	return YES;
 }
 ```
@@ -141,7 +141,7 @@ func application(application: UIApplication,
 	    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool 
 { 
 	var client : KeenClient;
-	client = KeenClient.sharedClientWithProjectId("your_project_id",
+	client = KeenClient.sharedClientWithProjectID("your_project_id",
 									andWriteKey: "your_write_key", 
 									andReadKey: nil);
 	return true
@@ -151,7 +151,7 @@ func application(application: UIApplication,
 
 The write key is required to send events to Keen IO. The read key is required to do analysis on Keen IO.
 
-`[KeenClient sharedClientWithProjectId: andWriteKey: andReadKey:]` does the registration. From now on, in your code, you can just reference the shared client by calling `objc [KeenClient sharedClient]`.
+`[KeenClient sharedClientWithProjectID: andWriteKey: andReadKey:]` does the registration. From now on, in your code, you can just reference the shared client by calling `objc [KeenClient sharedClient]`.
 
 ##### Add Events
 
@@ -357,12 +357,12 @@ Example:
 Objective C
 ```objc
 [KeenClient authorizeGeoLocationAlways];
-[KeenClient sharedClientWithProjectId:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
+[KeenClient sharedClientWithProjectID:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
 ```
 Swift
 ```Swift
 KeenClient.authorizeGeoLocationAlways();
-KeenClient.sharedClientWithProjectId("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
+KeenClient.sharedClientWithProjectID("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
 ```
 
 
@@ -543,9 +543,9 @@ void (^countQueryCompleted)(NSData *, NSURLResponse *, NSError *) = ^(NSData *re
     NSNumber *result = [responseDictionary objectForKey:@"result"];
     
     if(error || [responseDictionary objectForKey:@"error_code"]) {
-        NSLog([NSString stringWithFormat:@"Failure! 😞 \n\n error: %@\n\n response: %@", [error localizedDescription] ,[responseDictionary description]]);
+        NSLog(@"Failure! 😞 \n\n error: %@\n\n response: %@", [error localizedDescription], [responseDictionary description]);
     } else {
-        NSLog([NSString stringWithFormat:@"Success! 😄 \n\n response: %@", [responseDictionary description]]);
+        NSLog(@"Success! 😄 \n\n response: %@", [responseDictionary description]);
     }
 };
 ```
