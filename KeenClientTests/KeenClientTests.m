@@ -419,7 +419,7 @@
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
     data = [client handleInvalidJSONInObject:data];
@@ -447,7 +447,7 @@
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
     data = [client handleInvalidJSONInObject:data];
@@ -471,7 +471,7 @@
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
     responseData = [client handleInvalidJSONInObject:responseData];
@@ -491,7 +491,7 @@
     id mock = [OCMockObject partialMockForObject:client];
     
     // set up the response we're faking out
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:nil statusCode:code HTTPVersion:nil headerFields:nil];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
     responseData = [client handleInvalidJSONInObject:responseData];
