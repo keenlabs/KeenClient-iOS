@@ -591,7 +591,6 @@
 				017EE12914E30C96000F3868 /* Sources */,
 				017EE12A14E30C96000F3868 /* Frameworks */,
 				017EE12B14E30C96000F3868 /* Resources */,
-				017EE12C14E30C96000F3868 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -716,19 +715,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export TMP_DIR=/tmp/keenios\nexport TMP_DIR_COCOA=/tmp/keenios-cocoa\n\nrm -rf ${TMP_DIR}\nrm -rf ${TMP_DIR_COCOA}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Cocoa.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\nmkdir -p ${TMP_DIR_COCOA}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOQuery.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/HTTPCodes.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOReachability.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIODBStore.h\" ${TMP_DIR}/.\n\ncp -r \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}/libKeenClient-Cocoa.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOQuery.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/HTTPCodes.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOReachability.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIODBStore.h\" ${TMP_DIR_COCOA}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *\n\ncd ${TMP_DIR_COCOA}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\" *";
-		};
-		017EE12C14E30C96000F3868 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1027,10 +1013,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1058,10 +1041,7 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/**";
