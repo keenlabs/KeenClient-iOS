@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 ### Fixed
 - Updated Swift example project to conform with new Swift 2 syntax. Also added the timeframe parameter to all queries in example projects to conform with Keen query requirements. #132
+- Updated project properties using Xcode's recommended settings: "Build Settings" to Standard architectures, "Product Bundle Identifier", and "Enable Testability".
+- Fixed KeenClientTests warnings.
+- Fixed Reachability potential memory leak error, updated it to latest version found on [Apple Developer website](https://developer.apple.com/library/ios/samplecode/Reachability/Introduction/Intro.html). #133
+- Fixed a few errors in the README.md file.
+
+### Changed
+- Changed the KeenClientExample project deployment target to 6.0, so it can be deployed to a device when bitcode is enabled.
 
 ## [3.5.0] - 2015-12-29
 ### Added
