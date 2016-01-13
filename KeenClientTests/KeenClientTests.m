@@ -409,40 +409,20 @@
 }
 
 - (id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code andNetwork:(NSNumber *)network {
-    if (!data) {
-        data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
-    }
-    
     // set up the partial mock
     KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    client.isRunningTests = YES;
-    id mock = [OCMockObject partialMockForObject:client];
     
-    // set up the response we're faking out
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
-    
-    // serialize the faked out response data
-    data = [client handleInvalidJSONInObject:data];
-    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:data
-                                                             options:0
-                                                               error:nil];
-    // set up the response data we're faking out
-    [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any] 
-                                     returningResponse:[OCMArg setTo:response] 
-                                                 error:[OCMArg setTo:nil]];
-
-    [[[mock stub] andReturnValue:network] isNetworkConnected];
-
-    return mock;
+    return [self uploadTestHelperWithKeenClient:client DataInstanceClient:data andStatusCode:code andNetwork:network];
 }
 
 - (id)uploadTestHelperWithDataInstanceClient:(id)data andStatusCode:(NSInteger)code {
-    if (!data) {
-        data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
-    }
-    
     // set up the partial mock
     KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    
+    return [self uploadTestHelperWithKeenClient:client DataInstanceClient:data andStatusCode:code andNetwork:@YES];
+}
+
+- (id)uploadTestHelperWithKeenClient:(KeenClient *)client DataInstanceClient:(id)data andStatusCode:(NSInteger)code andNetwork:(NSNumber *)network {
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
@@ -450,6 +430,9 @@
     NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
     
     // serialize the faked out response data
+    if (!data) {
+        data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
+    }
     data = [client handleInvalidJSONInObject:data];
     NSData *serializedData = [NSJSONSerialization dataWithJSONObject:data
                                                              options:0
@@ -458,8 +441,8 @@
     [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any]
                                      returningResponse:[OCMArg setTo:response]
                                                  error:[OCMArg setTo:nil]];
-
-    [[[mock stub] andReturnValue:@YES] isNetworkConnected];
+    
+    [[[mock stub] andReturnValue:network] isNetworkConnected];
     
     return mock;
 }
@@ -657,10 +640,7 @@
 }
 
 - (void)testUploadFailedBadRequest {
-    id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO 
-                                                                   AndErrorCode:@"InvalidCollectionNameError" 
-                                                                 AndDescription:@"anything"] 
-                               andStatusCode:HTTPCode200OK];
+    id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO AndErrorCode:@"InvalidCollectionNameError" AndDescription:@"anything"] andStatusCode:HTTPCode200OK];
     
     [self addSimpleEventAndUploadWithMock:mock];
     
