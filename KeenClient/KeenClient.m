@@ -979,24 +979,22 @@ static KIODBStore *dbStore;
         if(hasQueryWithMaxAttempts) {
             KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
         } else {
-            NSURLResponse *response = nil;
-            NSError *error = nil;
-            NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
-            
-            [self handleQueryAPIResponse:response andData:dataResponse andQuery:keenQuery];
-            
-            // we're done querying, call the main queue and execute the block
-            dispatch_async(dispatch_get_main_queue(), ^{
-                // run the user-specific block (if there is one)
-                if (block) {
-                    KCLog(@"Running user-specified block.");
-                    @try {
-                        block(dataResponse, response, error);
-                    } @finally {
-                        // do nothing
+            [self runQuery:keenQuery completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                [self handleQueryAPIResponse:response andData:data andQuery:keenQuery];
+                
+                // we're done querying, call the main queue and execute the block
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // run the user-specific block (if there is one)
+                    if (block) {
+                        KCLog(@"Running user-specified block.");
+                        @try {
+                            block(data, response, error);
+                        } @finally {
+                            // do nothing
+                        }
                     }
-                }
-            });
+                });
+            }];
         }
     });
 }
@@ -1024,66 +1022,60 @@ static KIODBStore *dbStore;
 
 # pragma mark Sync methods
 
-- (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error {
-    @synchronized(self) {
-        NSData *responseData = nil;
-        BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery];
-        
-        if(hasQueryWithMaxAttempts) {
-            KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
-        } else {
-            NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                                   kKeenServerAddress, kKeenApiVersion, self.projectID, keenQuery.queryType];
-            KCLog(@"Sending request to: %@", urlString);
-            NSURL *url = [NSURL URLWithString:urlString];
-            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
-            [request setHTTPMethod:@"POST"];
-            [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-            [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-            [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
-            [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
-            [request setHTTPBody:[keenQuery convertQueryToData]];
-            
-            responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
-        }
-        
-        return responseData;
-    }
-}
-
-- (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error {
-    @synchronized(self) {
+- (void)runQuery:(KIOQuery *)keenQuery completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
+    BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery];
+    
+    if(hasQueryWithMaxAttempts) {
+        KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
+    } else {
         NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                               kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
+                               kKeenServerAddress, kKeenApiVersion, self.projectID, keenQuery.queryType];
         KCLog(@"Sending request to: %@", urlString);
-        
-        NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
-        if (multiAnalysisDictionary == nil) {
-            return nil;
-        }
-        
-        //convert the resulting dictionary to data and set it as HTTPBody
-        NSError *dictionarySerializationError = nil;
-        
-        NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
-        
-        if(dictionarySerializationError != nil) {
-            KCLog(@"error with dictionary serialization");
-            return nil;
-        }
-        
         NSURL *url = [NSURL URLWithString:urlString];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
         [request setHTTPMethod:@"POST"];
         [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
-        [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [multiAnalysisData length]] forHTTPHeaderField:@"Content-Length"];
-        [request setHTTPBody:multiAnalysisData];
-        NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+        [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
+        [request setHTTPBody:[keenQuery convertQueryToData]];
         
-        return responseData;
+        NSURLSession *session = [NSURLSession sharedSession];
+        [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
     }
+}
+
+- (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error {
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
+                           kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
+    KCLog(@"Sending request to: %@", urlString);
+    
+    NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
+    if (multiAnalysisDictionary == nil) {
+        return nil;
+    }
+    
+    //convert the resulting dictionary to data and set it as HTTPBody
+    NSError *dictionarySerializationError = nil;
+    
+    NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
+    
+    if(dictionarySerializationError != nil) {
+        KCLog(@"error with dictionary serialization");
+        return nil;
+    }
+    
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
+    [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [multiAnalysisData length]] forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:multiAnalysisData];
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
+    
+    return responseData;
 }
 
 # pragma mark Helper Methods
@@ -1123,29 +1115,6 @@ static KIODBStore *dbStore;
     [multiAnalysisDictionary setObject:queriesDictionary forKey:@"analyses"];
     
     return [multiAnalysisDictionary copy];
-}
-
-- (void)runQuery:(KIOQuery *)keenQuery finishedBlock:(void(^)(NSData *, NSURLResponse *, NSError *))block {
-    BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery];
-    
-    if(hasQueryWithMaxAttempts) {
-        KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
-    } else {
-        NSURLResponse *response = nil;
-        NSError *error = nil;
-        NSData *dataResponse = [self runQuery:keenQuery returningResponse:&response error:&error];
-        
-        [self handleQueryAPIResponse:response andData:dataResponse andQuery:keenQuery];
-        
-        if (block) {
-            KCLog(@"Running user-specified query block.");
-            @try {
-                block(dataResponse, response, error);
-            } @finally {
-                // do nothing
-            }
-        }
-    }
 }
 
 - (BOOL)hasQueryReachedMaxAttempts:(KIOQuery *)keenQuery {

@@ -462,7 +462,7 @@
                                                              options:0
                                                                error:nil];
     // set up the response data we're faking out
-    [[[mock stub] andReturn:serializedData] runQuery:[OCMArg any] returningResponse:[OCMArg setTo:response] error:[OCMArg setTo:nil]];
+    [[mock stub] runQuery:[OCMArg any] completionHandler:[OCMArg invokeBlockWithArgs:serializedData, response, [NSNull null], nil]];
     
     return mock;
 }
@@ -1498,29 +1498,27 @@
     id mock = [self queryMockTestHelper:@{} andStatusCode:HTTPCode5XXServerError];
     
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{}];
-    
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
-    
-    KCLog(@"error: %@", error);
-    KCLog(@"response: %@", response);
-    
-    XCTAssertNil(error);
-    
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-    XCTAssertEqual([httpResponse statusCode], HTTPCode5XXServerError);
-    
-    NSDictionary *responseDictionary = [NSJSONSerialization
-                                        JSONObjectWithData:queryResponseData
-                                        options:kNilOptions
-                                        error:&error];
-    
-    KCLog(@"response: %@", responseDictionary);
-    
-    NSNumber *result = [responseDictionary objectForKey:@"result"];
-    
-    XCTAssertNil(result);
+
+    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+        KCLog(@"error: %@", error);
+        KCLog(@"response: %@", response);
+        
+        XCTAssertNil(error);
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+        XCTAssertEqual([httpResponse statusCode], HTTPCode5XXServerError);
+        
+        NSDictionary *responseDictionary = [NSJSONSerialization
+                                            JSONObjectWithData:queryResponseData
+                                            options:kNilOptions
+                                            error:&error];
+        
+        KCLog(@"response: %@", responseDictionary);
+        
+        NSNumber *result = [responseDictionary objectForKey:@"result"];
+        
+        XCTAssertNil(result);
+    }];
 }
 
 - (void)testCountQuerySuccess {
@@ -1528,28 +1526,26 @@
     
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
     
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
-    
-    KCLog(@"error: %@", error);
-    KCLog(@"response: %@", response);
-    
-    XCTAssertNil(error);
-    
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-    XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
-    
-    NSDictionary *responseDictionary = [NSJSONSerialization
-                                  JSONObjectWithData:queryResponseData
-                                  options:kNilOptions
-                                  error:&error];
-    
-    KCLog(@"response: %@", responseDictionary);
-    
-    NSNumber *result = [responseDictionary objectForKey:@"result"];
-    
-    XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+        KCLog(@"error: %@", error);
+        KCLog(@"response: %@", response);
+        
+        XCTAssertNil(error);
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+        
+        NSDictionary *responseDictionary = [NSJSONSerialization
+                                            JSONObjectWithData:queryResponseData
+                                            options:kNilOptions
+                                            error:&error];
+        
+        KCLog(@"response: %@", responseDictionary);
+        
+        NSNumber *result = [responseDictionary objectForKey:@"result"];
+        
+        XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+    }];
 }
 
 - (void)testCountQuerySuccessWithGroupByProperty {
@@ -1558,28 +1554,26 @@
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection",
                                                                                          @"group_by": @"key"}];
     
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
-    
-    KCLog(@"error: %@", error);
-    KCLog(@"response: %@", response);
-    
-    XCTAssertNil(error);
-    
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-    XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
-    
-    NSDictionary *responseDictionary = [NSJSONSerialization
-                                        JSONObjectWithData:queryResponseData
-                                        options:kNilOptions
-                                        error:&error];
-    
-    KCLog(@"response: %@", responseDictionary);
-    
-    NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"result"];
-    
-    XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+        KCLog(@"error: %@", error);
+        KCLog(@"response: %@", response);
+        
+        XCTAssertNil(error);
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+        
+        NSDictionary *responseDictionary = [NSJSONSerialization
+                                            JSONObjectWithData:queryResponseData
+                                            options:kNilOptions
+                                            error:&error];
+        
+        KCLog(@"response: %@", responseDictionary);
+        
+        NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"result"];
+        
+        XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+    }];
 }
 
 - (void)testCountQuerySuccessWithTimeframeAndIntervalProperties {
@@ -1591,28 +1585,26 @@
                                                        @"interval": @"daily",
                                                        @"timeframe": @"last_1_days"}];
     
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
-    
-    KCLog(@"error: %@", error);
-    KCLog(@"response: %@", response);
-    
-    XCTAssertNil(error);
-    
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-    XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
-    
-    NSDictionary *responseDictionary = [NSJSONSerialization
-                                        JSONObjectWithData:queryResponseData
-                                        options:kNilOptions
-                                        error:&error];
-    
-    KCLog(@"response: %@", responseDictionary);
-    
-    NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"value"];
-    
-    XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+        KCLog(@"error: %@", error);
+        KCLog(@"response: %@", response);
+        
+        XCTAssertNil(error);
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+        
+        NSDictionary *responseDictionary = [NSJSONSerialization
+                                            JSONObjectWithData:queryResponseData
+                                            options:kNilOptions
+                                            error:&error];
+        
+        KCLog(@"response: %@", responseDictionary);
+        
+        NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"value"];
+        
+        XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+    }];
 }
 
 - (void)testCountUniqueQueryWithMissingTargetProperty {
@@ -1620,28 +1612,26 @@
     
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
     
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
-    
-    KCLog(@"error: %@", error);
-    KCLog(@"response: %@", response);
-    
-    XCTAssertNil(error);
-    
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-    XCTAssertEqual([httpResponse statusCode], HTTPCode400BadRequest);
-    
-    NSDictionary *responseDictionary = [NSJSONSerialization
-                                        JSONObjectWithData:queryResponseData
-                                        options:kNilOptions
-                                        error:&error];
-    
-    KCLog(@"response: %@", responseDictionary);
-    
-    NSNumber *result = [responseDictionary objectForKey:@"result"];
-    
-    XCTAssertNil(result);
+    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+        KCLog(@"error: %@", error);
+        KCLog(@"response: %@", response);
+        
+        XCTAssertNil(error);
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+        XCTAssertEqual([httpResponse statusCode], HTTPCode400BadRequest);
+        
+        NSDictionary *responseDictionary = [NSJSONSerialization
+                                            JSONObjectWithData:queryResponseData
+                                            options:kNilOptions
+                                            error:&error];
+        
+        KCLog(@"response: %@", responseDictionary);
+        
+        NSNumber *result = [responseDictionary objectForKey:@"result"];
+        
+        XCTAssertNil(result);
+    }];
 }
 
 - (void)testCountUniqueQuerySuccess {
@@ -1649,28 +1639,26 @@
     
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
     
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
-    
-    KCLog(@"error: %@", error);
-    KCLog(@"response: %@", response);
-    
-    XCTAssertNil(error);
-    
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-    XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
-    
-    NSDictionary *responseDictionary = [NSJSONSerialization
-                                        JSONObjectWithData:queryResponseData
-                                        options:kNilOptions
-                                        error:&error];
-    
-    KCLog(@"response: %@", responseDictionary);
-    
-    NSNumber *result = [responseDictionary objectForKey:@"result"];
-    
-    XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+        KCLog(@"error: %@", error);
+        KCLog(@"response: %@", response);
+        
+        XCTAssertNil(error);
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+        
+        NSDictionary *responseDictionary = [NSJSONSerialization
+                                            JSONObjectWithData:queryResponseData
+                                            options:kNilOptions
+                                            error:&error];
+        
+        KCLog(@"response: %@", responseDictionary);
+        
+        NSNumber *result = [responseDictionary objectForKey:@"result"];
+        
+        XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+    }];
 }
 
 - (void)testMultiAnalysisSuccess {
@@ -1712,35 +1700,33 @@
                                                        @"event_collection": @"user_completed_profile"}]} andStatusCode:HTTPCode200OK];
     
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up", @"actor_property": @"user.id"},
-          @{@"event_collection": @"user_completed_profile", @"actor_property": @"user.id"}]}];
+                                                                                                      @{@"event_collection": @"user_completed_profile", @"actor_property": @"user.id"}]}];
     
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    NSData *queryResponseData = [mock runQuery:query returningResponse:&response error:&error];
-    
-    KCLog(@"error: %@", error);
-    KCLog(@"response: %@", response);
-    
-    XCTAssertNil(error);
-    
-    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-    XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
-    
-    NSDictionary *responseDictionary = [NSJSONSerialization
-                                        JSONObjectWithData:queryResponseData
-                                        options:kNilOptions
-                                        error:&error];
-    
-    KCLog(@"response: %@", responseDictionary);
-    
-    NSArray *result = [responseDictionary objectForKey:@"result"];
-    NSArray *resultArray = @[@10, @5];
-    
-    KCLog(@"result: %@", [result class]);
-    KCLog(@"resultArray: %@", [resultArray class]);
-    
-    XCTAssertEqual([result count], (NSUInteger)2);
-    XCTAssertEqualObjects(result, resultArray);
+    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+        KCLog(@"error: %@", error);
+        KCLog(@"response: %@", response);
+        
+        XCTAssertNil(error);
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+        
+        NSDictionary *responseDictionary = [NSJSONSerialization
+                                            JSONObjectWithData:queryResponseData
+                                            options:kNilOptions
+                                            error:&error];
+        
+        KCLog(@"response: %@", responseDictionary);
+        
+        NSArray *result = [responseDictionary objectForKey:@"result"];
+        NSArray *resultArray = @[@10, @5];
+        
+        KCLog(@"result: %@", [result class]);
+        KCLog(@"resultArray: %@", [resultArray class]);
+        
+        XCTAssertEqual([result count], (NSUInteger)2);
+        XCTAssertEqualObjects(result, resultArray);
+    }];
 }
 
 - (void) testSuccessfulQueryAPIResponse {

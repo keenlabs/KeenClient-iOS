@@ -321,7 +321,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  @param returningResponse The NSURLResponse for the query.
  @param error The NSError (if any) for the query.
  */
-- (NSData *)runQuery:(KIOQuery *)keenQuery returningResponse:(NSURLResponse **)response error:(NSError **)error;
+- (void)runQuery:(KIOQuery *)keenQuery completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
 /**
  Runs a synchronous multi-analysis query.
