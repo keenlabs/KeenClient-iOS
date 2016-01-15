@@ -121,9 +121,8 @@ static KIODBStore *dbStore;
  @param response The response being returned.
  @param error If an error occurred, filled in.  Otherwise nil.
  */
-- (NSData *)sendEvents:(NSData *)data 
-     returningResponse:(NSURLResponse **)response 
-                 error:(NSError **)error;
+- (void)sendEvents:(NSData *)data
+ completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
 /**
  Handles the HTTP response from the Keen Event API.  This involves deserializing the JSON response
@@ -814,72 +813,55 @@ static KIODBStore *dbStore;
     return [hostReachability KIOcurrentReachabilityStatus] != NotReachable;
 }
 
-- (void)uploadHelper
-{
-    // only one thread should be doing an upload at a time.
-    @synchronized(self) {
-
-        if (![self isNetworkConnected]) {
-            return;
-        }
-
-        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-
-        // Check if we've done an import before. (A missing value returns NO)
-        if (![defaults boolForKey:@"didFSImport"]) {
-            // Slurp in any filesystem based events. This converts older fs-based
-            // event storage into newer SQL-lite based storage.
-            [self importFileData];
-        }
-
-        NSData *data = nil;
-        NSMutableDictionary *eventIds = nil;
-        [self prepareJSONData:&data andEventIds:&eventIds];
-        // get data for the API request we'll make
-
-        if ([data length] > 0) {
-
-            // loop through events and increment their attempt count
-            for (NSString *collectionName in eventIds) {
-                for (NSNumber *eid in eventIds[collectionName]) {
-                    [dbStore incrementEventUploadAttempts:eid];
-                }
+- (void)uploadWithFinishedBlock:(void (^)())block {
+    dispatch_async(self.uploadQueue, ^{
+        // only one thread should be doing an upload at a time.
+        @synchronized(self) {
+            if (![self isNetworkConnected]) {
+                return;
             }
-
-            // then make an http request to the keen server.
-            NSURLResponse *response = nil;
-            NSError *error = nil;
-            NSData *responseData = [self sendEvents:data returningResponse:&response error:&error];
             
-            // then parse the http response and deal with it appropriately
-            [self handleEventAPIResponse:response andData:responseData forEvents:eventIds];
-        }
-    }
-}
-
-- (void)uploadWithFinishedBlock:(void (^)()) block {
-    if (self.isRunningTests) {
-        // run upload in same thread if we're in tests
-        [self uploadHelper];
-    } else {
-        // otherwise do it in the background to not interfere with UI operations
-        dispatch_async(self.uploadQueue, ^{
-            [self uploadHelper];
+            NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
             
-            // we're done uploading, call the main queue and execute the block
-            dispatch_async(dispatch_get_main_queue(), ^{
-                // finally, run the user-specific block (if there is one)
-                if (block) {
-                    KCLog(@"Running user-specified block.");
-                    @try {
-                        block();
-                    } @finally {
-                        // do nothing
+            // Check if we've done an import before. (A missing value returns NO)
+            if (![defaults boolForKey:@"didFSImport"]) {
+                // Slurp in any filesystem based events. This converts older fs-based
+                // event storage into newer SQL-lite based storage.
+                [self importFileData];
+            }
+            
+            NSData *data = nil;
+            NSMutableDictionary *eventIds = nil;
+            [self prepareJSONData:&data andEventIds:&eventIds];
+            // get data for the API request we'll make
+            
+            if ([data length] > 0) {
+                
+                // loop through events and increment their attempt count
+                for (NSString *collectionName in eventIds) {
+                    for (NSNumber *eid in eventIds[collectionName]) {
+                        [dbStore incrementEventUploadAttempts:eid];
                     }
                 }
-            });
-        });
-    }
+                
+                // then make an http request to the keen server.
+                [self sendEvents:data completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                    // then parse the http response and deal with it appropriately
+                    [self handleEventAPIResponse:response andData:data forEvents:eventIds];
+                    
+                    // finally, run the user-specific block (if there is one)
+                    if (block) {
+                        KCLog(@"Running user-specified block.");
+                        @try {
+                            block();
+                        } @finally {
+                            // do nothing
+                        }
+                    }
+                }];
+            }
+        }
+    });
 }
 
 - (void)handleEventAPIResponse:(NSURLResponse *)response 
@@ -951,7 +933,7 @@ static KIODBStore *dbStore;
 
 # pragma mark - HTTP request/response management
 
-- (NSData *)sendEvents:(NSData *)data returningResponse:(NSURLResponse **)response error:(NSError **)error {
+- (void)sendEvents:(NSData *)data completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
                            kKeenServerAddress, kKeenApiVersion, self.projectID];
     KCLog(@"Sending request to: %@", urlString);
@@ -964,8 +946,9 @@ static KIODBStore *dbStore;
     // TODO check if setHTTPBody also sets content-length
     [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [data length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:data];
-    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
-    return responseData;
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
 - (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {

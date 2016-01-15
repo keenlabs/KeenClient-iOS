@@ -25,7 +25,7 @@
 // If we're running tests.
 @property (nonatomic) BOOL isRunningTests;
 
-- (NSData *)sendEvents: (NSData *) data returningResponse: (NSURLResponse **) response error: (NSError **) error;
+- (NSData *)sendEvents:(NSData *)data completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 - (BOOL)isNetworkConnected;
 - (id)convertDate: (id) date;
 - (id)handleInvalidJSONInObject:(id)value;
@@ -33,6 +33,8 @@
 @end
 
 @interface KeenClientTests ()
+
+@property (nonatomic) NSTimeInterval asyncTimeInterval;
 
 - (NSString *)cacheDirectory;
 - (NSString *)keenDirectory;
@@ -54,6 +56,8 @@
     [KeenClient enableLogging];
     [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
+    
+    _asyncTimeInterval = 100;
 }
 
 - (void)tearDown {
@@ -426,9 +430,6 @@
     client.isRunningTests = YES;
     id mock = [OCMockObject partialMockForObject:client];
     
-    // set up the response we're faking out
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
-    
     // serialize the faked out response data
     if (!data) {
         data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
@@ -437,10 +438,9 @@
     NSData *serializedData = [NSJSONSerialization dataWithJSONObject:data
                                                              options:0
                                                                error:nil];
-    // set up the response data we're faking out
-    [[[mock stub] andReturn:serializedData] sendEvents:[OCMArg any]
-                                     returningResponse:[OCMArg setTo:response]
-                                                 error:[OCMArg setTo:nil]];
+    
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
+    [[mock stub] sendEvents:[OCMArg any] completionHandler:[OCMArg invokeBlockWithArgs:serializedData, response, [NSNull null], nil]];
     
     [[[mock stub] andReturnValue:network] isNetworkConnected];
     
@@ -487,12 +487,12 @@
     return mock;
 }
 
-- (void)addSimpleEventAndUploadWithMock:(id)mock {
+- (void)addSimpleEventAndUploadWithMock:(id)mock andFinishedBlock:(void (^)())finishedBlock {
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
     
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
+    [mock uploadWithFinishedBlock:finishedBlock];
 }
 
 # pragma mark - test upload
@@ -506,75 +506,86 @@
 }
 
 - (void)testUploadSuccess {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK];
+    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode2XXSuccess];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    }];
 }
 
 - (void)testUploadSuccessInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:HTTPCode200OK];
-    
-    [self addSimpleEventAndUploadWithMock:mock];
+    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:HTTPCode2XXSuccess];
     
     // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
-}
-
-- (void)testUploadSuccessCreated {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode201Created];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    [self addSimpleEventAndUploadWithMock:mock];
-    
-    // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
-}
-
-- (void)testUploadSuccessCreatedInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:HTTPCode201Created];
-    
-    [self addSimpleEventAndUploadWithMock:mock];
-    
-    // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    }];
 }
 
 - (void)testUploadFailedServerDown {
     id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode500InternalServerError];
     
-    [self addSimpleEventAndUploadWithMock:mock];
-
-    // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted from the store
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+    }];
 }
 
 - (void)testUploadFailedServerDownInstanceClient {
     id mock = [self uploadTestHelperWithDataInstanceClient:[mock projectID] andStatusCode:HTTPCode500InternalServerError];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted from the store
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+    }];
 }
 
 - (void)testUploadFailedServerDownNonJsonResponse {
     id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode500InternalServerError];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+    }];
 }
 
 - (void)testUploadFailedServerDownNonJsonResponseInstanceClient {
     id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode500InternalServerError];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one files after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+    }];
 }
 
 
@@ -583,32 +594,34 @@
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-
+    
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
-
-
-    // add another event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure both filef weren't deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
-
-
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure the first file was deleted from the store, but the second one remains
-    XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one files after 3 unsuccessful attempts.");
-
-
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure both files were delete from the store
-    XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
+    [mock uploadWithFinishedBlock:^{
+        // make sure the file wasn't deleted from the store
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
+        
+        // add another event
+        [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+        [mock uploadWithFinishedBlock:^{
+            // make sure both files weren't deleted from the store
+            XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
+            
+            [mock uploadWithFinishedBlock:^{
+                // make sure the first file was deleted from the store, but the second one remains
+                XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one file after 3 unsuccessful attempts.");
+                
+                [mock uploadWithFinishedBlock:^{
+                    [responseArrived fulfill];
+                }];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure both files were deleted from the store
+        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
+    }];
 }
 
 - (void)testIncrementEvenOnNoResponse {
@@ -618,35 +631,43 @@
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
 
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure the file wasn't deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
-
-
-    // add another event
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure both filef weren't deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
-
-
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure the event was incremented
-    XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
-    XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+    [mock uploadWithFinishedBlock:^{
+        // make sure the file wasn't deleted from the store
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
+        
+        // add another event
+        [mock uploadWithFinishedBlock:^{
+            // make sure both files weren't deleted from the store
+            XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
+            
+            [mock uploadWithFinishedBlock:^{
+                [responseArrived fulfill];
+            }];
+        }];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the event was incremented
+        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
+        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+    }];
 }
 
 - (void)testUploadFailedBadRequest {
     id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO AndErrorCode:@"InvalidCollectionNameError" AndDescription:@"anything"] andStatusCode:HTTPCode200OK];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file was deleted locally
-    // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file was deleted locally
+        // make sure the event was deleted from the store
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+    }];
 }
 
 - (void)testUploadFailedBadRequestInstanceClient {
@@ -655,55 +676,79 @@
                                                                  AndDescription:@"anything"]
                                andStatusCode:HTTPCode200OK];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file was deleted locally
-    // make sure the event was deleted from the store
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file was deleted locally
+        // make sure the event was deleted from the store
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+    }];
 }
 
 - (void)testUploadFailedBadRequestUnknownError {
     id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode400BadRequest];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    }];
 }
 
 - (void)testUploadFailedBadRequestUnknownErrorInstanceClient {
     id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode400BadRequest];
-
-    [self addSimpleEventAndUploadWithMock:mock];
-
-    // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    }];
 }
 
 - (void)testUploadFailedRedirectionStatus {
     id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode300MultipleChoices];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    }];
 }
 
 - (void)testUploadFailedRedirectionStatusInstanceClient {
     id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode300MultipleChoices];
     
-    [self addSimpleEventAndUploadWithMock:mock];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+    }];
 }
 
 - (void)testUploadSkippedNoNetwork {
     id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK andNetwork:@NO];
 
-    NSLog(@"my failure here.");
-    [self addSimpleEventAndUploadWithMock:mock];
-
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:nil];
+    
     // make sure the file wasn't deleted locally
     XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
 }
@@ -724,10 +769,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
     
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the events were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the events were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccessInstanceClient {
@@ -746,10 +796,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
     
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the events were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the events were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionSuccess {
@@ -769,10 +824,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
     
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the files were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionSuccessInstanceClient {
@@ -792,10 +852,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
     
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the files were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsSameCollectionOneFails {
@@ -814,10 +879,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
 
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure the file were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsSameCollectionOneFailsInstanceClient {
@@ -836,10 +906,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
     
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the file were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFails {
@@ -859,10 +934,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
 
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the files were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsInstanceClient {
@@ -882,10 +962,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
     
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the files were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
@@ -905,10 +990,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
 
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
-
-    // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the files were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
+    }];
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReasonInstanceClient {
@@ -928,10 +1018,15 @@
     [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
     
     // and "upload" it
-    [mock uploadWithFinishedBlock:nil];
+    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [mock uploadWithFinishedBlock:^{
+        [responseArrived fulfill];
+    }];
     
-    // make sure the files were deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the files were deleted locally
+        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 event after a partial upload.");
+    }];
 }
 
 - (void)testTooManyEventsCached {
