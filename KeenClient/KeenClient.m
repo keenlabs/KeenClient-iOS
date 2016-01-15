@@ -973,7 +973,7 @@ static KIODBStore *dbStore;
 # pragma mark Async methods
 
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
-    dispatch_async(self.uploadQueue, ^{
+    dispatch_async(self.queryQueue, ^{
         BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery];
         
         if(hasQueryWithMaxAttempts) {
@@ -1002,7 +1002,7 @@ static KIODBStore *dbStore;
 }
 
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
-    dispatch_async(self.uploadQueue, ^{
+    dispatch_async(self.queryQueue, ^{
         NSURLResponse *response = nil;
         NSError *error = nil;
         NSData *dataResponse = [self runMultiAnalysisWithQueries:keenQueries returningResponse:&response error:&error];
