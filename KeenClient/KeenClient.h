@@ -351,6 +351,6 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
 // defines the KCLog macro
 #define KEEN_LOGGING_ENABLED [KeenClient loggingEnabled]
-#define KCLog(message, ...)if([KeenClient isLoggingEnabled]) NSLog(message, ##__VA_ARGS__)
+#define KCLog(message, ...) { if([KeenClient isLoggingEnabled]) { NSLog(message, ##__VA_ARGS__); } }
 
 @end

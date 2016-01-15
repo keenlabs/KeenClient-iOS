@@ -559,9 +559,7 @@ static KIODBStore *dbStore;
     [dbStore addEvent:jsonData collection: eventCollection projectID:self.projectID];
     
     // log the event
-    if ([KeenClient isLoggingEnabled]) {
-        KCLog(@"Event: %@", eventToWrite);
-    }
+    KCLog(@"Event: %@", eventToWrite);
 
     return YES;
 }
@@ -684,9 +682,7 @@ static KIODBStore *dbStore;
     *jsonData = data;
     *eventIds = eventIdDict;
     
-    if ([KeenClient isLoggingEnabled]) {
-        KCLog(@"Uploading following events to Keen API: %@", requestDict);
-    }
+    KCLog(@"Uploading following events to Keen API: %@", requestDict);
 }
 
 # pragma mark - Directory/path management
