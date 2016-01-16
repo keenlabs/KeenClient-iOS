@@ -332,7 +332,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  @param returningResponse The NSURLResponse for the query.
  @param error The NSError (if any) for the query.
  */
-- (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error;
+- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
 /**
  Handles the HTTP response from the Keen Query API.

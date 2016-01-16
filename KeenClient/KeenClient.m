@@ -1001,22 +1001,20 @@ static KIODBStore *dbStore;
 
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
     dispatch_async(self.queryQueue, ^{
-        NSURLResponse *response = nil;
-        NSError *error = nil;
-        NSData *dataResponse = [self runMultiAnalysisWithQueries:keenQueries returningResponse:&response error:&error];
-        
-        // we're done querying, call the main queue and execute the block
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // run the user-specific block (if there is one)
-            if (block) {
-                KCLog(@"Running user-specified block.");
-                @try {
-                    block(dataResponse, response, error);
-                } @finally {
-                    // do nothing
+        [self runMultiAnalysisWithQueries:keenQueries completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            // we're done querying, call the main queue and execute the block
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // run the user-specific block (if there is one)
+                if (block) {
+                    KCLog(@"Running user-specified block.");
+                    @try {
+                        block(data, response, error);
+                    } @finally {
+                        // do nothing
+                    }
                 }
-            }
-        });
+            });
+        }];
     });
 }
 
@@ -1045,14 +1043,14 @@ static KIODBStore *dbStore;
     }
 }
 
-- (NSData *)runMultiAnalysisWithQueries:(NSArray *)keenQueries returningResponse:(NSURLResponse **)response error:(NSError **)error {
+- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
                            kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
     KCLog(@"Sending request to: %@", urlString);
     
     NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
     if (multiAnalysisDictionary == nil) {
-        return nil;
+        return;
     }
     
     //convert the resulting dictionary to data and set it as HTTPBody
@@ -1062,7 +1060,7 @@ static KIODBStore *dbStore;
     
     if(dictionarySerializationError != nil) {
         KCLog(@"error with dictionary serialization");
-        return nil;
+        return;
     }
     
     NSURL *url = [NSURL URLWithString:urlString];
@@ -1073,9 +1071,9 @@ static KIODBStore *dbStore;
     [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
     [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [multiAnalysisData length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:multiAnalysisData];
-    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:response error:error];
     
-    return responseData;
+    NSURLSession *session = [NSURLSession sharedSession];
+    [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
 # pragma mark Helper Methods
