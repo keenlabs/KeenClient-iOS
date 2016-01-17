@@ -561,9 +561,9 @@ let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResp
     var result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber;
 		
     if let actualError = error, errorCode = responseDictionary!.objectForKey("error_code") as? String {
-        println(NSString(format:"Failure! 😞 \n\n error: %@\n\n response: %@", actualError, errorCode));
+				print("Failure! 😞 \n\n response: \(responseDictionary!.description)");
     } else {
-			println(NSString(format:"Success! 😄 \n\n response: %@", responseDictionary!.description));
+				print("Success! 😄 \n\n response: \(responseDictionary!.description)");
     }
 }
 ```
