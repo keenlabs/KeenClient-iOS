@@ -11,7 +11,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 0111015714EF71FB009794A5 /* Build configuration list for PBXAggregateTarget "KeenClient-Aggregate" */;
 			buildPhases = (
-				0111015A14EF720D009794A5 /* ShellScript */,
+				0111015A14EF720D009794A5 /* Run Script */,
 			);
 			dependencies = (
 				1296398B19C10B4500B2B653 /* PBXTargetDependency */,
@@ -705,18 +705,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0111015A14EF720D009794A5 /* ShellScript */ = {
+		0111015A14EF720D009794A5 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export TMP_DIR=/tmp/keenios\nexport TMP_DIR_COCOA=/tmp/keenios-cocoa\n\nrm -rf ${TMP_DIR}\nrm -rf ${TMP_DIR_COCOA}\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\nrm -rf ${BUILT_PRODUCTS_DIR}/libKeenClient-Cocoa.a\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient.zip\nrm -rf ${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\n\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient-Simulator.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient-Device.a\" -output \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\"\n\nmkdir -p ${TMP_DIR}\nmkdir -p ${TMP_DIR_COCOA}\n\ncp -r \"${BUILT_PRODUCTS_DIR}/libKeenClient-Aggregate.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOQuery.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/HTTPCodes.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOReachability.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIODBStore.h\" ${TMP_DIR}/.\n\ncp -r \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}/libKeenClient-Cocoa.a\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenClient.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KeenProperties.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOQuery.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/HTTPCodes.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIOReachability.h\" \"${BUILT_PRODUCTS_DIR}/usr/local/include/KIODBStore.h\" ${TMP_DIR_COCOA}/.\n\ncd ${TMP_DIR}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient.zip\" *\n\ncd ${TMP_DIR_COCOA}\nzip -r \"${BUILT_PRODUCTS_DIR}/KeenClient-Cocoa.zip\" *";
+			shellScript = "# define output folder\nexport UNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-universal\nexport UNIVERSAL_OUTPUT_FOLDER_IOS=${UNIVERSAL_OUTPUT_FOLDER}/iOS\nexport UNIVERSAL_OUTPUT_FOLDER_COCOA=${UNIVERSAL_OUTPUT_FOLDER}/Cocoa\n\n# clean previous output, if any\nrm -rf ${UNIVERSAL_OUTPUT_FOLDER}\n\n# make sure the output folder exists\nmkdir -p ${UNIVERSAL_OUTPUT_FOLDER_IOS}\nmkdir -p ${UNIVERSAL_OUTPUT_FOLDER_COCOA}\n\n# build for device and simulator\nxcodebuild -target KeenClient ONLY_ACTIVE_ARCH=NO OTHER_CFLAGS=\"-fembed-bitcode-marker\" -configuration ${CONFIGURATION} -sdk iphonesimulator BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\"\n\nxcodebuild -target KeenClient ONLY_ACTIVE_ARCH=NO OTHER_CFLAGS=\"-fembed-bitcode\" -configuration ${CONFIGURATION} -sdk iphoneos BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\"\n\n# create universal/fat binary\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient.a\" -output \"${UNIVERSAL_OUTPUT_FOLDER_IOS}/lib${PROJECT_NAME}-Aggregate.a\"\n\n# copy Cocoa binary\ncp -r \"${BUILD_DIR}/${CONFIGURATION}/libKeenClient-Cocoa.a\" ${UNIVERSAL_OUTPUT_FOLDER_COCOA}\n\n# copy the header files\nmkdir -p ${UNIVERSAL_OUTPUT_FOLDER_IOS}/include\nrsync -r --exclude=\"/keen_io_sqlite*\" ${BUILT_PRODUCTS_DIR}/usr/local/include/ ${UNIVERSAL_OUTPUT_FOLDER_IOS}/include\n\nmkdir -p ${UNIVERSAL_OUTPUT_FOLDER_COCOA}/include\nrsync -r --exclude=\"/keen_io_sqlite*\" ${BUILT_PRODUCTS_DIR}/usr/local/include/ ${UNIVERSAL_OUTPUT_FOLDER_COCOA}/include\n\n# zip everything up\ncd ${UNIVERSAL_OUTPUT_FOLDER_IOS}\nzip -r \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}.zip\" *\n\ncd ${UNIVERSAL_OUTPUT_FOLDER_COCOA}\nzip -r \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}-Cocoa.zip\" *";
 		};
 /* End PBXShellScriptBuildPhase section */
 
