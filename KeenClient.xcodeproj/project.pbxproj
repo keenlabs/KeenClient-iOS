@@ -844,7 +844,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "KeenClient-Simulator";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = iphonesimulator;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				VALID_ARCHS = "armv6 armv7 arm64";
 			};
 			name = Debug;
@@ -865,7 +865,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "KeenClient-Simulator";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = iphonesimulator;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				VALID_ARCHS = "armv6 armv7 arm64";
 			};
 			name = Release;
