@@ -15,8 +15,6 @@
 			);
 			dependencies = (
 				1296398B19C10B4500B2B653 /* PBXTargetDependency */,
-				0111015C14EF7487009794A5 /* PBXTargetDependency */,
-				0111015E14EF7489009794A5 /* PBXTargetDependency */,
 			);
 			name = "KeenClient-Aggregate";
 			productName = "KeenClient-Aggregate";
@@ -25,20 +23,6 @@
 
 /* Begin PBXBuildFile section */
 		0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
-		010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
-		0111011E14EF709A009794A5 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
-		0111011F14EF709A009794A5 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
-		0111012314EF709A009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
-		0111012614EF709A009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0111012D14EF709A009794A5 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
-		0111013614EF70AB009794A5 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
-		0111013714EF70AB009794A5 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
-		0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 017EE12114E30C96000F3868 /* Foundation.framework */; };
-		0111013E14EF70AB009794A5 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0111014514EF70AB009794A5 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		012E8A571672B9A90021F6FA /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
 		012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5C1672BE860021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -52,10 +36,6 @@
 		017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE13E14E30C96000F3868 /* KeenClientTests.m */; };
 		01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		01BA1B0614E895BC00CF9F84 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
-		125D31A41B0E330900DFCC97 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
-		125D31A51B0E331800DFCC97 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		125D31A61B0E333400DFCC97 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
-		125D31A71B0E333900DFCC97 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		125D31A81B0E334D00DFCC97 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
 		125D31A91B0E335300DFCC97 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1296398D19C10B8500B2B653 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1296398C19C10B8500B2B653 /* Cocoa.framework */; };
@@ -70,19 +50,13 @@
 		1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
 		1296399719C10D2C00B2B653 /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
 		1296399819C10D4000B2B653 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
-		12AE4C3A1B4AD26D0015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		12AE4C3B1B4AD27D0015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		12AE4C3C1B4AD2880015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		12AE4C3D1B4AD2980015F41F /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
-		12AE4C3E1B4AD2A00015F41F /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
 		12AE4C3F1B4AD2AD0015F41F /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
 		3E1EA1E31C49A07C00111153 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E1EA1E21C49A07000111153 /* libOCMock.a */; };
 		3E63D9F01AE7356C00E57A17 /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3E63D9F11AE7356C00E57A17 /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
 		3E63D9F71AE7425000E57A17 /* KIOQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */; };
 		3EE5CA9D1AF0697200D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
-		3EE5CA9F1AF069D900D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
-		3EE5CAA01AF069E300D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 		3EE5CAA21AF06A0700D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */; };
 		A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
@@ -90,25 +64,11 @@
 		CA6410D918E37E7C00E53E3C /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
 		CA6410E218E39F3A00E53E3C /* KIODBStoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410E118E39F3A00E53E3C /* KIODBStoreTests.m */; };
 		DE34F6F3197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
-		DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
-		DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
 		DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		DE34F6F7197586EE00051390 /* keen_io_sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		DE34F6F8197586EE00051390 /* keen_io_sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		DEFA50181947A66200F78E13 /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
-		DEFA50191947A67E00F78E13 /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
-		DEFA501A1947A70800F78E13 /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		DEFA501B1947A72600F78E13 /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4D3B6021A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6031A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4D3B6041A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4D3B6051A0D8EB4000825FE /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4D3B6061A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
-		F4D3B6081A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
-		F4D3B6091A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
 		F4D3B60A1A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
 		F4D3B61E1A0D98B4000825FE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
@@ -120,20 +80,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 0105EE5D14E9A4940048D871;
 			remoteInfo = KeenClientExample;
-		};
-		0111015B14EF7487009794A5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 0111011C14EF709A009794A5;
-			remoteInfo = "KeenClient-Simulator";
-		};
-		0111015D14EF7489009794A5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 0111013414EF70AB009794A5;
-			remoteInfo = "KeenClient-Device";
 		};
 		017EE13414E30C96000F3868 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -167,8 +113,6 @@
 
 /* Begin PBXFileReference section */
 		0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenClientExample.xcodeproj; path = KeenClientExample/KeenClientExample.xcodeproj; sourceTree = "<group>"; };
-		0111013314EF709A009794A5 /* libKeenClient-Simulator.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libKeenClient-Simulator.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		0111014B14EF70AB009794A5 /* libKeenClient-Device.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libKeenClient-Device.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		012E8A541672B9A90021F6FA /* KeenProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenProperties.h; sourceTree = "<group>"; };
 		012E8A551672B9A90021F6FA /* KeenProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenProperties.m; sourceTree = "<group>"; };
 		012E8A5C1672BE860021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -227,24 +171,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0111012214EF709A009794A5 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3EE5CA9F1AF069D900D6C48D /* SystemConfiguration.framework in Frameworks */,
-				0111012314EF709A009794A5 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		0111013A14EF70AB009794A5 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3EE5CAA01AF069E300D6C48D /* SystemConfiguration.framework in Frameworks */,
-				0111013B14EF70AB009794A5 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		017EE11B14E30C96000F3868 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -332,8 +258,6 @@
 			children = (
 				017EE11E14E30C96000F3868 /* libKeenClient.a */,
 				017EE12E14E30C96000F3868 /* KeenClientTests.xctest */,
-				0111013314EF709A009794A5 /* libKeenClient-Simulator.a */,
-				0111014B14EF70AB009794A5 /* libKeenClient-Device.a */,
 				1296396319C10AD200B2B653 /* libKeenClient-Cocoa.a */,
 			);
 			name = Products;
@@ -468,38 +392,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		0111012514EF709A009794A5 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0111012614EF709A009794A5 /* KeenClient.h in Headers */,
-				010EB07F1676CF34002B07B6 /* KeenProperties.h in Headers */,
-				DEFA501B1947A72600F78E13 /* KIODBStore.h in Headers */,
-				125D31A51B0E331800DFCC97 /* HTTPCodes.h in Headers */,
-				F4D3B6031A0D8EB4000825FE /* KIOReachability.h in Headers */,
-				12AE4C3A1B4AD26D0015F41F /* KIOQuery.h in Headers */,
-				DE34F6F7197586EE00051390 /* keen_io_sqlite3.h in Headers */,
-				DE34F6FA197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
-				0111012D14EF709A009794A5 /* KeenConstants.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		0111013D14EF70AB009794A5 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0111013E14EF70AB009794A5 /* KeenClient.h in Headers */,
-				010EB0801676CF41002B07B6 /* KeenProperties.h in Headers */,
-				DEFA501A1947A70800F78E13 /* KIODBStore.h in Headers */,
-				125D31A71B0E333900DFCC97 /* HTTPCodes.h in Headers */,
-				F4D3B6041A0D8EB4000825FE /* KIOReachability.h in Headers */,
-				12AE4C3B1B4AD27D0015F41F /* KIOQuery.h in Headers */,
-				DE34F6F8197586EE00051390 /* keen_io_sqlite3.h in Headers */,
-				DE34F6FB197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
-				0111014514EF70AB009794A5 /* KeenConstants.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		017EE11C14E30C96000F3868 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -535,40 +427,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		0111011C14EF709A009794A5 /* KeenClient-Simulator */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 0111013014EF709A009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Simulator" */;
-			buildPhases = (
-				0111011D14EF709A009794A5 /* Sources */,
-				0111012214EF709A009794A5 /* Frameworks */,
-				0111012514EF709A009794A5 /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "KeenClient-Simulator";
-			productName = KeenClient;
-			productReference = 0111013314EF709A009794A5 /* libKeenClient-Simulator.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-		0111013414EF70AB009794A5 /* KeenClient-Device */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 0111014814EF70AB009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Device" */;
-			buildPhases = (
-				0111013514EF70AB009794A5 /* Sources */,
-				0111013A14EF70AB009794A5 /* Frameworks */,
-				0111013D14EF70AB009794A5 /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "KeenClient-Device";
-			productName = KeenClient;
-			productReference = 0111014B14EF70AB009794A5 /* libKeenClient-Device.a */;
-			productType = "com.apple.product-type.library.static";
-		};
 		017EE11D14E30C96000F3868 /* KeenClient */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 017EE14214E30C96000F3868 /* Build configuration list for PBXNativeTarget "KeenClient" */;
@@ -660,11 +518,9 @@
 			projectRoot = "";
 			targets = (
 				017EE11D14E30C96000F3868 /* KeenClient */,
-				017EE12D14E30C96000F3868 /* KeenClientTests */,
-				0111011C14EF709A009794A5 /* KeenClient-Simulator */,
-				0111013414EF70AB009794A5 /* KeenClient-Device */,
-				0111015614EF71FB009794A5 /* KeenClient-Aggregate */,
 				1296396219C10AD200B2B653 /* KeenClient-Cocoa */,
+				0111015614EF71FB009794A5 /* KeenClient-Aggregate */,
+				017EE12D14E30C96000F3868 /* KeenClientTests */,
 			);
 		};
 /* End PBXProject section */
@@ -722,36 +578,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0111011D14EF709A009794A5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				12AE4C3D1B4AD2980015F41F /* KIOQuery.m in Sources */,
-				125D31A41B0E330900DFCC97 /* HTTPCodes.m in Sources */,
-				DEFA50181947A66200F78E13 /* KIODBStore.m in Sources */,
-				0111011E14EF709A009794A5 /* KeenClient.m in Sources */,
-				010EB08C1676D1D6002B07B6 /* KeenProperties.m in Sources */,
-				0111011F14EF709A009794A5 /* KeenConstants.m in Sources */,
-				F4D3B6081A0D8EB4000825FE /* KIOReachability.m in Sources */,
-				DE34F6F4197586EE00051390 /* keen_io_sqlite3.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		0111013514EF70AB009794A5 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				12AE4C3E1B4AD2A00015F41F /* KIOQuery.m in Sources */,
-				125D31A61B0E333400DFCC97 /* HTTPCodes.m in Sources */,
-				DEFA50191947A67E00F78E13 /* KIODBStore.m in Sources */,
-				0111013614EF70AB009794A5 /* KeenClient.m in Sources */,
-				010EB08D1676D1EE002B07B6 /* KeenProperties.m in Sources */,
-				0111013714EF70AB009794A5 /* KeenConstants.m in Sources */,
-				F4D3B6091A0D8EB4000825FE /* KIOReachability.m in Sources */,
-				DE34F6F5197586EE00051390 /* keen_io_sqlite3.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		017EE11A14E30C96000F3868 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -795,16 +621,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0111015C14EF7487009794A5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 0111011C14EF709A009794A5 /* KeenClient-Simulator */;
-			targetProxy = 0111015B14EF7487009794A5 /* PBXContainerItemProxy */;
-		};
-		0111015E14EF7489009794A5 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 0111013414EF70AB009794A5 /* KeenClient-Device */;
-			targetProxy = 0111015D14EF7489009794A5 /* PBXContainerItemProxy */;
-		};
 		017EE13514E30C96000F3868 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 017EE11D14E30C96000F3868 /* KeenClient */;
@@ -829,90 +645,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		0111013114EF709A009794A5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
-				DSTROOT = /tmp/KeenClient.dst;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
-				GCC_THUMB_SUPPORT = NO;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/Library\"",
-				);
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "KeenClient-Simulator";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
-				VALID_ARCHS = "armv6 armv7 arm64";
-			};
-			name = Debug;
-		};
-		0111013214EF709A009794A5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
-				DSTROOT = /tmp/KeenClient.dst;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
-				GCC_THUMB_SUPPORT = NO;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/Library\"",
-				);
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "KeenClient-Simulator";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
-				VALID_ARCHS = "armv6 armv7 arm64";
-			};
-			name = Release;
-		};
-		0111014914EF70AB009794A5 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
-				DSTROOT = /tmp/KeenClient.dst;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
-				GCC_THUMB_SUPPORT = NO;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/Library\"",
-				);
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "KeenClient-Device";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = iphoneos;
-				VALID_ARCHS = "armv7 armv7s arm64";
-			};
-			name = Debug;
-		};
-		0111014A14EF70AB009794A5 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_ARC = YES;
-				DSTROOT = /tmp/KeenClient.dst;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "KeenClient/KeenClient-Prefix.pch";
-				GCC_THUMB_SUPPORT = NO;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/Library\"",
-				);
-				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "KeenClient-Device";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = iphoneos;
-				VALID_ARCHS = "armv7 armv7s arm64";
-			};
-			name = Release;
-		};
 		0111015814EF71FB009794A5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1143,24 +875,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0111013014EF709A009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Simulator" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				0111013114EF709A009794A5 /* Debug */,
-				0111013214EF709A009794A5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		0111014814EF70AB009794A5 /* Build configuration list for PBXNativeTarget "KeenClient-Device" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				0111014914EF70AB009794A5 /* Debug */,
-				0111014A14EF70AB009794A5 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		0111015714EF71FB009794A5 /* Build configuration list for PBXAggregateTarget "KeenClient-Aggregate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
