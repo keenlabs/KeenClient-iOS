@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+
+## [3.5.1] - 2016-01-27
 ### Fixed
 - Updated Swift example project to conform with new Swift 2 syntax. Also added the timeframe parameter to all queries in example projects to conform with Keen query requirements. #132
 - Updated project properties using Xcode's recommended settings: "Build Settings" to Standard architectures, "Product Bundle Identifier", and "Enable Testability".
@@ -177,7 +180,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.0...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.1...HEAD
+[3.5.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.3...3.5.0
 [3.4.3]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.2...3.4.3
 [3.4.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.1...3.4.2
