@@ -16,6 +16,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Changed the KeenClientExample project deployment target to 6.0, so it can be deployed to a device when bitcode is enabled.
+- Removed KeenClient-Device and KeenClient-Simulator targets.
+- Changed the KeenClient-Aggregate "Run Script" phase to use `xcodebuild`, and build the KeenClient target for both simulator and device with bitcode support. #140
 
 ## [3.5.0] - 2015-12-29
 ### Added
