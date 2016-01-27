@@ -48,8 +48,8 @@ Our recommended way of installing `KeenClient` is to use the universal binary we
 
 ##### Download
 
-* [Cocoa](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.0/KeenClient-Cocoa.zip)
-* [iOS](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.0/KeenClient.zip)
+* [Cocoa](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.1/KeenClient-Cocoa.zip)
+* [iOS](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.1/KeenClient.zip)
 
 ##### Uncompress - Cocoa
 
