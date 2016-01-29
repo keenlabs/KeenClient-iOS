@@ -58,6 +58,24 @@
 		3E63D9F71AE7425000E57A17 /* KIOQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */; };
 		3EE5CA9D1AF0697200D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
 		3EE5CAA21AF06A0700D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */; };
+		3EE9A72F1C59873F00B7B2D9 /* KeenClientFramework.h in Headers */ = {isa = PBXBuildFile; fileRef = 3EE9A72E1C59873F00B7B2D9 /* KeenClientFramework.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3EE9A7371C5988D200B7B2D9 /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
+		3EE9A7381C5988D200B7B2D9 /* keen_io_sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */; settings = {COMPILER_FLAGS = "-w -Xanalyzer -analyzer-disable-all-checks"; }; };
+		3EE9A7391C5988D200B7B2D9 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
+		3EE9A73A1C5988D200B7B2D9 /* KeenClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 017EE12714E30C96000F3868 /* KeenClient.m */; };
+		3EE9A73B1C5988D200B7B2D9 /* KeenProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 012E8A551672B9A90021F6FA /* KeenProperties.m */; };
+		3EE9A73C1C5988D200B7B2D9 /* KeenConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 01BA1B0414E895BC00CF9F84 /* KeenConstants.m */; };
+		3EE9A73D1C5988D200B7B2D9 /* KIODBStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CA6410D718E37E7C00E53E3C /* KIODBStore.m */; };
+		3EE9A73E1C5988D200B7B2D9 /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
+		3EE9A73F1C5988F100B7B2D9 /* KIOReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = F4D3B6001A0D8EB4000825FE /* KIOReachability.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3EE9A7401C5988F100B7B2D9 /* keen_io_sqlite3.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		3EE9A7411C5988F100B7B2D9 /* keen_io_sqlite3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = DE34F6F2197586EE00051390 /* keen_io_sqlite3ext.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		3EE9A7421C5988F100B7B2D9 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3EE9A7431C5988F100B7B2D9 /* KeenClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 017EE12614E30C96000F3868 /* KeenClient.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3EE9A7441C5988F100B7B2D9 /* KeenProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = 012E8A541672B9A90021F6FA /* KeenProperties.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3EE9A7451C5988F100B7B2D9 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
+		3EE9A7461C5988F100B7B2D9 /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3EE9A7471C5988F100B7B2D9 /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
 		CA6410D818E37E7C00E53E3C /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -153,6 +171,9 @@
 		3E63D9F51AE7425000E57A17 /* KIOQueryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOQueryTests.h; sourceTree = "<group>"; };
 		3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOQueryTests.m; sourceTree = "<group>"; };
 		3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		3EE9A72C1C59873F00B7B2D9 /* KeenClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KeenClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3EE9A72E1C59873F00B7B2D9 /* KeenClientFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenClientFramework.h; sourceTree = "<group>"; };
+		3EE9A7301C59873F00B7B2D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A51E31221B03C6EF00008248 /* HTTPCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPCodes.h; sourceTree = "<group>"; };
 		A51E31231B03C6EF00008248 /* HTTPCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPCodes.m; sourceTree = "<group>"; };
 		A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenSwiftClientExample.xcodeproj; path = KeenSwiftClientExample/KeenSwiftClientExample.xcodeproj; sourceTree = "<group>"; };
@@ -203,6 +224,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3EE9A7281C59873F00B7B2D9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -247,6 +275,7 @@
 				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE12314E30C96000F3868 /* KeenClient */,
 				017EE13714E30C96000F3868 /* KeenClientTests */,
+				3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */,
 				017EE12014E30C96000F3868 /* Frameworks */,
 				017EE11F14E30C96000F3868 /* Products */,
 				01A9A34314FE95210082AB22 /* docs */,
@@ -259,6 +288,7 @@
 				017EE11E14E30C96000F3868 /* libKeenClient.a */,
 				017EE12E14E30C96000F3868 /* KeenClientTests.xctest */,
 				1296396319C10AD200B2B653 /* libKeenClient-Cocoa.a */,
+				3EE9A72C1C59873F00B7B2D9 /* KeenClient.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -361,6 +391,15 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
+		3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */ = {
+			isa = PBXGroup;
+			children = (
+				3EE9A72E1C59873F00B7B2D9 /* KeenClientFramework.h */,
+				3EE9A7301C59873F00B7B2D9 /* Info.plist */,
+			);
+			path = KeenClientFramework;
+			sourceTree = "<group>";
+		};
 		A58E0C071AF85F3C00DF2B71 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -424,6 +463,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3EE9A7291C59873F00B7B2D9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3EE9A72F1C59873F00B7B2D9 /* KeenClientFramework.h in Headers */,
+				3EE9A73F1C5988F100B7B2D9 /* KIOReachability.h in Headers */,
+				3EE9A7421C5988F100B7B2D9 /* HTTPCodes.h in Headers */,
+				3EE9A7431C5988F100B7B2D9 /* KeenClient.h in Headers */,
+				3EE9A7441C5988F100B7B2D9 /* KeenProperties.h in Headers */,
+				3EE9A7461C5988F100B7B2D9 /* KIODBStore.h in Headers */,
+				3EE9A7471C5988F100B7B2D9 /* KIOQuery.h in Headers */,
+				3EE9A7401C5988F100B7B2D9 /* keen_io_sqlite3.h in Headers */,
+				3EE9A7411C5988F100B7B2D9 /* keen_io_sqlite3ext.h in Headers */,
+				3EE9A7451C5988F100B7B2D9 /* KeenConstants.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -479,6 +535,24 @@
 			productReference = 1296396319C10AD200B2B653 /* libKeenClient-Cocoa.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		3EE9A72B1C59873F00B7B2D9 /* KeenClientFramework */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3EE9A7361C59873F00B7B2D9 /* Build configuration list for PBXNativeTarget "KeenClientFramework" */;
+			buildPhases = (
+				3EE9A7271C59873F00B7B2D9 /* Sources */,
+				3EE9A7281C59873F00B7B2D9 /* Frameworks */,
+				3EE9A7291C59873F00B7B2D9 /* Headers */,
+				3EE9A72A1C59873F00B7B2D9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KeenClientFramework;
+			productName = KeenClientFramework;
+			productReference = 3EE9A72C1C59873F00B7B2D9 /* KeenClient.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -492,6 +566,9 @@
 				TargetAttributes = {
 					017EE12D14E30C96000F3868 = {
 						TestTargetID = 017EE11D14E30C96000F3868;
+					};
+					3EE9A72B1C59873F00B7B2D9 = {
+						CreatedOnToolsVersion = 7.2;
 					};
 				};
 			};
@@ -521,6 +598,7 @@
 				1296396219C10AD200B2B653 /* KeenClient-Cocoa */,
 				0111015614EF71FB009794A5 /* KeenClient-Aggregate */,
 				017EE12D14E30C96000F3868 /* KeenClientTests */,
+				3EE9A72B1C59873F00B7B2D9 /* KeenClientFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -555,6 +633,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				017EE13C14E30C96000F3868 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3EE9A72A1C59873F00B7B2D9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -615,6 +700,21 @@
 				1296399619C10D2C00B2B653 /* KeenConstants.m in Sources */,
 				F4D3B60A1A0D8EB4000825FE /* KIOReachability.m in Sources */,
 				1296399719C10D2C00B2B653 /* KIODBStore.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3EE9A7271C59873F00B7B2D9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3EE9A7371C5988D200B7B2D9 /* KIOReachability.m in Sources */,
+				3EE9A7381C5988D200B7B2D9 /* keen_io_sqlite3.c in Sources */,
+				3EE9A7391C5988D200B7B2D9 /* HTTPCodes.m in Sources */,
+				3EE9A73A1C5988D200B7B2D9 /* KeenClient.m in Sources */,
+				3EE9A73B1C5988D200B7B2D9 /* KeenProperties.m in Sources */,
+				3EE9A73C1C5988D200B7B2D9 /* KeenConstants.m in Sources */,
+				3EE9A73D1C5988D200B7B2D9 /* KIODBStore.m in Sources */,
+				3EE9A73E1C5988D200B7B2D9 /* KIOQuery.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -872,6 +972,99 @@
 			};
 			name = Release;
 		};
+		3EE9A7311C59873F00B7B2D9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = KeenClientFramework/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keenLabs.KeenClient;
+				PRODUCT_NAME = KeenClient;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		3EE9A7321C59873F00B7B2D9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = KeenClientFramework/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.keenLabs.KeenClient;
+				PRODUCT_NAME = KeenClient;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -916,6 +1109,15 @@
 			buildConfigurations = (
 				1296398319C10AD200B2B653 /* Debug */,
 				1296398419C10AD200B2B653 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3EE9A7361C59873F00B7B2D9 /* Build configuration list for PBXNativeTarget "KeenClientFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3EE9A7311C59873F00B7B2D9 /* Debug */,
+				3EE9A7321C59873F00B7B2D9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
