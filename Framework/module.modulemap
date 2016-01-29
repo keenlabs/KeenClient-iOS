@@ -1,0 +1,5 @@
+framework module KeenClient {
+    umbrella header "KeenClientFramework.h"
+    export *
+    module * { export * }
+}
