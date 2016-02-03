@@ -1,7 +1,7 @@
 Keen IO iOS SDK
 ===============
 
-[![Build Status](https://travis-ci.org/keenlabs/KeenClient-iOS.png)](https://travis-ci.org/keenlabs/KeenClient-iOS)
+[![Build Status](https://travis-ci.org/keenlabs/KeenClient-iOS.png)](https://travis-ci.org/keenlabs/KeenClient-iOS) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
 ---
 
@@ -16,6 +16,9 @@ The Keen IO iOS client is designed to be simple to develop with, yet incredibly 
 While the name of this repo implies that this SDK is strictly for iOS, it can also be used in Mac OS applications by using the Cocoa version as outlined below. The code base is the same, but the build targets are different. :)
 
 * [Installation](#installation) - How to install `KeenClient` in your application
+	* [Carthage](#carthage)
+	* [CocoaPods](#cocoapods)
+	* [Binary](#universal-binary)
 * [Usage](#usage) - How to use `KeenClient`
 	* [Add Events](#add-events) - How to add an event
 	* [Global Properties](#global-properties) - How to set global properties
@@ -38,48 +41,19 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 
 ### Installation
 
-Installing the client should be a breeze. If it's not, please let us know at [contact@keen.io](mailto:contact@keen.io)!
+Installing the client should be a breeze, and there're 3 different ways to do it: Carthage, CocoaPods, and Binary. If you run into any problems, please let us know by opening an issue on this repository or sending us an email at [contact@keen.io](mailto:contact@keen.io)!
 
-#### Universal Binary
+#### Carthage
 
-Our recommended way of installing `KeenClient` is to use the universal binary we’ve created. You can check the latest version in our release page [here](https://github.com/keenlabs/KeenClient-iOS/releases).
+If you're using [Carthage](https://github.com/Carthage/Carthage), add the following to your Cartfile:
 
-> While we think the universal binary makes things really easy, we love to be transparent. We love feedback, especially in the form of pull requests. :)
+```
+github "keenlabs/KeenClient-iOS"
+```
 
-##### Download
+After that, just run `carthage update` and drag and drop the frameworks in the newly created Carthage/Build folder to the "Linked Frameworks and Libraries" in your project "General" settings tab.
 
-* [Cocoa](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.1/KeenClient-Cocoa.zip)
-* [iOS](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.1/KeenClient.zip)
-
-##### Uncompress - Cocoa
-
-Uncompress the archive. It should contain a folder called “KeenClient-Cocoa” with the following contents:
-
-* libKeenClient-Cocoa.a
-* KeenClient.h
-* KeenProperties.h
-* KIODBStore.h
-* HTTPCodes.h
-* Reachability.h
-
-##### Add Files to XCode - Cocoa
-
-Drag the "KeenClient-Cocoa" folder into your XCode project.
-
-##### Uncompress - iOS
-
-Uncompress the archive. It should contain a folder called “KeenClient” with the following contents:
-
-* libKeenClient-Aggregate.a
-* KeenClient.h
-* KeenProperties.h
-* KIODBStore.h
-* HTTPCodes.h
-* Reachability.h
-
-##### Add Files to XCode - iOS
-
-Drag the "KeenClient" folder into your XCode project.
+Also, follow the instructions on step 4 found [here](https://github.com/Carthage/Carthage/blob/5fd867c4895b4f59d70181dec169a1644f4430e3/README.md#if-youre-building-for-ios) to work around a bug when submitting to the App Store.
 
 #### CocoaPods
 
@@ -95,12 +69,31 @@ Then run:
 pod install
 ```
 
+#### Universal Binary
+
+You can check the latest version of the binary in our release page [here](https://github.com/keenlabs/KeenClient-iOS/releases).
+
+> While we think the universal binary makes things really easy, we love to be transparent. We love feedback, especially in the form of pull requests. :)
+
+##### Download
+
+* [Cocoa](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.1/KeenClient-Cocoa.zip)
+* [iOS](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.1/KeenClient.zip)
+
+##### Uncompress and Add to Xcode
+
+Uncompress the ZIP file for the platform you're using, and drag the folder into your Xcode project. (KeenClient-Cocoa for Cocoa, and KeenClient for iOS).
+
 #### Swift
 
 Add a header file “ProjectName-Bridging-Header.h”. In the bridging header file, add: 
 
-```
+```objc
+// If you're using the binary
 #import “KeenClient.h”
+
+// If you're using Carthage
+#import <KeenClient/KeenClient.h>
 ```
 
 In Build Settings, set the "Objective-C Bridging Header” section to your newly-created bridging header file ProjectName-Bridging-Header.h.
@@ -116,12 +109,9 @@ Also enable the "-ObjC" linker flag under "Other Linker Flags".
 
 Voila!
 
-
-
 ### Usage
 
 To use this client with the Keen IO API, you have to configure your Keen IO Project ID and its access keys (if you need an account, [sign up here](https://keen.io/) - it's free).
-
 
 ##### Register Your Project ID and Access Keys
 
