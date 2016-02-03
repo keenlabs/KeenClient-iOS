@@ -4,7 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
-
+### Added
+- Added support for Carthage. Added a Dynamic Framework scheme, and changed its setting to "Shared" so Carthage can use it.
 
 ## [3.5.1] - 2016-01-27
 ### Fixed
