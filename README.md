@@ -1,7 +1,7 @@
 Keen IO iOS SDK
 ===============
 
-[![Build Status](https://travis-ci.org/keenlabs/KeenClient-iOS.png)](https://travis-ci.org/keenlabs/KeenClient-iOS) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![Build Status](https://travis-ci.org/keenlabs/KeenClient-iOS.svg?branch=master)](https://travis-ci.org/keenlabs/KeenClient-iOS) [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
 ---
 
