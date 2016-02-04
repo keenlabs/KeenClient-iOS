@@ -41,7 +41,7 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 
 ### Installation
 
-Installing the client should be a breeze, and there're 3 different ways to do it: Carthage, CocoaPods, and Binary. If you run into any problems, please let us know by opening an issue on this repository or sending us an email at [contact@keen.io](mailto:contact@keen.io)!
+Installing the client should be a breeze, and there are 3 different ways to do it: Carthage, CocoaPods, and Binary. If you run into any problems, please let us know by opening an issue on this repository or sending us an email at [contact@keen.io](mailto:contact@keen.io)!
 
 #### Carthage
 
