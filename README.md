@@ -77,8 +77,8 @@ You can check the latest version of the binary in our release page [here](https:
 
 ##### Download
 
-* [Cocoa](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.1/KeenClient-Cocoa.zip)
-* [iOS](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.1/KeenClient.zip)
+* [Cocoa](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.2/KeenClient-Cocoa.zip)
+* [iOS](https://github.com/keenlabs/KeenClient-iOS/releases/download/3.5.2/KeenClient.zip)
 
 ##### Uncompress and Add to Xcode
 
