@@ -4,6 +4,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Added
+- Added test coverage integration with Coveralls by using the Slather gem. Added configuration file .slather.yml for use with Slather.
+- Added Gemfile with `Slather` and `xcpretty` gems for use with Travis CI.
+- Added shell script to run tests in `bin/test.sh`. Outputs each individual test and if it succeeded or failed.
+
+### Changed
+- Changed .travis.yml file to use the shell script `bin/test.sh` instead of Makefile.
+
+### Removed
+- Removed Makefile in favor of `/bin/test.sh`.
+- Removed unused docs folder and `generate_docs.sh` script.
 
 ## [3.5.2] - 2016-02-04
 ### Added
