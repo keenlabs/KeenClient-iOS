@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0105EE6214E9A4940048D871 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0105EE6114E9A4940048D871 /* UIKit.framework */; };
-		0105EE6414E9A4940048D871 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0105EE6314E9A4940048D871 /* Foundation.framework */; };
-		0105EE6614E9A4940048D871 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0105EE6514E9A4940048D871 /* CoreGraphics.framework */; };
 		0105EE6C14E9A4940048D871 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE6A14E9A4940048D871 /* InfoPlist.strings */; };
 		0105EE6E14E9A4940048D871 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EE6D14E9A4940048D871 /* main.m */; };
 		0105EE7214E9A4940048D871 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0105EE7114E9A4940048D871 /* AppDelegate.m */; };
@@ -23,19 +20,17 @@
 		0105EE8614E9A4940048D871 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0105EE8414E9A4940048D871 /* SecondViewController.xib */; };
 		012E8A7716765C330021F6FA /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 012E8A5F1672C30C0021F6FA /* CoreLocation.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		015D307F1822DE7D00F8735B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 015D307E1822DE7D00F8735B /* Default-568h@2x.png */; };
-		015D30811822DEE300F8735B /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 015D30801822DEE300F8735B /* libKeenClient.a */; };
 		3E0EC09F1B11701B00195A42 /* third.png in Resources */ = {isa = PBXBuildFile; fileRef = 3E0EC09D1B11701B00195A42 /* third.png */; };
 		3E0EC0A01B11701B00195A42 /* third@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3E0EC09E1B11701B00195A42 /* third@2x.png */; };
 		3E0EC0AA1B11740900195A42 /* ThirdViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E0EC0A81B11740900195A42 /* ThirdViewController.m */; };
 		3E0EC0AB1B11740900195A42 /* ThirdViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3E0EC0A91B11740900195A42 /* ThirdViewController.xib */; };
+		3E5C5D641C9B1AB300AB622D /* libKeenClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E5C5D631C9B1AB300AB622D /* libKeenClient.a */; };
+		3EB675311C99FC9400B9EB86 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EB675301C99FC9400B9EB86 /* UIKit.framework */; };
 		3EE5CAA41AF0730B00D6C48D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE5CAA31AF0730B00D6C48D /* SystemConfiguration.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0105EE5D14E9A4940048D871 /* KeenClientExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenClientExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0105EE6114E9A4940048D871 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		0105EE6314E9A4940048D871 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		0105EE6514E9A4940048D871 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		0105EE6914E9A4940048D871 /* KeenClientExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "KeenClientExample-Info.plist"; sourceTree = "<group>"; };
 		0105EE6B14E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0105EE6D14E9A4940048D871 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -53,17 +48,16 @@
 		0105EE8214E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/FirstViewController.xib; sourceTree = "<group>"; };
 		0105EE8514E9A4940048D871 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/SecondViewController.xib; sourceTree = "<group>"; };
 		012E8A5F1672C30C0021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		012E8A751672DD0B0021F6FA /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKeenClient.a; path = "../build/Release-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
 		015D307E1822DE7D00F8735B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
-		015D30801822DEE300F8735B /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKeenClient.a; path = "../build/Debug-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
 		01F90AF514F36C2800DD3DE2 /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeenClient.h; path = ../KeenClient/KeenClient.h; sourceTree = "<group>"; };
 		3E0EC09D1B11701B00195A42 /* third.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = third.png; path = "../../../../Github/KeenClient-iOS/KeenClientExample/KeenClientExample/third.png"; sourceTree = "<group>"; };
 		3E0EC09E1B11701B00195A42 /* third@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "third@2x.png"; path = "../../../../Github/KeenClient-iOS/KeenClientExample/KeenClientExample/third@2x.png"; sourceTree = "<group>"; };
 		3E0EC0A71B11740900195A42 /* ThirdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThirdViewController.h; sourceTree = "<group>"; };
 		3E0EC0A81B11740900195A42 /* ThirdViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThirdViewController.m; sourceTree = "<group>"; };
 		3E0EC0A91B11740900195A42 /* ThirdViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ThirdViewController.xib; sourceTree = "<group>"; };
+		3E5C5D631C9B1AB300AB622D /* libKeenClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libKeenClient.a; path = "../../../../../Library/Developer/Xcode/DerivedData/KeenClient-ajojpzwiobckthbyxcbdyqccbqip/Build/Products/Debug-iphoneos/libKeenClient.a"; sourceTree = "<group>"; };
+		3EB675301C99FC9400B9EB86 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3EE5CAA31AF0730B00D6C48D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		CA795C4A18E329FB00EBDFC4 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,12 +65,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E5C5D641C9B1AB300AB622D /* libKeenClient.a in Frameworks */,
+				3EB675311C99FC9400B9EB86 /* UIKit.framework in Frameworks */,
 				3EE5CAA41AF0730B00D6C48D /* SystemConfiguration.framework in Frameworks */,
-				015D30811822DEE300F8735B /* libKeenClient.a in Frameworks */,
 				012E8A7716765C330021F6FA /* CoreLocation.framework in Frameworks */,
-				0105EE6214E9A4940048D871 /* UIKit.framework in Frameworks */,
-				0105EE6414E9A4940048D871 /* Foundation.framework in Frameworks */,
-				0105EE6614E9A4940048D871 /* CoreGraphics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,8 +79,6 @@
 			isa = PBXGroup;
 			children = (
 				015D307E1822DE7D00F8735B /* Default-568h@2x.png */,
-				012E8A751672DD0B0021F6FA /* libKeenClient.a */,
-				012E8A5F1672C30C0021F6FA /* CoreLocation.framework */,
 				0105EE9414E9A70A0048D871 /* Dependent Headers */,
 				0105EE6714E9A4940048D871 /* KeenClientExample */,
 				0105EE6014E9A4940048D871 /* Frameworks */,
@@ -107,12 +97,10 @@
 		0105EE6014E9A4940048D871 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3E5C5D631C9B1AB300AB622D /* libKeenClient.a */,
+				3EB675301C99FC9400B9EB86 /* UIKit.framework */,
+				012E8A5F1672C30C0021F6FA /* CoreLocation.framework */,
 				3EE5CAA31AF0730B00D6C48D /* SystemConfiguration.framework */,
-				CA795C4A18E329FB00EBDFC4 /* libsqlite3.dylib */,
-				015D30801822DEE300F8735B /* libKeenClient.a */,
-				0105EE6114E9A4940048D871 /* UIKit.framework */,
-				0105EE6314E9A4940048D871 /* Foundation.framework */,
-				0105EE6514E9A4940048D871 /* CoreGraphics.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -345,6 +333,7 @@
 		0105EE8A14E9A4940048D871 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClientExample/KeenClientExample-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -353,7 +342,7 @@
 					"KEEN_DEBUG=1",
 				);
 				INFOPLIST_FILE = "KeenClientExample/KeenClientExample-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-all_load";
@@ -367,10 +356,11 @@
 		0105EE8B14E9A4940048D871 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KeenClientExample/KeenClientExample-Prefix.pch";
 				INFOPLIST_FILE = "KeenClientExample/KeenClientExample-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-all_load";
