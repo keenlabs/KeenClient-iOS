@@ -16,6 +16,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Removed Makefile in favor of `/bin/test.sh`.
 - Removed unused docs folder and `generate_docs.sh` script.
 
+### Fixed
+- Fixed bug where an app would crash in case the database was corrupted, by checking for the `SQLITE_CORRUPT` flag when database is opened, and deleting it if true.  #121
+
 ## [3.5.2] - 2016-02-04
 ### Added
 - Added support for Carthage. Added a Dynamic Framework scheme, and changed its setting to "Shared" so Carthage can use it.
