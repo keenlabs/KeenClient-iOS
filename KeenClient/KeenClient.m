@@ -608,8 +608,11 @@ static KIODBStore *dbStore;
     } else if ([value isKindOfClass:[KeenProperties class]]) {
         KeenProperties *keenProperties = value;
         
+        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
         NSString *isoDate = [self convertDate:keenProperties.timestamp];
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject:isoDate forKey:@"timestamp"];
+        if (isoDate != nil) {
+            [dict setObject:isoDate forKey:@"timestamp"];
+        }
         
         CLLocation *location = keenProperties.location;
         if (location != nil) {
