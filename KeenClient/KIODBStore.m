@@ -78,10 +78,22 @@
         keen_io_sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
         keen_io_sqlite3_initialize();
         
-        if (keen_io_sqlite3_open([my_sqlfile UTF8String], &keen_dbname) == SQLITE_OK) {
-            wasOpened = YES;
+        int openDBResult = keen_io_sqlite3_open([my_sqlfile UTF8String], &keen_dbname);
+        if (openDBResult != SQLITE_OK) {
+            if(openDBResult == SQLITE_CORRUPT) {
+                // delete corrupt database file
+                NSError *error = nil;
+                NSLog(@"%@", my_sqlfile);
+                [[NSFileManager defaultManager] removeItemAtPath:my_sqlfile error:&error];
+                
+                // create new database file
+                [self openDB];
+            }
+            else {
+                [self handleSQLiteFailure:@"create database"];
+            }
         } else {
-            [self handleSQLiteFailure:@"create database"];
+            wasOpened = YES;
         }
         dbIsOpen = wasOpened;
     });
