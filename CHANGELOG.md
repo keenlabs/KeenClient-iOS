@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.5.3] - 2016-03-28
 ### Added
 - Added test coverage integration with Coveralls by using the Slather gem. Added configuration file .slather.yml for use with Slather.
 - Added Gemfile with `Slather` and `xcpretty` gems for use with Travis CI.
@@ -197,7 +199,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.2...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.3...HEAD
+[3.5.3]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.2...3.5.3
 [3.5.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.1...3.5.2
 [3.5.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.3...3.5.0
