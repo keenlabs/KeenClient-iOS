@@ -200,7 +200,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Changed project token -> project ID.
 
 [unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.3...HEAD
-[3.5.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.2...3.5.3
+[3.5.3]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.2...3.5.3
 [3.5.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.1...3.5.2
 [3.5.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.0...3.5.1
 [3.5.0]: https://github.com/keenlabs/KeenClient-iOS/compare/3.4.3...3.5.0
