@@ -162,8 +162,11 @@ Swift
 override func viewWillAppear(animated: Bool) 
 {
 	super.viewWillAppear(animated);
-	let theEvent = ["view_name": "first view Swift", "action": "going to"];
-	KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views", error: nil);
+	let event = ["view_name": "first view Swift", "action": "going to"];
+	do {
+      try KeenClient.sharedClient().addEvent(event, toEventCollection: "tab_views")
+  } catch _ {
+  };
 }
 ```
 
@@ -207,9 +210,10 @@ override func viewWillAppear(animated: Bool)
 	let event = ["view_name": "first view Swift", "action": "going to"];
 	var keenProps : KeenProperties = KeenProperties();
 	keenProps.timestamp = NSDate();
-	KeenClient.sharedClient().addEvent(event,
-									withKeenProperties:keenProps,
-									error: nil);
+	do {
+      try KeenClient.sharedClient().addEvent(event, withKeenProperties: keenProps, toEventCollection: "tab_views")
+  } catch _ {
+  };
 }
 ```
 ##### Global Properties
@@ -328,11 +332,14 @@ keenProperties.location = location;
 Swift
 ```Swift
 let event = ["view_name": "first view Swift", "action": "going to"];
-var keenProps : KeenProperties = KeenProperties();
-var location : CLLocation = CLLocation(latitude: 37.73, longitude: -122.47);
+let keenProps : KeenProperties = KeenProperties();
+let location : CLLocation = CLLocation(latitude: 37.73, longitude: -122.47);
 keenProps.location = location;
 
-KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views", error:nil);
+do {
+    try KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views");
+} catch _ {
+};
 ```
 
 ###### Requesting Authorization for Location in iOS 8+
@@ -377,7 +384,7 @@ Swift
 ```Swift
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-        var taskId : UIBackgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler({() -> Void in
+        let taskId : UIBackgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler({() -> Void in
             NSLog("Background task is being expired.")
         });
         KeenClient.sharedClient().uploadWithFinishedBlock({() -> Void in
@@ -516,7 +523,7 @@ KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDic
 
 Swift:
 ```Swift
-var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
+let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
 ```
 
 Let's show a few examples of running different queries. The last parameter of both `KeenClient.runAsyncQuery` and `KeenClient.runAsyncMultiAnalysisWithQueries` is a block. To avoid copy+pasting we'll use the same block for all the queries. It is going to print out the results in case of a successful query, or print out the errors in case the query fails:
@@ -544,16 +551,21 @@ Swift:
 ```Swift
 // Create block to run after query completes
 let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResponse!, error: NSError!) -> Void in
-    var error: NSError?;
-    
-    var responseDictionary: NSDictionary? = NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers, error: &error) as? NSDictionary;
-		
-    var result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber;
-		
-    if let actualError = error, errorCode = responseDictionary!.objectForKey("error_code") as? String {
-				print("Failure! 😞 \n\n response: \(responseDictionary!.description)");
-    } else {
-				print("Success! 😄 \n\n response: \(responseDictionary!.description)");
+    do {
+        let responseDictionary: NSDictionary? = try NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers) as? NSDictionary;
+        
+        if error != nil {
+            self.resultTextView.text = "Error! 😞 \n\n error: \(error.localizedDescription)";
+        } else if let errorCode = responseDictionary!.objectForKey("error_code"),
+            errorMessage = responseDictionary!.objectForKey("message") as? String {
+            self.resultTextView.text = "Failure! 😞 \n\n error code: \(errorCode)\n\n message: \(errorMessage)";
+        } else {
+            let result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber;
+            
+            self.resultTextView.text = "Success! 😄 \n\n result: \(result) \n\n response: \(responseDictionary!.description)";
+        }
+    } catch let error as NSError {
+        print("Error: \(error.localizedDescription)")
     }
 }
 ```
@@ -570,7 +582,7 @@ KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDic
 Swift:
 ```Swift
 // KIOQuery object containing the query type and properties
-var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
+let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
 
 // Run the query
 KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted);
@@ -587,7 +599,7 @@ KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" and
 
 Swift:
 ```Swift
-var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"]);
+let countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"]);
 
 KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompleted);
 ```
@@ -608,8 +620,8 @@ KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" and
 
 Swift:
 ```Swift
-var countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
-var countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"]);
+let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
+let countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"]);
 
 // Optionally set a name for your queries, so it's easier to check the results
 countQuery.queryName = "count_query";
@@ -632,7 +644,7 @@ KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesD
 
 Swift:
 ```Swift
-var funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["timeframe": "this_14_days", "steps": [["event_collection": "user_signed_up", @"actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
+let funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["timeframe": "this_14_days", "steps": [["event_collection": "user_signed_up", "actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
 
 KeenClient.sharedClient().runAsyncQuery(funnelQuery, block: countQueryCompleted);
 ```
