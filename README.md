@@ -164,9 +164,9 @@ override func viewWillAppear(animated: Bool)
 	super.viewWillAppear(animated);
 	let event = ["view_name": "first view Swift", "action": "going to"];
 	do {
-      try KeenClient.sharedClient().addEvent(event, toEventCollection: "tab_views")
-  } catch _ {
-  };
+		try KeenClient.sharedClient().addEvent(event, toEventCollection: "tab_views")
+	} catch _ {
+	};
 }
 ```
 
@@ -211,9 +211,9 @@ override func viewWillAppear(animated: Bool)
 	var keenProps : KeenProperties = KeenProperties();
 	keenProps.timestamp = NSDate();
 	do {
-      try KeenClient.sharedClient().addEvent(event, withKeenProperties: keenProps, toEventCollection: "tab_views")
-  } catch _ {
-  };
+		try KeenClient.sharedClient().addEvent(event, withKeenProperties: keenProps, toEventCollection: "tab_views")
+	} catch _ {
+	};
 }
 ```
 ##### Global Properties
