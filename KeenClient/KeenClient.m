@@ -821,6 +821,7 @@ static KIODBStore *dbStore;
         // only one thread should be doing an upload at a time.
         @synchronized(self) {
             if (![self isNetworkConnected]) {
+                [self runUploadFinishedBlock:block];
                 return;
             }
             
@@ -833,13 +834,14 @@ static KIODBStore *dbStore;
                 [self importFileData];
             }
             
+            // get data for the API request we'll make
             NSData *data = nil;
             NSMutableDictionary *eventIds = nil;
             [self prepareJSONData:&data andEventIds:&eventIds];
-            // get data for the API request we'll make
             
-            if ([data length] > 0) {
-                
+            if ([data length] == 0) {
+                [self runUploadFinishedBlock:block];
+            } else {
                 // loop through events and increment their attempt count
                 for (NSString *collectionName in eventIds) {
                     for (NSNumber *eid in eventIds[collectionName]) {
@@ -852,22 +854,25 @@ static KIODBStore *dbStore;
                     // then parse the http response and deal with it appropriately
                     [self handleEventAPIResponse:response andData:data forEvents:eventIds];
                     
-                    // finally, run the user-specific block (if there is one)
-                    if (block) {
-                        KCLog(@"Running user-specified block.");
-                        @try {
-                            block();
-                        } @finally {
-                            // do nothing
-                        }
-                    }
+                    [self runUploadFinishedBlock:block];
                 }];
             }
         }
     });
 }
 
-- (void)handleEventAPIResponse:(NSURLResponse *)response 
+- (void)runUploadFinishedBlock:(void (^)())block {
+    if (block) {
+        KCLog(@"Running user-specified block.");
+        @try {
+            block();
+        } @catch(NSException *exception) {
+            KCLog(@"Error executing user-specified block. \nName: %@\nReason: %@", exception.name, exception.reason);
+        }
+    }
+}
+
+- (void)handleEventAPIResponse:(NSURLResponse *)response
                   andData:(NSData *)responseData
                 forEvents:(NSDictionary *)eventIds {
     if (!responseData) {
