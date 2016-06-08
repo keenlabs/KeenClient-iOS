@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Fixed
+- Fixed Xcode `KeenClient-Prefix.pch.pch: No such file or directory` warnings when compiling app.
 
 ## [3.5.3] - 2016-03-28
 ### Added
