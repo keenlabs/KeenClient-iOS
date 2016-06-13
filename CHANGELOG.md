@@ -4,11 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.5.4] - 2016-06-13
 ### Fixed
+- Fixed `uploadWithFinishedBlock` method that was not calling the user passed block if the upload failed. #155
 - Fixed Xcode `KeenClient-Prefix.pch.pch: No such file or directory` warnings when compiling app.
 
 ### Changed
 - Disabled printing Reachability flags to console by default. #153
+- Increased iOS Deployment Target to 7.0.
 
 ## [3.5.3] - 2016-03-28
 ### Added
@@ -204,7 +208,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.3...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.4...HEAD
+[3.5.4]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.3...3.5.4
 [3.5.3]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.2...3.5.3
 [3.5.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.1...3.5.2
 [3.5.1]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.0...3.5.1
