@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Fixed
+- Fixed handling of SQLite errors on `getEventsWithMaxAttempts`, `closeDB`, and `prepareAllSQLiteStatements` methods.
 
 ## [3.5.4] - 2016-06-13
 ### Fixed
