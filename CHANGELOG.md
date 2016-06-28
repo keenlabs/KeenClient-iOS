@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.5.5] - 2016-06-28
 ### Fixed
 - Fixed handling of SQLite errors on `getEventsWithMaxAttempts`, `closeDB`, and `prepareAllSQLiteStatements` methods.
 
@@ -210,7 +212,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.4...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.5...HEAD
+[3.5.5]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.4...3.5.5
 [3.5.4]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.3...3.5.4
 [3.5.3]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.2...3.5.3
 [3.5.2]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.1...3.5.2
