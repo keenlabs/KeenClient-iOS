@@ -118,7 +118,9 @@
                 return false;
             }
         
-            [self prepareAllSQLiteStatements];
+            if (![self prepareAllSQLiteStatements]) {
+                return false;
+            }
         }
     }
     return true;
@@ -986,10 +988,12 @@
     return true;
 }
 
-- (void)prepareSQLStatement:(keen_io_sqlite3_stmt **)sqlStatement sqlQuery:(char *)sqlQuery failureMessage:(NSString *)failureMessage {
+- (BOOL)prepareSQLStatement:(keen_io_sqlite3_stmt **)sqlStatement sqlQuery:(char *)sqlQuery failureMessage:(NSString *)failureMessage {
     if(keen_io_sqlite3_prepare_v2(keen_dbname, sqlQuery, -1, sqlStatement, NULL) != SQLITE_OK) {
         [self handleSQLiteFailure:failureMessage];
+        return NO;
     }
+    return YES;
 }
 
 - (void)resetSQLiteStatement:(keen_io_sqlite3_stmt *)sqliteStatement {
@@ -997,74 +1001,76 @@
     keen_io_sqlite3_clear_bindings(sqliteStatement);
 }
 
-- (void)prepareAllSQLiteStatements {
+- (BOOL)prepareAllSQLiteStatements {
 
     // EVENT STATEMENTS
     
     // This statement inserts events into the table.
-    [self prepareSQLStatement:&insert_event_stmt sqlQuery:"INSERT INTO events (projectID, collection, eventData, pending, attempts) VALUES (?, ?, ?, 0, 0)" failureMessage:@"prepare insert event statement"];
+    if(![self prepareSQLStatement:&insert_event_stmt sqlQuery:"INSERT INTO events (projectID, collection, eventData, pending, attempts) VALUES (?, ?, ?, 0, 0)" failureMessage:@"prepare insert event statement"]) return NO;
     
     // This statement finds non-pending events in the table.
-    [self prepareSQLStatement:&find_event_stmt sqlQuery:"SELECT id, collection, eventData FROM events WHERE pending=0 AND projectID=? AND attempts<?" failureMessage:@"prepare find non-pending events statement"];
+    if(![self prepareSQLStatement:&find_event_stmt sqlQuery:"SELECT id, collection, eventData FROM events WHERE pending=0 AND projectID=? AND attempts<?" failureMessage:@"prepare find non-pending events statement"]) return NO;
     
     // This statement counts the total number of events (pending or not)
-    [self prepareSQLStatement:&count_all_events_stmt sqlQuery:"SELECT count(*) FROM events WHERE projectID=?" failureMessage:@"prepare count all events statement"];
+    if(![self prepareSQLStatement:&count_all_events_stmt sqlQuery:"SELECT count(*) FROM events WHERE projectID=?" failureMessage:@"prepare count all events statement"]) return NO;
     
     // This statement counts the number of pending events.
-    [self prepareSQLStatement:&count_pending_events_stmt sqlQuery:"SELECT count(*) FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare count pending events statement"];
+    if(![self prepareSQLStatement:&count_pending_events_stmt sqlQuery:"SELECT count(*) FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare count pending events statement"]) return NO;
     
     // This statement marks an event as pending.
-    [self prepareSQLStatement:&make_pending_event_stmt sqlQuery:"UPDATE events SET pending=1 WHERE id=?" failureMessage:@"prepare mark event as pending statement"];
+    if(![self prepareSQLStatement:&make_pending_event_stmt sqlQuery:"UPDATE events SET pending=1 WHERE id=?" failureMessage:@"prepare mark event as pending statement"]) return NO;
     
     // This statement resets pending events back to normal.
-    [self prepareSQLStatement:&reset_pending_events_stmt sqlQuery:"UPDATE events SET pending=0 WHERE projectID=?" failureMessage:@"prepare reset pending statement"];
+    if(![self prepareSQLStatement:&reset_pending_events_stmt sqlQuery:"UPDATE events SET pending=0 WHERE projectID=?" failureMessage:@"prepare reset pending statement"]) return NO;
     
     // This statement purges all pending events.
-    [self prepareSQLStatement:&purge_events_stmt sqlQuery:"DELETE FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare purge pending events statement"];
+    if(![self prepareSQLStatement:&purge_events_stmt sqlQuery:"DELETE FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare purge pending events statement"]) return NO;
     
     // This statement deletes a specific event.
-    [self prepareSQLStatement:&delete_event_stmt sqlQuery:"DELETE FROM events WHERE id=?" failureMessage:@"prepare delete specific event statement"];
+    if(![self prepareSQLStatement:&delete_event_stmt sqlQuery:"DELETE FROM events WHERE id=?" failureMessage:@"prepare delete specific event statement"]) return NO;
     
     // This statement deletes all events.
-    [self prepareSQLStatement:&delete_all_events_stmt sqlQuery:"DELETE FROM events" failureMessage:@"prepare delete all events statement"];
+    if(![self prepareSQLStatement:&delete_all_events_stmt sqlQuery:"DELETE FROM events" failureMessage:@"prepare delete all events statement"]) return NO;
     
     // This statement deletes old events at a given offset.
-    [self prepareSQLStatement:&age_out_events_stmt sqlQuery:"DELETE FROM events WHERE id <= (SELECT id FROM events ORDER BY id DESC LIMIT 1 OFFSET ?)" failureMessage:@"prepare delete old events at offset statement"];
+    if(![self prepareSQLStatement:&age_out_events_stmt sqlQuery:"DELETE FROM events WHERE id <= (SELECT id FROM events ORDER BY id DESC LIMIT 1 OFFSET ?)" failureMessage:@"prepare delete old events at offset statement"]) return NO;
     
     // This statement increments the attempts count of an event.
-    [self prepareSQLStatement:&increment_event_attempts_statement sqlQuery:"UPDATE events SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare event increment attempt statement"];
+    if(![self prepareSQLStatement:&increment_event_attempts_statement sqlQuery:"UPDATE events SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare event increment attempt statement"]) return NO;
     
     // This statement deletes events exceeding a max attempt limit.
-    [self prepareSQLStatement:&delete_too_many_attempts_events_statement sqlQuery:"DELETE FROM events WHERE attempts >= ?" failureMessage:@"prepare delete max attempts events statement"];
+    if(![self prepareSQLStatement:&delete_too_many_attempts_events_statement sqlQuery:"DELETE FROM events WHERE attempts >= ?" failureMessage:@"prepare delete max attempts events statement"]) return NO;
 
     
     // QUERY STATEMENTS
     
     // This statement inserts queries into the table.
-    [self prepareSQLStatement:&insert_query_stmt sqlQuery:"INSERT INTO queries (projectID, collection, queryData, queryType, attempts) VALUES (?, ?, ?, ?, 0)" failureMessage:@"prepare insert query statement"];
+    if(![self prepareSQLStatement:&insert_query_stmt sqlQuery:"INSERT INTO queries (projectID, collection, queryData, queryType, attempts) VALUES (?, ?, ?, ?, 0)" failureMessage:@"prepare insert query statement"]) return NO;
     
     // This statement counts the total number of queries
-    [self prepareSQLStatement:&count_all_queries_stmt sqlQuery:"SELECT count(*) FROM queries WHERE projectID=?" failureMessage:@"prepare count all queries statement"];
+    if(![self prepareSQLStatement:&count_all_queries_stmt sqlQuery:"SELECT count(*) FROM queries WHERE projectID=?" failureMessage:@"prepare count all queries statement"]) return NO;
  
     // This statement searches for and returns a query.
-    [self prepareSQLStatement:&get_query_stmt sqlQuery:"SELECT id, collection, queryData, queryType, attempts FROM queries WHERE projectID=? AND collection=? AND queryData=? AND queryType=?" failureMessage:@"prepare find query statement"];
+    if(![self prepareSQLStatement:&get_query_stmt sqlQuery:"SELECT id, collection, queryData, queryType, attempts FROM queries WHERE projectID=? AND collection=? AND queryData=? AND queryType=?" failureMessage:@"prepare find query statement"]) return NO;
     
     // This statement searches for and returns a query given an attempts value.
-    [self prepareSQLStatement:&get_query_with_attempts_stmt sqlQuery:"SELECT id FROM queries WHERE projectID=? AND collection=? AND queryData=? AND queryType=? AND attempts >=?" failureMessage:@"prepare find query with attempts statement"];
+    if(![self prepareSQLStatement:&get_query_with_attempts_stmt sqlQuery:"SELECT id FROM queries WHERE projectID=? AND collection=? AND queryData=? AND queryType=? AND attempts >=?" failureMessage:@"prepare find query with attempts statement"]) return NO;
     
     // This statement increments the attempts count of a query.
-    [self prepareSQLStatement:&increment_query_attempts_statement sqlQuery:"UPDATE queries SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare query increment attempt statement"];
+    if(![self prepareSQLStatement:&increment_query_attempts_statement sqlQuery:"UPDATE queries SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare query increment attempt statement"]) return NO;
     
     // This statement deletes all queries.
-    [self prepareSQLStatement:&delete_all_queries_stmt sqlQuery:"DELETE FROM queries" failureMessage:@"prepare delete all queries statement"];
+    if(![self prepareSQLStatement:&delete_all_queries_stmt sqlQuery:"DELETE FROM queries" failureMessage:@"prepare delete all queries statement"]) return NO;
     
     // This statement deletes old queries at a given time.
-    [self prepareSQLStatement:&age_out_queries_stmt sqlQuery:"DELETE FROM queries WHERE dateCreated <= datetime('now', ?)" failureMessage:@"prepare delete old queries at seconds statement"];
+    if(![self prepareSQLStatement:&age_out_queries_stmt sqlQuery:"DELETE FROM queries WHERE dateCreated <= datetime('now', ?)" failureMessage:@"prepare delete old queries at seconds statement"]) return NO;
     
     // HELPER STATEMENTS
     
     // This statement converts an NSDate to an ISO-8601 formatted date/time string (we use sqlite because NSDateFormatter isn't thread-safe)
-    [self prepareSQLStatement:&convert_date_stmt sqlQuery:"SELECT strftime('%Y-%m-%dT%H:%M:%S',datetime(?,'unixepoch','localtime'))" failureMessage:@"prepare convert date statement"];
+    if(![self prepareSQLStatement:&convert_date_stmt sqlQuery:"SELECT strftime('%Y-%m-%dT%H:%M:%S',datetime(?,'unixepoch','localtime'))" failureMessage:@"prepare convert date statement"]) return NO;
+    
+    return YES;
 }
 
 - (void)handleSQLiteFailure:(NSString *) msg {
