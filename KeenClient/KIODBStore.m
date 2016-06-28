@@ -422,10 +422,12 @@
     dispatch_sync(self.dbQueue, ^{
         if (keen_io_sqlite3_bind_text(find_event_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to find statement"];
+            return;
         }
         
         if(keen_io_sqlite3_bind_int64(find_event_stmt, 2, maxAttempts) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind coll to add event statement"];
+            return;
         }
 
 
@@ -443,9 +445,11 @@
             // Bind and mark the event pending.
             if(keen_io_sqlite3_bind_int64(make_pending_event_stmt, 1, eventId) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"bind int for make pending"];
+                return;
             }
             if (keen_io_sqlite3_step(make_pending_event_stmt) != SQLITE_DONE) {
                 [self handleSQLiteFailure:@"mark event pending"];
+                return;
             }
 
             // Reset the pendifier
