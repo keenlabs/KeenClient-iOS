@@ -130,10 +130,10 @@ Swift
 func application(application: UIApplication, 
 	    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool 
 { 
-	var client : KeenClient;
+	let client: KeenClient
 	client = KeenClient.sharedClientWithProjectID("your_project_id",
 									andWriteKey: "your_write_key", 
-									andReadKey: nil);
+									andReadKey: nil)
 	return true
 }
 ```
@@ -161,12 +161,12 @@ Swift
 ```Swift
 override func viewWillAppear(animated: Bool) 
 {
-	super.viewWillAppear(animated);
-	let event = ["view_name": "first view Swift", "action": "going to"];
+	super.viewWillAppear(animated)
+	let event = ["view_name": "first view Swift", "action": "going to"]
 	do {
 		try KeenClient.sharedClient().addEvent(event, toEventCollection: "tab_views")
 	} catch _ {
-	};
+	}
 }
 ```
 
@@ -205,15 +205,15 @@ Swift
 
 override func viewWillAppear(animated: Bool) 
 {
-	super.viewWillAppear(animated);
+	super.viewWillAppear(animated)
         
-	let event = ["view_name": "first view Swift", "action": "going to"];
-	var keenProps : KeenProperties = KeenProperties();
+	let event = ["view_name": "first view Swift", "action": "going to"]
+	let keenProps: KeenProperties = KeenProperties()
 	keenProps.timestamp = NSDate();
 	do {
 		try KeenClient.sharedClient().addEvent(event, withKeenProperties: keenProps, toEventCollection: "tab_views")
 	} catch _ {
-	};
+	}
 }
 ```
 ##### Global Properties
@@ -243,7 +243,7 @@ Swift
 func applicationDidBecomeActive(application: UIApplication) 
 {
 	KeenClient.sharedClient().globalPropertiesDictionary = 
-					        ["some_standard_key" : "some_standard_value"];
+					        ["some_standard_key" : "some_standard_value"]
 }
 ```
 
@@ -281,13 +281,13 @@ Swift
             if (eventCollection.compare("apples") == 
 	            NSComparisonResult.OrderedSame)
             {
-                return ["color" : "red"];
+                return ["color" : "red"]
             } else if (eventCollection.compare("pears") ==
 						NSComparisonResult.OrderedSame)
             {
-                return ["color" : "green"];
+                return ["color" : "green"]
             }
-            return nil;
+            return nil
         };
 }
 ```
@@ -312,7 +312,7 @@ Objective C
 ```
 Swift
 ```Swift
-KeenClient.sharedClient().refreshCurrentLocation();
+KeenClient.sharedClient().refreshCurrentLocation()
 ```
 
 ###### Manually Setting Location
@@ -331,15 +331,15 @@ keenProperties.location = location;
 ```
 Swift
 ```Swift
-let event = ["view_name": "first view Swift", "action": "going to"];
-let keenProps : KeenProperties = KeenProperties();
-let location : CLLocation = CLLocation(latitude: 37.73, longitude: -122.47);
-keenProps.location = location;
+let event = ["view_name": "first view Swift", "action": "going to"]
+let keenProps: KeenProperties = KeenProperties()
+let location: CLLocation = CLLocation(latitude: 37.73, longitude: -122.47)
+keenProps.location = location
 
 do {
-    try KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views");
+    try KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views")
 } catch _ {
-};
+}
 ```
 
 ###### Requesting Authorization for Location in iOS 8+
@@ -358,8 +358,8 @@ Objective C
 ```
 Swift
 ```Swift
-KeenClient.authorizeGeoLocationAlways();
-KeenClient.sharedClientWithProjectID("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
+KeenClient.authorizeGeoLocationAlways()
+KeenClient.sharedClientWithProjectID("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key")
 ```
 
 
@@ -384,11 +384,11 @@ Swift
 ```Swift
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-        let taskId : UIBackgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler({() -> Void in
+        let taskId: UIBackgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler({() -> Void in
             NSLog("Background task is being expired.")
         });
         KeenClient.sharedClient().uploadWithFinishedBlock({() -> Void in
-            application.endBackgroundTask(taskId)});
+            application.endBackgroundTask(taskId)})
 }
 ```
 In this example, the upload is done in a background task so that even once the user backgrounds your application, the upload can continue. Here we first start the background task, start the upload, and then end the background task once the upload completes.
@@ -401,7 +401,7 @@ Objective C
 ```
 Swift
 ```Swift
-KeenClient.sharedClient().uploadWithFinishedBlock(nil);
+KeenClient.sharedClient().uploadWithFinishedBlock(nil)
 ```
 
 **An important note:** it's a best practice to issue a single upload at a time. We make a best effort to reduce the number of threads spawned to upload in the background, but if you call upload many many times in a tight loop you're going to cause issues for yourself.
@@ -420,7 +420,7 @@ Objective C
 Swift
 ```Swift
 // Set the max upload attempts to 10
-KeenClient.sharedClient().maxEventUploadAttempts = 10;
+KeenClient.sharedClient().maxEventUploadAttempts = 10
 ```
 
 ##### Add-ons
@@ -452,17 +452,17 @@ client.globalPropertiesDictionary = @{@"keen":
 Swift
 ```Swift
 KeenClient.sharedClient().globalPropertiesDictionary = [
-	"keen" : [
-		"addons" : [
+	"keen": [
+		"addons": [
 			[
-				"name" : "keen:ip_to_geo",
-				"input" : ["ip" : "ip_address"],
-				"output" : "ip_geo_info"
+				"name": "keen:ip_to_geo",
+				"input": ["ip" : "ip_address"],
+				"output": "ip_geo_info"
 			]
 		]
 	],
-	"ip_address" : self.getIPAddress(true)
-];
+	"ip_address": self.getIPAddress(true)
+]
 ```
 
 In this example, we add a global property for the IP to Geo information that allows us to translate the device's current IP address into the geographical location of the device by using the `[self getIPAddress:YES]` method.
@@ -506,10 +506,10 @@ Objective C
 
 Swift
 ```Swift
-KeenClient.sharedClient().maxQueryAttempts = 10;
+KeenClient.sharedClient().maxQueryAttempts = 10
 
 // Change the default value to 10 minutes
-KeenClient.sharedClient().queryTTL = 600;
+KeenClient.sharedClient().queryTTL = 600
 ```
 
 ###### Examples
@@ -523,7 +523,7 @@ KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDic
 
 Swift:
 ```Swift
-let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
+let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"])
 ```
 
 Let's show a few examples of running different queries. The last parameter of both `KeenClient.runAsyncQuery` and `KeenClient.runAsyncMultiAnalysisWithQueries` is a block. To avoid copy+pasting we'll use the same block for all the queries. It is going to print out the results in case of a successful query, or print out the errors in case the query fails:
@@ -552,17 +552,17 @@ Swift:
 // Create block to run after query completes
 let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResponse!, error: NSError!) -> Void in
     do {
-        let responseDictionary: NSDictionary? = try NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers) as? NSDictionary;
+        let responseDictionary: NSDictionary? = try NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers) as? NSDictionary
         
         if error != nil {
-            self.resultTextView.text = "Error! 😞 \n\n error: \(error.localizedDescription)";
+            self.resultTextView.text = "Error! 😞 \n\n error: \(error.localizedDescription)"
         } else if let errorCode = responseDictionary!.objectForKey("error_code"),
             errorMessage = responseDictionary!.objectForKey("message") as? String {
-            self.resultTextView.text = "Failure! 😞 \n\n error code: \(errorCode)\n\n message: \(errorMessage)";
+            self.resultTextView.text = "Failure! 😞 \n\n error code: \(errorCode)\n\n message: \(errorMessage)"
         } else {
-            let result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber;
+            let result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber
             
-            self.resultTextView.text = "Success! 😄 \n\n result: \(result) \n\n response: \(responseDictionary!.description)";
+            self.resultTextView.text = "Success! 😄 \n\n result: \(result) \n\n response: \(responseDictionary!.description)"
         }
     } catch let error as NSError {
         print("Error: \(error.localizedDescription)")
@@ -582,10 +582,10 @@ KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDic
 Swift:
 ```Swift
 // KIOQuery object containing the query type and properties
-let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
+let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"])
 
 // Run the query
-KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted);
+KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted)
 ```
 
 ###### Count Unique Example
@@ -599,9 +599,9 @@ KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" and
 
 Swift:
 ```Swift
-let countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"]);
+let countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"])
 
-KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompleted);
+KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompleted)
 ```
 
 ###### Multi-Analysis Example
@@ -620,14 +620,14 @@ KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" and
 
 Swift:
 ```Swift
-let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"]);
-let countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"]);
+let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"])
+let countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"])
 
 // Optionally set a name for your queries, so it's easier to check the results
-countQuery.queryName = "count_query";
-countUniqueQuery.queryName = "count_unique_query";
+countQuery.queryName = "count_query"
+countUniqueQuery.queryName = "count_unique_query"
 
-KeenClient.sharedClient().runAsyncMultiAnalysisWithQueries([countQuery, countUniqueQuery], block: countQueryCompleted);
+KeenClient.sharedClient().runAsyncMultiAnalysisWithQueries([countQuery, countUniqueQuery], block: countQueryCompleted)
 ```
 
 ###### Funnel Example
@@ -644,9 +644,9 @@ KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesD
 
 Swift:
 ```Swift
-let funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["timeframe": "this_14_days", "steps": [["event_collection": "user_signed_up", "actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]]);
+let funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["timeframe": "this_14_days", "steps": [["event_collection": "user_signed_up", "actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]])
 
-KeenClient.sharedClient().runAsyncQuery(funnelQuery, block: countQueryCompleted);
+KeenClient.sharedClient().runAsyncQuery(funnelQuery, block: countQueryCompleted)
 ```
 
 ##### Debugging
@@ -660,7 +660,7 @@ Objective C
 ```
 Swift
 ```Swift
-KeenClient.enableLogging();
+KeenClient.enableLogging()
 ```
 
 Just put this at any point before you use `KeenClient`. A good place is in your application delegate.
@@ -673,7 +673,7 @@ Objective C
 ```
 Swift
 ```Swift
-KeenClient.disableLogging();
+KeenClient.disableLogging()
 ```
 
 ### FAQs
