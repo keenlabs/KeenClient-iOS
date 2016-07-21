@@ -158,7 +158,7 @@ static KIODBStore *dbStore;
  @return Always return NO.
  */
 - (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage;
-    
+
 @end
 
 @implementation KeenClient
@@ -1155,10 +1155,14 @@ static KIODBStore *dbStore;
 # pragma mark - NSDate => NSString
 
 - (id)convertDate:(id)date {
-    NSString *string = [dbStore convertNSDateToISO8601:date];
-    return string;
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    [dateFormatter setLocale:enUSPOSIXLocale];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    
+    NSString *iso8601String = [dateFormatter stringFromDate:date];
+    return iso8601String;
 }
-
 
 # pragma mark - SDK
 
