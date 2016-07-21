@@ -68,12 +68,6 @@
   */
 - (void)incrementEventUploadAttempts: (NSNumber *)eventId;
 
- /**
-  Convert an NSDate to ISO-8601 using SQLite (thread safe)
- 
-  @param date A date.
-  */
-- (id)convertNSDateToISO8601:(NSDate *)date;
 
  /**
   Delete events starting at an offset. Helps to keep the "queue" bounded.

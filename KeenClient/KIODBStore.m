@@ -45,8 +45,6 @@
     keen_io_sqlite3_stmt *increment_query_attempts_statement;
     keen_io_sqlite3_stmt *delete_all_queries_stmt;
     keen_io_sqlite3_stmt *age_out_queries_stmt;
-    
-    keen_io_sqlite3_stmt *convert_date_stmt;
 }
 
 - (instancetype)init {
@@ -149,8 +147,6 @@
         keen_io_sqlite3_finalize(delete_all_queries_stmt);
         keen_io_sqlite3_finalize(get_query_with_attempts_stmt);
         keen_io_sqlite3_finalize(age_out_queries_stmt);
-        
-        keen_io_sqlite3_finalize(convert_date_stmt);
         
         // Free our DB. This is safe on null pointers.
         keen_io_sqlite3_close(keen_dbname);
@@ -653,63 +649,6 @@
     });
 }
 
-- (id)convertNSDateToISO8601:(id)date {
-    __block NSString *iso8601 = nil;
-    
-    if(![self checkOpenDB:@"DB is closed, skipping date conversion"]) {
-        return iso8601;
-    }
-    
-    double offset = 0.0f;
-    if([date isKindOfClass:[NSDate class]]) {
-        offset = [[NSTimeZone localTimeZone] secondsFromGMTForDate:date] / 3600.00;  // need the offset
-    }
-    else if([date isKindOfClass:[NSString class]]) {
-        offset = [[NSTimeZone localTimeZone] secondsFromGMT] / 3600.00;  // need the offset
-    }
-    NSArray *offsetArray = [[NSString stringWithFormat:@"%f",offset] componentsSeparatedByString:@"."]; // split it so we don't have to do math or numberformatting, which isn't thread-safe either
-    NSString *hour = [[offsetArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"-" withString:@""];
-    NSString *minute = [[offsetArray objectAtIndex:1] substringToIndex:2];
-    
-    // ensure we have leading zeros where necessary
-    while([hour length] < 2) {
-        hour = [@"0" stringByAppendingString:hour];
-    }
-    
-    // minute math
-    if([minute isEqual: @"25"]) { minute = @"15"; }
-    if([minute isEqual: @"50"]) { minute = @"30"; }
-    if([minute isEqual: @"75"]) { minute = @"45"; }
-    
-    NSString *offsetString = [[hour stringByAppendingString:@":"] stringByAppendingString:minute];
-    
-    // are we + or -?
-    if(offset >= 0) {
-        offsetString = [@"+" stringByAppendingString:offsetString];
-    } else {
-        offsetString = [@"-" stringByAppendingString:offsetString];
-    }
-    
-    dispatch_sync(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(convert_date_stmt, 1, [[NSString stringWithFormat:@"%f", [date timeIntervalSince1970]] UTF8String], -1, SQLITE_STATIC) != SQLITE_OK) {
-            [self handleSQLiteFailure:@"bind date to date conversion statement"];
-            return;
-        }
-        
-        if (keen_io_sqlite3_step(convert_date_stmt) != SQLITE_ROW) {
-            [self handleSQLiteFailure:@"date conversion"];
-            return;
-        }
-        
-        iso8601 = [[NSString stringWithUTF8String:(char *)keen_io_sqlite3_column_text(convert_date_stmt, 0)] stringByAppendingString:offsetString];
-        
-        [self resetSQLiteStatement:convert_date_stmt];
-    });
-    
-    return iso8601;
-}
-
-# pragma makr - Handle Queries
 # pragma mark - Handle Queries
 
 - (BOOL)addQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID {
@@ -1067,11 +1006,6 @@
     
     // This statement deletes old queries at a given time.
     if(![self prepareSQLStatement:&age_out_queries_stmt sqlQuery:"DELETE FROM queries WHERE dateCreated <= datetime('now', ?)" failureMessage:@"prepare delete old queries at seconds statement"]) return NO;
-    
-    // HELPER STATEMENTS
-    
-    // This statement converts an NSDate to an ISO-8601 formatted date/time string (we use sqlite because NSDateFormatter isn't thread-safe)
-    if(![self prepareSQLStatement:&convert_date_stmt sqlQuery:"SELECT strftime('%Y-%m-%dT%H:%M:%S',datetime(?,'unixepoch','localtime'))" failureMessage:@"prepare convert date statement"]) return NO;
     
     return YES;
 }
