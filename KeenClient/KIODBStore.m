@@ -710,6 +710,7 @@
 }
 
 # pragma makr - Handle Queries
+# pragma mark - Handle Queries
 
 - (BOOL)addQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID {
     __block BOOL wasAdded = NO;
