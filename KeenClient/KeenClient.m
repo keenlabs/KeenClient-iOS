@@ -1159,24 +1159,6 @@ static KIODBStore *dbStore;
     return string;
 }
 
-- (id)handleUnsupportedJSONValue:(id)value {
-    if ([value isKindOfClass:[NSDate class]]) {
-        return [self convertDate:value];
-    } else if ([value isKindOfClass:[KeenProperties class]]) {
-        KeenProperties *keenProperties = (KeenProperties *)value;
-        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObject:keenProperties.timestamp forKey:@"timestamp"];
-        CLLocation *location = keenProperties.location;
-        if (location != nil) {
-            NSNumber *longitude = [NSNumber numberWithDouble:location.coordinate.longitude];
-            NSNumber *latitude = [NSNumber numberWithDouble:location.coordinate.latitude];
-            NSArray *coordinatesArray = [NSArray arrayWithObjects:longitude, latitude, nil];
-            NSDictionary *coordinatesDict = [NSDictionary dictionaryWithObject:coordinatesArray forKey:@"coordinates"];
-            [dict setObject:coordinatesDict forKey:@"location"];
-        }
-        return dict;
-    }
-    return NULL;
-}
 
 # pragma mark - SDK
 
