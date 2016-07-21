@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Fixed
+- Fixed app crashing when NSDate conversion to ISO8601 failed. Removed dependency on SQLite to convert date in favor of NSDateFormatter, which is thread-safe on iOS >=7 and OS X >=10.9. #165
 
 ## [3.5.5] - 2016-06-28
 ### Fixed
