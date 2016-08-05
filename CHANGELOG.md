@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+
+## [3.5.6] - 2016-08-05
 ### Fixed
 - Fixed app crashing when NSDate conversion to ISO8601 failed. Removed dependency on SQLite to convert date in favor of NSDateFormatter, which is thread-safe on iOS >=7 and OS X >=10.9. #165
 
@@ -214,7 +216,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Changed project token -> project ID.
 
-[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.5...HEAD
+[unreleased]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.6...HEAD
+[3.5.6]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.5...3.5.6
 [3.5.5]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.4...3.5.5
 [3.5.4]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.3...3.5.4
 [3.5.3]: https://github.com/keenlabs/KeenClient-iOS/compare/3.5.2...3.5.3
