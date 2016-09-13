@@ -291,13 +291,12 @@
 - (void)testGeoLocation {
     // set up a client with a location
     KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    [KeenClient enableGeoLocation];
     
     CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     client.currentLocation = location;
     // add an event
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
-    [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     // now get the stored event
     NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
@@ -318,7 +317,6 @@
     KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     
-    [KeenClient disableGeoLocation];
     // add an event
     [client addEvent:@{@"a": @"b"} toEventCollection:@"bar" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"bar" error:nil];
