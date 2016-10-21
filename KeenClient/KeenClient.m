@@ -164,18 +164,6 @@ static KIODBStore *dbStore;
 
 @implementation KeenClient
 
-@synthesize projectID=_projectID;
-@synthesize writeKey=_writeKey;
-@synthesize readKey=_readKey;
-@synthesize locationManager=_locationManager;
-@synthesize currentLocation=_currentLocation;
-@synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
-@synthesize isRunningTests=_isRunningTests;
-@synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
-@synthesize globalPropertiesBlock=_globalPropertiesBlock;
-@synthesize uploadQueue;
-@synthesize queryQueue;
-
 # pragma mark - Class lifecycle
 
 + (void)initialize {
