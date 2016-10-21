@@ -99,10 +99,6 @@
 
 - (void)testInstanceClient {
     KeenClient *client = [[KeenClient alloc] init];
-    XCTAssertNil(client.projectID, @"a client's project id should be nil at first");
-    XCTAssertNil(client.writeKey, @"a client's write key should be nil at first");
-    XCTAssertNil(client.readKey, @"a client's read key should be nil at first");
-
     KeenClient *client2 = [[KeenClient alloc] init];
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
 }

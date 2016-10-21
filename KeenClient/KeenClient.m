@@ -228,27 +228,7 @@ static KIODBStore *dbStore;
 }
 
 - (id)init {
-    self = [super init];
-    
-    // log the current version number
-    if ([KeenClient isLoggingEnabled]) {
-        KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
-    }
-    
-    [self refreshCurrentLocation];
-    
-    self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
-
-    // use global concurrent dispatch queue to run queries in parallel
-    self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-
-    self.maxEventUploadAttempts = 3;
-    
-    self.maxQueryAttempts = 10;
-    
-    self.queryTTL = 3600;
-
-    return self;
+    return [self initWithProjectID:@"pi" andWriteKey:@"wk" andReadKey:@"rk"];
 }
 
 + (BOOL)validateProjectID:(NSString *)projectID {
@@ -273,8 +253,23 @@ static KIODBStore *dbStore;
         dbStore = [[KIODBStore alloc] init];
     }
     
-    self = [self init];
+    self = [super init];
+    
     if (self) {
+        // log the current version number
+        if ([KeenClient isLoggingEnabled]) {
+            KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
+        }
+        
+        [self refreshCurrentLocation];
+        
+        self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
+        // use global concurrent dispatch queue to run queries in parallel
+        self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        self.maxEventUploadAttempts = 3;
+        self.maxQueryAttempts = 10;
+        self.queryTTL = 3600;
+        
         self.projectID = projectID;
         if (writeKey) {
             if (![KeenClient validateKey:writeKey]) {
@@ -289,7 +284,7 @@ static KIODBStore *dbStore;
             self.readKey = readKey;
         }
     }
-
+    
     return self;
 }
 
