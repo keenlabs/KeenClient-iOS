@@ -11,7 +11,7 @@
 
 @implementation SecondViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
@@ -46,8 +46,8 @@
 {
     [super viewWillAppear:animated];
     
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"second view", @"view_name", 
-                           @"going to", @"action", nil];
+    NSDictionary *event = @{@"view_name": @"second view", 
+                           @"action": @"going to"};
     [[KeenClient sharedClient] addEvent:event toEventCollection:@"tab_views" error:nil];
 }
 
@@ -60,8 +60,8 @@
 {
 	[super viewWillDisappear:animated];
     
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"second view", @"view_name", 
-                           @"leaving from", @"action", nil];
+    NSDictionary *event = @{@"view_name": @"second view", 
+                           @"action": @"leaving from"};
     [[KeenClient sharedClient] addEvent:event toEventCollection:@"tab_views" error:nil];
 }
 
