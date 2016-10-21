@@ -53,6 +53,7 @@
 		12AE4C3C1B4AD2880015F41F /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		12AE4C3F1B4AD2AD0015F41F /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
 		3E1EA1E31C49A07C00111153 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E1EA1E21C49A07000111153 /* libOCMock.a */; };
+		3E36C0971DAD980A00A20E46 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E36C0961DAD980A00A20E46 /* CFNetwork.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		3E63D9F01AE7356C00E57A17 /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3E63D9F11AE7356C00E57A17 /* KIOQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */; };
 		3E63D9F71AE7425000E57A17 /* KIOQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */; };
@@ -166,6 +167,7 @@
 		3E1EA1DF1C499BE000111153 /* OCMRecorder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OCMRecorder.h; sourceTree = "<group>"; };
 		3E1EA1E01C499BE000111153 /* OCMStubRecorder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OCMStubRecorder.h; sourceTree = "<group>"; };
 		3E1EA1E21C49A07000111153 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
+		3E36C0961DAD980A00A20E46 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOQuery.h; sourceTree = "<group>"; };
 		3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOQuery.m; sourceTree = "<group>"; };
 		3E63D9F51AE7425000E57A17 /* KIOQueryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOQueryTests.h; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E36C0971DAD980A00A20E46 /* CFNetwork.framework in Frameworks */,
 				3EE5CA9D1AF0697200D6C48D /* SystemConfiguration.framework in Frameworks */,
 				012E8A5D1672BE860021F6FA /* CoreLocation.framework in Frameworks */,
 				017EE12214E30C96000F3868 /* Foundation.framework in Frameworks */,
@@ -296,6 +299,7 @@
 		017EE12014E30C96000F3868 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3E36C0961DAD980A00A20E46 /* CFNetwork.framework */,
 				012E8A5C1672BE860021F6FA /* CoreLocation.framework */,
 				3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */,
 				F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */,

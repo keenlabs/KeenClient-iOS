@@ -13,6 +13,7 @@
 #import "HTTPCodes.h"
 #import "KIOQuery.h"
 #import <CoreLocation/CoreLocation.h>
+#import <CFNetwork/CFNetwork.h>
 
 
 static KeenClient *sharedClient;
@@ -955,7 +956,24 @@ static KIODBStore *dbStore;
     [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [data length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:data];
     
-    NSURLSession *session = [NSURLSession sharedSession];
+    // Set up proxy configuration
+    NSString* proxyHost = @"localhost";
+    NSNumber* proxyPort = [NSNumber numberWithInt:8888];
+    
+    NSDictionary *proxyDict = @{
+                                @"HTTPEnable":[NSNumber numberWithInt:1],
+                                (NSString *)kCFStreamPropertyHTTPProxyHost:proxyHost,
+                                (NSString *)kCFStreamPropertyHTTPProxyPort:proxyPort,
+                                
+                                @"HTTPSEnable":[NSNumber numberWithInt:1],
+                                (NSString *)kCFStreamPropertyHTTPSProxyHost:proxyHost,
+                                (NSString *)kCFStreamPropertyHTTPSProxyPort:proxyPort,
+                                };
+
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    configuration.connectionProxyDictionary = proxyDict;
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
@@ -1046,7 +1064,24 @@ static KIODBStore *dbStore;
         [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
         [request setHTTPBody:[keenQuery convertQueryToData]];
         
-        NSURLSession *session = [NSURLSession sharedSession];
+        // Set up proxy configuration
+        NSString* proxyHost = @"localhost";
+        NSNumber* proxyPort = [NSNumber numberWithInt:8888];
+        
+        NSDictionary *proxyDict = @{
+                                    @"HTTPEnable":[NSNumber numberWithInt:1],
+                                    (NSString *)kCFStreamPropertyHTTPProxyHost:proxyHost,
+                                    (NSString *)kCFStreamPropertyHTTPProxyPort:proxyPort,
+                                    
+                                    @"HTTPSEnable":[NSNumber numberWithInt:1],
+                                    (NSString *)kCFStreamPropertyHTTPSProxyHost:proxyHost,
+                                    (NSString *)kCFStreamPropertyHTTPSProxyPort:proxyPort,
+                                    };
+        
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+        configuration.connectionProxyDictionary = proxyDict;
+        
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
         [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
     }
 }
@@ -1080,7 +1115,24 @@ static KIODBStore *dbStore;
     [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [multiAnalysisData length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:multiAnalysisData];
     
-    NSURLSession *session = [NSURLSession sharedSession];
+    // Set up proxy configuration
+    NSString* proxyHost = @"localhost";
+    NSNumber* proxyPort = [NSNumber numberWithInt:8888];
+    
+    NSDictionary *proxyDict = @{
+                                @"HTTPEnable":[NSNumber numberWithInt:1],
+                                (NSString *)kCFStreamPropertyHTTPProxyHost:proxyHost,
+                                (NSString *)kCFStreamPropertyHTTPProxyPort:proxyPort,
+                                
+                                @"HTTPSEnable":[NSNumber numberWithInt:1],
+                                (NSString *)kCFStreamPropertyHTTPSProxyHost:proxyHost,
+                                (NSString *)kCFStreamPropertyHTTPSProxyPort:proxyPort,
+                                };
+    
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    configuration.connectionProxyDictionary = proxyDict;
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
