@@ -55,6 +55,9 @@ static KIODBStore *dbStore;
 // If we're running tests.
 @property (nonatomic) BOOL isRunningTests;
 
+@property (nonatomic, readwrite) NSString *proxyHost;
+@property (nonatomic, readwrite) NSString *proxyPort;
+
 /**
  Initializes KeenClient without setting its project ID or API key.
  @returns An instance of KeenClient.
@@ -1049,25 +1052,27 @@ static KIODBStore *dbStore;
     [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [data length]] forHTTPHeaderField:@"Content-Length"];
     [request setHTTPBody:data];
     
-    // Set up proxy configuration
-    NSString* proxyHost = @"localhost";
-    NSNumber* proxyPort = [NSNumber numberWithInt:8888];
-    
-    NSDictionary *proxyDict = @{
-                                @"HTTPEnable":[NSNumber numberWithInt:1],
-                                (NSString *)kCFStreamPropertyHTTPProxyHost:proxyHost,
-                                (NSString *)kCFStreamPropertyHTTPProxyPort:proxyPort,
-                                
-                                @"HTTPSEnable":[NSNumber numberWithInt:1],
-                                (NSString *)kCFStreamPropertyHTTPSProxyHost:proxyHost,
-                                (NSString *)kCFStreamPropertyHTTPSProxyPort:proxyPort,
-                                };
-    
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    configuration.connectionProxyDictionary = proxyDict;
-    
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-    [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+    // Use proxy if variables are set
+    if(self.proxyHost && self.proxyPort) {
+        NSDictionary *proxyDict = @{
+                                    @"HTTPEnable":[NSNumber numberWithInt:1],
+                                    (NSString *)kCFStreamPropertyHTTPProxyHost:self.proxyHost,
+                                    (NSString *)kCFStreamPropertyHTTPProxyPort:self.proxyPort,
+                                    
+                                    @"HTTPSEnable":[NSNumber numberWithInt:1],
+                                    (NSString *)kCFStreamPropertyHTTPSProxyHost:self.proxyHost,
+                                    (NSString *)kCFStreamPropertyHTTPSProxyPort:self.proxyPort,
+                                    };
+        
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+        configuration.connectionProxyDictionary = proxyDict;
+        
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
+        [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+    } else {
+        NSURLSession *session = [NSURLSession sharedSession];
+        [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+    }
 }
 
 - (NSDictionary *)prepareQueriesDictionaryForMultiAnalysis:(NSArray *)keenQueries {
@@ -1144,6 +1149,16 @@ static KIODBStore *dbStore;
     
     NSString *iso8601String = [dateFormatter stringFromDate:date];
     return iso8601String;
+}
+
+- (void)setProxy:(NSString *)host port:(NSString *)port {
+    if(!host || !port) {
+        self.proxyHost = nil;
+        self.proxyPort = nil;
+    } else {
+        self.proxyHost = host;
+        self.proxyPort = port;
+    }
 }
 
 # pragma mark - SDK

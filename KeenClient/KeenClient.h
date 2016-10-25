@@ -345,9 +345,19 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
                       andQuery:(KIOQuery *)query;
 
 /**
+ Sets an HTTP proxy server configuration for this client.
+ @param host The proxy hostname or IP address.
+ @param port The proxy port number.
+ */
+- (void)setProxy:(NSString *)host port:(NSString *)port;
+
+/**
  Call this to indiscriminately delete all queries.
  */
 + (void)clearAllQueries;
+
+@property (nonatomic, readonly) NSString *proxyHost;
+@property (nonatomic, readonly) NSString *proxyPort;
 
 // defines the KCLog macro
 #define KCLog(message, ...) { if([KeenClient isLoggingEnabled]) { NSLog(message, ##__VA_ARGS__); } }

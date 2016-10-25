@@ -1488,6 +1488,19 @@
     XCTAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
 }
 
+- (void)testProxy {
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    
+    [client setProxy:@"127.0.0.1" port:@"8888"];
+    
+    XCTAssertEqual(client.proxyHost, @"127.0.0.1");
+    XCTAssertEqual(client.proxyPort, @"8888");
+    
+    [client setProxy:nil port:nil];
+    XCTAssertNil(client.proxyHost);
+    XCTAssertNil(client.proxyPort);
+}
+
 # pragma mark - test query
 
 - (void)testCountQueryFailure {
