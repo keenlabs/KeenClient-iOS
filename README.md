@@ -32,6 +32,7 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 		* [Multi-Analysis Example](#multi-analysis-example) - Multi-Analysis query example
 		* [Funnel Example](#funnel-example) - Funnel query example
 	* [Debugging](#debugging) - How to debug your application using the SDK's built in logging
+	* [Proxy Support](#proxy-support) - How to use an HTTP proxy
 * [FAQs](#faqs)
 * [Change Log](#change-log)
 * [To Do](#to-do)
@@ -674,6 +675,29 @@ Objective C
 Swift
 ```Swift
 KeenClient.disableLogging()
+```
+
+#### Proxy Support
+
+The KeenClient supports HTTP proxies via the following method:
+
+```objc
+- (void)setProxy:(NSString *)host port:(NSString *)port;
+```
+
+You can easily use it like so:
+
+Objective-C
+```objc
+[[KeenClient sharedClient] setProxy:@"secureproxy.example.com" port:@"2570"];
+```
+
+Swift
+```swift
+KeenClient.sharedClient().setProxy("secureproxy.example.com", port: "2570")
+
+// Swift 3.0
+KeenClient.shared().setProxy("secureproxy.example.com", port: "2570")
 ```
 
 ### FAQs

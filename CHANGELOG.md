@@ -4,6 +4,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased][unreleased]
+### Added
+- Added support for using HTTP proxies. #171
 
 ## [3.5.6] - 2016-08-05
 ### Fixed
