@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Added support for using HTTP proxies. #171
 
+### Changed
+- Updated Swift example project to Swift 3 syntax. #175
+
 ## [3.5.6] - 2016-08-05
 ### Fixed
 - Fixed app crashing when NSDate conversion to ISO8601 failed. Removed dependency on SQLite to convert date in favor of NSDateFormatter, which is thread-safe on iOS >=7 and OS X >=10.9. #165

@@ -128,17 +128,16 @@ Objective C
 ```
 Swift
 ```Swift
-func application(application: UIApplication, 
-	    didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool 
-{ 
+func application(_ application: UIApplication,
+			didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool
+{
 	let client: KeenClient
-	client = KeenClient.sharedClientWithProjectID("your_project_id",
-									andWriteKey: "your_write_key", 
-									andReadKey: nil)
+	client = KeenClient.sharedClient(withProjectID: "your_project_id",
+																	 andWriteKey: "your_write_key",
+																	 andReadKey: "your_read_key");
 	return true
 }
 ```
-
 
 The write key is required to send events to Keen IO. The read key is required to do analysis on Keen IO.
 
@@ -160,14 +159,14 @@ Objective C
 ```
 Swift
 ```Swift
-override func viewWillAppear(animated: Bool) 
+override func viewWillAppear(_ animated: Bool)
 {
 	super.viewWillAppear(animated)
 	let event = ["view_name": "first view Swift", "action": "going to"]
 	do {
-		try KeenClient.sharedClient().addEvent(event, toEventCollection: "tab_views")
+		try KeenClient.shared().addEvent(event, toEventCollection: "tab_views")
 	} catch _ {
-	}
+	};	
 }
 ```
 
@@ -210,13 +209,14 @@ override func viewWillAppear(animated: Bool)
         
 	let event = ["view_name": "first view Swift", "action": "going to"]
 	let keenProps: KeenProperties = KeenProperties()
-	keenProps.timestamp = NSDate();
+	keenProps.timestamp = NSDate() as Date!;
 	do {
-		try KeenClient.sharedClient().addEvent(event, withKeenProperties: keenProps, toEventCollection: "tab_views")
+		try KeenClient.shared().addEvent(event, with: keenProps, toEventCollection: "tab_views")
 	} catch _ {
 	}
 }
 ```
+
 ##### Global Properties
 
 Now you might be thinking, “Okay, that looks pretty easy. But what if I want to send the same properties on _every_ event in a particular collection? Or just _every_ event, period?” We’ve got you covered through something we call Global Properties.
@@ -243,7 +243,7 @@ Swift
 ```Swift
 func applicationDidBecomeActive(application: UIApplication) 
 {
-	KeenClient.sharedClient().globalPropertiesDictionary = 
+	KeenClient.shared().globalPropertiesDictionary = 
 					        ["some_standard_key" : "some_standard_value"]
 }
 ```
@@ -276,20 +276,19 @@ Swift
 ```Swift
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    KeenClient.sharedClient().globalPropertiesBlock = 
-			    {(eventCollection : String!) -> [NSObject : AnyObject]! in
-			    
-            if (eventCollection.compare("apples") == 
-	            NSComparisonResult.OrderedSame)
-            {
-                return ["color" : "red"]
-            } else if (eventCollection.compare("pears") ==
-						NSComparisonResult.OrderedSame)
-            {
-                return ["color" : "green"]
-            }
-            return nil
-        };
+		KeenClient.shared().globalPropertiesBlock =
+			{(eventCollection : String?) -> [AnyHashable: Any]? in
+					if (eventCollection!.compare("apples") ==
+							ComparisonResult.orderedSame)
+					{
+							return ["color" : "red"]
+					} else if (eventCollection!.compare("pears") ==
+							ComparisonResult.orderedSame)
+					{
+							return ["color" : "green"]
+					}
+					return nil
+		};
 }
 ```
 
@@ -313,7 +312,7 @@ Objective C
 ```
 Swift
 ```Swift
-KeenClient.sharedClient().refreshCurrentLocation()
+KeenClient.shared().refreshCurrentLocation()
 ```
 
 ###### Manually Setting Location
@@ -338,7 +337,7 @@ let location: CLLocation = CLLocation(latitude: 37.73, longitude: -122.47)
 keenProps.location = location
 
 do {
-    try KeenClient.sharedClient().addEvent(event, withKeenProperties:keenProps, toEventCollection:"tab_views")
+    try KeenClient.shared().addEvent(event, with: keenProps, toEventCollection: "tab_views")
 } catch _ {
 }
 ```
@@ -360,9 +359,8 @@ Objective C
 Swift
 ```Swift
 KeenClient.authorizeGeoLocationAlways()
-KeenClient.sharedClientWithProjectID("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key")
+KeenClient.sharedClient(withProjectID: "your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
 ```
-
 
 ##### Upload Events to Keen IO
 
@@ -385,13 +383,14 @@ Swift
 ```Swift
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-        let taskId: UIBackgroundTaskIdentifier = application.beginBackgroundTaskWithExpirationHandler({() -> Void in
-            NSLog("Background task is being expired.")
-        });
-        KeenClient.sharedClient().uploadWithFinishedBlock({() -> Void in
-            application.endBackgroundTask(taskId)})
+		let taskId : UIBackgroundTaskIdentifier = application.beginBackgroundTask(expirationHandler: {() -> Void in
+				NSLog("Background task is being expired.")
+		});
+		KeenClient.shared().upload(finishedBlock: {() -> Void in
+				application.endBackgroundTask(taskId)});
 }
 ```
+
 In this example, the upload is done in a background task so that even once the user backgrounds your application, the upload can continue. Here we first start the background task, start the upload, and then end the background task once the upload completes.
 
 If you want to call upload periodically during your application’s execution, you can do so by simply invoking the `uploadWithFinishedBlock` method on your `KeenClient` instance at any point.
@@ -402,7 +401,7 @@ Objective C
 ```
 Swift
 ```Swift
-KeenClient.sharedClient().uploadWithFinishedBlock(nil)
+KeenClient.shared().upload(finishedBlock: nil)
 ```
 
 **An important note:** it's a best practice to issue a single upload at a time. We make a best effort to reduce the number of threads spawned to upload in the background, but if you call upload many many times in a tight loop you're going to cause issues for yourself.
@@ -421,7 +420,7 @@ Objective C
 Swift
 ```Swift
 // Set the max upload attempts to 10
-KeenClient.sharedClient().maxEventUploadAttempts = 10
+KeenClient.shared().maxEventUploadAttempts = 10
 ```
 
 ##### Add-ons
@@ -452,7 +451,7 @@ client.globalPropertiesDictionary = @{@"keen":
 ```
 Swift
 ```Swift
-KeenClient.sharedClient().globalPropertiesDictionary = [
+KeenClient.shared().globalPropertiesDictionary = [
 	"keen": [
 		"addons": [
 			[
@@ -507,10 +506,10 @@ Objective C
 
 Swift
 ```Swift
-KeenClient.sharedClient().maxQueryAttempts = 10
+KeenClient.shared().maxQueryAttempts = 10
 
 // Change the default value to 10 minutes
-KeenClient.sharedClient().queryTTL = 600
+KeenClient.shared().queryTTL = 600
 ```
 
 ###### Examples
@@ -551,17 +550,17 @@ void (^countQueryCompleted)(NSData *, NSURLResponse *, NSError *) = ^(NSData *re
 Swift:
 ```Swift
 // Create block to run after query completes
-let countQueryCompleted = { (responseData: NSData!, returningResponse: NSURLResponse!, error: NSError!) -> Void in
+let countQueryCompleted = { (responseData: Data?, returningResponse: URLResponse?, error: Error?) -> Void in
     do {
-        let responseDictionary: NSDictionary? = try NSJSONSerialization.JSONObjectWithData(responseData, options: NSJSONReadingOptions.MutableContainers) as? NSDictionary
+        let responseDictionary: NSDictionary? = try JSONSerialization.jsonObject(with: responseData!, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSDictionary;
         
         if error != nil {
             self.resultTextView.text = "Error! 😞 \n\n error: \(error.localizedDescription)"
-        } else if let errorCode = responseDictionary!.objectForKey("error_code"),
-            errorMessage = responseDictionary!.objectForKey("message") as? String {
+        } else if let errorCode = responseDictionary!.object(forKey: "error_code"),
+            let errorMessage = responseDictionary!.object(forKey: "message") as? String {
             self.resultTextView.text = "Failure! 😞 \n\n error code: \(errorCode)\n\n message: \(errorMessage)"
         } else {
-            let result: NSNumber = responseDictionary!.objectForKey("result") as! NSNumber
+            let result: NSNumber = responseDictionary!.object(forKey: "result") as! NSNumber
             
             self.resultTextView.text = "Success! 😄 \n\n result: \(result) \n\n response: \(responseDictionary!.description)"
         }
@@ -586,7 +585,7 @@ Swift:
 let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "collection", "timeframe": "this_14_days"])
 
 // Run the query
-KeenClient.sharedClient().runAsyncQuery(countQuery, block: countQueryCompleted)
+KeenClient.shared().runAsyncQuery(countQuery, block: countQueryCompleted)
 ```
 
 ###### Count Unique Example
@@ -602,7 +601,7 @@ Swift:
 ```Swift
 let countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDictionary:["event_collection": "collection", "target_property": "key", "timeframe": "this_14_days"])
 
-KeenClient.sharedClient().runAsyncQuery(countUniqueQuery, block: countQueryCompleted)
+KeenClient.shared().runAsyncQuery(countUniqueQuery, block: countQueryCompleted)
 ```
 
 ###### Multi-Analysis Example
@@ -628,7 +627,7 @@ let countUniqueQuery: KIOQuery = KIOQuery(query:"count_unique", andPropertiesDic
 countQuery.queryName = "count_query"
 countUniqueQuery.queryName = "count_unique_query"
 
-KeenClient.sharedClient().runAsyncMultiAnalysisWithQueries([countQuery, countUniqueQuery], block: countQueryCompleted)
+KeenClient.shared().runAsyncMultiAnalysis(withQueries: [countQuery, countUniqueQuery], block: countQueryCompleted);
 ```
 
 ###### Funnel Example
@@ -647,7 +646,7 @@ Swift:
 ```Swift
 let funnelQuery: KIOQuery = KIOQuery(query:"funnel", andPropertiesDictionary:["timeframe": "this_14_days", "steps": [["event_collection": "user_signed_up", "actor_property": "user.id"], ["event_collection": "user_completed_profile", "actor_property": "user.id"]]])
 
-KeenClient.sharedClient().runAsyncQuery(funnelQuery, block: countQueryCompleted)
+KeenClient.shared().runAsyncQuery(funnelQuery, block: countQueryCompleted)
 ```
 
 ##### Debugging
