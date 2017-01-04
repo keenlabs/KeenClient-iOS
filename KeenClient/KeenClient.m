@@ -226,9 +226,14 @@ static KIODBStore *dbStore;
     KCLog(@"Disabling Geo Location");
     geoLocationEnabled = NO;
 }
++ (void)enableGeoLocationDefaultRequest {
+    KCLog(@"Enabling Geo Location Request");
+    geoLocationRequestEnabled = YES;
+}
+
 + (void)disableGeoLocationDefaultRequest {
-  KCLog(@"Disabling Geo Location Request");
-  geoLocationRequestEnabled = YES;
+    KCLog(@"Disabling Geo Location Request");
+    geoLocationRequestEnabled = NO;
 }
 
 
