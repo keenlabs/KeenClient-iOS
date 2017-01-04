@@ -413,13 +413,13 @@ static KIODBStore *dbStore;
 }
 
 +(BOOL)isLocationAuthorized:(CLAuthorizationStatus)status {
-#if TARGET_OS_MAC
-  if (status == kCLAuthorizationStatusAuthorized) {
-    return YES;
-  }
-#else
+#if TARGET_OS_IOS
   if (status == kCLAuthorizationStatusAuthorizedWhenInUse ||
       status == kCLAuthorizationStatusAuthorizedAlways) {
+    return YES;
+  }
+#elif TARGET_OS_MAC
+  if (status == kCLAuthorizationStatusAuthorized) {
     return YES;
   }
 #endif
