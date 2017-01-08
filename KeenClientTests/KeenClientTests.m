@@ -361,7 +361,7 @@
   XCTAssertNil(deserializedLocation, @"No location should have been saved.");
   
   // To properly test this, you want to make sure that this triggers a real location authentication request,
-  // to make sure that it returnings a location.
+  // to make sure that it returns a location.
 }
 
 - (void)testEventWithNonDictionaryKeen {

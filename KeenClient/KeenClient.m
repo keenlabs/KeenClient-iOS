@@ -453,7 +453,7 @@ static KIODBStore *dbStore;
 }
 -(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-  
+  KCLog(@"locationManager-didFailWithError: %@", [error localizedDescription]);
 }
 
 # pragma mark - Add events
