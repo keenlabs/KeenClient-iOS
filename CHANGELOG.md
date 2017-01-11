@@ -6,6 +6,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased][unreleased]
 ### Changed
 - Updated Swift example project to Swift 3 syntax. #175
+- Added method to disable automatically requesting CoreLocation authentication.
 
 ## [3.5.6] - 2016-08-05
 ### Fixed

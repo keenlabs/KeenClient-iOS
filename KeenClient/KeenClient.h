@@ -168,6 +168,21 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 + (void)enableGeoLocation;
 
 /**
+ Call this to ask keen to request geo location permissions for you.
+ 
+ Geo location request is ENABLED by default.
+ */
++ (void)enableGeoLocationDefaultRequest;
+
+/**
+ Call this to prevent keen from requesting geo location permissions. You want to use this if you want to control
+ when the user recieves the geo location permissiosn request
+ 
+ Geo location request is ENABLED by default.
+ */
++ (void)disableGeoLocationDefaultRequest;
+
+/**
  Call this to disable debug logging. It's disabled by default.
  */
 + (void)disableLogging;

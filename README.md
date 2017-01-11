@@ -301,6 +301,17 @@ The block takes in a single string parameter which corresponds to the name of th
 
 Like any good mobile-first service, Keen supports geo localization so you can track where events happened. This is enabled by default. Just use the client as you normally would and your users will be asked to allow geo location services. All events will be automatically tagged with the current location.
 
+If you want to control when you request authentication for location services, you can tell Keen not to request permissions automatically. You do this by calling:
+
+Objective C
+```objc
+[KeenClient disableGeoLocationDefaultRequest];
+```
+Swift
+```Swift
+KeenClient.disableGeoLocationDefaultRequest()
+```
+
 ###### Refreshing Current Location
 
 Every time the app is freshly loaded, the client will automatically ask the device for its current location. It won’t ask again in order to save battery life. You can tell the client to ask the device for location again. Simply call:
