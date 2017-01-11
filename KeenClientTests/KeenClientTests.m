@@ -102,7 +102,7 @@
     XCTAssertNil(client.projectID, @"a client's project id should be nil at first");
     XCTAssertNil(client.writeKey, @"a client's write key should be nil at first");
     XCTAssertNil(client.readKey, @"a client's read key should be nil at first");
-
+    
     KeenClient *client2 = [[KeenClient alloc] init];
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
 }
@@ -1517,6 +1517,19 @@
     // result from class method should equal the SDK Version constant
     XCTAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],  @"SDK Version from class method equals the SDK Version constant.");
     XCTAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
+}
+
+- (void)testProxy {
+    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    
+    [client setProxy:@"127.0.0.1" port:@"8888"];
+    
+    XCTAssertEqual(client.proxyHost, @"127.0.0.1");
+    XCTAssertEqual(client.proxyPort, @"8888");
+    
+    [client setProxy:nil port:nil];
+    XCTAssertNil(client.proxyHost);
+    XCTAssertNil(client.proxyPort);
 }
 
 # pragma mark - test query

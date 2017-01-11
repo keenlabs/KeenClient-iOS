@@ -10,9 +10,6 @@
 
 @implementation KeenProperties
 
-@synthesize timestamp=_timestamp;
-@synthesize location=_location;
-
 - (id)init {
     self = [super init];
     

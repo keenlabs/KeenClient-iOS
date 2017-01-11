@@ -13,6 +13,7 @@
 #import "HTTPCodes.h"
 #import "KIOQuery.h"
 #import <CoreLocation/CoreLocation.h>
+#import <CFNetwork/CFNetwork.h>
 
 
 static KeenClient *sharedClient;
@@ -54,6 +55,9 @@ static KIODBStore *dbStore;
 
 // If we're running tests.
 @property (nonatomic) BOOL isRunningTests;
+
+@property (nonatomic, readwrite) NSString *proxyHost;
+@property (nonatomic, readwrite) NSString *proxyPort;
 
 /**
  Initializes KeenClient without setting its project ID or API key.
@@ -164,18 +168,6 @@ static KIODBStore *dbStore;
 
 @implementation KeenClient
 
-@synthesize projectID=_projectID;
-@synthesize writeKey=_writeKey;
-@synthesize readKey=_readKey;
-@synthesize locationManager=_locationManager;
-@synthesize currentLocation=_currentLocation;
-@synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
-@synthesize isRunningTests=_isRunningTests;
-@synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
-@synthesize globalPropertiesBlock=_globalPropertiesBlock;
-@synthesize uploadQueue;
-@synthesize queryQueue;
-
 # pragma mark - Class lifecycle
 
 + (void)initialize {
@@ -252,24 +244,22 @@ static KIODBStore *dbStore;
 - (id)init {
     self = [super init];
     
-    // log the current version number
-    if ([KeenClient isLoggingEnabled]) {
-        KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
+    if (self) {
+        // log the current version number
+        if ([KeenClient isLoggingEnabled]) {
+            KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
+        }
+        
+        [self refreshCurrentLocation];
+        
+        self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
+        // use global concurrent dispatch queue to run queries in parallel
+        self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        self.maxEventUploadAttempts = 3;
+        self.maxQueryAttempts = 10;
+        self.queryTTL = 3600;
     }
     
-    [self refreshCurrentLocation];
-    
-    self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
-
-    // use global concurrent dispatch queue to run queries in parallel
-    self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-
-    self.maxEventUploadAttempts = 3;
-    
-    self.maxQueryAttempts = 10;
-    
-    self.queryTTL = 3600;
-
     return self;
 }
 
@@ -296,6 +286,7 @@ static KIODBStore *dbStore;
     }
     
     self = [self init];
+    
     if (self) {
         self.projectID = projectID;
         if (writeKey) {
@@ -988,19 +979,8 @@ static KIODBStore *dbStore;
 - (void)sendEvents:(NSData *)data completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
                            kKeenServerAddress, kKeenApiVersion, self.projectID];
-    KCLog(@"Sending request to: %@", urlString);
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
-    [request setHTTPMethod:@"POST"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:self.writeKey forHTTPHeaderField:@"Authorization"];
-    // TODO check if setHTTPBody also sets content-length
-    [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [data length]] forHTTPHeaderField:@"Content-Length"];
-    [request setHTTPBody:data];
     
-    NSURLSession *session = [NSURLSession sharedSession];
-    [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+    [self requestHelperWithUrlString:urlString data:data apiKey:self.writeKey completionHandler:completionHandler];
 }
 
 - (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {
@@ -1080,26 +1060,12 @@ static KIODBStore *dbStore;
     } else {
         NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
                                kKeenServerAddress, kKeenApiVersion, self.projectID, keenQuery.queryType];
-        KCLog(@"Sending request to: %@", urlString);
-        NSURL *url = [NSURL URLWithString:urlString];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
-        [request setHTTPMethod:@"POST"];
-        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
-        [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
-        [request setHTTPBody:[keenQuery convertQueryToData]];
         
-        NSURLSession *session = [NSURLSession sharedSession];
-        [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+        [self requestHelperWithUrlString:urlString data:[keenQuery convertQueryToData] apiKey:self.readKey completionHandler:completionHandler];
     }
 }
 
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                           kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
-    KCLog(@"Sending request to: %@", urlString);
-    
     NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
     if (multiAnalysisDictionary == nil) {
         return;
@@ -1115,20 +1081,47 @@ static KIODBStore *dbStore;
         return;
     }
     
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
+                           kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
+    
+    [self requestHelperWithUrlString:urlString data:multiAnalysisData apiKey:self.readKey completionHandler:completionHandler];
+}
+
+# pragma mark Helper Methods
+
+- (void)requestHelperWithUrlString:(NSString *)urlString data:(NSData *)data apiKey:(NSString *)apiKey completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
+    KCLog(@"Sending request to: %@", urlString);
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
-    [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [multiAnalysisData length]] forHTTPHeaderField:@"Content-Length"];
-    [request setHTTPBody:multiAnalysisData];
+    [request setValue:apiKey forHTTPHeaderField:@"Authorization"];
+    [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [data length]] forHTTPHeaderField:@"Content-Length"];
+    [request setHTTPBody:data];
     
-    NSURLSession *session = [NSURLSession sharedSession];
-    [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+    // Use proxy if variables are set
+    if(self.proxyHost && self.proxyPort) {
+        NSDictionary *proxyDict = @{
+                                    @"HTTPEnable":[NSNumber numberWithInt:1],
+                                    (NSString *)kCFStreamPropertyHTTPProxyHost:self.proxyHost,
+                                    (NSString *)kCFStreamPropertyHTTPProxyPort:self.proxyPort,
+                                    
+                                    @"HTTPSEnable":[NSNumber numberWithInt:1],
+                                    (NSString *)kCFStreamPropertyHTTPSProxyHost:self.proxyHost,
+                                    (NSString *)kCFStreamPropertyHTTPSProxyPort:self.proxyPort,
+                                    };
+        
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+        configuration.connectionProxyDictionary = proxyDict;
+        
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
+        [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+    } else {
+        NSURLSession *session = [NSURLSession sharedSession];
+        [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+    }
 }
-
-# pragma mark Helper Methods
 
 - (NSDictionary *)prepareQueriesDictionaryForMultiAnalysis:(NSArray *)keenQueries {
     NSMutableDictionary *multiAnalysisDictionary = [@{@"event_collection": [NSNull null], @"filters": [NSNull null], @"timeframe": [NSNull null], @"timezone": [NSNull null], @"group_by": [NSNull null], @"interval": [NSNull null]} mutableCopy];
@@ -1196,8 +1189,6 @@ static KIODBStore *dbStore;
     }
 }
 
-# pragma mark - NSDate => NSString
-
 - (id)convertDate:(id)date {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
@@ -1206,6 +1197,16 @@ static KIODBStore *dbStore;
     
     NSString *iso8601String = [dateFormatter stringFromDate:date];
     return iso8601String;
+}
+
+- (void)setProxy:(NSString *)host port:(NSString *)port {
+    if(!host || !port) {
+        self.proxyHost = nil;
+        self.proxyPort = nil;
+    } else {
+        self.proxyHost = host;
+        self.proxyPort = port;
+    }
 }
 
 # pragma mark - SDK
