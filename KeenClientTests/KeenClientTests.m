@@ -335,6 +335,33 @@
     XCTAssertNil(deserializedLocation, @"No location should have been saved.");
 }
 
+- (void)testGeoLocationRequestDisabled {
+  // now try the same thing but disable geo location
+  KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+  KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+  
+  [KeenClient disableGeoLocationDefaultRequest];
+  // add an event
+  [client addEvent:@{@"a": @"b"} toEventCollection:@"bar" error:nil];
+  [clientI addEvent:@{@"a": @"b"} toEventCollection:@"bar" error:nil];
+  // now get the stored event
+  
+  // Grab the first event we get back
+  NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
+  // Grab the first event we get back
+  NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+  NSError *error = nil;
+  NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
+                                                                   options:0
+                                                                     error:&error];
+  
+  NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+  XCTAssertNil(deserializedLocation, @"No location should have been saved.");
+  
+  // To properly test this, you want to make sure that this triggers a real location authentication request,
+  // to make sure that it returns a location.
+}
+
 - (void)testEventWithNonDictionaryKeen {
     KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
     KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];

@@ -19,22 +19,22 @@ class FirstViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         
         super.viewWillAppear(animated);
         let theEvent = ["view_name": "first view Swift", "action": "going to"];
         do {
-            try KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views")
+            try KeenClient.shared().addEvent(theEvent, toEventCollection: "tab_views")
         } catch _ {
         };
     }
     
-    override func viewWillDisappear(animated : Bool) {
+    override func viewWillDisappear(_ animated : Bool) {
         
         super.viewWillDisappear(animated);
         let theEvent = ["view_name" : "first view Swift", "action" : "leaving from"];
         do {
-            try KeenClient.sharedClient().addEvent(theEvent, toEventCollection: "tab_views")
+            try KeenClient.shared().addEvent(theEvent, toEventCollection: "tab_views")
         } catch _ {
         };
     }
