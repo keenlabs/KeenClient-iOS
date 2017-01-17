@@ -5,6 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased][unreleased]
 ### Changed
+- Changed geo location to be disabled by default. Users will now have to explicitly call `enableGeoLocation` to ask for user's location permission. #157
 - Updated Swift example project to Swift 3 syntax. #175
 - Added method to disable automatically requesting CoreLocation authentication.
 

@@ -299,7 +299,39 @@ The block takes in a single string parameter which corresponds to the name of th
 
 ##### Geo Location
 
-Like any good mobile-first service, Keen supports geo localization so you can track where events happened. This is enabled by default. Just use the client as you normally would and your users will be asked to allow geo location services. All events will be automatically tagged with the current location.
+Like any good mobile-first service, Keen supports geo localization so you can track where events happened. This is **disabled by default**. To enable it, use:
+
+Objective-C:
+```objc
+[KeenClient enableGeoLocation];
+```
+
+Swift:
+```swift
+KeenClient.enableGeoLocation()
+```
+
+Your users will be asked to allow geo location services. If the user chooses "Allow", all events will be automatically tagged with the current location.
+
+###### Requesting Authorization for Location in iOS 8+
+
+iOS 8 introduced a new method for requesting authorization that requires a few additional steps before location will automatically be appended to your events:
+
+1. Add one or both of the following keys to your Info.plist file: `NSLocationWhenInUseUsageDescription`,`NSLocationAlwaysUsageDescription`
+2. Call the appropriate authorization method to authorize your app to use location services. `authorizeGeoLocationWhenInUse` and `authorizeGeoLocationAlways` were both added as of version 3.2.16 of this SDK. `authorizeGeoLocationWhenInUse` is enabled by default as long as `NSLocationWhenInUseUsageDescription` is specified in your Info.plist file, so you don't need to call it if you're going the 'When in Use' route. `authorizeGeoLocationAlways` on the other hand must be called explicitly.
+
+Example:
+
+Objective C
+```objc
+[KeenClient authorizeGeoLocationAlways];
+[KeenClient sharedClientWithProjectID:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
+```
+Swift
+```Swift
+KeenClient.authorizeGeoLocationAlways()
+KeenClient.sharedClientWithProjectID("your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key")
+```
 
 If you want to control when you request authentication for location services, you can tell Keen not to request permissions automatically. You do this by calling:
 
@@ -350,26 +382,6 @@ do {
     try KeenClient.shared().addEvent(event, with: keenProps, toEventCollection: "tab_views")
 } catch _ {
 }
-```
-
-###### Requesting Authorization for Location in iOS 8+
-
-iOS 8 introduced a new method for requesting authorization that requires a few additional steps before location will automatically be appended to your events:
-
-1. Add one or both of the following keys to your Info.plist file: `NSLocationWhenInUseUsageDescription`,`NSLocationAlwaysUsageDescription`
-2. Call the appropriate authorization method to authorize your app to use location services. `authorizeGeoLocationWhenInUse` and `authorizeGeoLocationAlways` were both added as of version 3.2.16 of this SDK. `authorizeGeoLocationWhenInUse` is enabled by default as long as `NSLocationWhenInUseUsageDescription` is specified in your Info.plist file, so you don't need to call it if you're going the 'When in Use' route. `authorizeGeoLocationAlways` on the other hand must be called explicitly.
-
-Example:
-
-Objective C
-```objc
-[KeenClient authorizeGeoLocationAlways];
-[KeenClient sharedClientWithProjectID:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
-```
-Swift
-```Swift
-KeenClient.authorizeGeoLocationAlways()
-KeenClient.sharedClient(withProjectID: "your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
 ```
 
 ##### Upload Events to Keen IO
