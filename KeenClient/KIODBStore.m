@@ -51,6 +51,7 @@
     self = [super init];
 
     if(self) {
+        keen_dbname = NULL;
         dbIsOpen = NO;
         [self openAndInitDB];
     }
@@ -101,6 +102,13 @@
 
 - (BOOL)deleteAndRecreateCorruptDB {
     BOOL wasOpened = NO;
+    // Close the existing db if it's open
+    if (NULL != keen_dbname)
+    {
+        keen_io_sqlite3_close(keen_dbname);
+        keen_dbname = NULL;
+    }
+    
     NSString* dbFile = [self getSqliteFullFileName];
     [[NSFileManager defaultManager] removeItemAtPath:dbFile error:nil];
     
@@ -168,6 +176,7 @@
         
         // Free our DB. This is safe on null pointers.
         keen_io_sqlite3_close(keen_dbname);
+        keen_dbname = NULL;
         // Reset state in case it matters.
         dbIsOpen = NO;
     }
