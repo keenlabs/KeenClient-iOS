@@ -76,6 +76,7 @@
 		3EE9A7451C5988F100B7B2D9 /* KeenConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 01BA1B0314E895BC00CF9F84 /* KeenConstants.h */; };
 		3EE9A7461C5988F100B7B2D9 /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3EE9A7471C5988F100B7B2D9 /* KIOQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		482CB31D1E552F5300FCFACF /* corrupt.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 482CB31C1E552F5300FCFACF /* corrupt.sqlite */; };
 		A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
 		CA6410D818E37E7C00E53E3C /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -174,6 +175,7 @@
 		3EE9A72C1C59873F00B7B2D9 /* KeenClient.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = KeenClient.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EE9A72E1C59873F00B7B2D9 /* KeenClientFramework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenClientFramework.h; sourceTree = "<group>"; };
 		3EE9A7301C59873F00B7B2D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		482CB31C1E552F5300FCFACF /* corrupt.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = corrupt.sqlite; sourceTree = "<group>"; };
 		A51E31221B03C6EF00008248 /* HTTPCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPCodes.h; sourceTree = "<group>"; };
 		A51E31231B03C6EF00008248 /* HTTPCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPCodes.m; sourceTree = "<group>"; };
 		A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenSwiftClientExample.xcodeproj; path = KeenSwiftClientExample/KeenSwiftClientExample.xcodeproj; sourceTree = "<group>"; };
@@ -342,6 +344,7 @@
 		017EE13714E30C96000F3868 /* KeenClientTests */ = {
 			isa = PBXGroup;
 			children = (
+				482CB31C1E552F5300FCFACF /* corrupt.sqlite */,
 				017EE13D14E30C96000F3868 /* KeenClientTests.h */,
 				017EE13E14E30C96000F3868 /* KeenClientTests.m */,
 				017EE13814E30C96000F3868 /* Supporting Files */,
@@ -633,6 +636,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				017EE13C14E30C96000F3868 /* InfoPlist.strings in Resources */,
+				482CB31D1E552F5300FCFACF /* corrupt.sqlite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
