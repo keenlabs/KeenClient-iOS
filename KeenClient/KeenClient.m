@@ -155,10 +155,15 @@ static KIODBStore *dbStore;
 
 /**
  Fills the error object with the given message appropriately.
- 
+
  @return Always return NO.
  */
 - (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage;
+
+/**
+ * Gets an instance of NSURLSession to be used by the client
+ */
+- (NSURLSession*)sharedUrlSession;
 
 @end
 
@@ -180,7 +185,7 @@ static KIODBStore *dbStore;
 
 + (void)initialize {
     // initialize the cached client exactly once.
-    
+
     if (self != [KeenClient class]) {
         /*
          Without this extra check, your initializations could run twice if you ever have a subclass that
@@ -251,23 +256,23 @@ static KIODBStore *dbStore;
 
 - (id)init {
     self = [super init];
-    
+
     // log the current version number
     if ([KeenClient isLoggingEnabled]) {
         KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
     }
-    
+
     [self refreshCurrentLocation];
-    
+
     self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
 
     // use global concurrent dispatch queue to run queries in parallel
     self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
     self.maxEventUploadAttempts = 3;
-    
+
     self.maxQueryAttempts = 10;
-    
+
     self.queryTTL = 3600;
 
     return self;
@@ -290,11 +295,11 @@ static KIODBStore *dbStore;
     if (![KeenClient validateProjectID:projectID]) {
         return nil;
     }
-    
+
     if (!dbStore) {
         dbStore = [[KIODBStore alloc] init];
     }
-    
+
     self = [self init];
     if (self) {
         self.projectID = projectID;
@@ -337,7 +342,7 @@ static KIODBStore *dbStore;
         }
     }
     sharedClient.writeKey = writeKey;
-    
+
     if (readKey) {
         // only validate a non-nil value
         if (![KeenClient validateKey:readKey]) {
@@ -345,7 +350,7 @@ static KIODBStore *dbStore;
         }
     }
     sharedClient.readKey = readKey;
-    
+
     return sharedClient;
 }
 
@@ -371,9 +376,9 @@ static KIODBStore *dbStore;
             self.locationManager = [[CLLocationManager alloc] init];
             self.locationManager.delegate = self;
         }
-      
+
         // check for iOS 8 and provide appropriate authorization for location services
-      
+
         if(self.locationManager != nil)
         {
             // If location services are already authorized, then just start monitoring.
@@ -399,7 +404,7 @@ static KIODBStore *dbStore;
             }
 #endif
         }
-      
+
     } else {
         KCLog(@"Geo Location is disabled.");
     }
@@ -460,7 +465,7 @@ static KIODBStore *dbStore;
 
 - (BOOL)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     NSString *errorMessage = nil;
-    
+
     if ([eventCollection rangeOfString:@"$"].location == 0) {
         errorMessage = @"An event collection name cannot start with the dollar sign ($) character.";
         return [self handleError:anError withErrorMessage:errorMessage];
@@ -474,7 +479,7 @@ static KIODBStore *dbStore;
 
 - (BOOL)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
     NSString *errorMessage = nil;
-    
+
     if (depth == 0) {
         if (!event || [event count] == 0) {
             errorMessage = @"You must specify a non-null, non-empty event.";
@@ -486,7 +491,7 @@ static KIODBStore *dbStore;
             return [self handleError:anError withErrorMessage:errorMessage];
         }
     }
-    
+
     for (NSString *key in event) {
         // validate keys
         if ([key rangeOfString:@"."].location != NSNotFound) {
@@ -501,7 +506,7 @@ static KIODBStore *dbStore;
             errorMessage = @"An event cannot contain a property longer than 256 characters.";
             return [self handleError:anError withErrorMessage:errorMessage];
         }
-        
+
         // now validate values
         id value = [event objectForKey:key];
         if ([value isKindOfClass:[NSString class]]) {
@@ -536,9 +541,9 @@ static KIODBStore *dbStore;
     if (![self validateEvent:event withDepth:0 error:anError]) {
         return NO;
     }
-    
+
     KCLog(@"Adding event to collection: %@", eventCollection);
-    
+
     // create the body of the event we'll send off. first copy over all keys from the global properties
     // dictionary, then copy over all the keys from the global properties block, then copy over all the
     // keys from the user-defined event.
@@ -554,10 +559,10 @@ static KIODBStore *dbStore;
     }
     [newEvent addEntriesFromDictionary:event];
     event = newEvent;
-    
+
     // now make sure that we haven't hit the max number of events in this collection already
     NSUInteger eventCount = [dbStore getTotalEventCountWithProjectID:self.projectID];
-    
+
     // We add 1 because we want to know if this will push us over the limit
     if (eventCount + 1 > self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
@@ -573,10 +578,10 @@ static KIODBStore *dbStore;
     if (geoLocationEnabled && self.currentLocation != nil && keenProperties.location == nil) {
         keenProperties.location = self.currentLocation;
     }
-    
+
     // this is the event we'll actually write
     NSMutableDictionary *eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
-    
+
     // either set "keen" only from keen properties or merge in
     NSDictionary *originalKeenDict = [eventToWrite objectForKey:@"keen"];
     if (originalKeenDict) {
@@ -584,12 +589,12 @@ static KIODBStore *dbStore;
         NSMutableDictionary *keenDict = [self handleInvalidJSONInObject:keenProperties];
         [keenDict addEntriesFromDictionary:originalKeenDict];
         [eventToWrite setObject:keenDict forKey:@"keen"];
-        
+
     } else {
         // just set it directly
         [eventToWrite setObject:keenProperties forKey:@"keen"];
     }
-    
+
     NSError *error = nil;
     NSData *jsonData = [self serializeEventToJSON:eventToWrite error:&error];
     if (error) {
@@ -597,10 +602,10 @@ static KIODBStore *dbStore;
                 withErrorMessage:[NSString stringWithFormat:@"An error occurred when serializing event to JSON: %@", [error localizedDescription]]
                 underlayingError:error];
     }
-    
+
     // write JSON to store
     [dbStore addEvent:jsonData collection: eventCollection projectID:self.projectID];
-    
+
     // log the event
     KCLog(@"Event: %@", eventToWrite);
 
@@ -609,7 +614,7 @@ static KIODBStore *dbStore;
 
 - (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError **) anError {
     id fixed = [self handleInvalidJSONInObject:event];
-    
+
     if (![NSJSONSerialization isValidJSONObject:fixed]) {
         [self handleError:anError withErrorMessage:@"Event contains an invalid JSON type!"];
         return nil;
@@ -629,7 +634,7 @@ static KIODBStore *dbStore;
     if (!value) {
         return value;
     }
-    
+
     if ([value isKindOfClass:[NSDictionary class]]) {
         NSMutableDictionary *mutDict = [self makeDictionaryMutable:value];
         NSArray *keys = [mutDict allKeys];
@@ -651,13 +656,13 @@ static KIODBStore *dbStore;
         return [self convertDate:value];
     } else if ([value isKindOfClass:[KeenProperties class]]) {
         KeenProperties *keenProperties = value;
-        
+
         NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
         NSString *isoDate = [self convertDate:keenProperties.timestamp];
         if (isoDate != nil) {
             [dict setObject:isoDate forKey:@"timestamp"];
         }
-        
+
         CLLocation *location = keenProperties.location;
         if (location != nil) {
             NSNumber *longitude = [NSNumber numberWithDouble:location.coordinate.longitude];
@@ -666,7 +671,7 @@ static KIODBStore *dbStore;
             NSDictionary *coordinatesDict = [NSDictionary dictionaryWithObject:coordinatesArray forKey:@"coordinates"];
             [dict setObject:coordinatesDict forKey:@"location"];
         }
-        
+
         return dict;
     } else {
         return value;
@@ -676,20 +681,20 @@ static KIODBStore *dbStore;
 - (void)prepareJSONData:(NSData **)jsonData andEventIds:(NSMutableDictionary **)eventIds {
     // set up the request dictionary we'll send out.
     NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
-    
+
     // create a structure that will hold corresponding ids of all the events
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
-    
+
     // get data for the API request we'll make
     NSMutableDictionary *events = [dbStore getEventsWithMaxAttempts:self.maxEventUploadAttempts andProjectID:self.projectID];
-    
+
     NSError *error = nil;
     for (NSString *coll in events) {
         NSDictionary *collEvents = [events objectForKey:coll];
-        
+
         // create a separate array for event data so our dictionary serializes properly
         NSMutableArray *eventsArray = [[NSMutableArray alloc] init];
-        
+
         for (NSNumber *eid in collEvents) {
             NSData *ev = [collEvents objectForKey:eid];
             NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
@@ -699,7 +704,7 @@ static KIODBStore *dbStore;
                 KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
             }
-            
+
             // add it to the array of events
             [eventsArray addObject:eventDict];
             if ([eventIdDict objectForKey:coll] == nil) {
@@ -707,16 +712,16 @@ static KIODBStore *dbStore;
             }
             [[eventIdDict objectForKey:coll] addObject: eid];
         }
-        
+
         // add the array of events to the request
         [requestDict setObject:eventsArray forKey:coll];
     }
-    
+
     if ([requestDict count] == 0) {
         KCLog(@"Request data is empty");
         return;
     }
-    
+
     NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
     if (error) {
         KCLog(@"An error occurred when serializing the final request data back to JSON: %@",
@@ -724,10 +729,10 @@ static KIODBStore *dbStore;
         // can't do much here.
         return;
     }
-    
+
     *jsonData = data;
     *eventIds = eventIdDict;
-    
+
     KCLog(@"Uploading following events to Keen API: %@", requestDict);
 }
 
@@ -868,21 +873,21 @@ static KIODBStore *dbStore;
                 [self runUploadFinishedBlock:block];
                 return;
             }
-            
+
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-            
+
             // Check if we've done an import before. (A missing value returns NO)
             if (![defaults boolForKey:@"didFSImport"]) {
                 // Slurp in any filesystem based events. This converts older fs-based
                 // event storage into newer SQL-lite based storage.
                 [self importFileData];
             }
-            
+
             // get data for the API request we'll make
             NSData *data = nil;
             NSMutableDictionary *eventIds = nil;
             [self prepareJSONData:&data andEventIds:&eventIds];
-            
+
             if ([data length] == 0) {
                 [self runUploadFinishedBlock:block];
             } else {
@@ -892,12 +897,12 @@ static KIODBStore *dbStore;
                         [dbStore incrementEventUploadAttempts:eid];
                     }
                 }
-                
+
                 // then make an http request to the keen server.
                 [self sendEvents:data completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                     // then parse the http response and deal with it appropriately
                     [self handleEventAPIResponse:response andData:data forEvents:eventIds];
-                    
+
                     [self runUploadFinishedBlock:block];
                 }];
             }
@@ -955,11 +960,11 @@ static KIODBStore *dbStore;
                     if ([errorCode isEqualToString:kKeenInvalidCollectionNameError] ||
                         [errorCode isEqualToString:kKeenInvalidPropertyNameError] ||
                         [errorCode isEqualToString:kKeenInvalidPropertyValueError]) {
-                        KCLog(@"An invalid event was found.  Deleting it.  Error: %@", 
+                        KCLog(@"An invalid event was found.  Deleting it.  Error: %@",
                               [errorDict objectForKey:kKeenDescriptionParam]);
                         deleteFile = YES;
                     } else {
-                        KCLog(@"The event could not be inserted for some reason.  Error name and description: %@, %@", 
+                        KCLog(@"The event could not be inserted for some reason.  Error name and description: %@, %@",
                               errorCode, [errorDict objectForKey:kKeenDescriptionParam]);
                         deleteFile = NO;
                     }
@@ -997,9 +1002,10 @@ static KIODBStore *dbStore;
     [request setValue:self.writeKey forHTTPHeaderField:@"Authorization"];
     // TODO check if setHTTPBody also sets content-length
     [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [data length]] forHTTPHeaderField:@"Content-Length"];
+    [request setValue:kKeenSdkVersionWithPlatform forHTTPHeaderField:kKeenSdkVersionHeader];
     [request setHTTPBody:data];
-    
-    NSURLSession *session = [NSURLSession sharedSession];
+
+    NSURLSession *session = [self sharedUrlSession];
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
@@ -1027,13 +1033,13 @@ static KIODBStore *dbStore;
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
     dispatch_async(self.queryQueue, ^{
         BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery];
-        
+
         if(hasQueryWithMaxAttempts) {
             KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
         } else {
             [self runQuery:keenQuery completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 [self handleQueryAPIResponse:response andData:data andQuery:keenQuery];
-                
+
                 // we're done querying, call the main queue and execute the block
                 dispatch_async(dispatch_get_main_queue(), ^{
                     // run the user-specific block (if there is one)
@@ -1074,7 +1080,7 @@ static KIODBStore *dbStore;
 
 - (void)runQuery:(KIOQuery *)keenQuery completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
     BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery];
-    
+
     if(hasQueryWithMaxAttempts) {
         KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
     } else {
@@ -1088,9 +1094,10 @@ static KIODBStore *dbStore;
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
         [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
         [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [[keenQuery convertQueryToData] length]] forHTTPHeaderField:@"Content-Length"];
+        [request setValue:kKeenSdkVersionWithPlatform forHTTPHeaderField:kKeenSdkVersionHeader];
         [request setHTTPBody:[keenQuery convertQueryToData]];
-        
-        NSURLSession *session = [NSURLSession sharedSession];
+
+        NSURLSession *session = [self sharedUrlSession];
         [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
     }
 }
@@ -1099,22 +1106,22 @@ static KIODBStore *dbStore;
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
                            kKeenServerAddress, kKeenApiVersion, self.projectID, @"multi_analysis"];
     KCLog(@"Sending request to: %@", urlString);
-    
+
     NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
     if (multiAnalysisDictionary == nil) {
         return;
     }
-    
+
     //convert the resulting dictionary to data and set it as HTTPBody
     NSError *dictionarySerializationError = nil;
-    
+
     NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
-    
+
     if(dictionarySerializationError != nil) {
         KCLog(@"error with dictionary serialization");
         return;
     }
-    
+
     NSURL *url = [NSURL URLWithString:urlString];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
     [request setHTTPMethod:@"POST"];
@@ -1122,8 +1129,9 @@ static KIODBStore *dbStore;
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setValue:self.readKey forHTTPHeaderField:@"Authorization"];
     [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [multiAnalysisData length]] forHTTPHeaderField:@"Content-Length"];
+    [request setValue:kKeenSdkVersionWithPlatform forHTTPHeaderField:kKeenSdkVersionHeader];
     [request setHTTPBody:multiAnalysisData];
-    
+
     NSURLSession *session = [NSURLSession sharedSession];
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
@@ -1138,10 +1146,10 @@ static KIODBStore *dbStore;
             KCLog(@"keenQueries array contain objects that are not of class KIOQuery");
             return nil;
         }
-        
+
         KIOQuery *query = keenQueries[i];
         NSMutableDictionary *queryMutablePropertiesDictionary = [[query propertiesDictionary] mutableCopy];
-        
+
         //check that Keen queries have the same parameters
         for (NSString *key in [multiAnalysisDictionary allKeys]) {
             NSObject *queryProperty = [[query propertiesDictionary] objectForKey:key];
@@ -1155,15 +1163,15 @@ static KIODBStore *dbStore;
                 [queryMutablePropertiesDictionary removeObjectForKey:key];
             }
         }
-        
+
         [queryMutablePropertiesDictionary setObject:[query queryType] forKey:@"analysis_type"];
-        
+
         NSString *queryName = [query queryName] ? : [[NSString alloc] initWithFormat:@"query%d", i];
         [queriesDictionary setObject:queryMutablePropertiesDictionary forKey:queryName];
     }
-    
+
     [multiAnalysisDictionary setObject:queriesDictionary forKey:@"analyses"];
-    
+
     return [multiAnalysisDictionary copy];
 }
 
@@ -1180,16 +1188,16 @@ static KIODBStore *dbStore;
         KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
         return;
     }
-    
+
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
-    
+
     // if the query failed because of a client error, let's add it to the database
     if ([HTTPCodes httpCodeType:(responseCode)] == HTTPCode4XXClientError && query != nil) {
         // log what happened
         KCLog(@"Response code was 4xx Client Error. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLog(@"Response body was: %@", responseString);
-        
+
         // check if query is inside the database, and if so increment attempts counter
         // if not, add it
         [dbStore findOrUpdateQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID];
@@ -1203,7 +1211,7 @@ static KIODBStore *dbStore;
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
     [dateFormatter setLocale:enUSPOSIXLocale];
     [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
-    
+
     NSString *iso8601String = [dateFormatter stringFromDate:date];
     return iso8601String;
 }
@@ -1228,6 +1236,10 @@ static KIODBStore *dbStore;
         return 2;
     }
     return kKeenNumberEventsToForget;
+}
+
+- (NSURLSession*)sharedUrlSession {
+    return [NSURLSession sharedSession];
 }
 
 @end

@@ -3,6 +3,7 @@
 
 # Xcode noise
 build/
+DerivedData/
 xcuserdata/
 *.pbxuser
 *.mode1v3
