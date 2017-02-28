@@ -34,5 +34,5 @@ NSString * const kKeenErrorDomain = @"io.keen";
 
 // Name of header that provides SDK version info
 NSString * const kKeenSdkVersionHeader = @"Keen-Sdk";
-// ^([a-zA-Z._]{2,20})-([0-9._]{1,20})$
+// The SDK version info header content.
 NSString * const kKeenSdkVersionWithPlatform = @"ios-" kKeenSdkVersion;
