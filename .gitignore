@@ -2,6 +2,7 @@
 .DS_Store
 
 # Xcode noise
+DerivedData/
 build/
 DerivedData/
 xcuserdata/
@@ -15,3 +16,6 @@ KeenClient.xcworkspace/xcshareddata/
 KeenClient.xcodeproj/project.xcworkspace/xcshareddata/KeenClient.xccheckout
 
 Gemfile.lock
+
+# VS Code
+.vscode/

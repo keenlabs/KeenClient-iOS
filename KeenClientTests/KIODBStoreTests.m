@@ -310,11 +310,44 @@
     XCTAssertTrue(totalQueries == 0, @"0 total query after trying to delete queries older than 1 seconds");
 }
 
+- (void)testRecoverFromCorruptDb {
+    // Copy a canned corrupt db to the db path
+    [self setUpCorruptDb];
+    
+    KIODBStore *store = [[KIODBStore alloc] init];
+    XCTAssertNotNil(store, @"init is not null");
+    NSString *dbPath = [self databaseFile];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    XCTAssertTrue([fileManager fileExistsAtPath:dbPath], @"Database file exists.");
+    
+    NSString* event = @"{ \"event\": \"something\" }";
+    
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 0, @"0 pending events after init");
+    XCTAssertTrue([store addEvent:[event dataUsingEncoding:NSUTF8StringEncoding] collection:@"collection" projectID:projectID]);
+    XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 1, @"1 pending events after add");
+
+    NSMutableDictionary* events = [store getEventsWithMaxAttempts:3 andProjectID:projectID];
+    
+    XCTAssertEqual(events.count, 1, @"Should only be one event in the store");
+    for (NSString *coll in events) {
+        for (NSNumber *eid in [events objectForKey:coll]) {
+            [store deleteEvent:eid];
+        }
+    }
+    
+    XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after init");
+}
+
 # pragma mark - Helper Methods
 
 - (NSString *)databaseFile {
     NSString *databasePath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     return [databasePath stringByAppendingPathComponent:@"keenEvents.sqlite"];
+}
+
+- (void) setUpCorruptDb {
+    NSString *corruptDbPath = [[[NSBundle bundleForClass:self.class] resourcePath] stringByAppendingPathComponent:@"corrupt.sqlite"];
+    [[NSFileManager defaultManager] copyItemAtPath:corruptDbPath toPath:self.databaseFile error:nil];
 }
 
 @end

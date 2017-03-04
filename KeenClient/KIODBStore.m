@@ -51,6 +51,7 @@
     self = [super init];
 
     if(self) {
+        keen_dbname = NULL;
         dbIsOpen = NO;
         [self openAndInitDB];
     }
@@ -61,10 +62,16 @@
 
 # pragma mark Database Methods
 
+- (NSString*) getSqliteFullFileName {
+    NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    return [libraryPath stringByAppendingPathComponent:@"keenEvents.sqlite"];
+}
+
 - (BOOL)openDB {
     __block BOOL wasOpened = NO;
-    NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    NSString *my_sqlfile = [libraryPath stringByAppendingPathComponent:@"keenEvents.sqlite"];
+    
+    NSString* dbFile = [self getSqliteFullFileName];
+    KCLog(@"%@", dbFile);
     
     // we're going to use a queue for all database operations, so let's create it
     self.dbQueue = dispatch_queue_create("io.keen.sqlite", DISPATCH_QUEUE_SERIAL);
@@ -75,17 +82,11 @@
         keen_io_sqlite3_shutdown();
         keen_io_sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
         keen_io_sqlite3_initialize();
-        
-        int openDBResult = keen_io_sqlite3_open([my_sqlfile UTF8String], &keen_dbname);
+	
+        int openDBResult = keen_io_sqlite3_open([dbFile UTF8String], &keen_dbname);
         if (openDBResult != SQLITE_OK) {
             if(openDBResult == SQLITE_CORRUPT) {
-                // delete corrupt database file
-                NSError *error = nil;
-                NSLog(@"%@", my_sqlfile);
-                [[NSFileManager defaultManager] removeItemAtPath:my_sqlfile error:&error];
-                
-                // create new database file
-                [self openDB];
+                wasOpened = [self deleteAndRecreateCorruptDB];
             }
             else {
                 [self handleSQLiteFailure:@"create database"];
@@ -96,6 +97,29 @@
         dbIsOpen = wasOpened;
     });
     
+    return wasOpened;
+}
+
+- (BOOL)deleteAndRecreateCorruptDB {
+    BOOL wasOpened = NO;
+    // Close the existing db if it's open
+    if (NULL != keen_dbname)
+    {
+        keen_io_sqlite3_close(keen_dbname);
+        keen_dbname = NULL;
+    }
+    
+    NSString* dbFile = [self getSqliteFullFileName];
+    [[NSFileManager defaultManager] removeItemAtPath:dbFile error:nil];
+    
+    // create new database file
+    int secondOpenResult = keen_io_sqlite3_open([dbFile UTF8String], &keen_dbname);
+    if (secondOpenResult != SQLITE_OK) {
+        // Failed a second time
+        [self handleSQLiteFailure:@"replace corrupt database"];
+    } else {
+        wasOpened = YES;
+    }
     return wasOpened;
 }
 
@@ -127,6 +151,8 @@
 - (void)closeDB {
     // Free all the prepared statements. This is safe on null pointers.
     if(dbIsOpen) {
+        self.dbQueue = nil;
+        
         keen_io_sqlite3_finalize(insert_event_stmt);
         keen_io_sqlite3_finalize(find_event_stmt);
         keen_io_sqlite3_finalize(count_all_events_stmt);
@@ -150,6 +176,7 @@
         
         // Free our DB. This is safe on null pointers.
         keen_io_sqlite3_close(keen_dbname);
+        keen_dbname = NULL;
         // Reset state in case it matters.
         dbIsOpen = NO;
     }
@@ -168,11 +195,30 @@
         //create events table
         char *eventsError;
         NSString *createEventsTableSQL = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectID TEXT, eventData BLOB, pending INTEGER, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
-        if (keen_io_sqlite3_exec(keen_dbname, [createEventsTableSQL UTF8String], NULL, NULL, &eventsError) != SQLITE_OK) {
-            KCLog(@"Failed to create events table: %@", [NSString stringWithCString:eventsError encoding:NSUTF8StringEncoding]);
-            keen_io_sqlite3_free(eventsError); // Free that error message
-            [self closeDB];
-        } else {
+        int result = SQLITE_FAIL;
+        for (int i = 0; i < 2; ++i)
+        {
+            // The database is loaded on demand and this is the first time we use it, so here
+            // is where we're likely to actually notice corruption. Handle it by deleting the
+            // corrupt db and creating a new one.
+            result = keen_io_sqlite3_exec(keen_dbname, [createEventsTableSQL UTF8String], NULL, NULL, &eventsError);
+            if (result == SQLITE_CORRUPT) {
+                if (![self deleteAndRecreateCorruptDB])
+                {
+                    KCLog(@"Failed to replace corrupt db while creating events table: %@", [NSString stringWithCString:eventsError encoding:NSUTF8StringEncoding]);
+                    keen_io_sqlite3_free(eventsError); // Free that error message
+                    [self closeDB];
+                    break;
+                }
+                // If deleting and recreating the db was successful, continue the loop to create the events table
+            } else if (result != SQLITE_OK) {
+                KCLog(@"Failed to create events table: %@", [NSString stringWithCString:eventsError encoding:NSUTF8StringEncoding]);
+                keen_io_sqlite3_free(eventsError); // Free that error message
+                [self closeDB];
+            }
+        }
+
+        if (SQLITE_OK == result) {
             //create queries table
             char *queriesError;
             NSString *createQueriesTableSQL = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'queries' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectID TEXT, queryData BLOB, queryType TEXT, attempts INTEGER DEFAULT 0, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
@@ -1013,7 +1059,13 @@
 - (void)handleSQLiteFailure:(NSString *) msg {
     KCLog(@"Failed to %@: %@",
           msg, [NSString stringWithCString:keen_io_sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
+    int result = keen_io_sqlite3_errcode(keen_dbname);
     [self closeDB];
+    if (SQLITE_CORRUPT == result)
+    {
+        KCLog(@"Deleting corrupt DB file.");
+        [[NSFileManager defaultManager] removeItemAtPath:[self getSqliteFullFileName] error:nil];
+    }
 }
 
 @end
