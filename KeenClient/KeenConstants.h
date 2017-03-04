@@ -26,3 +26,6 @@ extern NSUInteger const kKeenMaxEventsPerCollection;
 extern NSUInteger const kKeenNumberEventsToForget;
 
 extern NSString * const kKeenErrorDomain;
+
+extern NSString * const kKeenSdkVersionHeader;
+extern NSString * const kKeenSdkVersionWithPlatform;

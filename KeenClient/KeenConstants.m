@@ -31,3 +31,8 @@ NSUInteger const kKeenNumberEventsToForget = 100;
 
 // custom domain for NSErrors
 NSString * const kKeenErrorDomain = @"io.keen";
+
+// Name of header that provides SDK version info
+NSString * const kKeenSdkVersionHeader = @"Keen-Sdk";
+// The SDK version info header content.
+NSString * const kKeenSdkVersionWithPlatform = @"ios-" kKeenSdkVersion;
