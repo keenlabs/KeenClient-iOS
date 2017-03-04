@@ -71,7 +71,7 @@
     __block BOOL wasOpened = NO;
     
     NSString* dbFile = [self getSqliteFullFileName];
-    NSLog(@"%@", dbFile);
+    KCLog(@"%@", dbFile);
     
     // we're going to use a queue for all database operations, so let's create it
     self.dbQueue = dispatch_queue_create("io.keen.sqlite", DISPATCH_QUEUE_SERIAL);
