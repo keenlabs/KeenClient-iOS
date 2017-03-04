@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [3.5.6] - 2017-03-03
+## [3.5.7] - 2017-03-03
 ### Changed
 - Added SDK platform and version info header to requests.
 - Updated Swift example project to Swift 3 syntax. #175
