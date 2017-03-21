@@ -10,7 +10,7 @@
 // messages in lower verbosity levels.
 // For example, if the log level is set
 // to KLL_WARN, messages will log level
-// of both KLL_WARN and KLL_ERROR will
+// of both KLL_WARN and KeenLogLevelError will
 // be logged.
 typedef NS_ENUM(NSInteger, KeenLogLevel) {
     KeenLogLevelError = 1,

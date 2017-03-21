@@ -121,7 +121,7 @@ BOOL removed;
 
 - (void)testSimpleLogging {
     NSArray* testMessages =
-        [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KLL_ERROR andText:@"error message"], nil];
+        [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
     
     KeenLogger* testLogger = [[KeenLogger alloc] init];
     
@@ -143,7 +143,7 @@ BOOL removed;
 
 - (void)testEnableAndDisable {
     NSArray* testMessages =
-        [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KLL_ERROR andText:@"error message"], nil];
+        [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
     
     KeenLogger* testLogger = [[KeenLogger alloc] init];
 
@@ -193,32 +193,32 @@ BOOL removed;
 - (void)testLogLevels {
     NSArray* testMessages =
         [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KLL_ERROR andText:@"error message"],
-            [[Message alloc] initWithLogLevel:KLL_WARNING andText:@"warning message"],
-            [[Message alloc] initWithLogLevel:KLL_INFO andText:@"info message"],
-            [[Message alloc] initWithLogLevel:KLL_VERBOSE andText:@"verbose message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelVerbose andText:@"verbose message"],
             nil];
     NSArray* errorLevelMessages =
         [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KLL_ERROR andText:@"error message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
             nil];
     NSArray* warningLevelMessages =
         [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KLL_ERROR andText:@"error message"],
-            [[Message alloc] initWithLogLevel:KLL_WARNING andText:@"warning message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
             nil];
     NSArray* infoLevelMessages =
         [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KLL_ERROR andText:@"error message"],
-            [[Message alloc] initWithLogLevel:KLL_WARNING andText:@"warning message"],
-            [[Message alloc] initWithLogLevel:KLL_INFO andText:@"info message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
             nil];
     NSArray* verboseLevelMessages =
         [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KLL_ERROR andText:@"error message"],
-            [[Message alloc] initWithLogLevel:KLL_WARNING andText:@"warning message"],
-            [[Message alloc] initWithLogLevel:KLL_INFO andText:@"info message"],
-            [[Message alloc] initWithLogLevel:KLL_VERBOSE andText:@"verbose message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
+            [[Message alloc] initWithLogLevel:KeenLogLevelVerbose andText:@"verbose message"],
             nil];
     
     KeenLogger* testLogger = [[KeenLogger alloc] init];
@@ -230,7 +230,7 @@ BOOL removed;
     // Enable logging
     [testLogger enableLogging];
     
-    // Default log level is KLL_ERROR, test that log level
+    // Default log level is KeenLogLevelError, test that log level
     [self logMessages:testMessages usingLogger:testLogger];
     
     // Verify messages received
@@ -243,7 +243,7 @@ BOOL removed;
     [testLogger addLogSink:testSink];
     
     // Log messages
-    [testLogger setLogLevel:KLL_WARNING];
+    [testLogger setLogLevel:KeenLogLevelWarning];
     [self logMessages:testMessages usingLogger:testLogger];
     
     // Verify messages received
@@ -256,7 +256,7 @@ BOOL removed;
     [testLogger addLogSink:testSink];
     
     // Log messages
-    [testLogger setLogLevel:KLL_INFO];
+    [testLogger setLogLevel:KeenLogLevelInfo];
     [self logMessages:testMessages usingLogger:testLogger];
     
     // Verify messages received
@@ -269,7 +269,7 @@ BOOL removed;
     [testLogger addLogSink:testSink];
     
     // Log messages
-    [testLogger setLogLevel:KLL_VERBOSE];
+    [testLogger setLogLevel:KeenLogLevelVerbose];
     [self logMessages:testMessages usingLogger:testLogger];
     
     // Verify messages received

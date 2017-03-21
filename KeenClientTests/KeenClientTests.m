@@ -54,7 +54,7 @@
     [[KeenClient sharedClient] setProjectID:nil];
     [[KeenClient sharedClient] setWriteKey:nil];
     [[KeenClient sharedClient] setReadKey:nil];
-    [KeenClient setLogLevel:KLL_VERBOSE];
+    [KeenClient setLogLevel:KeenLogLevelVerbose];
     [KeenClient enableLogging];
     [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];

@@ -386,7 +386,7 @@ NS_SWIFT_NAME(addLogSink(_:));
 
 /**
  Set the verbosity of logging that will be sent to the sinks.
- The default log level is KLL_ERROR.
+ The default log level is KeenLogLevelError.
  */
 + (void)setLogLevel:(KeenLogLevel)level;
 
