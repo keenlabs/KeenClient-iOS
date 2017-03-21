@@ -686,6 +686,94 @@ Swift
 KeenClient.disableLogging()
 ```
 
+By default, `KeenClient` will log using `NSLog`, and only log messages categorized as errors. To display more messages, enable a higher logging level using `setLogLevel:(KeenLogLevel)level`.
+
+Objective C
+```objc
+// Enable verbose-level logging, which will display messages categorized
+// as KeenLogLevelVerbose, KeenLogLevelInfo, KeenLogLevelWarning, and KeenLogLevelError
+[KeenClient setLogLevel:KeenLogLevelVerbose];
+```
+Swift
+```Swift
+// Enable verbose-level logging, which will display messages categorized
+// as KeenLogLevelVerbose, KeenLogLevelInfo, KeenLogLevelWarning, and KeenLogLevelError
+KeenClient.setLogLevel(.verbose)
+```
+
+Debugging issues in production often requires collection of logs remotely, for which simple `NSLog` logging doesn't work. `KeenClient` allows integration with custom log collectors through the `KeenLogSink` protocol and `addLogSink:(id<KeenLogSink>)logSink`. Simply implement the `KeenLogSink` protocol, and add your logger before logging is enabled.
+
+Objective C
+```objc
+@interface ExampleLogger : NSObject  <KeenLogSink>
+@end
+
+@implementation ExampleLogger
+- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message {
+	WriteToMyCustomLogger(@"Logger: %@", message);
+}
+
+// Even after calling KeenClient removeLogSink, a sink will
+// receive messages that had already been queued before the call
+// to removeLogSink. This callback gives the logger an opportunity
+// to do any processing or flushing it needs to do once it
+// has actually been removed from the list of loggers.
+- (void)onRemoved {
+	NSLog(@"Logger removed.");
+}
+@end
+
+...
+
+// Add custom logger before enabling logging so
+// a default NSLog logger won't be created and added internally
+// Do this after calling enableLogging if you'd like 
+// the internal NSLog logger in addition to your custom logger
+[KeenClient addLogSink:[[ExampleLogger alloc] init]];
+// Set desired log level. Only messages at or below
+// this log level are sent to the logger
+[KeenClient setLogLevel:KeenLogLevelInfo];
+// Enable logging
+[KeenClient enableLogging];
+
+...
+
+```
+Swift
+```Swift
+class ExampleLogger: KeenLogSink {
+	public func logMessage(with msgLevel: KeenLogLevel, andMessage message: String!) {
+		WriteToMyCustomLogger("Logger: %@", message)
+	}
+
+	// Even after calling KeenClient removeLogSink, a sink will
+	// receive messages that had already been queued before the call
+	// to removeLogSink. This callback gives the logger an opportunity
+	// to do any processing or flushing it needs to do once it
+	// has actually been removed from the list of loggers.
+	func onRemoved() {
+		NSLog("Logger removed.")
+	}
+}
+
+...
+
+// Add custom logger before enabling logging so
+// a default NSLog logger won't be created and added internally
+// Do this after calling enableLogging if you'd like 
+// the internal NSLog logger in addition to your custom logger
+KeenClient.addLogSink(ExampleLogger())
+// Set desired log level. Only messages at or below
+// this log level are sent to the logger
+KeenClient.setLogLevel(.verbose)
+// Enable logging
+KeenClient.enableLogging()
+
+```
+
+Note that if your own custom logger is added before `enableLogging` is called, the default NSLog logger is not enabled. If you'd like to see messages through NSLog as well, you could add your custom logger after calling `enableLogging`, since `enableLogging` creates an internal NSLog logger if no loggers have been added.
+
+
 ### FAQs
 
 Q: What happens when the device is offline? Will events automatically be sent when the device connects to wifi again?
