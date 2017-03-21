@@ -12,12 +12,12 @@
 // to KLL_WARN, messages will log level
 // of both KLL_WARN and KLL_ERROR will
 // be logged.
-typedef enum {
-    KLL_ERROR = 1,
-    KLL_WARNING = 2,
-    KLL_INFO = 3,
-    KLL_VERBOSE = 4
-} KeenLogLevel;
+typedef NS_ENUM(NSInteger, KeenLogLevel) {
+    KeenLogLevelError = 1,
+    KeenLogLevelWarning = 2,
+    KeenLogLevelInfo = 3,
+    KeenLogLevelVerbose = 4
+};
 
 //
 // If you want logs from KeenClient, implement this protocol, provide it to KeenClient via addLogSink,

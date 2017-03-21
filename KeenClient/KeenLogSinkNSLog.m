@@ -13,16 +13,16 @@
 - (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message {
     NSString* logPrefix;
     switch (msgLevel) {
-        case KLL_ERROR:
+        case KeenLogLevelError:
             logPrefix = @"E:";
             break;
-        case KLL_WARNING:
+        case KeenLogLevelWarning:
             logPrefix = @"W:";
             break;
-        case KLL_INFO:
+        case KeenLogLevelInfo:
             logPrefix = @"I:";
             break;
-        case KLL_VERBOSE:
+        case KeenLogLevelVerbose:
             logPrefix = @"V:";
             break;
     }

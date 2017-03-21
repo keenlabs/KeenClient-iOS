@@ -45,7 +45,7 @@ dispatch_queue_t loggerQueue;
         logSinksEnabled = NO;
         loggingEnabled = NO;
         // Default log level is error so we aren't noisy
-        logLevel = KLL_ERROR;
+        logLevel = KeenLogLevelError;
         // Create a serial queue for logging messages and manipulating loggers.
         // This will ensure that messages from different threads
         // don't get mixed together, and we don't have to worry

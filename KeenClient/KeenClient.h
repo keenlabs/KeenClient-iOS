@@ -376,7 +376,8 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 /**
  Add a log sink
  */
-+ (void)addLogSink:(id<KeenLogSink>)sink;
++ (void)addLogSink:(id<KeenLogSink>)logSink
+NS_SWIFT_NAME(addLogSink(_:));
 
 /**
  Remove a log sink
@@ -393,10 +394,10 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 + (void)logMessageWithLevel:(KeenLogLevel)level andMessage:(NSString*)message;
 
 // defines the KCLog macro
-#define KCLogError(message, ...)    { [KeenClient logMessageWithLevel:KLL_ERROR andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
-#define KCLogWarn(message, ...)     { [KeenClient logMessageWithLevel:KLL_WARNING andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
-#define KCLogInfo(message, ...)     { [KeenClient logMessageWithLevel:KLL_INFO andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
-#define KCLogVerbose(message, ...)  { [KeenClient logMessageWithLevel:KLL_VERBOSE andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+#define KCLogError(message, ...)    { [KeenClient logMessageWithLevel:KeenLogLevelError andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+#define KCLogWarn(message, ...)     { [KeenClient logMessageWithLevel:KeenLogLevelWarning andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+#define KCLogInfo(message, ...)     { [KeenClient logMessageWithLevel:KeenLogLevelInfo andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+#define KCLogVerbose(message, ...)  { [KeenClient logMessageWithLevel:KeenLogLevelVerbose andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
 
 
 @end
