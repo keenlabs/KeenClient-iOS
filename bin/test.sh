@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -e -o pipefail
 
 xcodebuild \
 	-scheme KeenClient \
