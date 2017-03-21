@@ -122,19 +122,19 @@ BOOL removed;
 - (void)testSimpleLogging {
     NSArray* testMessages =
         [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
-    
+
     KeenLogger* testLogger = [[KeenLogger alloc] init];
-    
+
     // 1. Add a LogSink
     TestLogSink* testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
-    
+
     // 2. Enable logging
     [testLogger enableLogging];
-    
+
     // 3. log messages
     [self logMessages:testMessages usingLogger:testLogger];
-    
+
     // 4. verify message was logged
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
@@ -144,7 +144,7 @@ BOOL removed;
 - (void)testEnableAndDisable {
     NSArray* testMessages =
         [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
-    
+
     KeenLogger* testLogger = [[KeenLogger alloc] init];
 
     // Add a log sink
@@ -162,13 +162,13 @@ BOOL removed;
     // Add a new log sink
     testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
-    
+
     // Enable logging
     [testLogger enableLogging];
-    
+
     // Log more messages
     [self logMessages:testMessages usingLogger:testLogger];
-    
+
     // Verify messages received
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
@@ -176,14 +176,14 @@ BOOL removed;
 
     // Disable logging
     [testLogger disableLogging];
-    
+
     // Add a new log sink
     testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
-    
+
     // log more messages
     [self logMessages:testMessages usingLogger:testLogger];
-    
+
     // Verfy no messages received.
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
@@ -220,19 +220,19 @@ BOOL removed;
             [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
             [[Message alloc] initWithLogLevel:KeenLogLevelVerbose andText:@"verbose message"],
             nil];
-    
+
     KeenLogger* testLogger = [[KeenLogger alloc] init];
-    
+
     // Add a log sink
     TestLogSink* testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
 
     // Enable logging
     [testLogger enableLogging];
-    
+
     // Default log level is KeenLogLevelError, test that log level
     [self logMessages:testMessages usingLogger:testLogger];
-    
+
     // Verify messages received
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
@@ -241,37 +241,37 @@ BOOL removed;
     // Add a new log sink
     testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
-    
+
     // Log messages
     [testLogger setLogLevel:KeenLogLevelWarning];
     [self logMessages:testMessages usingLogger:testLogger];
-    
+
     // Verify messages received
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
     [self verifyLoggedMessages:[testSink getLoggedMessages] withExpectedMessages:warningLevelMessages];
-    
+
     // Add a new log sink
     testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
-    
+
     // Log messages
     [testLogger setLogLevel:KeenLogLevelInfo];
     [self logMessages:testMessages usingLogger:testLogger];
-    
+
     // Verify messages received
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
     [self verifyLoggedMessages:[testSink getLoggedMessages] withExpectedMessages:infoLevelMessages];
-    
+
     // Add a new log sink
     testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
-    
+
     // Log messages
     [testLogger setLogLevel:KeenLogLevelVerbose];
     [self logMessages:testMessages usingLogger:testLogger];
-    
+
     // Verify messages received
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
