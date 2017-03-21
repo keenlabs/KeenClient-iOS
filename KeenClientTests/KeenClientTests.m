@@ -471,7 +471,7 @@
                  andRequestValidator:(BOOL (^)(id requestObject))requestValidator {
     // Mock the NSURLSession to be used for the request
     id urlSessionMock = [OCMockObject partialMockForObject:[NSURLSession sharedSession]];
-    
+
     // Set up fake response data and request validation
     if (nil != requestValidator) {
         // Set up validation of the request
@@ -481,9 +481,9 @@
         // We won't check that the request contained anything specific
         [[urlSessionMock stub] dataTaskWithRequest:[OCMArg any]
                                  completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
-        
+
     }
-    
+
     // Inject the mock NSURLSession
     [[[mockClient stub] andReturn:urlSessionMock] sharedUrlSession];
 }
@@ -506,7 +506,7 @@
                                                                error:nil];
 
     NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
-    
+
     // Set up the NSURLSession mock
     [self mockUrlSessionWithMockClient:mock
                           withResponse:response
@@ -539,13 +539,13 @@
     NSData *serializedData = [NSJSONSerialization dataWithJSONObject:responseData
                                                              options:0
                                                                error:nil];
-    
+
     // Set up the NSURLSession mock
     [self mockUrlSessionWithMockClient:mock
                           withResponse:response
                        andResponseData:serializedData
                    andRequestValidator:requestValidator];
-    
+
     return mock;
 }
 
@@ -569,13 +569,13 @@
     NSData *serializedData = [NSJSONSerialization dataWithJSONObject:responseData
                                                              options:0
                                                                error:nil];
-    
+
     // Set up the NSURLSession mock
     [self mockUrlSessionWithMockClient:mock
                           withResponse:response
                        andResponseData:serializedData
                    andRequestValidator:requestValidator];
-    
+
     return mock;
 }
 
@@ -1594,7 +1594,7 @@
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
-        
+
         XCTAssertNil(error);
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
@@ -1604,9 +1604,9 @@
                                             JSONObjectWithData:queryResponseData
                                             options:kNilOptions
                                             error:&error];
-        
+
         KCLogInfo(@"response: %@", responseDictionary);
-        
+
         NSNumber *result = [responseDictionary objectForKey:@"result"];
 
         XCTAssertNil(result);
@@ -1621,7 +1621,7 @@
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
-        
+
         XCTAssertNil(error);
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
@@ -1631,9 +1631,9 @@
                                             JSONObjectWithData:queryResponseData
                                             options:kNilOptions
                                             error:&error];
-        
+
         KCLogInfo(@"response: %@", responseDictionary);
-        
+
         NSNumber *result = [responseDictionary objectForKey:@"result"];
 
         XCTAssertEqual(result, [NSNumber numberWithInt:10]);
@@ -1649,7 +1649,7 @@
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
-        
+
         XCTAssertNil(error);
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
@@ -1659,9 +1659,9 @@
                                             JSONObjectWithData:queryResponseData
                                             options:kNilOptions
                                             error:&error];
-        
+
         KCLogInfo(@"response: %@", responseDictionary);
-        
+
         NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"result"];
 
         XCTAssertEqual(result, [NSNumber numberWithInt:10]);
@@ -1680,7 +1680,7 @@
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
-        
+
         XCTAssertNil(error);
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
@@ -1690,9 +1690,9 @@
                                             JSONObjectWithData:queryResponseData
                                             options:kNilOptions
                                             error:&error];
-        
+
         KCLogInfo(@"response: %@", responseDictionary);
-        
+
         NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"value"];
 
         XCTAssertEqual(result, [NSNumber numberWithInt:10]);
@@ -1707,7 +1707,7 @@
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
-        
+
         XCTAssertNil(error);
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
@@ -1717,9 +1717,9 @@
                                             JSONObjectWithData:queryResponseData
                                             options:kNilOptions
                                             error:&error];
-        
+
         KCLogInfo(@"response: %@", responseDictionary);
-        
+
         NSNumber *result = [responseDictionary objectForKey:@"result"];
 
         XCTAssertNil(result);
@@ -1734,7 +1734,7 @@
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
-        
+
         XCTAssertNil(error);
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
@@ -1744,9 +1744,9 @@
                                             JSONObjectWithData:queryResponseData
                                             options:kNilOptions
                                             error:&error];
-        
+
         KCLogInfo(@"response: %@", responseDictionary);
-        
+
         NSNumber *result = [responseDictionary objectForKey:@"result"];
 
         XCTAssertEqual(result, [NSNumber numberWithInt:10]);
@@ -1763,7 +1763,7 @@
     [mock runMultiAnalysisWithQueries:@[countQuery, averageQuery] completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
-        
+
         XCTAssertNil(error);
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
@@ -1773,9 +1773,9 @@
                                             JSONObjectWithData:queryResponseData
                                             options:kNilOptions
                                             error:&error];
-        
+
         KCLogInfo(@"response: %@", responseDictionary);
-        
+
         NSNumber *result = [[responseDictionary objectForKey:@"result"] objectForKey:@"query1"];
 
         XCTAssertEqual(result, [NSNumber numberWithInt:10]);
@@ -1795,7 +1795,7 @@
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
-        
+
         XCTAssertNil(error);
 
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
@@ -1805,15 +1805,15 @@
                                             JSONObjectWithData:queryResponseData
                                             options:kNilOptions
                                             error:&error];
-        
+
         KCLogInfo(@"response: %@", responseDictionary);
-        
+
         NSArray *result = [responseDictionary objectForKey:@"result"];
         NSArray *resultArray = @[@10, @5];
-        
+
         KCLogInfo(@"result: %@", [result class]);
         KCLogInfo(@"resultArray: %@", [resultArray class]);
-        
+
         XCTAssertEqual([result count], (NSUInteger)2);
         XCTAssertEqualObjects(result, resultArray);
     }];
@@ -1877,28 +1877,28 @@
 
 - (void)testSdkTrackingHeadersOnUpload {
     // mock an empty response from the server
-    
+
     id mock = [self uploadTestHelperWithRequestValidator:^BOOL(id obj) {
         [self validateSdkVersionHeaderFieldForRequest:obj];
         return @YES;
     }];
-    
+
     // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
     id urlSessionMock = [mock sharedUrlSession];
-    
+
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-    
+
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
     [mock uploadWithFinishedBlock:^{
-        
+
         // Check for the sdk version header
         [urlSessionMock verify];
-        
+
         [responseArrived fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         XCTAssertNil(error, @"Test should complete within expected interval.");
     }];
@@ -1909,20 +1909,20 @@
         [self validateSdkVersionHeaderFieldForRequest:obj];
         return @YES;
     }];
-    
+
     // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
     id urlSessionMock = [mock sharedUrlSession];
-    
+
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
-    
+
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         // Check for the sdk version header
         [urlSessionMock verify];
-        
+
         [responseArrived fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         XCTAssertNil(error, @"Test should complete within expected interval.");
     }];
@@ -1935,22 +1935,22 @@
         [self validateSdkVersionHeaderFieldForRequest:obj];
         return @YES;
     }];
-    
+
     // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
     id urlSessionMock = [mock sharedUrlSession];
-    
+
     KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
-    
+
     KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
-    
+
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [mock runMultiAnalysisWithQueries:@[countQuery, averageQuery] completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         // Check for the sdk version header
         [urlSessionMock verify];
-        
+
         [responseArrived fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         XCTAssertNil(error, @"Test should complete within expected interval.");
     }];
