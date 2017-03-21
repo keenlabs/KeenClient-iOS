@@ -8,19 +8,30 @@
 
 import UIKit
 
+class ExampleLogger: KeenLogSink {
+    public func logMessage(with msgLevel: KeenLogLevel, andMessage message: String!) {
+        NSLog("%@", message)
+    }
+    
+    func onRemoved() {
+        NSLog("Logger removed.")
+    }
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        KeenClient.enableLogging();
+        KeenClient.addLogSink(ExampleLogger())
+        KeenClient.setLogLevel(.verbose)
+        KeenClient.enableLogging()
         
         var client : KeenClient;
         client = KeenClient.sharedClient(withProjectID: "project_id", andWriteKey: "wk", andReadKey: "rk");
-
+        
         client.globalPropertiesBlock = {(eventCollection : String?) -> [AnyHashable: Any]? in
             return [ "GLOBALS": "YEAH WHAT SWIFT"]
         };
