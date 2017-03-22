@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased] - Unreleased
+### Added
+- Extensibility hooks for custom logging implementations.
+
 ## [3.5.7] - 2017-03-03
 ### Changed
 - Added SDK platform and version info header to requests.
