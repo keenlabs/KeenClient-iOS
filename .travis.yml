@@ -10,4 +10,6 @@ before_install:
   - brew update
   - brew outdated xctool || brew upgrade xctool
 after_success: bundle exec slather
-script: ./bin/test.sh
+script:
+  - ./bin/build.sh
+  - ./bin/test.sh
