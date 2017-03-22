@@ -9,7 +9,9 @@ before_install:
   - rvm use 2.2.1 --install
   - brew update
   - brew outdated xctool || brew upgrade xctool
-after_success: bundle exec slather
+after_success:
+  - bundle exec slather coverage -s --scheme KeenClient KeenClient.xcodeproj
+  - bundle exec slather
 script:
   - ./bin/build.sh
   - ./bin/test.sh
