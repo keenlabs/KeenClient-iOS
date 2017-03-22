@@ -58,6 +58,24 @@
     return self;
 }
 
++ (KIODBStore*)sharedInstance {
+    static KIODBStore* s_sharedDBStore = nil;
+    
+    // This black magic ensures this block
+    // is dispatched only once over the lifetime
+    // of the program. It's nice because
+    // this works even when there's a race
+    // between threads to create the object,
+    // as both threads will wait synchronously
+    // for the block to complete.
+    static dispatch_once_t predicate = {0};
+    dispatch_once(&predicate, ^{
+        s_sharedDBStore = [[KIODBStore alloc] init];
+    });
+    
+    return s_sharedDBStore;
+}
+
 # pragma mark - Handle Database -
 
 # pragma mark Database Methods

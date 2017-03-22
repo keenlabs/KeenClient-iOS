@@ -15,13 +15,11 @@
 #import <CoreLocation/CoreLocation.h>
 
 
-static KeenClient *sharedClient;
 static BOOL authorizedGeoLocationAlways = NO;
 static BOOL authorizedGeoLocationWhenInUse = NO;
 static BOOL geoLocationEnabled = NO;
 static BOOL loggingEnabled = NO;
 static BOOL geoLocationRequestEnabled = YES;
-static KIODBStore *dbStore;
 
 @interface KeenClient ()
 
@@ -243,37 +241,39 @@ static KIODBStore *dbStore;
 
 
 + (void)clearAllEvents {
-    [dbStore deleteAllEvents];
+    [KIODBStore.sharedInstance deleteAllEvents];
 }
 
 + (void)clearAllQueries {
-    [dbStore deleteAllQueries];
+    [KIODBStore.sharedInstance deleteAllQueries];
 }
 
-+ (KIODBStore *) getDBStore {
-    return dbStore;
++ (KIODBStore *)getDBStore {
+    return KIODBStore.sharedInstance;
 }
 
-- (id)init {
+- (instancetype)init {
     self = [super init];
 
-    // log the current version number
-    if ([KeenClient isLoggingEnabled]) {
-        KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
+    if (nil != self) {
+        // log the current version number
+        if ([KeenClient isLoggingEnabled]) {
+            KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
+        }
+
+        [self refreshCurrentLocation];
+
+        self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
+
+        // use global concurrent dispatch queue to run queries in parallel
+        self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+        self.maxEventUploadAttempts = 3;
+
+        self.maxQueryAttempts = 10;
+
+        self.queryTTL = 3600;
     }
-
-    [self refreshCurrentLocation];
-
-    self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
-
-    // use global concurrent dispatch queue to run queries in parallel
-    self.queryQueue = dispatch_queue_create(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-
-    self.maxEventUploadAttempts = 3;
-
-    self.maxQueryAttempts = 10;
-
-    self.queryTTL = 3600;
 
     return self;
 }
@@ -291,30 +291,36 @@ static KIODBStore *dbStore;
     return [KeenClient validateProjectID:key];
 }
 
-- (id)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
+- (id)initWithProjectID:(NSString *)projectID
+            andWriteKey:(NSString *)writeKey
+             andReadKey:(NSString *)readKey {
+    // Validate key parameters
     if (![KeenClient validateProjectID:projectID]) {
+        KCLog(@"Invalid projectID: %@", projectID);
         return nil;
     }
 
-    if (!dbStore) {
-        dbStore = [[KIODBStore alloc] init];
+    if (nil != writeKey) {
+        // only validate a non-nil value
+        KCLog(@"Invalid writeKey: %@", writeKey);
+        if (![KeenClient validateKey:writeKey]) {
+            return nil;
+        }
+    }
+
+    if (nil != readKey) {
+        // only validate a non-nil value
+        KCLog(@"Invalid readKey: %@", readKey);
+        if (![KeenClient validateKey:readKey]) {
+            return nil;
+        }
     }
 
     self = [self init];
-    if (self) {
+    if (nil != self) {
         self.projectID = projectID;
-        if (writeKey) {
-            if (![KeenClient validateKey:writeKey]) {
-                return nil;
-            }
-            self.writeKey = writeKey;
-        }
-        if (readKey) {
-            if (![KeenClient validateKey:readKey]) {
-                return nil;
-            }
-            self.readKey = readKey;
-        }
+        self.writeKey = writeKey;
+        self.readKey = readKey;
     }
 
     return self;
@@ -322,47 +328,55 @@ static KIODBStore *dbStore;
 
 # pragma mark - Get a shared client
 
-+ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
-    if (!sharedClient) {
-        sharedClient = [[KeenClient alloc] init];
-    }
++ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID
+                              andWriteKey:(NSString *)writeKey
+                               andReadKey:(NSString *)readKey {
+
+    // Validate key parameters
     if (![KeenClient validateProjectID:projectID]) {
+        KCLog(@"Invalid projectID: %@", projectID);
         return nil;
     }
 
-    if (!dbStore) {
-        dbStore = [[KIODBStore alloc] init];
-    }
-    sharedClient.projectID = projectID;
-
     if (writeKey) {
         // only validate a non-nil value
+        KCLog(@"Invalid writeKey: %@", writeKey);
         if (![KeenClient validateKey:writeKey]) {
             return nil;
         }
     }
-    sharedClient.writeKey = writeKey;
 
     if (readKey) {
         // only validate a non-nil value
+        KCLog(@"Invalid readKey: %@", readKey);
         if (![KeenClient validateKey:readKey]) {
             return nil;
         }
     }
-    sharedClient.readKey = readKey;
 
-    return sharedClient;
+    self.sharedClient.projectID = projectID;
+    self.sharedClient.writeKey = writeKey;
+    self.sharedClient.readKey = readKey;
+
+    return self.sharedClient;
 }
 
-+ (KeenClient *)sharedClient {
-    if (!sharedClient) {
-        sharedClient = [[KeenClient alloc] init];
-    }
-    if (![KeenClient validateProjectID:sharedClient.projectID]) {
-        KCLog(@"sharedClient requested before registering project ID!");
-        return nil;
-    }
-    return sharedClient;
++ (KeenClient*)sharedClient {
+    static KeenClient* s_sharedClient = nil;
+
+    // This black magic ensures this block
+    // is dispatched only once over the lifetime
+    // of the program. It's nice because
+    // this works even when there's a race
+    // between threads to create the object,
+    // as both threads will wait synchronously
+    // for the block to complete.
+    static dispatch_once_t predicate = {0};
+    dispatch_once(&predicate, ^{
+        s_sharedClient = [[KeenClient alloc] init];
+    });
+
+    return s_sharedClient;
 }
 
 # pragma mark - Geo stuff
@@ -561,14 +575,14 @@ static KIODBStore *dbStore;
     event = newEvent;
 
     // now make sure that we haven't hit the max number of events in this collection already
-    NSUInteger eventCount = [dbStore getTotalEventCountWithProjectID:self.projectID];
+    NSUInteger eventCount = [KIODBStore.sharedInstance getTotalEventCountWithProjectID:self.projectID];
 
     // We add 1 because we want to know if this will push us over the limit
     if (eventCount + 1 > self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
         KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
         KCLog(@"Count: %lu and Max: %lu", (unsigned long)eventCount, (unsigned long)self.maxEventsPerCollection);
-        [dbStore deleteEventsFromOffset:[NSNumber numberWithUnsignedInteger: eventCount - self.numberEventsToForget]];
+        [KIODBStore.sharedInstance deleteEventsFromOffset:[NSNumber numberWithUnsignedInteger: eventCount - self.numberEventsToForget]];
     }
 
     if (!keenProperties) {
@@ -604,7 +618,7 @@ static KIODBStore *dbStore;
     }
 
     // write JSON to store
-    [dbStore addEvent:jsonData collection: eventCollection projectID:self.projectID];
+    [KIODBStore.sharedInstance addEvent:jsonData collection: eventCollection projectID:self.projectID];
 
     // log the event
     KCLog(@"Event: %@", eventToWrite);
@@ -686,7 +700,7 @@ static KIODBStore *dbStore;
     NSMutableDictionary *eventIdDict = [NSMutableDictionary dictionary];
 
     // get data for the API request we'll make
-    NSMutableDictionary *events = [dbStore getEventsWithMaxAttempts:self.maxEventUploadAttempts andProjectID:self.projectID];
+    NSMutableDictionary *events = [KIODBStore.sharedInstance getEventsWithMaxAttempts:self.maxEventUploadAttempts andProjectID:self.projectID];
 
     NSError *error = nil;
     for (NSString *coll in events) {
@@ -784,7 +798,7 @@ static KIODBStore *dbStore;
                             KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                         } else {
                             // All's well: Add it!
-                            [dbStore addEvent:data collection:dirName projectID:self.projectID];
+                            [KIODBStore.sharedInstance addEvent:data collection:dirName projectID:self.projectID];
                         }
 
                     }
@@ -894,7 +908,7 @@ static KIODBStore *dbStore;
                 // loop through events and increment their attempt count
                 for (NSString *collectionName in eventIds) {
                     for (NSNumber *eid in eventIds[collectionName]) {
-                        [dbStore incrementEventUploadAttempts:eid];
+                        [KIODBStore.sharedInstance incrementEventUploadAttempts:eid];
                     }
                 }
 
@@ -974,7 +988,7 @@ static KIODBStore *dbStore;
 
                 // delete the file if we need to
                 if (deleteFile) {
-                    [dbStore deleteEvent: eid];
+                    [KIODBStore.sharedInstance deleteEvent: eid];
                     KCLog(@"Successfully deleted event: %@", eid);
                 }
                 count++;
@@ -1176,7 +1190,12 @@ static KIODBStore *dbStore;
 }
 
 - (BOOL)hasQueryReachedMaxAttempts:(KIOQuery *)keenQuery {
-    return [dbStore hasQueryWithMaxAttempts:[keenQuery convertQueryToData] queryType:keenQuery.queryType collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID maxAttempts:self.maxQueryAttempts queryTTL:self.queryTTL];
+    return [KIODBStore.sharedInstance hasQueryWithMaxAttempts:[keenQuery convertQueryToData]
+                                                    queryType:keenQuery.queryType
+                                                   collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"]
+                                                    projectID:self.projectID
+                                                  maxAttempts:self.maxQueryAttempts
+                                                     queryTTL:self.queryTTL];
 }
 
 - (void)handleQueryAPIResponse:(NSURLResponse *)response
@@ -1200,7 +1219,10 @@ static KIODBStore *dbStore;
 
         // check if query is inside the database, and if so increment attempts counter
         // if not, add it
-        [dbStore findOrUpdateQuery:[query convertQueryToData] queryType:query.queryType collection:[query.propertiesDictionary objectForKey:@"event_collection"] projectID:self.projectID];
+        [KIODBStore.sharedInstance findOrUpdateQuery:[query convertQueryToData]
+                                           queryType:query.queryType
+                                          collection:[query.propertiesDictionary objectForKey:@"event_collection"]
+                                           projectID:self.projectID];
     }
 }
 

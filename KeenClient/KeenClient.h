@@ -211,7 +211,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  
  @return An instance of KIOEventStore.
  */
-+ (KIODBStore *)getDBStore;
++ (KIODBStore *)getDBStore DEPRECATED_MSG_ATTRIBUTE("Use KIODBStore.sharedInstance instead, which this method refers to internally.");
 
 /**
  Call this if your code needs to use more than one Keen project.  By convention, if you
@@ -224,7 +224,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  @param readKey Your Keen IO Read Key.
  @return An initialized instance of KeenClient.
  */
-- (id)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
+- (instancetype)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
 
 /**
  Call this to set the global properties block for this instance of the KeenClient. The block is invoked

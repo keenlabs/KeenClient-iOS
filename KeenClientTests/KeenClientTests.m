@@ -228,7 +228,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -253,7 +253,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -276,7 +276,7 @@
 
     [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
     [clientI addEvent:eventDictionary toEventCollection:@"foo" error:nil];
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -300,7 +300,7 @@
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     // now get the stored event
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -326,7 +326,7 @@
     // now get the stored event
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -350,7 +350,7 @@
   // now get the stored event
 
   // Grab the first event we get back
-  NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
+  NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
   // Grab the first event we get back
   NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
   NSError *error = nil;
@@ -400,7 +400,7 @@
     XCTAssertNil(error, @"event should add");
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
@@ -593,7 +593,7 @@
 
     [mock uploadWithFinishedBlock:nil];
 
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"Upload method should return with message Request data is empty.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"Upload method should return with message Request data is empty.");
 }
 
 - (void)testUploadSuccess {
@@ -605,7 +605,7 @@
     }];
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
     }];
 }
 
@@ -619,7 +619,7 @@
     }];
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
     }];
 }
 
@@ -633,7 +633,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
@@ -647,7 +647,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
@@ -661,7 +661,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
@@ -675,7 +675,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
@@ -690,17 +690,17 @@
     // and "upload" it
     [mock uploadWithFinishedBlock:^{
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
 
         // add another event
         [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
         [mock uploadWithFinishedBlock:^{
             // make sure both files weren't deleted from the store
-            XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
+            XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
 
             [mock uploadWithFinishedBlock:^{
                 // make sure the first file was deleted from the store, but the second one remains
-                XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one file after 3 unsuccessful attempts.");
+                XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one file after 3 unsuccessful attempts.");
 
                 [mock uploadWithFinishedBlock:^{
                     [responseArrived fulfill];
@@ -711,7 +711,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure both files were deleted from the store
-        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
     }];
 }
 
@@ -726,12 +726,12 @@
     // and "upload" it
     [mock uploadWithFinishedBlock:^{
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
 
         // add another event
         [mock uploadWithFinishedBlock:^{
             // make sure both files weren't deleted from the store
-            XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
+            XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
 
             [mock uploadWithFinishedBlock:^{
                 [responseArrived fulfill];
@@ -741,8 +741,8 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the event was incremented
-        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
-        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
     }];
 }
 
@@ -757,7 +757,7 @@
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file was deleted locally
         // make sure the event was deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
     }];
 }
 
@@ -775,7 +775,7 @@
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file was deleted locally
         // make sure the event was deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
     }];
 }
 
@@ -789,7 +789,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
@@ -803,7 +803,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
@@ -817,7 +817,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
@@ -831,7 +831,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
@@ -841,7 +841,7 @@
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:nil];
 
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccess {
@@ -867,7 +867,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the events were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
     }];
 }
 
@@ -894,7 +894,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the events were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
     }];
 }
 
@@ -922,7 +922,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -950,7 +950,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -977,7 +977,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1004,7 +1004,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1032,7 +1032,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1060,7 +1060,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1088,7 +1088,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
     }];
 }
 
@@ -1116,7 +1116,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 event after a partial upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 event after a partial upload.");
     }];
 }
 
@@ -1128,11 +1128,11 @@
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testTooManyEventsCachedInstanceClient {
@@ -1143,11 +1143,11 @@
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testGlobalPropertiesDictionary {
@@ -1160,7 +1160,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1215,7 +1215,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1271,7 +1271,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1334,7 +1334,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1398,7 +1398,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1423,7 +1423,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1526,7 +1526,7 @@
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
     XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
@@ -1561,7 +1561,7 @@
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
     XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
@@ -1828,7 +1828,7 @@
     [client handleQueryAPIResponse:response andData:responseData andQuery:nil];
 
     // test that there are no entries in the query database
-    XCTAssertEqual([[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"], (NSUInteger)0, @"There should be no queries after a successful query API call");
+    XCTAssertEqual([KIODBStore.sharedInstance getTotalQueryCountWithProjectID:@"id"], (NSUInteger)0, @"There should be no queries after a successful query API call");
 }
 
 - (void) testFailedQueryAPIResponse {
@@ -1843,7 +1843,7 @@
 
     [client handleQueryAPIResponse:response andData:responseData andQuery:query];
 
-    NSUInteger numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
+    NSUInteger numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:@"id"];
 
     XCTAssertEqual(numberOfQueries, (NSUInteger)1, @"There should be 1 query in the database after a failed query API call");
 
@@ -1852,13 +1852,13 @@
 
     [client handleQueryAPIResponse:response andData:responseData andQuery:query2];
 
-    numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
+    numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:@"id"];
     XCTAssertEqual(numberOfQueries, (NSUInteger)2, @"There should be 2 queries in the database after two failed query API calls");
 
     // test that there is still 2 entries in the query database after the same query fails twice
     [client handleQueryAPIResponse:response andData:responseData andQuery:query2];
 
-    numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
+    numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:@"id"];
     XCTAssertEqual(numberOfQueries, (NSUInteger)2, @"There should still be 2 queries in the database after two of the same failed query API call");
 }
 
