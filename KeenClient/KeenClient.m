@@ -235,9 +235,7 @@ static BOOL geoLocationRequestEnabled = YES;
 
     if (nil != self) {
         // log the current version number
-        if ([KeenClient isLoggingEnabled]) {
-            KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
-        }
+        KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
 
         self.network = network;
         self.store = store;
@@ -264,20 +262,16 @@ static BOOL geoLocationRequestEnabled = YES;
         return nil;
     }
 
-    if (nil != writeKey) {
-        // only validate a non-nil value
+    if (nil != writeKey && // only validate a non-nil value
+        ![KeenClient validateKey:writeKey]) {
         KCLog(@"Invalid writeKey: %@", writeKey);
-        if (![KeenClient validateKey:writeKey]) {
-            return nil;
-        }
+        return nil;
     }
 
-    if (nil != readKey) {
-        // only validate a non-nil value
+    if (nil != readKey && // only validate a non-nil value
+        ![KeenClient validateKey:readKey]) {
         KCLog(@"Invalid readKey: %@", readKey);
-        if (![KeenClient validateKey:readKey]) {
-            return nil;
-        }
+        return nil;
     }
 
     self = [self initWithNetwork:network
@@ -323,20 +317,16 @@ static BOOL geoLocationRequestEnabled = YES;
         return nil;
     }
 
-    if (writeKey) {
-        // only validate a non-nil value
+    if (nil != writeKey && // only validate a non-nil value
+        ![KeenClient validateKey:writeKey]) {
         KCLog(@"Invalid writeKey: %@", writeKey);
-        if (![KeenClient validateKey:writeKey]) {
-            return nil;
-        }
+        return nil;
     }
 
-    if (readKey) {
-        // only validate a non-nil value
+    if (nil != readKey && // only validate a non-nil value
+        ![KeenClient validateKey:readKey]) {
         KCLog(@"Invalid readKey: %@", readKey);
-        if (![KeenClient validateKey:readKey]) {
-            return nil;
-        }
+        return nil;
     }
 
     self.sharedClient.projectID = projectID;
