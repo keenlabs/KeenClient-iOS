@@ -22,6 +22,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [KeenClient enableLogging];
+    [KeenClient setIsNSLogEnabled:YES];
+    [KeenClient setLogLevel:KeenLogLevelVerbose];
     KeenClient *client = [KeenClient sharedClientWithProjectID:@"pi" andWriteKey:@"wk" andReadKey:@"rk"];
     client.globalPropertiesBlock = ^NSDictionary *(NSString *eventCollection) {
         return @{ @"GLOBALS": @"YEAH WHAT"};

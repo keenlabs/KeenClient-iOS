@@ -86,7 +86,7 @@ Uncompress the ZIP file for the platform you're using, and drag the folder into 
 
 #### Swift
 
-Add a header file “ProjectName-Bridging-Header.h”. In the bridging header file, add: 
+Add a header file “ProjectName-Bridging-Header.h”. In the bridging header file, add:
 
 ```objc
 // If you're using the binary
@@ -165,7 +165,7 @@ override func viewWillAppear(_ animated: Bool)
 	do {
 		try KeenClient.shared().addEvent(event, toEventCollection: "tab_views")
 	} catch _ {
-	};	
+	};
 }
 ```
 
@@ -202,10 +202,10 @@ Objective C
 Swift
 ```Swift
 
-override func viewWillAppear(animated: Bool) 
+override func viewWillAppear(animated: Bool)
 {
 	super.viewWillAppear(animated)
-        
+
 	let event = ["view_name": "first view Swift", "action": "going to"]
 	let keenProps: KeenProperties = KeenProperties()
 	keenProps.timestamp = NSDate() as Date!;
@@ -240,9 +240,9 @@ Objective C
 ```
 Swift
 ```Swift
-func applicationDidBecomeActive(application: UIApplication) 
+func applicationDidBecomeActive(application: UIApplication)
 {
-	KeenClient.shared().globalPropertiesDictionary = 
+	KeenClient.shared().globalPropertiesDictionary =
 					        ["some_standard_key" : "some_standard_value"]
 }
 ```
@@ -546,9 +546,9 @@ void (^countQueryCompleted)(NSData *, NSURLResponse *, NSError *) = ^(NSData *re
                                         JSONObjectWithData:responseData
                                         options:kNilOptions
                                         error:nil];
-    
+
     NSNumber *result = [responseDictionary objectForKey:@"result"];
-    
+
     if(error || [responseDictionary objectForKey:@"error_code"]) {
         NSLog(@"Failure! 😞 \n\n error: %@\n\n response: %@", [error localizedDescription], [responseDictionary description]);
     } else {
@@ -563,7 +563,7 @@ Swift:
 let countQueryCompleted = { (responseData: Data?, returningResponse: URLResponse?, error: Error?) -> Void in
     do {
         let responseDictionary: NSDictionary? = try JSONSerialization.jsonObject(with: responseData!, options: JSONSerialization.ReadingOptions.mutableContainers) as? NSDictionary;
-        
+
         if error != nil {
             self.resultTextView.text = "Error! 😞 \n\n error: \(error.localizedDescription)"
         } else if let errorCode = responseDictionary!.object(forKey: "error_code"),
@@ -571,7 +571,7 @@ let countQueryCompleted = { (responseData: Data?, returningResponse: URLResponse
             self.resultTextView.text = "Failure! 😞 \n\n error code: \(errorCode)\n\n message: \(errorMessage)"
         } else {
             let result: NSNumber = responseDictionary!.object(forKey: "result") as! NSNumber
-            
+
             self.resultTextView.text = "Success! 😄 \n\n result: \(result) \n\n response: \(responseDictionary!.description)"
         }
     } catch let error as NSError {
@@ -585,7 +585,7 @@ let countQueryCompleted = { (responseData: Data?, returningResponse: URLResponse
 Objective-C:
 ```objc
 KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": @"this_14_days"}];
-    
+
 [[KeenClient sharedClient] runAsyncQuery:countQuery block:countQueryCompleted];
 ```
 
@@ -603,7 +603,7 @@ KeenClient.shared().runAsyncQuery(countQuery, block: countQueryCompleted)
 Objective-C:
 ```objc
 KIOQuery *countUniqueQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"collection", @"target_property": @"key", @"timeframe": @"this_14_days"}];
-    
+
 [[KeenClient sharedClient] runAsyncQuery:countUniqueQuery block:countQueryCompleted];
 ```
 
@@ -648,7 +648,7 @@ KIOQuery *funnelQuery = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesD
             @"actor_property": @"user.id"},
           @{@"event_collection": @"user_completed_profile",
             @"actor_property": @"user.id"}]}];
-    
+
 [[KeenClient sharedClient] runAsyncQuery:funnelQuery block:countQueryCompleted];
 ```
 
@@ -725,11 +725,10 @@ Objective C
 
 ...
 
-// Add custom logger before enabling logging so
-// a default NSLog logger won't be created and added internally
-// Do this after calling enableLogging if you'd like 
-// the internal NSLog logger in addition to your custom logger
+// Add custom logger
 [KeenClient addLogSink:[[ExampleLogger alloc] init]];
+// Optionally, disable logging to NSLog
+[KeenClient setIsNSLogEnabled:NO];
 // Set desired log level. Only messages at or below
 // this log level are sent to the logger
 [KeenClient setLogLevel:KeenLogLevelInfo];
@@ -758,11 +757,10 @@ class ExampleLogger: KeenLogSink {
 
 ...
 
-// Add custom logger before enabling logging so
-// a default NSLog logger won't be created and added internally
-// Do this after calling enableLogging if you'd like 
-// the internal NSLog logger in addition to your custom logger
+// Add custom logger
 KeenClient.addLogSink(ExampleLogger())
+// Optionally, disable logging to NSLog
+KeenClient.setIsNSLogEnabled(false);
 // Set desired log level. Only messages at or below
 // this log level are sent to the logger
 KeenClient.setLogLevel(.verbose)
@@ -771,7 +769,6 @@ KeenClient.enableLogging()
 
 ```
 
-Note that if your own custom logger is added before `enableLogging` is called, the default NSLog logger is not enabled. If you'd like to see messages through NSLog as well, you could add your custom logger after calling `enableLogging`, since `enableLogging` creates an internal NSLog logger if no loggers have been added.
 
 
 ### FAQs

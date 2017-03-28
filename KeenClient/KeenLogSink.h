@@ -1,5 +1,5 @@
 //
-//  KeenLogger.h
+//  KeenLogSink.h
 //  KeenClient
 //
 //  Created by Brian Baumhover on 2/16/17.
@@ -13,10 +13,10 @@
 // of both KLL_WARN and KeenLogLevelError will
 // be logged.
 typedef NS_ENUM(NSInteger, KeenLogLevel) {
-    KeenLogLevelError = 1,
-    KeenLogLevelWarning = 2,
-    KeenLogLevelInfo = 3,
-    KeenLogLevelVerbose = 4
+    KeenLogLevelError = 0,
+    KeenLogLevelWarning = 1,
+    KeenLogLevelInfo = 2,
+    KeenLogLevelVerbose = 3
 };
 
 //

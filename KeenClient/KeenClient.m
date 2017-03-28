@@ -213,6 +213,14 @@ static KIODBStore *dbStore;
     return [[KeenLogger sharedLogger] isLoggingEnabled];
 }
 
++ (void)setIsNSLogEnabled:(BOOL)isNSLogEnabled {
+    [[KeenLogger sharedLogger] setIsNSLogEnabled:isNSLogEnabled];
+}
+
++ (BOOL)isNSLogEnabled {
+    return [[KeenLogger sharedLogger] isNSLogEnabled];
+}
+
 + (void)addLogSink:(id<KeenLogSink>)sink {
     [[KeenLogger sharedLogger] addLogSink:sink];
 }

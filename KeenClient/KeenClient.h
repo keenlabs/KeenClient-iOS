@@ -374,6 +374,16 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 + (BOOL)isLoggingEnabled;
 
 /**
+ Enable or disable logging to NSLog
+ */
++ (void)setIsNSLogEnabled:(BOOL)isNSLogEnabled;
+
+/**
+ Whether or not NSLog logging is enabled
+ */
++ (BOOL)isNSLogEnabled;
+
+/**
  Add a log sink
  */
 + (void)addLogSink:(id<KeenLogSink>)logSink

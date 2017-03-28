@@ -23,13 +23,24 @@
 - (void)disableLogging;
 
 /**
- Call this to enable debug logging with a default NSLog logger
+ Call this to enable debug logging. If no log sinks have been added,
+ a default NSLog logger will automatically be added.
  */
 - (void)enableLogging;
 
 /**
+ Enable or disable logging to NSLog
+ */
+- (void)setIsNSLogEnabled:(BOOL)isNSLogEnabled;
+
+/**
+ Whether or not NSLog logging is enabled
+ */
+- (BOOL)isNSLogEnabled;
+
+/**
  Returns whether or not logging is currently enabled.
- 
+
  @return true if logging is enabled, false if disabled.
  */
 - (BOOL)isLoggingEnabled;
