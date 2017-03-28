@@ -878,10 +878,10 @@
                     maxAttempts:(int)maxAttempts
                        queryTTL:(int)queryTTL {
     
-    __block BOOL hasFoundEventWithMaxAttempts = NO;
+    __block BOOL hasFoundQueryWithMaxAttempts = NO;
     
     if(![self checkOpenDB:@"DB is closed, skipping hasQueryWithMaxAttempts"]) {
-        return hasFoundEventWithMaxAttempts;
+        return hasFoundQueryWithMaxAttempts;
     }
     
     // clear query database based on timespan
@@ -912,13 +912,16 @@
             return;
         }
         
-        if(keen_io_sqlite3_bind_int64(get_query_with_attempts_stmt, 5, maxAttempts) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_int64(get_query_with_attempts_stmt, 5, maxAttempts) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind attempts to has query with max attempts statement"];
         }
         
-        if (keen_io_sqlite3_step(get_query_with_attempts_stmt) == SQLITE_ROW) {
-            hasFoundEventWithMaxAttempts = YES;
-        } else {
+        int result = keen_io_sqlite3_step(get_query_with_attempts_stmt);
+        if (SQLITE_ROW == result) {
+            hasFoundQueryWithMaxAttempts = YES;
+        } else if (SQLITE_DONE != result) {
+            // SQLITE_DONE just means there weren't any results, which is the common case.
+            // If we got anything else, we treat it as an error here.
             [self handleSQLiteFailure:@"find query with max attempts"];
             return;
         }
@@ -926,7 +929,7 @@
         [self resetSQLiteStatement:get_query_with_attempts_stmt];
     });
     
-    return hasFoundEventWithMaxAttempts;
+    return hasFoundQueryWithMaxAttempts;
 }
 
 - (void)deleteAllQueries {
