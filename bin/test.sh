@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -e -o pipefail
 
 xcodebuild \
 	-scheme KeenClient \
@@ -8,3 +8,17 @@ xcodebuild \
 	-enableCodeCoverage YES \
   ONLY_ACTIVE_ARCH=NO \
 	clean test | xcpretty --color
+
+xcodebuild \
+	-scheme KeenSwiftClientExample \
+	-sdk iphonesimulator \
+	-destination 'platform=iOS Simulator,name=iPhone 6,OS=9.2' \
+  ONLY_ACTIVE_ARCH=NO \
+	clean build | xcpretty --color
+
+xcodebuild \
+	-scheme KeenClientExample \
+	-sdk iphonesimulator \
+	-destination 'platform=iOS Simulator,name=iPhone 6,OS=9.2' \
+  ONLY_ACTIVE_ARCH=NO \
+	clean build | xcpretty --color

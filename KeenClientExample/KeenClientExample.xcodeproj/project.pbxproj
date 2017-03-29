@@ -50,8 +50,8 @@
 		012E8A5F1672C30C0021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		015D307E1822DE7D00F8735B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		01F90AF514F36C2800DD3DE2 /* KeenClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeenClient.h; path = ../KeenClient/KeenClient.h; sourceTree = "<group>"; };
-		3E0EC09D1B11701B00195A42 /* third.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = third.png; path = "../../../../Github/KeenClient-iOS/KeenClientExample/KeenClientExample/third.png"; sourceTree = "<group>"; };
-		3E0EC09E1B11701B00195A42 /* third@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "third@2x.png"; path = "../../../../Github/KeenClient-iOS/KeenClientExample/KeenClientExample/third@2x.png"; sourceTree = "<group>"; };
+		3E0EC09D1B11701B00195A42 /* third.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = third.png; sourceTree = "<group>"; };
+		3E0EC09E1B11701B00195A42 /* third@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "third@2x.png"; sourceTree = "<group>"; };
 		3E0EC0A71B11740900195A42 /* ThirdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThirdViewController.h; sourceTree = "<group>"; };
 		3E0EC0A81B11740900195A42 /* ThirdViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThirdViewController.m; sourceTree = "<group>"; };
 		3E0EC0A91B11740900195A42 /* ThirdViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ThirdViewController.xib; sourceTree = "<group>"; };
