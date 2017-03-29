@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [Unreleased] - Unreleased
+### Fixed
+- Fixed bug where KIODBStore would close and reopen db when performing any query, which could contribute to experiencing issue #183 more often.
+- Fixed unit test setup issues leading to non-deterministic test failures.
+
 ## [3.5.7] - 2017-03-03
 ### Changed
 - Added SDK platform and version info header to requests.
@@ -89,7 +94,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [3.4.0] - 2015-07-08
 ### Added
-- Added querying capability to SDK. 
+- Added querying capability to SDK.
 
 ## [3.3.1] - 2015-06-12
 ### Fixed
@@ -118,7 +123,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.2.20] - 2014-11-07
 - Skipped 3.2.19 due to CocoaPods versioning issue.
 
-### Fixed 
+### Fixed
 - Fixed semaphore_wait_trap issue caused by recursive calls of dispatch_sync.
 
 ## [3.2.18] - 2014-10-28
