@@ -98,12 +98,12 @@
 }
 
 - (BOOL)hasQueryReachedMaxAttempts:(KIOQuery*)keenQuery withProjectID:(NSString*)projectID {
-    return [KIODBStore.sharedInstance hasQueryWithMaxAttempts:[keenQuery convertQueryToData]
-                                                    queryType:keenQuery.queryType
-                                                   collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"]
-                                                    projectID:projectID
-                                                  maxAttempts:self.maxQueryAttempts
-                                                     queryTTL:self.queryTTL];
+    return [self.store hasQueryWithMaxAttempts:[keenQuery convertQueryToData]
+                                     queryType:keenQuery.queryType
+                                    collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"]
+                                     projectID:projectID
+                                   maxAttempts:self.maxQueryAttempts
+                                      queryTTL:self.queryTTL];
 }
 
 # pragma mark Sync methods
@@ -137,18 +137,18 @@
                                kKeenServerAddress, kKeenApiVersion, projectID, keenQuery.queryType];
         KCLog(@"Sending request to: %@", urlString);
 
-        NSMutableURLRequest* request = [KIONetwork.sharedInstance createRequestWithUrl:urlString
-                                                                               andBody:[keenQuery convertQueryToData]
-                                                                                andKey:readKey];
+        NSMutableURLRequest* request = [self createRequestWithUrl:urlString
+                                                          andBody:[keenQuery convertQueryToData]
+                                                           andKey:readKey];
 
-        [KIONetwork.sharedInstance executeRequest:request
-                                completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
-                                    [self handleQueryAPIResponse:response
-                                                         andData:data
-                                                        andQuery:keenQuery
-                                                    andProjectID:projectID];
-                                    completionHandler(data, response, error);
-                                }];
+        [self executeRequest:request
+           completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
+            [self handleQueryAPIResponse:response
+                                 andData:data
+                                andQuery:keenQuery
+                            andProjectID:projectID];
+            completionHandler(data, response, error);
+        }];
     }
 }
 
@@ -206,12 +206,12 @@
         return;
     }
 
-    NSMutableURLRequest* request = [KIONetwork.sharedInstance createRequestWithUrl:urlString
-                                                                           andBody:multiAnalysisData
-                                                                            andKey:readKey];
+    NSMutableURLRequest* request = [self createRequestWithUrl:urlString
+                                                      andBody:multiAnalysisData
+                                                       andKey:readKey];
 
-    [KIONetwork.sharedInstance executeRequest:request
-                            completionHandler:completionHandler];
+    [self executeRequest:request
+       completionHandler:completionHandler];
 }
 
 
