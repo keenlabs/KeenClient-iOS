@@ -36,3 +36,6 @@ NSString * const kKeenErrorDomain = @"io.keen";
 NSString * const kKeenSdkVersionHeader = @"Keen-Sdk";
 // The SDK version info header content.
 NSString * const kKeenSdkVersionWithPlatform = @"ios-" kKeenSdkVersion;
+
+// User settings key indicating that a file store import has already been done.
+NSString * const kKeenFileStoreImportedKey = @"didFSImport";

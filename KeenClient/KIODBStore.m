@@ -58,6 +58,24 @@
     return self;
 }
 
++ (KIODBStore*)sharedInstance {
+    static KIODBStore* s_sharedDBStore = nil;
+    
+    // This black magic ensures this block
+    // is dispatched only once over the lifetime
+    // of the program. It's nice because
+    // this works even when there's a race
+    // between threads to create the object,
+    // as both threads will wait synchronously
+    // for the block to complete.
+    static dispatch_once_t predicate = {0};
+    dispatch_once(&predicate, ^{
+        s_sharedDBStore = [[KIODBStore alloc] init];
+    });
+    
+    return s_sharedDBStore;
+}
+
 # pragma mark - Handle Database -
 
 # pragma mark Database Methods
@@ -879,10 +897,10 @@
                     maxAttempts:(int)maxAttempts
                        queryTTL:(int)queryTTL {
     
-    __block BOOL hasFoundEventWithMaxAttempts = NO;
+    __block BOOL hasFoundQueryWithMaxAttempts = NO;
     
     if(![self checkOpenDB:@"DB is closed, skipping hasQueryWithMaxAttempts"]) {
-        return hasFoundEventWithMaxAttempts;
+        return hasFoundQueryWithMaxAttempts;
     }
     
     // clear query database based on timespan
@@ -913,13 +931,16 @@
             return;
         }
         
-        if(keen_io_sqlite3_bind_int64(get_query_with_attempts_stmt, 5, maxAttempts) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_int64(get_query_with_attempts_stmt, 5, maxAttempts) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind attempts to has query with max attempts statement"];
         }
         
-        if (keen_io_sqlite3_step(get_query_with_attempts_stmt) == SQLITE_ROW) {
-            hasFoundEventWithMaxAttempts = YES;
-        } else {
+        int result = keen_io_sqlite3_step(get_query_with_attempts_stmt);
+        if (SQLITE_ROW == result) {
+            hasFoundQueryWithMaxAttempts = YES;
+        } else if (SQLITE_DONE != result) {
+            // SQLITE_DONE just means there weren't any results, which is the common case.
+            // If we got anything else, we treat it as an error here.
             [self handleSQLiteFailure:@"find query with max attempts"];
             return;
         }
@@ -927,7 +948,7 @@
         [self resetSQLiteStatement:get_query_with_attempts_stmt];
     });
     
-    return hasFoundEventWithMaxAttempts;
+    return hasFoundQueryWithMaxAttempts;
 }
 
 - (void)deleteAllQueries {

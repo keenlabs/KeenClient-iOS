@@ -29,3 +29,5 @@ extern NSString * const kKeenErrorDomain;
 
 extern NSString * const kKeenSdkVersionHeader;
 extern NSString * const kKeenSdkVersionWithPlatform;
+
+extern NSString * const kKeenFileStoreImportedKey;
