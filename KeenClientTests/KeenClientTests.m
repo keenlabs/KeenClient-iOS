@@ -839,12 +839,20 @@ NSString* kDefaultReadKey = @"rk";
 }
 
 - (void)testUploadSkippedNoNetwork {
+    XCTestExpectation* uploadFinishedBlockCalled = [self expectationWithDescription:@"Upload finished block should be called."];
+
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK andNetworkConnected:@NO];
 
-    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:nil];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [uploadFinishedBlockCalled fulfill];
+    }];
 
-    // make sure the file wasn't deleted locally
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted locally
+        XCTAssertEqual([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]],
+                       1,
+                       @"An upload with no network should not delete the event.");
+    }];
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccess {
