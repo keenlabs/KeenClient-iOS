@@ -4,6 +4,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [Unreleased] - Unreleased
+### Added
+- Extensibility hooks for custom logging implementations.
+
 ### Fixed
 - Fixed bug where KIODBStore would close and reopen db when performing any query, which could contribute to experiencing issue #183 more often.
 - Fixed unit test setup issues leading to non-deterministic test failures.

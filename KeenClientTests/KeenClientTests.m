@@ -81,6 +81,7 @@ NSString* kDefaultReadKey = @"rk";
     // This relies on initialize being idempotent
     [KeenClient initialize];
     [KeenClient enableLogging];
+    [KeenClient setLogLevel:KeenLogLevelVerbose];
 
     // Configure initial state for shared KeenClient instance
     [[KeenClient sharedClient] setCurrentLocation:nil];
@@ -1589,8 +1590,8 @@ NSString* kDefaultReadKey = @"rk";
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{}];
 
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLog(@"error: %@", error);
-        KCLog(@"response: %@", response);
+        KCLogInfo(@"error: %@", error);
+        KCLogInfo(@"response: %@", response);
 
         XCTAssertNil(error);
 
@@ -1602,7 +1603,7 @@ NSString* kDefaultReadKey = @"rk";
                                             options:kNilOptions
                                             error:&error];
 
-        KCLog(@"response: %@", responseDictionary);
+        KCLogInfo(@"response: %@", responseDictionary);
 
         NSNumber *result = [responseDictionary objectForKey:@"result"];
 
@@ -1616,8 +1617,8 @@ NSString* kDefaultReadKey = @"rk";
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLog(@"error: %@", error);
-        KCLog(@"response: %@", response);
+        KCLogInfo(@"error: %@", error);
+        KCLogInfo(@"response: %@", response);
 
         XCTAssertNil(error);
 
@@ -1629,7 +1630,7 @@ NSString* kDefaultReadKey = @"rk";
                                             options:kNilOptions
                                             error:&error];
 
-        KCLog(@"response: %@", responseDictionary);
+        KCLogInfo(@"response: %@", responseDictionary);
 
         NSNumber *result = [responseDictionary objectForKey:@"result"];
 
@@ -1644,8 +1645,8 @@ NSString* kDefaultReadKey = @"rk";
                                                                                          @"group_by": @"key"}];
 
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLog(@"error: %@", error);
-        KCLog(@"response: %@", response);
+        KCLogInfo(@"error: %@", error);
+        KCLogInfo(@"response: %@", response);
 
         XCTAssertNil(error);
 
@@ -1657,7 +1658,7 @@ NSString* kDefaultReadKey = @"rk";
                                             options:kNilOptions
                                             error:&error];
 
-        KCLog(@"response: %@", responseDictionary);
+        KCLogInfo(@"response: %@", responseDictionary);
 
         NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"result"];
 
@@ -1675,8 +1676,8 @@ NSString* kDefaultReadKey = @"rk";
                                                        @"timeframe": @"last_1_days"}];
 
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLog(@"error: %@", error);
-        KCLog(@"response: %@", response);
+        KCLogInfo(@"error: %@", error);
+        KCLogInfo(@"response: %@", response);
 
         XCTAssertNil(error);
 
@@ -1688,7 +1689,7 @@ NSString* kDefaultReadKey = @"rk";
                                             options:kNilOptions
                                             error:&error];
 
-        KCLog(@"response: %@", responseDictionary);
+        KCLogInfo(@"response: %@", responseDictionary);
 
         NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"value"];
 
@@ -1702,8 +1703,8 @@ NSString* kDefaultReadKey = @"rk";
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLog(@"error: %@", error);
-        KCLog(@"response: %@", response);
+        KCLogInfo(@"error: %@", error);
+        KCLogInfo(@"response: %@", response);
 
         XCTAssertNil(error);
 
@@ -1715,7 +1716,7 @@ NSString* kDefaultReadKey = @"rk";
                                             options:kNilOptions
                                             error:&error];
 
-        KCLog(@"response: %@", responseDictionary);
+        KCLogInfo(@"response: %@", responseDictionary);
 
         NSNumber *result = [responseDictionary objectForKey:@"result"];
 
@@ -1729,8 +1730,8 @@ NSString* kDefaultReadKey = @"rk";
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
 
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLog(@"error: %@", error);
-        KCLog(@"response: %@", response);
+        KCLogInfo(@"error: %@", error);
+        KCLogInfo(@"response: %@", response);
 
         XCTAssertNil(error);
 
@@ -1742,7 +1743,7 @@ NSString* kDefaultReadKey = @"rk";
                                             options:kNilOptions
                                             error:&error];
 
-        KCLog(@"response: %@", responseDictionary);
+        KCLogInfo(@"response: %@", responseDictionary);
 
         NSNumber *result = [responseDictionary objectForKey:@"result"];
 
@@ -1758,8 +1759,8 @@ NSString* kDefaultReadKey = @"rk";
     KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
 
     [mock runMultiAnalysisWithQueries:@[countQuery, averageQuery] completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLog(@"error: %@", error);
-        KCLog(@"response: %@", response);
+        KCLogInfo(@"error: %@", error);
+        KCLogInfo(@"response: %@", response);
 
         XCTAssertNil(error);
 
@@ -1771,7 +1772,7 @@ NSString* kDefaultReadKey = @"rk";
                                             options:kNilOptions
                                             error:&error];
 
-        KCLog(@"response: %@", responseDictionary);
+        KCLogInfo(@"response: %@", responseDictionary);
 
         NSNumber *result = [[responseDictionary objectForKey:@"result"] objectForKey:@"query1"];
 
@@ -1790,8 +1791,8 @@ NSString* kDefaultReadKey = @"rk";
                                                                                                       @{@"event_collection": @"user_completed_profile", @"actor_property": @"user.id"}]}];
 
     [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLog(@"error: %@", error);
-        KCLog(@"response: %@", response);
+        KCLogInfo(@"error: %@", error);
+        KCLogInfo(@"response: %@", response);
 
         XCTAssertNil(error);
 
@@ -1803,13 +1804,13 @@ NSString* kDefaultReadKey = @"rk";
                                             options:kNilOptions
                                             error:&error];
 
-        KCLog(@"response: %@", responseDictionary);
+        KCLogInfo(@"response: %@", responseDictionary);
 
         NSArray *result = [responseDictionary objectForKey:@"result"];
         NSArray *resultArray = @[@10, @5];
 
-        KCLog(@"result: %@", [result class]);
-        KCLog(@"resultArray: %@", [resultArray class]);
+        KCLogInfo(@"result: %@", [result class]);
+        KCLogInfo(@"resultArray: %@", [resultArray class]);
 
         XCTAssertEqual([result count], (NSUInteger)2);
         XCTAssertEqualObjects(result, resultArray);
@@ -2050,10 +2051,10 @@ NSString* kDefaultReadKey = @"rk";
     // write file atomically so we don't ever have a partial event to worry about.
     BOOL success = [data writeToFile:file atomically:YES];
     if (!success) {
-        KCLog(@"Error when writing event to file: %@", file);
+        KCLogError(@"Error when writing event to file: %@", file);
         return NO;
     } else {
-        KCLog(@"Successfully wrote event to file: %@", file);
+        KCLogInfo(@"Successfully wrote event to file: %@", file);
     }
     return YES;
 }

@@ -17,12 +17,13 @@
 #import "KIONetwork.h"
 #import "KIOUploader.h"
 #import <CoreLocation/CoreLocation.h>
+#import "KeenLogger.h"
+#import "KeenLogSinkNSLog.h"
 
 
 static BOOL authorizedGeoLocationAlways = NO;
 static BOOL authorizedGeoLocationWhenInUse = NO;
 static BOOL geoLocationEnabled = NO;
-static BOOL loggingEnabled = NO;
 static BOOL geoLocationRequestEnabled = YES;
 
 @interface KeenClient ()
@@ -151,43 +152,67 @@ static BOOL geoLocationRequestEnabled = YES;
 }
 
 + (void)disableLogging {
-    loggingEnabled = NO;
+    [[KeenLogger sharedLogger] disableLogging];
 }
 
 + (void)enableLogging {
-    loggingEnabled = YES;
+    [[KeenLogger sharedLogger] enableLogging];
 }
 
 + (BOOL)isLoggingEnabled {
-    return loggingEnabled;
+    return [[KeenLogger sharedLogger] isLoggingEnabled];
+}
+
++ (void)setIsNSLogEnabled:(BOOL)isNSLogEnabled {
+    [[KeenLogger sharedLogger] setIsNSLogEnabled:isNSLogEnabled];
+}
+
++ (BOOL)isNSLogEnabled {
+    return [[KeenLogger sharedLogger] isNSLogEnabled];
+}
+
++ (void)addLogSink:(id<KeenLogSink>)sink {
+    [[KeenLogger sharedLogger] addLogSink:sink];
+}
+
++ (void)removeLogSink:(id<KeenLogSink>)sink {
+    [[KeenLogger sharedLogger] removeLogSink:sink];
+}
+
++ (void)setLogLevel:(KeenLogLevel)level {
+    [[KeenLogger sharedLogger] setLogLevel:level];
+}
+
++ (void)logMessageWithLevel:(KeenLogLevel)level andMessage:(NSString*)message {
+    [[KeenLogger sharedLogger] logMessageWithLevel:level andMessage:message];
 }
 
 + (void)authorizeGeoLocationAlways {
-    KCLog(@"Authorizing Geo Location Always");
+    KCLogInfo(@"Authorizing Geo Location Always");
     authorizedGeoLocationAlways = YES;
 }
 
 + (void)authorizeGeoLocationWhenInUse {
-    KCLog(@"Authorizing Geo Location When In Use");
+    KCLogInfo(@"Authorizing Geo Location When In Use");
     authorizedGeoLocationWhenInUse = YES;
 }
 
 + (void)enableGeoLocation {
-    KCLog(@"Enabling Geo Location");
+    KCLogInfo(@"Enabling Geo Location");
     geoLocationEnabled = YES;
 }
 
 + (void)disableGeoLocation {
-    KCLog(@"Disabling Geo Location");
+    KCLogInfo(@"Disabling Geo Location");
     geoLocationEnabled = NO;
 }
 + (void)enableGeoLocationDefaultRequest {
-    KCLog(@"Enabling Geo Location Request");
+    KCLogInfo(@"Enabling Geo Location Request");
     geoLocationRequestEnabled = YES;
 }
 
 + (void)disableGeoLocationDefaultRequest {
-    KCLog(@"Disabling Geo Location Request");
+    KCLogInfo(@"Disabling Geo Location Request");
     geoLocationRequestEnabled = NO;
 }
 
@@ -235,7 +260,7 @@ static BOOL geoLocationRequestEnabled = YES;
 
     if (nil != self) {
         // log the current version number
-        KCLog(@"KeenClient-iOS %@", kKeenSdkVersion);
+        KCLogInfo(@"KeenClient-iOS %@", kKeenSdkVersion);
 
         self.network = network;
         self.store = store;
@@ -258,19 +283,19 @@ static BOOL geoLocationRequestEnabled = YES;
             andUploader:(KIOUploader*)uploader {
     // Validate key parameters
     if (![KeenClient validateProjectID:projectID]) {
-        KCLog(@"Invalid projectID: %@", projectID);
+        KCLogError(@"Invalid projectID: %@", projectID);
         return nil;
     }
 
     if (nil != writeKey && // only validate a non-nil value
         ![KeenClient validateKey:writeKey]) {
-        KCLog(@"Invalid writeKey: %@", writeKey);
+        KCLogError(@"Invalid writeKey: %@", writeKey);
         return nil;
     }
 
     if (nil != readKey && // only validate a non-nil value
         ![KeenClient validateKey:readKey]) {
-        KCLog(@"Invalid readKey: %@", readKey);
+        KCLogError(@"Invalid readKey: %@", readKey);
         return nil;
     }
 
@@ -313,19 +338,19 @@ static BOOL geoLocationRequestEnabled = YES;
 
     // Validate key parameters
     if (![KeenClient validateProjectID:projectID]) {
-        KCLog(@"Invalid projectID: %@", projectID);
+        KCLogError(@"Invalid projectID: %@", projectID);
         return nil;
     }
 
     if (nil != writeKey && // only validate a non-nil value
         ![KeenClient validateKey:writeKey]) {
-        KCLog(@"Invalid writeKey: %@", writeKey);
+        KCLogError(@"Invalid writeKey: %@", writeKey);
         return nil;
     }
 
     if (nil != readKey && // only validate a non-nil value
         ![KeenClient validateKey:readKey]) {
-        KCLog(@"Invalid readKey: %@", readKey);
+        KCLogError(@"Invalid readKey: %@", readKey);
         return nil;
     }
 
@@ -359,7 +384,7 @@ static BOOL geoLocationRequestEnabled = YES;
 - (void)refreshCurrentLocation {
     // only do this if geo is enabled
     if (geoLocationEnabled == YES) {
-        KCLog(@"Geo Location is enabled.");
+        KCLogInfo(@"Geo Location is enabled.");
         // set up the location manager
         if (self.locationManager == nil && [CLLocationManager locationServicesEnabled]) {
             self.locationManager = [[CLLocationManager alloc] init];
@@ -395,14 +420,14 @@ static BOOL geoLocationRequestEnabled = YES;
         }
 
     } else {
-        KCLog(@"Geo Location is disabled.");
+        KCLogInfo(@"Geo Location is disabled.");
     }
 }
 
 -(void)startMonitoringLocation {
     if(self.locationManager) {
         [self.locationManager startUpdatingLocation];
-        KCLog(@"Started location manager.");
+        KCLogInfo(@"Started location manager.");
     }
 }
 
@@ -428,15 +453,15 @@ static BOOL geoLocationRequestEnabled = YES;
     NSDate* eventDate = newLocation.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
     if ((int)fabs(howRecent) < 15.0) {
-        KCLog(@"latitude %+.6f, longitude %+.6f\n",
+        KCLogInfo(@"latitude %+.6f, longitude %+.6f\n",
               newLocation.coordinate.latitude,
               newLocation.coordinate.longitude);
         self.currentLocation = newLocation;
         // got the location, now stop checking
         [self.locationManager stopUpdatingLocation];
-        KCLog(@"Done finding location");
+        KCLogInfo(@"Done finding location");
     } else {
-        KCLog(@"Event wasn't recent enough: %+.2d", (int)fabs(howRecent));
+        KCLogInfo(@"Event wasn't recent enough: %+.2d", (int)fabs(howRecent));
     }
 }
 
@@ -447,7 +472,7 @@ static BOOL geoLocationRequestEnabled = YES;
 }
 -(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-  KCLog(@"locationManager-didFailWithError: %@", [error localizedDescription]);
+    KCLogError(@"locationManager-didFailWithError: %@", [error localizedDescription]);
 }
 
 # pragma mark - Add events
@@ -531,7 +556,7 @@ static BOOL geoLocationRequestEnabled = YES;
         return NO;
     }
 
-    KCLog(@"Adding event to collection: %@", eventCollection);
+    KCLogVerbose(@"Adding event to collection: %@", eventCollection);
 
     // create the body of the event we'll send off. first copy over all keys from the global properties
     // dictionary, then copy over all the keys from the global properties block, then copy over all the
@@ -555,8 +580,8 @@ static BOOL geoLocationRequestEnabled = YES;
     // We add 1 because we want to know if this will push us over the limit
     if (eventCount + 1 > self.maxEventsPerCollection) {
         // need to age out old data so the cache doesn't grow too large
-        KCLog(@"Too many events in cache for %@, aging out old data.", eventCollection);
-        KCLog(@"Count: %lu and Max: %lu", (unsigned long)eventCount, (unsigned long)self.maxEventsPerCollection);
+        KCLogWarn(@"Too many events in cache for %@, aging out old data.", eventCollection);
+        KCLogWarn(@"Count: %lu and Max: %lu", (unsigned long)eventCount, (unsigned long)self.maxEventsPerCollection);
         [self.store deleteEventsFromOffset:[NSNumber numberWithUnsignedInteger: eventCount - self.numberEventsToForget]];
     }
 
@@ -596,7 +621,7 @@ static BOOL geoLocationRequestEnabled = YES;
     [self.store addEvent:jsonData collection:eventCollection projectID:self.projectID];
 
     // log the event
-    KCLog(@"Event: %@", eventToWrite);
+    KCLogVerbose(@"Event: %@", eventToWrite);
 
     return YES;
 }
@@ -611,7 +636,6 @@ static BOOL geoLocationRequestEnabled = YES;
                           withFinishedBlock:block];
 }
 
-
 # pragma mark - Querying
 
 # pragma mark Async methods
@@ -623,7 +647,7 @@ static BOOL geoLocationRequestEnabled = YES;
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)
                 if (block) {
-                    KCLog(@"Running user-specified block.");
+                    KCLogVerbose(@"Running user-specified block.");
                     @try {
                         block(data, response, error);
                     } @finally {
@@ -643,7 +667,7 @@ static BOOL geoLocationRequestEnabled = YES;
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)
                 if (block) {
-                    KCLog(@"Running user-specified block.");
+                    KCLogVerbose(@"Running user-specified block.");
                     @try {
                         block(data, response, error);
                     } @finally {

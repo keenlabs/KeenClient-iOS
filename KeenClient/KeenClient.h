@@ -11,6 +11,7 @@
 #import "KIODBStore.h"
 #import "KIOQuery.h"
 #import "KeenProperties.h"
+#import "KeenLogger.h"
 
 // defines a type for the block we'll use with our global properties
 typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
@@ -182,22 +183,6 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  */
 + (void)disableGeoLocationDefaultRequest;
 
-/**
- Call this to disable debug logging. It's disabled by default.
- */
-+ (void)disableLogging;
-
-/**
- Call this to enable debug logging.
- */
-+ (void)enableLogging;
-
-/**
- Returns whether or not logging is currently enabled.
-
- @return true if logging is enabled, false if disabled.
- */
-+ (BOOL)isLoggingEnabled;
 
 
 /**
@@ -357,7 +342,65 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 + (void)clearAllQueries DEPRECATED_MSG_ATTRIBUTE("Class method clearAllQueries is deprecated. Use instance method instead.");
 - (void)clearAllQueries;
 
+
+/**
+ KeenClient logging
+ */
+
+/**
+ Call this to disable debug logging. It's disabled by default.
+ */
++ (void)disableLogging;
+
+/**
+ Call this to enable debug logging. If no log sinks have been added
+ prior to this call, a default log sink will be set up that logs
+ to NSLog.
+ */
++ (void)enableLogging;
+
+/**
+ Returns whether or not logging is currently enabled.
+
+ @return true if logging is enabled, false if disabled.
+ */
++ (BOOL)isLoggingEnabled;
+
+/**
+ Enable or disable logging to NSLog
+ */
++ (void)setIsNSLogEnabled:(BOOL)isNSLogEnabled;
+
+/**
+ Whether or not NSLog logging is enabled
+ */
++ (BOOL)isNSLogEnabled;
+
+/**
+ Add a log sink
+ */
++ (void)addLogSink:(id<KeenLogSink>)logSink
+NS_SWIFT_NAME(addLogSink(_:));
+
+/**
+ Remove a log sink
+ */
++ (void)removeLogSink:(id<KeenLogSink>)sink;
+
+/**
+ Set the verbosity of logging that will be sent to the sinks.
+ The default log level is KeenLogLevelError.
+ */
++ (void)setLogLevel:(KeenLogLevel)level;
+
+
++ (void)logMessageWithLevel:(KeenLogLevel)level andMessage:(NSString*)message;
+
 // defines the KCLog macro
-#define KCLog(message, ...) { if([KeenClient isLoggingEnabled]) { NSLog(message, ##__VA_ARGS__); } }
+#define KCLogError(message, ...)    { [KeenClient logMessageWithLevel:KeenLogLevelError andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+#define KCLogWarn(message, ...)     { [KeenClient logMessageWithLevel:KeenLogLevelWarning andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+#define KCLogInfo(message, ...)     { [KeenClient logMessageWithLevel:KeenLogLevelInfo andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+#define KCLogVerbose(message, ...)  { [KeenClient logMessageWithLevel:KeenLogLevelVerbose andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+
 
 @end

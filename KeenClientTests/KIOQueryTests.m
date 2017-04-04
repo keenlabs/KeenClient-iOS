@@ -42,7 +42,7 @@
     
     NSData *data = [query convertQueryToData];
     
-    KCLog(@"Error when writing event to file: %@", data);
+    KCLogError(@"Error when writing event to file: %@", data);
     
     XCTAssertNotNil(data, @"data is not null");
 }

@@ -89,7 +89,7 @@
     __block BOOL wasOpened = NO;
     
     NSString* dbFile = [self getSqliteFullFileName];
-    KCLog(@"%@", dbFile);
+    KCLogInfo(@"%@", dbFile);
     
     // we're going to use a queue for all database operations, so let's create it
     self.dbQueue = dispatch_queue_create("io.keen.sqlite", DISPATCH_QUEUE_SERIAL);
@@ -128,6 +128,7 @@
     }
     
     NSString* dbFile = [self getSqliteFullFileName];
+    KCLogError(@"Deleting corrupt db: %@", dbFile);
     [[NSFileManager defaultManager] removeItemAtPath:dbFile error:nil];
     
     // create new database file
@@ -147,13 +148,13 @@
             return false;
         } else {
             if(![self createTables]) {
-                KCLog(@"Failed to create SQLite table!");
+                KCLogError(@"Failed to create SQLite table!");
                 [self closeDB];
                 return false;
             }
         
             if (![self migrateTable]) {
-                KCLog(@"Failed to migrate SQLite table!");
+                KCLogError(@"Failed to migrate SQLite table!");
                 [self closeDB];
                 return false;
             }
@@ -204,7 +205,7 @@
     __block BOOL wasCreated = NO;
     
     if (!dbIsOpen) {
-        KCLog(@"DB is closed, skipping createTable");
+        KCLogError(@"DB is closed, skipping createTable");
         return wasCreated;
     }
     
@@ -223,14 +224,14 @@
             if (result == SQLITE_CORRUPT) {
                 if (![self deleteAndRecreateCorruptDB])
                 {
-                    KCLog(@"Failed to replace corrupt db while creating events table: %@", [NSString stringWithCString:eventsError encoding:NSUTF8StringEncoding]);
+                    KCLogError(@"Failed to replace corrupt db while creating events table: %@", [NSString stringWithCString:eventsError encoding:NSUTF8StringEncoding]);
                     keen_io_sqlite3_free(eventsError); // Free that error message
                     [self closeDB];
                     break;
                 }
                 // If deleting and recreating the db was successful, continue the loop to create the events table
             } else if (result != SQLITE_OK) {
-                KCLog(@"Failed to create events table: %@", [NSString stringWithCString:eventsError encoding:NSUTF8StringEncoding]);
+                KCLogError(@"Failed to create events table: %@", [NSString stringWithCString:eventsError encoding:NSUTF8StringEncoding]);
                 keen_io_sqlite3_free(eventsError); // Free that error message
                 [self closeDB];
             }
@@ -241,7 +242,7 @@
             char *queriesError;
             NSString *createQueriesTableSQL = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'queries' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectID TEXT, queryData BLOB, queryType TEXT, attempts INTEGER DEFAULT 0, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
             if (keen_io_sqlite3_exec(keen_dbname, [createQueriesTableSQL UTF8String], NULL, NULL, &queriesError) != SQLITE_OK) {
-                KCLog(@"Failed to create queries table: %@", [NSString stringWithCString:queriesError encoding:NSUTF8StringEncoding]);
+                KCLogError(@"Failed to create queries table: %@", [NSString stringWithCString:queriesError encoding:NSUTF8StringEncoding]);
                 keen_io_sqlite3_free(queriesError); // Free that error message
                 [self closeDB];
             } else {
@@ -281,7 +282,7 @@
     char *err;
     NSString *sql = [NSString stringWithFormat:@"PRAGMA user_version = %d;", userVersion];
     if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-        KCLog(@"failed to set user_version: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        KCLogError(@"failed to set user_version: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
         keen_io_sqlite3_free(err); // Free that error message
         return NO;
     }
@@ -293,7 +294,7 @@
     __block BOOL wasMigrated = NO;
     
     if (!dbIsOpen) {
-        KCLog(@"DB is closed, skipping migrateTable");
+        KCLogError(@"DB is closed, skipping migrateTable");
         return NO;
     }
     
@@ -301,7 +302,7 @@
     // that we're manipulating in the queue
     dispatch_sync(self.dbQueue, ^{
         int userVersion = [self queryUserVersion];
-        KCLog(@"Preparing to migrate DB, current version: %d", userVersion);
+        KCLogInfo(@"Preparing to migrate DB, current version: %d", userVersion);
         wasMigrated = [self migrateFromVersion:userVersion];
     });
     
@@ -314,7 +315,7 @@
     for(int i = 0; i < 1000; i++) {
         if(![self beginTransaction]) {
             // deal with error?
-            KCLog(@"Migration failed to begin a transaction with userVersion = %d.", userVersion);
+            KCLogError(@"Migration failed to begin a transaction with userVersion = %d.", userVersion);
             return NO;
         }
         
@@ -322,7 +323,7 @@
         if (migrationResult == 0) {
             // we didn't migrate anything, because we're current.
             if (![self endTransaction]) {
-                KCLog(@"Migration failed to end a transaction with userVersion = %d.", userVersion);
+                KCLogError(@"Migration failed to end a transaction with userVersion = %d.", userVersion);
                 return NO;
             }
             return YES;
@@ -331,7 +332,7 @@
         if (migrationResult < 0) {
             // error
             if (![self rollbackTransaction]) {
-                KCLog(@"Migration failed to rollback a transaction with userVersion = %d.", userVersion);
+                KCLogError(@"Migration failed to rollback a transaction with userVersion = %d.", userVersion);
                 // yeesh, couldn't rollback
             }
             return NO;
@@ -339,9 +340,9 @@
         
         // we migrated, so increment PRAGMA user_version
         if (![self setUserVersion:userVersion+1]) {
-            KCLog(@"Migration failed to set the user_version to %d.", userVersion);
+            KCLogError(@"Migration failed to set the user_version to %d.", userVersion);
             if (![self rollbackTransaction]) {
-                KCLog(@"Migration failed to rollback a transaction after failing to set user_version (with userVersion = %d).", userVersion);
+                KCLogError(@"Migration failed to rollback a transaction after failing to set user_version (with userVersion = %d).", userVersion);
                 // whoa, double bad news
             }
             return NO;
@@ -349,7 +350,7 @@
         
         // ok, let's commit this step
         if (![self commitTransaction]) {
-            KCLog(@"Migration failed to commit a transaction with userVersion = %d.", userVersion);
+            KCLogError(@"Migration failed to commit a transaction with userVersion = %d.", userVersion);
             return NO;
         }
         
@@ -358,7 +359,7 @@
         // there might be more migrations, so we loop around again
     }
     
-    KCLog(@"Migration loop maxed out after 1000 iterations. This is almost certainly a bug. Version %d", [self queryUserVersion]);
+    KCLogError(@"Migration loop maxed out after 1000 iterations. This is almost certainly a bug. Version %d", [self queryUserVersion]);
     
     return NO;
 }
@@ -375,7 +376,7 @@
     } else if (forVersion == 1) {
         NSString *sql = @"ALTER TABLE events ADD COLUMN attempts INTEGER DEFAULT 0;";
         if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-            KCLog(@"Failed to add attempts column: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+            KCLogError(@"Failed to add attempts column: %@", [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
             keen_io_sqlite3_free(err); // Free that error message
             return -1;
         }
@@ -404,7 +405,7 @@
     char *err;
     NSString *sql = sqlTransaction;
     if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
-        KCLog(@"failed to do transaction:%@, with error: %@", sqlTransaction, [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
+        KCLogError(@"failed to do transaction:%@, with error: %@", sqlTransaction, [NSString stringWithCString:err encoding:NSUTF8StringEncoding]);
         keen_io_sqlite3_free(err); // Free that error message
         return NO;
     }
@@ -990,7 +991,7 @@
 
 - (BOOL)checkOpenDB:(NSString *)failureMessage {
     if(![self openAndInitDB]) {
-        KCLog(@"%@", failureMessage);
+        KCLogError(@"%@", failureMessage);
         return false;
     }
     
@@ -1078,14 +1079,15 @@
 }
 
 - (void)handleSQLiteFailure:(NSString *) msg {
-    KCLog(@"Failed to %@: %@",
+    KCLogError(@"Failed to %@: %@",
           msg, [NSString stringWithCString:keen_io_sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
     int result = keen_io_sqlite3_errcode(keen_dbname);
     [self closeDB];
     if (SQLITE_CORRUPT == result)
     {
-        KCLog(@"Deleting corrupt DB file.");
-        [[NSFileManager defaultManager] removeItemAtPath:[self getSqliteFullFileName] error:nil];
+        NSString* dbFile = [self getSqliteFullFileName];
+        KCLogError(@"Deleting corrupt db: %@", dbFile);
+        [[NSFileManager defaultManager] removeItemAtPath:dbFile error:nil];
     }
 }
 
