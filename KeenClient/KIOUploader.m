@@ -48,7 +48,7 @@
 
 + (instancetype)sharedInstance {
     static KIOUploader* s_sharedInstance = nil;
-    
+
     // This black magic ensures this block
     // is dispatched only once over the lifetime
     // of the program. It's nice because
@@ -61,7 +61,7 @@
         s_sharedInstance = [[KIOUploader alloc] initWithNetwork:KIONetwork.sharedInstance
                                                        andStore:KIODBStore.sharedInstance];
     });
-    
+
     return s_sharedInstance;
 }
 
@@ -76,11 +76,11 @@
     if (nil != self){
         // Create a serialized queue to handle all upload operations
         self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
-        
+
         self.maxEventUploadAttempts = 3;
-        
+
         self.network = network;
-        
+
         self.store = store;
     }
     return self;
@@ -92,31 +92,31 @@
            forProjectID:(NSString*)projectID {
     // set up the request dictionary we'll send out.
     NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
-    
+
     // create a structure that will hold corresponding ids of all the events
     NSMutableDictionary *eventIDDict = [NSMutableDictionary dictionary];
-    
+
     // get data for the API request we'll make
     NSMutableDictionary *events = [self.store getEventsWithMaxAttempts:self.maxEventUploadAttempts
                                                           andProjectID:projectID];
-    
+
     NSError *error = nil;
     for (NSString *coll in events) {
         NSDictionary *collEvents = [events objectForKey:coll];
-        
+
         // create a separate array for event data so our dictionary serializes properly
         NSMutableArray *eventsArray = [[NSMutableArray alloc] init];
-        
+
         for (NSNumber *eid in collEvents) {
             NSData *ev = [collEvents objectForKey:eid];
             NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
                                                                       options:0
                                                                         error:&error];
             if (error) {
-                KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                KCLogError(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
             }
-            
+
             // add it to the array of events
             [eventsArray addObject:eventDict];
             if ([eventIDDict objectForKey:coll] == nil) {
@@ -124,28 +124,28 @@
             }
             [[eventIDDict objectForKey:coll] addObject: eid];
         }
-        
+
         // add the array of events to the request
         [requestDict setObject:eventsArray forKey:coll];
     }
-    
+
     if ([requestDict count] == 0) {
-        KCLog(@"Request data is empty");
+        KCLogError(@"Request data is empty");
         return;
     }
-    
+
     NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
     if (error) {
-        KCLog(@"An error occurred when serializing the final request data back to JSON: %@",
+        KCLogError(@"An error occurred when serializing the final request data back to JSON: %@",
               [error localizedDescription]);
         // can't do much here.
         return;
     }
-    
+
     *jsonData = data;
     *eventIDs = eventIDDict;
-    
-    KCLog(@"Uploading following events to Keen API: %@", requestDict);
+
+    KCLogVerbose(@"Uploading following events to Keen API: %@", requestDict);
 }
 
 
@@ -164,16 +164,16 @@
             [self runUploadFinishedBlock:block];
             return;
         }
-        
+
         // Migrate data from old format if anything exists
         // for this project id.
         [KIOFileStore maybeMigrateDataFromFileStore:projectID];
-        
+
         // get data for the API request we'll make
         NSData *data = nil;
         NSMutableDictionary *eventIDs = nil;
         [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:projectID];
-        
+
         if ([data length] == 0) {
             [self runUploadFinishedBlock:block];
         } else {
@@ -183,7 +183,7 @@
                     [self.store incrementEventUploadAttempts:eid];
                 }
             }
-            
+
             // then make an http request to the keen server.
             [self.network sendEvents:data
                        withProjectID:projectID
@@ -191,7 +191,7 @@
                    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 // then parse the http response and deal with it appropriately
                 [self handleEventAPIResponse:response andData:data forEvents:eventIDs];
-                
+
                 [self runUploadFinishedBlock:block];
             }];
         }
@@ -200,11 +200,11 @@
 
 - (void)runUploadFinishedBlock:(void (^)())block {
     if (block) {
-        KCLog(@"Running user-specified block.");
+        KCLogVerbose(@"Running user-specified block.");
         @try {
             block();
         } @catch(NSException *exception) {
-            KCLog(@"Error executing user-specified block. \nName: %@\nReason: %@", exception.name, exception.reason);
+            KCLogError(@"Error executing user-specified block. \nName: %@\nReason: %@", exception.name, exception.reason);
         }
     }
 }
@@ -216,8 +216,8 @@
                        andData:(NSData *)responseData
                      forEvents:(NSDictionary *)eventIds {
     if (!responseData) {
-        KCLog(@"responseData was nil for some reason.  That's not great.");
-        KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
+        KCLogError(@"responseData was nil for some reason.  That's not great.");
+        KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
         return;
     }
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
@@ -230,7 +230,7 @@
                                                                        error:&error];
         if (error) {
             NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-            KCLog(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@",
+            KCLogError(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@",
                   [error localizedDescription],
                   responseString);
             return;
@@ -253,31 +253,31 @@
                     if ([errorCode isEqualToString:kKeenInvalidCollectionNameError] ||
                         [errorCode isEqualToString:kKeenInvalidPropertyNameError] ||
                         [errorCode isEqualToString:kKeenInvalidPropertyValueError]) {
-                        KCLog(@"An invalid event was found.  Deleting it.  Error: %@",
-                              [errorDict objectForKey:kKeenDescriptionParam]);
+                        KCLogError(@"An invalid event was found.  Deleting it.  Error: %@",
+                                   [errorDict objectForKey:kKeenDescriptionParam]);
                         deleteFile = YES;
                     } else {
-                        KCLog(@"The event could not be inserted for some reason.  Error name and description: %@, %@",
-                              errorCode, [errorDict objectForKey:kKeenDescriptionParam]);
+                        KCLogError(@"The event could not be inserted for some reason.  Error name and description: %@, %@",
+                                   errorCode, [errorDict objectForKey:kKeenDescriptionParam]);
                         deleteFile = NO;
                     }
                 }
-                
+
                 NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
-                
+
                 // delete the file if we need to
                 if (deleteFile) {
                     [self.store deleteEvent: eid];
-                    KCLog(@"Successfully deleted event: %@", eid);
+                    KCLogVerbose(@"Successfully deleted event: %@", eid);
                 }
                 count++;
             }
         }
     } else {
         // response code was NOT 2xx, which means something else happened. log this.
-        KCLog(@"Response code was NOT 2xx. It was: %ld", (long)responseCode);
+        KCLogError(@"Response code was NOT 2xx. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        KCLog(@"Response body was: %@", responseString);
+        KCLogError(@"Response body was: %@", responseString);
     }
 }
 

@@ -58,7 +58,7 @@
     NSError* error = nil;
     NSArray* files = [fileManager contentsOfDirectoryAtPath:path error:&error];
     if (error) {
-        KCLog(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
+        KCLogError(@"An error occurred when listing directory (%@) contents: %@", path, [error localizedDescription]);
         return nil;
     }
     return files;
@@ -123,13 +123,13 @@
             // iterate through each directory
             NSArray *directories = [self keenSubDirectoriesForProjectID:projectID];
             for (NSString *dirName in directories) {
-                KCLog(@"Found directory: %@", dirName);
+                KCLogVerbose(@"Found directory: %@", dirName);
                 // list contents of each directory
                 NSString *dirPath = [rootPath stringByAppendingPathComponent:dirName];
                 NSArray *files = [self contentsAtPath:dirPath];
 
                 for (NSString *fileName in files) {
-                    KCLog(@"Found file: %@/%@", dirName, fileName);
+                    KCLogVerbose(@"Found file: %@/%@", dirName, fileName);
                     NSString *filePath = [dirPath stringByAppendingPathComponent:fileName];
                     // for each file, grab the JSON blob
                     NSData *data = [NSData dataWithContentsOfFile:filePath];
@@ -143,7 +143,7 @@
                                                           error:&error];
                         if (error) {
                             // If we got an error we're not gonna add it
-                            KCLog(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
+                            KCLogError(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                         } else {
                             // All's well: Add it!
                             [KIODBStore.sharedInstance addEvent:data collection:dirName projectID:projectID];
@@ -159,7 +159,7 @@
         }
     }
     @catch (NSException *e) {
-        KCLog(@"An error occurred when attempting to import events from the filesystem, will not run again: %@", e);
+        KCLogError(@"An error occurred when attempting to import events from the filesystem, will not run again: %@", e);
     }
 }
 

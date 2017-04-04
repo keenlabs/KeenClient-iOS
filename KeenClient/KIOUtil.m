@@ -15,7 +15,7 @@
 
 + (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError**) error {
     id fixed = [self handleInvalidJSONInObject:event];
-    
+
     if (![NSJSONSerialization isValidJSONObject:fixed]) {
         [self handleError:error withErrorMessage:@"Event contains an invalid JSON type!"];
         return nil;
@@ -35,7 +35,7 @@
     if (!value) {
         return value;
     }
-    
+
     if ([value isKindOfClass:[NSDictionary class]]) {
         NSMutableDictionary *mutDict = [self makeDictionaryMutable:value];
         NSArray *keys = [mutDict allKeys];
@@ -57,13 +57,13 @@
         return [self convertDate:value];
     } else if ([value isKindOfClass:[KeenProperties class]]) {
         KeenProperties *keenProperties = value;
-        
+
         NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
         NSString *isoDate = [self convertDate:keenProperties.timestamp];
         if (isoDate != nil) {
             [dict setObject:isoDate forKey:@"timestamp"];
         }
-        
+
         CLLocation *location = keenProperties.location;
         if (location != nil) {
             NSNumber *longitude = [NSNumber numberWithDouble:location.coordinate.longitude];
@@ -72,7 +72,7 @@
             NSDictionary *coordinatesDict = [NSDictionary dictionaryWithObject:coordinatesArray forKey:@"coordinates"];
             [dict setObject:coordinatesDict forKey:@"location"];
         }
-        
+
         return dict;
     } else {
         return value;
@@ -95,9 +95,9 @@
         NSUInteger count = underlyingError ? 2 : 1;
         NSDictionary *userInfo = [NSDictionary dictionaryWithObjects:objects forKeys:keys count:count];
         *error = [NSError errorWithDomain:kKeenErrorDomain code:1 userInfo:userInfo];
-        KCLog(@"%@", *error);
+        KCLogError(@"%@", *error);
     }
-    
+
     return NO;
 }
 
@@ -108,7 +108,7 @@
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
     [dateFormatter setLocale:enUSPOSIXLocale];
     [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
-    
+
     NSString *iso8601String = [dateFormatter stringFromDate:date];
     return iso8601String;
 }

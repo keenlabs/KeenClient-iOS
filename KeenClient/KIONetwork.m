@@ -114,7 +114,7 @@
  completionHandler:(void (^)(NSData* data, NSURLResponse* response, NSError* error))completionHandler {
     NSString* urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
                            kKeenServerAddress, kKeenApiVersion, projectID];
-    KCLog(@"Sending request to: %@", urlString);
+    KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest* request = [self createRequestWithUrl:urlString
                                                       andBody:data
@@ -131,11 +131,11 @@
     BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery withProjectID:projectID];
 
     if (hasQueryWithMaxAttempts) {
-        KCLog(@"Not running query because it failed over %d times", self.maxQueryAttempts);
+        KCLogWarn(@"Not running query because it failed over %d times", self.maxQueryAttempts);
     } else {
         NSString* urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
                                kKeenServerAddress, kKeenApiVersion, projectID, keenQuery.queryType];
-        KCLog(@"Sending request to: %@", urlString);
+        KCLogVerbose(@"Sending request to: %@", urlString);
 
         NSMutableURLRequest* request = [KIONetwork.sharedInstance createRequestWithUrl:urlString
                                                                                andBody:[keenQuery convertQueryToData]
@@ -158,8 +158,8 @@
                   andProjectID:(NSString*)projectID {
     // Check if call to the Query API failed
     if (!responseData) {
-        KCLog(@"responseData was nil for some reason.  That's not great.");
-        KCLog(@"response status code: %ld", (long)[((NSHTTPURLResponse*)response) statusCode]);
+        KCLogError(@"responseData was nil for some reason.  That's not great.");
+        KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse*)response) statusCode]);
         return;
     }
 
@@ -168,9 +168,9 @@
     // if the query failed because of a client error, let's add it to the database
     if ([HTTPCodes httpCodeType:(responseCode)] == HTTPCode4XXClientError && query != nil) {
         // log what happened
-        KCLog(@"Response code was 4xx Client Error. It was: %ld", (long)responseCode);
+        KCLogError(@"Response code was 4xx Client Error. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        KCLog(@"Response body was: %@", responseString);
+        KCLogError(@"Response body was: %@", responseString);
 
         // check if query is inside the database, and if so increment attempts counter
         // if not, add it
@@ -189,7 +189,7 @@
                   completionHandler:(void (^)(NSData* data, NSURLResponse* response, NSError* error))completionHandler {
     NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
                            kKeenServerAddress, kKeenApiVersion, projectID, @"multi_analysis"];
-    KCLog(@"Sending request to: %@", urlString);
+    KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
     if (multiAnalysisDictionary == nil) {
@@ -202,7 +202,7 @@
     NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
 
     if(dictionarySerializationError != nil) {
-        KCLog(@"error with dictionary serialization");
+        KCLogError(@"error with dictionary serialization");
         return;
     }
 
@@ -227,7 +227,7 @@
     NSMutableDictionary* queriesDictionary = [[NSMutableDictionary alloc] init];
     for (int i = 0; i < keenQueries.count; i++) {
         if (![keenQueries[i] isKindOfClass:[KIOQuery class]]) {
-            KCLog(@"keenQueries array contain objects that are not of class KIOQuery");
+            KCLogError(@"keenQueries array contain objects that are not of class KIOQuery");
             return nil;
         }
 
@@ -241,7 +241,7 @@
                 if ([multiAnalysisDictionary objectForKey:key] == [NSNull null]) {
                     [multiAnalysisDictionary setObject:queryProperty forKey:key];
                 } else if (![[multiAnalysisDictionary objectForKey:key] isEqual:queryProperty]) {
-                    KCLog(@"queries %@ property doesn't match", key);
+                    KCLogError(@"queries %@ property doesn't match", key);
                     return nil;
                 }
                 [queryMutablePropertiesDictionary removeObjectForKey:key];
