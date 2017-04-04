@@ -12,8 +12,30 @@
 #import "KeenConstants.h"
 #import "KeenProperties.h"
 #import "HTTPCodes.h"
+#import "KIOUtil.h"
 #import "KIOQuery.h"
+#import "KIOFileStore.h"
+#import "KIONetwork.h"
+#import "KIOUploader.h"
 
+NSString* kDefaultProjectID = @"id";
+NSString* kDefaultWriteKey = @"wk";
+NSString* kDefaultReadKey = @"rk";
+
+@interface KIONetwork (Testable)
+
+- (void)handleQueryAPIResponse:(NSURLResponse*)response
+                       andData:(NSData*)responseData
+                      andQuery:(KIOQuery*)query
+                  andProjectID:(NSString*)projectID;
+
+@end
+
+@interface KIOUploader (Testable)
+
+- (BOOL)isNetworkConnected;
+
+@end
 
 @interface KeenClient (testability)
 
@@ -22,14 +44,17 @@
 @property (nonatomic, strong) NSString *writeKey;
 @property (nonatomic, strong) NSString *readKey;
 
+@property (nonatomic) KIONetwork* network;
+
 // If we're running tests.
 @property (nonatomic) BOOL isRunningTests;
 
-- (NSData *)sendEvents:(NSData *)data completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
-- (BOOL)isNetworkConnected;
-- (id)convertDate: (id) date;
-- (id)handleInvalidJSONInObject:(id)value;
-- (NSURLSession*)sharedUrlSession;
+- (id)initWithProjectID:(NSString *)projectID
+            andWriteKey:(NSString *)writeKey
+             andReadKey:(NSString *)readKey
+             andNetwork:(KIONetwork*)network
+               andStore:(KIODBStore*)store
+            andUploader:(KIOUploader*)uploader;
 
 @end
 
@@ -71,8 +96,8 @@
 - (void)tearDown {
     // Tear-down code here.
     NSLog(@"\n");
-    [KeenClient clearAllEvents];
-    [KeenClient clearAllQueries];
+    [[KeenClient sharedClient] clearAllEvents];
+    [[KeenClient sharedClient] clearAllQueries];
 
     [[KeenClient sharedClient] setWriteKey:nil];
     [[KeenClient sharedClient] setReadKey:nil];
@@ -95,10 +120,10 @@
 }
 
 - (void)testInitWithProjectID{
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"something" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"something" andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     XCTAssertEqualObjects(@"something", client.projectID, @"init with a valid project id should work");
-    XCTAssertEqualObjects(@"wk", client.writeKey, @"init with a valid project id should work");
-    XCTAssertEqualObjects(@"rk", client.readKey, @"init with a valid project id should work");
+    XCTAssertEqualObjects(kDefaultWriteKey, client.writeKey, @"init with a valid project id should work");
+    XCTAssertEqualObjects(kDefaultReadKey, client.readKey, @"init with a valid project id should work");
 
     KeenClient *client2 = [[KeenClient alloc] initWithProjectID:@"another" andWriteKey:@"wk2" andReadKey:@"rk2"];
     XCTAssertEqualObjects(@"another", client2.projectID, @"init with a valid project id should work");
@@ -106,7 +131,7 @@
     XCTAssertEqualObjects(@"rk2", client2.readKey, @"init with a valid project id should work");
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
 
-    client = [[KeenClient alloc] initWithProjectID:nil andWriteKey:@"wk" andReadKey:@"rk"];
+    client = [[KeenClient alloc] initWithProjectID:nil andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     XCTAssertNil(client, @"init with a nil project ID should return nil");
 }
 
@@ -121,17 +146,17 @@
 }
 
 - (void)testSharedClientWithProjectID{
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    XCTAssertEqual(@"id", client.projectID, @"sharedClientWithProjectID with a non-nil project id should work.");
-    XCTAssertEqualObjects(@"wk", client.writeKey, @"init with a valid project id should work");
-    XCTAssertEqualObjects(@"rk", client.readKey, @"init with a valid project id should work");
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    XCTAssertEqual(kDefaultProjectID, client.projectID, @"sharedClientWithProjectID with a non-nil project id should work.");
+    XCTAssertEqualObjects(kDefaultWriteKey, client.writeKey, @"init with a valid project id should work");
+    XCTAssertEqualObjects(kDefaultReadKey, client.readKey, @"init with a valid project id should work");
 
     KeenClient *client2 = [KeenClient sharedClientWithProjectID:@"other" andWriteKey:@"wk2" andReadKey:@"rk2"];
     XCTAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
     XCTAssertEqualObjects(@"wk2", client2.writeKey, @"sharedClient with a valid project id should work");
     XCTAssertEqualObjects(@"rk2", client2.readKey, @"sharedClient with a valid project id should work");
 
-    client = [KeenClient sharedClientWithProjectID:nil andWriteKey:@"wk" andReadKey:@"rk"];
+    client = [KeenClient sharedClientWithProjectID:nil andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     XCTAssertNil(client, @"sharedClient with an invalid project id should return nil");
 }
 
@@ -146,8 +171,8 @@
 }
 
 - (void)testAddEvent {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
     // nil dict should should do nothing
     NSError *error = nil;
@@ -220,8 +245,8 @@
 }
 
 - (void)testAddEventNoWriteKey {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:nil andReadKey:nil];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:nil andReadKey:nil];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:nil andReadKey:nil];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:nil andReadKey:nil];
 
     NSArray *keys = [NSArray arrayWithObjects:@"a", @"b", @"c", nil];
     NSArray *values = [NSArray arrayWithObjects:@"apple", @"bapple", [NSNull null], nil];
@@ -231,8 +256,8 @@
 }
 
 - (void)testEventWithTimestamp {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
     NSDate *date = [NSDate date];
     KeenProperties *keenProperties = [[KeenProperties alloc] init];
@@ -240,7 +265,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -249,15 +274,15 @@
                                                                   error:&error];
 
     NSString *deserializedDate = deserializedDict[@"keen"][@"timestamp"];
-    NSString *originalDate = [client convertDate:date];
+    NSString *originalDate = [KIOUtil convertDate:date];
     XCTAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
-    originalDate = [clientI convertDate:date];
+    originalDate = [KIOUtil convertDate:date];
     XCTAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
 }
 
 - (void)testEventWithLocation {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
     KeenProperties *keenProperties = [[KeenProperties alloc] init];
     CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
@@ -265,7 +290,7 @@
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -280,15 +305,15 @@
 }
 
 - (void)testEventWithDictionary {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
     NSString* json = @"{\"test_str_array\":[\"val1\",\"val2\",\"val3\"]}";
     NSDictionary* eventDictionary = [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
 
     [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
     [clientI addEvent:eventDictionary toEventCollection:@"foo" error:nil];
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -303,8 +328,8 @@
 
 - (void)testGeoLocation {
     // set up a client with a location
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
     CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     client.currentLocation = location;
@@ -313,7 +338,7 @@
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     // now get the stored event
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -329,8 +354,8 @@
 
 - (void)testGeoLocationDisabled {
     // now try the same thing but disable geo location
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
     [KeenClient disableGeoLocation];
     // add an event
@@ -339,7 +364,7 @@
     // now get the stored event
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -353,8 +378,8 @@
 
 - (void)testGeoLocationRequestDisabled {
   // now try the same thing but disable geo location
-  KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-  KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+  KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+  KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
   [KeenClient disableGeoLocationDefaultRequest];
   // add an event
@@ -363,7 +388,7 @@
   // now get the stored event
 
   // Grab the first event we get back
-  NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
+  NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
   // Grab the first event we get back
   NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
   NSError *error = nil;
@@ -379,8 +404,8 @@
 }
 
 - (void)testEventWithNonDictionaryKeen {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
     NSDictionary *theEvent = @{@"keen": @"abc"};
     NSError *error = nil;
@@ -390,8 +415,8 @@
 }
 
 - (void)testBasicAddon {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
     NSDictionary *theEvent = @{
                                @"keen":@{
@@ -413,7 +438,7 @@
     XCTAssertNil(error, @"event should add");
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
@@ -449,38 +474,32 @@
     return [NSDictionary dictionaryWithObject:array forKey:@"foo"];
 }
 
-- (KeenClient*)createDefaultKeenClient {
-    return [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+- (id)createClientWithRequestValidator:(BOOL (^)(id obj))validator {
+    return [self createClientWithResponseData:nil
+                                andStatusCode:HTTPCode200OK
+                          andNetworkConnected:@YES
+                          andRequestValidator:validator];
 }
 
-- (id)uploadTestHelperWithRequestValidator:(BOOL (^)(id obj))validator {
-    return [self uploadTestHelperWithKeenClient:[self createDefaultKeenClient]
-                             DataInstanceClient:nil
-                                  andStatusCode:HTTPCode200OK
-                                     andNetwork:@YES
-                            andRequestValidator:validator];
+- (id)createClientWithResponseData:(id)data
+                     andStatusCode:(NSInteger)code {
+    return [self createClientWithResponseData:data
+                                andStatusCode:code
+                          andNetworkConnected:@YES];
 }
 
-- (id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code {
-    return [self uploadTestHelperWithData:data andStatusCode:code andNetwork:@YES];
+- (id)createClientWithResponseData:(id)data
+                     andStatusCode:(NSInteger)code
+               andNetworkConnected:(NSNumber*)isNetworkConnected {
+    return [self createClientWithResponseData:data
+                                andStatusCode:code
+                          andNetworkConnected:isNetworkConnected
+                          andRequestValidator:nil];
 }
 
-- (id)uploadTestHelperWithData:(id)data andStatusCode:(NSInteger)code andNetwork:(NSNumber *)network {
-    return [self uploadTestHelperWithKeenClient:[self createDefaultKeenClient] DataInstanceClient:data andStatusCode:code andNetwork:network];
-}
-
-- (id)uploadTestHelperWithDataInstanceClient:(id)data andStatusCode:(NSInteger)code {
-    return [self uploadTestHelperWithKeenClient:[self createDefaultKeenClient] DataInstanceClient:data andStatusCode:code andNetwork:@YES];
-}
-
-- (id)uploadTestHelperWithKeenClient:(KeenClient *)client DataInstanceClient:(id)data andStatusCode:(NSInteger)code andNetwork:(NSNumber *)network {
-    return [self uploadTestHelperWithKeenClient:client DataInstanceClient:data andStatusCode:code andNetwork:network andRequestValidator:nil];
-}
-
-- (void)mockUrlSessionWithMockClient:(OCMockObject*)mockClient
-                        withResponse:(NSHTTPURLResponse*)response
-                     andResponseData:(NSData*)responseData
-                 andRequestValidator:(BOOL (^)(id requestObject))requestValidator {
+- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse*)response
+                 andResponseData:(NSData*)responseData
+             andRequestValidator:(BOOL (^)(id requestObject))requestValidator {
     // Mock the NSURLSession to be used for the request
     id urlSessionMock = [OCMockObject partialMockForObject:[NSURLSession sharedSession]];
 
@@ -496,99 +515,59 @@
 
     }
 
-    // Inject the mock NSURLSession
-    [[[mockClient stub] andReturn:urlSessionMock] sharedUrlSession];
+    return urlSessionMock;
 }
 
-- (id)uploadTestHelperWithKeenClient:(KeenClient *)client
-                  DataInstanceClient:(id)data
-                       andStatusCode:(NSInteger)code
-                          andNetwork:(NSNumber *)network
-                 andRequestValidator:(BOOL (^)(id obj))requestValidator {
-    client.isRunningTests = YES;
-    id mock = [OCMockObject partialMockForObject:client];
+- (id)createClientWithResponseData:(id)data
+                     andStatusCode:(NSInteger)code
+               andNetworkConnected:(NSNumber*)isNetworkConnected
+               andRequestValidator:(BOOL (^)(id obj))requestValidator {
 
     // serialize the faked out response data
     if (!data) {
         data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
     }
-    data = [client handleInvalidJSONInObject:data];
+    data = [KIOUtil handleInvalidJSONInObject:data];
     NSData *serializedData = [NSJSONSerialization dataWithJSONObject:data
                                                              options:0
                                                                error:nil];
 
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""]
+                                                              statusCode:code
+                                                             HTTPVersion:nil
+                                                            headerFields:nil];
 
-    // Set up the NSURLSession mock
-    [self mockUrlSessionWithMockClient:mock
-                          withResponse:response
-                       andResponseData:serializedData
-                   andRequestValidator:requestValidator];
+    // Get mock NSURLSession
+    id mockSession = [self mockUrlSessionWithResponse:response
+                                      andResponseData:serializedData
+                                  andRequestValidator:requestValidator];
 
-    // Mock network status on the KeenClient object
-    [[[mock stub] andReturnValue:network] isNetworkConnected];
+    // Create/get store
+    KIODBStore* store = KIODBStore.sharedInstance;
 
-    return mock;
-}
+    // Create network
+    KIONetwork* network = [[KIONetwork alloc] initWithURLSession:mockSession
+                                                        andStore:store];
 
-- (id)queryMockTestHelper:(id)responseData andStatusCode:(NSInteger)code {
-    return [self queryMockTestHelper:responseData andStatusCode:code andRequestValidator:nil];
-}
+    // Create uploader
+    KIOUploader* uploader = [[KIOUploader alloc] initWithNetwork:network
+                                                        andStore:store];
+    // Mock the KIOUploader to be used for the upload
+    id mockUploader = [OCMockObject partialMockForObject:uploader];
 
-- (id)queryMockTestHelper:(id)responseData
-            andStatusCode:(NSInteger)code
-      andRequestValidator:(BOOL (^)(id obj))requestValidator {
-    // set up the partial mock
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    // Mock network status on the KIOUploader object
+    [[[mockUploader stub] andReturnValue:isNetworkConnected] isNetworkConnected];
+
+    KeenClient* client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey
+                                                    andNetwork:network
+                                                      andStore:store
+                                                   andUploader:mockUploader];
+
     client.isRunningTests = YES;
-    id mock = [OCMockObject partialMockForObject:client];
 
-    // set up the response we're faking out
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
-
-    // serialize the faked out response data
-    responseData = [client handleInvalidJSONInObject:responseData];
-    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:responseData
-                                                             options:0
-                                                               error:nil];
-
-    // Set up the NSURLSession mock
-    [self mockUrlSessionWithMockClient:mock
-                          withResponse:response
-                       andResponseData:serializedData
-                   andRequestValidator:requestValidator];
-
-    return mock;
-}
-
-- (id)queryMultiAnalysisMockTestHelper:(id)responseData andStatusCode:(NSInteger)code {
-    return [self queryMultiAnalysisMockTestHelper:responseData andStatusCode:code andRequestValidator:nil];
-}
-
-- (id)queryMultiAnalysisMockTestHelper:(id)responseData
-                         andStatusCode:(NSInteger)code
-                   andRequestValidator:(BOOL (^)(id obj))requestValidator {
-    // set up the partial mock
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
-    client.isRunningTests = YES;
-    id mock = [OCMockObject partialMockForObject:client];
-
-    // set up the response we're faking out
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
-
-    // serialize the faked out response data
-    responseData = [client handleInvalidJSONInObject:responseData];
-    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:responseData
-                                                             options:0
-                                                               error:nil];
-
-    // Set up the NSURLSession mock
-    [self mockUrlSessionWithMockClient:mock
-                          withResponse:response
-                       andResponseData:serializedData
-                   andRequestValidator:requestValidator];
-
-    return mock;
+    return client;
 }
 
 - (void)addSimpleEventAndUploadWithMock:(id)mock andFinishedBlock:(void (^)())finishedBlock {
@@ -602,15 +581,15 @@
 # pragma mark - test upload
 
 -(void)testUploadWithNoEvents {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK];
 
     [mock uploadWithFinishedBlock:nil];
 
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"Upload method should return with message Request data is empty.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"Upload method should return with message Request data is empty.");
 }
 
 - (void)testUploadSuccess {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode2XXSuccess];
+    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode2XXSuccess];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -618,12 +597,12 @@
     }];
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
     }];
 }
 
 - (void)testUploadSuccessInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:nil andStatusCode:HTTPCode2XXSuccess];
+    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode2XXSuccess];
 
     // make sure the event was deleted from the store
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
@@ -632,12 +611,12 @@
     }];
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
     }];
 }
 
 - (void)testUploadFailedServerDown {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode500InternalServerError];
+    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode500InternalServerError];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -646,12 +625,12 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
 - (void)testUploadFailedServerDownInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:[mock projectID] andStatusCode:HTTPCode500InternalServerError];
+    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode500InternalServerError];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -660,12 +639,12 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
 - (void)testUploadFailedServerDownNonJsonResponse {
-    id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode500InternalServerError];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode500InternalServerError];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -674,12 +653,12 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
 - (void)testUploadFailedServerDownNonJsonResponseInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode500InternalServerError];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode500InternalServerError];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -688,13 +667,13 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
 
 - (void)testDeleteAfterMaxAttempts {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode500InternalServerError];
+    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode500InternalServerError];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -703,17 +682,17 @@
     // and "upload" it
     [mock uploadWithFinishedBlock:^{
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
 
         // add another event
         [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
         [mock uploadWithFinishedBlock:^{
             // make sure both files weren't deleted from the store
-            XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
+            XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
 
             [mock uploadWithFinishedBlock:^{
                 // make sure the first file was deleted from the store, but the second one remains
-                XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one file after 3 unsuccessful attempts.");
+                XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one file after 3 unsuccessful attempts.");
 
                 [mock uploadWithFinishedBlock:^{
                     [responseArrived fulfill];
@@ -724,13 +703,13 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure both files were deleted from the store
-        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
     }];
 }
 
 - (void)testIncrementEvenOnNoResponse {
     // mock an empty response from the server
-    id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -739,12 +718,12 @@
     // and "upload" it
     [mock uploadWithFinishedBlock:^{
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
 
         // add another event
         [mock uploadWithFinishedBlock:^{
             // make sure both files weren't deleted from the store
-            XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
+            XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
 
             [mock uploadWithFinishedBlock:^{
                 [responseArrived fulfill];
@@ -754,13 +733,16 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the event was incremented
-        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
-        XCTAssertTrue([[[KeenClient getDBStore] getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
     }];
 }
 
 - (void)testUploadFailedBadRequest {
-    id mock = [self uploadTestHelperWithData:[self buildResponseJsonWithSuccess:NO AndErrorCode:@"InvalidCollectionNameError" AndDescription:@"anything"] andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:[self buildResponseJsonWithSuccess:NO
+                                                                       AndErrorCode:@"InvalidCollectionNameError"
+                                                                     AndDescription:@"anything"]
+                                   andStatusCode:HTTPCode200OK];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -770,15 +752,15 @@
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file was deleted locally
         // make sure the event was deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
     }];
 }
 
 - (void)testUploadFailedBadRequestInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:[self buildResponseJsonWithSuccess:NO
-                                                                   AndErrorCode:@"InvalidCollectionNameError"
-                                                                 AndDescription:@"anything"]
-                               andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:[self buildResponseJsonWithSuccess:NO
+                                                                       AndErrorCode:@"InvalidCollectionNameError"
+                                                                     AndDescription:@"anything"]
+                                   andStatusCode:HTTPCode200OK];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -788,12 +770,12 @@
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file was deleted locally
         // make sure the event was deleted from the store
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
     }];
 }
 
 - (void)testUploadFailedBadRequestUnknownError {
-    id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode400BadRequest];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode400BadRequest];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -802,12 +784,12 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
 - (void)testUploadFailedBadRequestUnknownErrorInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode400BadRequest];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode400BadRequest];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -816,12 +798,12 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
 - (void)testUploadFailedRedirectionStatus {
-    id mock = [self uploadTestHelperWithData:@{} andStatusCode:HTTPCode300MultipleChoices];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode300MultipleChoices];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -830,12 +812,12 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
 - (void)testUploadFailedRedirectionStatusInstanceClient {
-    id mock = [self uploadTestHelperWithDataInstanceClient:@{} andStatusCode:HTTPCode300MultipleChoices];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode300MultipleChoices];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
@@ -844,17 +826,17 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
 - (void)testUploadSkippedNoNetwork {
-    id mock = [self uploadTestHelperWithData:nil andStatusCode:HTTPCode200OK andNetwork:@NO];
+    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK andNetworkConnected:@NO];
 
     [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:nil];
 
     // make sure the file wasn't deleted locally
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccess {
@@ -866,7 +848,7 @@
                                           andDescription:nil];
     NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
                                                        forKey:@"foo"];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -880,7 +862,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the events were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
     }];
 }
 
@@ -893,7 +875,7 @@
                                           andDescription:nil];
     NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
                                                        forKey:@"foo"];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -907,7 +889,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the events were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
     }];
 }
 
@@ -921,7 +903,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -935,7 +917,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -949,7 +931,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -963,7 +945,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -976,7 +958,7 @@
                                           andDescription:@"something"];
     NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
                                                        forKey:@"foo"];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -990,7 +972,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1003,7 +985,7 @@
                                           andDescription:@"something"];
     NSDictionary *result = [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil]
                                                        forKey:@"foo"];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -1017,7 +999,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the file were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1031,7 +1013,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -1045,7 +1027,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1059,7 +1041,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -1073,7 +1055,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1087,7 +1069,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithData:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -1101,7 +1083,7 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
     }];
 }
 
@@ -1115,7 +1097,7 @@
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSArray arrayWithObject:result1], @"foo",
                             [NSArray arrayWithObject:result2], @"bar", nil];
-    id mock = [self uploadTestHelperWithDataInstanceClient:result andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
 
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -1129,42 +1111,42 @@
 
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 event after a partial upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 event after a partial upload.");
     }];
 }
 
 - (void)testTooManyEventsCached {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
     // create 5 events
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testTooManyEventsCachedInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
     // create 5 events
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testGlobalPropertiesDictionary {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
@@ -1173,7 +1155,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1219,7 +1201,7 @@
 }
 
 - (void)testGlobalPropertiesDictionaryInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     NSDictionary * (^RunTest)(NSDictionary*, NSUInteger) = ^(NSDictionary *globalProperties,
@@ -1228,7 +1210,7 @@
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1274,7 +1256,7 @@
 }
 
 - (void)testGlobalPropertiesBlock {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
@@ -1284,7 +1266,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1337,7 +1319,7 @@
 }
 
 - (void)testGlobalPropertiesBlockInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     NSDictionary * (^RunTest)(KeenGlobalPropertiesBlock, NSUInteger) = ^(KeenGlobalPropertiesBlock block,
@@ -1347,7 +1329,7 @@
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1400,7 +1382,7 @@
 }
 
 - (void)testGlobalPropertiesTogether {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     // properties from the block should take precedence over properties from the dictionary
@@ -1411,7 +1393,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1425,7 +1407,7 @@
 }
 
 - (void)testGlobalPropertiesTogetherInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     // properties from the block should take precedence over properties from the dictionary
@@ -1436,7 +1418,7 @@
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[[KeenClient getDBStore] getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1450,7 +1432,7 @@
 }
 
 - (void)testInvalidEventCollection {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     NSDictionary *event = @{@"a": @"b"};
@@ -1470,7 +1452,7 @@
 }
 
 - (void)testInvalidEventCollectionInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     NSDictionary *event = @{@"a": @"b"};
@@ -1490,7 +1472,7 @@
 }
 
 - (void)testUploadMultipleTimes {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     [client uploadWithFinishedBlock:nil];
@@ -1499,7 +1481,7 @@
 }
 
 - (void)testUploadMultipleTimesInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     [client uploadWithFinishedBlock:nil];
@@ -1509,7 +1491,7 @@
 
 - (void)testMigrateFSEvents {
 
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     // make sure the directory we want to write the file to exists
@@ -1532,19 +1514,22 @@
     [self writeNSData:json1 toFile:fileName1];
     [self writeNSData:json2 toFile:fileName2];
 
-    [client importFileData];
+    [KIOFileStore importFileDataWithProjectID:kDefaultProjectID];
     // Now we're gonna add an event and verify the events we just wrote to the fs
     // are added to the database and the files are cleaned up.
     error = nil;
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
-    XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
+    XCTAssertEqual(3,
+                   [KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID],
+                   @"There should be 3 events after an import.");
+    XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true],
+                   @"The Keen directory should be gone.");
 }
 
 - (void)testMigrateFSEventsInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     // make sure the directory we want to write the file to exists
@@ -1567,19 +1552,19 @@
     [self writeNSData:json1 toFile:fileName1];
     [self writeNSData:json2 toFile:fileName2];
 
-    [client importFileData];
+    [KIOFileStore importFileDataWithProjectID:kDefaultProjectID];
     // Now we're gonna add an event and verify the events we just wrote to the fs
     // are added to the database and the files are cleaned up.
     error = nil;
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
-    XCTAssertTrue([[KeenClient getDBStore] getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
     XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
 - (void)testSDKVersion {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     // result from class method should equal the SDK Version constant
@@ -1588,7 +1573,7 @@
 }
 
 - (void)testSDKVersionInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     // result from class method should equal the SDK Version constant
@@ -1599,7 +1584,7 @@
 # pragma mark - test query
 
 - (void)testCountQueryFailure {
-    id mock = [self queryMockTestHelper:@{} andStatusCode:HTTPCode5XXServerError];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode5XXServerError];
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{}];
 
@@ -1626,7 +1611,7 @@
 }
 
 - (void)testCountQuerySuccess {
-    id mock = [self queryMockTestHelper:@{@"result": @10} andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:@{@"result": @10} andStatusCode:HTTPCode200OK];
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
@@ -1653,7 +1638,7 @@
 }
 
 - (void)testCountQuerySuccessWithGroupByProperty {
-    id mock = [self queryMockTestHelper:@{@"result": @[@{ @"result": @10, @"key": @"value" }]} andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:@{@"result": @[@{ @"result": @10, @"key": @"value" }]} andStatusCode:HTTPCode200OK];
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection",
                                                                                          @"group_by": @"key"}];
@@ -1681,7 +1666,7 @@
 }
 
 - (void)testCountQuerySuccessWithTimeframeAndIntervalProperties {
-    id mock = [self queryMockTestHelper:@{@"result": @[@{@"value": @10,
+    id mock = [self createClientWithResponseData:@{@"result": @[@{@"value": @10,
                                                          @"timeframe": @{@"start": @"2015-06-19T00:00:00.000Z",
                                                                          @"end": @"2015-06-20T00:00:00.000Z"} }]} andStatusCode:HTTPCode200OK];
 
@@ -1712,7 +1697,7 @@
 }
 
 - (void)testCountUniqueQueryWithMissingTargetProperty {
-    id mock = [self queryMockTestHelper:@{} andStatusCode:HTTPCode400BadRequest];
+    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode400BadRequest];
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
@@ -1739,7 +1724,7 @@
 }
 
 - (void)testCountUniqueQuerySuccess {
-    id mock = [self queryMockTestHelper:@{@"result": @10} andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:@{@"result": @10} andStatusCode:HTTPCode200OK];
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
 
@@ -1766,7 +1751,7 @@
 }
 
 - (void)testMultiAnalysisSuccess {
-    id mock = [self queryMultiAnalysisMockTestHelper:@{@"result": @{@"query1": @10, @"query2": @1}} andStatusCode:HTTPCode200OK];
+    id mock = [self createClientWithResponseData:@{@"result": @{@"query1": @10, @"query2": @1}} andStatusCode:HTTPCode200OK];
 
     KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
@@ -1795,7 +1780,7 @@
 }
 
 - (void)testFunnelQuerySuccess {
-    id mock = [self queryMockTestHelper:@{@"result": @[@10, @5],
+    id mock = [self createClientWithResponseData:@{@"result": @[@10, @5],
                                           @"steps":@[@{@"actor_property": @[@"user.id"],
                                                        @"event_collection": @"user_signed_up"},
                                                      @{@"actor_property": @[@"user.id"],
@@ -1832,47 +1817,79 @@
 }
 
 - (void) testSuccessfulQueryAPIResponse {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"url"] statusCode:HTTPCode2XXSuccess HTTPVersion:@"HTTP/1.1" headerFields:@{}];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"url"]
+                                                              statusCode:HTTPCode2XXSuccess
+                                                             HTTPVersion:@"HTTP/1.1"
+                                                            headerFields:@{}];
     NSData *responseData = [@"query failed" dataUsingEncoding:NSUTF8StringEncoding];
 
-    [client handleQueryAPIResponse:response andData:responseData andQuery:nil];
+    [client.network handleQueryAPIResponse:response
+                                   andData:responseData
+                                  andQuery:nil
+                              andProjectID:kDefaultProjectID];
 
     // test that there are no entries in the query database
-    XCTAssertEqual([[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"], (NSUInteger)0, @"There should be no queries after a successful query API call");
+    XCTAssertEqual([KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID],
+                   (NSUInteger)0,
+                   @"There should be no queries after a successful query API call");
 }
 
 - (void) testFailedQueryAPIResponse {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"url"] statusCode:HTTPCode4XXClientError HTTPVersion:@"HTTP/1.1" headerFields:@{}];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"url"]
+                                                              statusCode:HTTPCode4XXClientError
+                                                             HTTPVersion:@"HTTP/1.1"
+                                                            headerFields:@{}];
     NSData *responseData = [@"query failed" dataUsingEncoding:NSUTF8StringEncoding];
 
     // test that there is 1 entry in the query database after a failed query API call
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count"
+                              andPropertiesDictionary:@{@"event_collection": @"collection"}];
 
-    [client handleQueryAPIResponse:response andData:responseData andQuery:query];
+    [client.network handleQueryAPIResponse:response
+                           andData:responseData
+                          andQuery:query
+                      andProjectID:kDefaultProjectID];
 
-    NSUInteger numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
+    NSUInteger numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID];
 
-    XCTAssertEqual(numberOfQueries, (NSUInteger)1, @"There should be 1 query in the database after a failed query API call");
+    XCTAssertEqual(numberOfQueries,
+                   (NSUInteger)1,
+                   @"There should be 1 query in the database after a failed query API call");
 
     // test that there are 2 entries in the query database after two failed different query API calls
-    KIOQuery *query2 = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection2"}];
+    KIOQuery *query2 = [[KIOQuery alloc] initWithQuery:@"count"
+                               andPropertiesDictionary:@{@"event_collection": @"collection2"}];
 
-    [client handleQueryAPIResponse:response andData:responseData andQuery:query2];
+    [client.network handleQueryAPIResponse:response
+                                   andData:responseData
+                                  andQuery:query2
+                              andProjectID:kDefaultProjectID];
 
-    numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
-    XCTAssertEqual(numberOfQueries, (NSUInteger)2, @"There should be 2 queries in the database after two failed query API calls");
+    numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID];
+    XCTAssertEqual(numberOfQueries,
+                   (NSUInteger)2,
+                   @"There should be 2 queries in the database after two failed query API calls");
 
     // test that there is still 2 entries in the query database after the same query fails twice
-    [client handleQueryAPIResponse:response andData:responseData andQuery:query2];
+    [client.network handleQueryAPIResponse:response
+                                   andData:responseData
+                                  andQuery:query2
+                              andProjectID:kDefaultProjectID];
 
-    numberOfQueries = [[KeenClient getDBStore] getTotalQueryCountWithProjectID:@"id"];
-    XCTAssertEqual(numberOfQueries, (NSUInteger)2, @"There should still be 2 queries in the database after two of the same failed query API call");
+    numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID];
+    XCTAssertEqual(numberOfQueries,
+                   (NSUInteger)2,
+                   @"There should still be 2 queries in the database after two of the same failed query API call");
 }
 
 - (void)validateSdkVersionHeaderFieldForRequest:(id)requestObject {
@@ -1890,21 +1907,20 @@
 - (void)testSdkTrackingHeadersOnUpload {
     // mock an empty response from the server
 
-    id mock = [self uploadTestHelperWithRequestValidator:^BOOL(id obj) {
+    KeenClient* client = [self createClientWithRequestValidator:^BOOL(id obj) {
         [self validateSdkVersionHeaderFieldForRequest:obj];
         return @YES;
     }];
 
     // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = [mock sharedUrlSession];
+    id urlSessionMock = client.network.urlSession;
 
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [client addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
-    [mock uploadWithFinishedBlock:^{
-
+    [client uploadWithFinishedBlock:^{
         // Check for the sdk version header
         [urlSessionMock verify];
 
@@ -1917,18 +1933,21 @@
 }
 
 - (void)testSdkTrackingHeadersOnQuery {
-    id mock = [self queryMockTestHelper:@{@"result": @10} andStatusCode:HTTPCode200OK andRequestValidator:^BOOL(id obj) {
+    KeenClient* client = [self createClientWithResponseData:@{@"result": @10}
+                                              andStatusCode:HTTPCode200OK
+                                        andNetworkConnected:@YES
+                                        andRequestValidator:^BOOL(id obj) {
         [self validateSdkVersionHeaderFieldForRequest:obj];
         return @YES;
     }];
 
     // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = [mock sharedUrlSession];
+    id urlSessionMock = client.network.urlSession;
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [client runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         // Check for the sdk version header
         [urlSessionMock verify];
 
@@ -1941,22 +1960,26 @@
 }
 
 - (void)testSdkTrackingHeadersOnMultiAnalysis {
-    id mock = [self queryMultiAnalysisMockTestHelper:@{@"result": @{@"query1": @10, @"query2": @1}}
-                                       andStatusCode:HTTPCode200OK
-                                 andRequestValidator:^BOOL(id obj) {
+    KeenClient* client = [self createClientWithResponseData:@{@"result": @{@"query1": @10, @"query2": @1}}
+                                   andStatusCode:HTTPCode200OK
+                             andNetworkConnected:@YES
+                             andRequestValidator:^BOOL(id obj) {
         [self validateSdkVersionHeaderFieldForRequest:obj];
         return @YES;
     }];
 
     // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = [mock sharedUrlSession];
+    id urlSessionMock = client.network.urlSession;
 
-    KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
+    KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count"
+                                   andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
-    KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
+    KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique"
+                                     andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock runMultiAnalysisWithQueries:@[countQuery, averageQuery] completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [client runMultiAnalysisWithQueries:@[countQuery, averageQuery]
+                      completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         // Check for the sdk version header
         [urlSessionMock verify];
 
@@ -1977,7 +2000,7 @@
 }
 
 - (NSString *)keenDirectory {
-    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:@"id"];
+    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:kDefaultProjectID];
 }
 
 - (NSString *)eventDirectoryForCollection:(NSString *)collection {

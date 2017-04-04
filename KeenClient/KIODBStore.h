@@ -11,6 +11,11 @@
 @interface KIODBStore : NSObject
 
  /**
+  Singleton instance of this class.
+  */
++ (KIODBStore*)sharedInstance;
+
+ /**
   Reset any pending events so they can be resent.
   */
 - (void)resetPendingEventsWithProjectID:(NSString *)projectID;
@@ -23,7 +28,7 @@
 
  /**
   Add an event to the store.
-  
+
   @param eventData Your event data.
   @param coll Your event collection.
   */
@@ -52,7 +57,7 @@
 
  /**
   Delete an event from the store
-  
+
   @param eventId The id of the event to delete.
   */
 - (void)deleteEvent: (NSNumber *)eventId;
@@ -71,14 +76,14 @@
 
  /**
   Delete events starting at an offset. Helps to keep the "queue" bounded.
- 
+
   @param offset The offset to start deleting events from.
   */
 - (void)deleteEventsFromOffset:(NSNumber *)offset;
 
 /**
  Add a query to the store.
- 
+
  @param queryData Your query data.
  @param eventCollection Your event collection.
  @param projectID Your project ID.
@@ -87,7 +92,7 @@
 
 /**
  Get a dictionary of the found query parameters.
- 
+
  @param queryData Your query data.
  @param eventCollection Your event collection.
  @param projectID Your project ID.
@@ -96,14 +101,14 @@
 
 /**
  Increment the query `attempts` column
- 
+
  @param queryID The query database id.
  */
 - (BOOL)incrementQueryAttempts:(NSNumber *)queryID;
 
 /**
  Helper method to find or update the `attempts` column of a query.
- 
+
  @param queryData Your query data.
  @param eventCollection Your event collection.
  @param projectID Your project ID.
@@ -112,7 +117,7 @@
 
 /**
  Get a count of total queries.
- 
+
  @param projectID Your project ID.
  */
 - (NSUInteger)getTotalQueryCountWithProjectID:(NSString *)projectID;
@@ -120,7 +125,7 @@
 /**
  Determine if the query in the database has the `attempts` column equal or higher than
  the maxAttempts value.
- 
+
  @param queryData Your query data.
  @param eventCollection Your event collection.
  @param projectID Your project ID.
@@ -136,7 +141,7 @@
 
 /**
  Delete all the queries older than X seconds.
- 
+
  @param seconds The seconds to delete events older than.
  */
 - (void)deleteQueriesOlderThan:(NSNumber *)seconds;
