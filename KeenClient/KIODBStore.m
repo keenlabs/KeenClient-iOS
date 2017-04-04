@@ -793,7 +793,8 @@
             return;
         }
         
-        if (keen_io_sqlite3_step(get_query_stmt) == SQLITE_ROW) {
+        int result = keen_io_sqlite3_step(get_query_stmt);
+        if (SQLITE_ROW == result) {
             // Fetch data out the statement
             query = [NSMutableDictionary dictionary];
             
@@ -815,7 +816,9 @@
             [query setObject:data forKey:@"queryData"];
             [query setObject:queryType forKey:@"queryType"];
             [query setObject:attempts forKey:@"attempts"];
-        } else {
+        } else if (SQLITE_DONE != result) {
+            // SQLITE_DONE just means there weren't any results, which isn't a db error.
+            // If we got anything else, we treat it as an error here.
             [self handleSQLiteFailure:@"find query"];
             return;
         }
