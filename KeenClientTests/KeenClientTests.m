@@ -75,13 +75,20 @@ NSString* kDefaultReadKey = @"rk";
 - (void)setUp {
     [super setUp];
 
-    // Set-up code here.
-    [[KeenClient sharedClient] setProjectID:nil];
-    [[KeenClient sharedClient] setWriteKey:nil];
-    [[KeenClient sharedClient] setReadKey:nil];
+    // initialize is called automatically for a class, but
+    // call it again to ensure static global state
+    // is consistently set to defaults for each test
+    // This relies on initialize being idempotent
+    [KeenClient initialize];
     [KeenClient enableLogging];
+
+    // Configure initial state for shared KeenClient instance
+    [[KeenClient sharedClient] setCurrentLocation:nil];
     [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
+    [[KeenClient sharedClient] setReadKey:nil];
+    [[KeenClient sharedClient] setWriteKey:nil];
+    [[KeenClient sharedClient] setProjectID:nil];
 
     _asyncTimeInterval = 100;
 }
@@ -92,8 +99,13 @@ NSString* kDefaultReadKey = @"rk";
     [[KeenClient sharedClient] clearAllEvents];
     [[KeenClient sharedClient] clearAllQueries];
 
+    [[KeenClient sharedClient] setWriteKey:nil];
+    [[KeenClient sharedClient] setReadKey:nil];
+    [[KeenClient sharedClient] setCurrentLocation:nil];
     [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
+    // Clear project key last since it makes sharedClient return nil
+    [[KeenClient sharedClient] setProjectID:nil];
 
     // delete all collections and their events.
     NSError *error = nil;
@@ -321,6 +333,7 @@ NSString* kDefaultReadKey = @"rk";
 
     CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     client.currentLocation = location;
+    clientI.currentLocation = location;
     // add an event
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
@@ -1150,8 +1163,8 @@ NSString* kDefaultReadKey = @"rk";
                                                                   options:0
                                                                     error:&error];
 
-        XCTAssertEqualObjects(event[@"foo"], storedEvent[@"foo"], @"");
-        XCTAssertTrue([storedEvent count] == expectedNumProperties + 1, @"");
+        XCTAssertEqualObjects(event[@"foo"], storedEvent[@"foo"]);
+        XCTAssertEqual([storedEvent count], expectedNumProperties + 1, @"Stored event: %@", storedEvent);
         return storedEvent;
     };
 
@@ -1908,7 +1921,6 @@ NSString* kDefaultReadKey = @"rk";
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
     [client uploadWithFinishedBlock:^{
-
         // Check for the sdk version header
         [urlSessionMock verify];
 
