@@ -75,20 +75,13 @@ NSString* kDefaultReadKey = @"rk";
 - (void)setUp {
     [super setUp];
 
-<<<<<<< HEAD
-    // Set-up code here.
-    [[KeenClient sharedClient] setProjectID:nil];
-    [[KeenClient sharedClient] setWriteKey:nil];
-    [[KeenClient sharedClient] setReadKey:nil];
-    [KeenClient setLogLevel:KeenLogLevelVerbose];
-=======
     // initialize is called automatically for a class, but
     // call it again to ensure static global state
     // is consistently set to defaults for each test
     // This relies on initialize being idempotent
     [KeenClient initialize];
->>>>>>> master
     [KeenClient enableLogging];
+    [KeenClient setLogLevel:KeenLogLevelVerbose];
 
     // Configure initial state for shared KeenClient instance
     [[KeenClient sharedClient] setCurrentLocation:nil];
@@ -523,12 +516,7 @@ NSString* kDefaultReadKey = @"rk";
 
     }
 
-<<<<<<< HEAD
-    // Inject the mock NSURLSession
-    [[[mockClient stub] andReturn:urlSessionMock] sharedUrlSession];
-=======
     return urlSessionMock;
->>>>>>> master
 }
 
 - (id)createClientWithResponseData:(id)data
@@ -545,20 +533,10 @@ NSString* kDefaultReadKey = @"rk";
                                                              options:0
                                                                error:nil];
 
-<<<<<<< HEAD
-    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""] statusCode:code HTTPVersion:nil headerFields:nil];
-
-    // Set up the NSURLSession mock
-    [self mockUrlSessionWithMockClient:mock
-                          withResponse:response
-                       andResponseData:serializedData
-                   andRequestValidator:requestValidator];
-=======
     NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""]
                                                               statusCode:code
                                                              HTTPVersion:nil
                                                             headerFields:nil];
->>>>>>> master
 
     // Get mock NSURLSession
     id mockSession = [self mockUrlSessionWithResponse:response
