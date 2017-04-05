@@ -502,7 +502,7 @@ NSString* kDefaultReadKey = @"rk";
                  andResponseData:(NSData*)responseData
              andRequestValidator:(BOOL (^)(id requestObject))requestValidator {
     // Mock the NSURLSession to be used for the request
-    id urlSessionMock = [OCMockObject partialMockForObject:[NSURLSession sharedSession]];
+    id urlSessionMock = [OCMockObject partialMockForObject:[[NSURLSession alloc] init]];
 
     // Set up fake response data and request validation
     if (nil != requestValidator) {
@@ -582,11 +582,19 @@ NSString* kDefaultReadKey = @"rk";
 # pragma mark - test upload
 
 -(void)testUploadWithNoEvents {
+    XCTestExpectation* uploadFinishedBlockCalled = [self expectationWithDescription:@"Upload should finish."];
+    
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK];
 
-    [mock uploadWithFinishedBlock:nil];
+    [mock uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled fulfill];
+    }];
 
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"Upload method should return with message Request data is empty.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        XCTAssertEqual([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]],
+                       0,
+                       @"Upload method should return with message Request data is empty.");
+    }];
 }
 
 - (void)testUploadSuccess {
@@ -832,12 +840,20 @@ NSString* kDefaultReadKey = @"rk";
 }
 
 - (void)testUploadSkippedNoNetwork {
+    XCTestExpectation* uploadFinishedBlockCalled = [self expectationWithDescription:@"Upload finished block should be called."];
+
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK andNetworkConnected:@NO];
 
-    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:nil];
+    [self addSimpleEventAndUploadWithMock:mock andFinishedBlock:^{
+        [uploadFinishedBlockCalled fulfill];
+    }];
 
-    // make sure the file wasn't deleted locally
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload with no network should not delete the event.");
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+        // make sure the file wasn't deleted locally
+        XCTAssertEqual([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]],
+                       1,
+                       @"An upload with no network should not delete the event.");
+    }];
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccess {
@@ -1473,21 +1489,45 @@ NSString* kDefaultReadKey = @"rk";
 }
 
 - (void)testUploadMultipleTimes {
+    XCTestExpectation* uploadFinishedBlockCalled1 = [self expectationWithDescription:@"Upload 1 should run to completion."];
+    XCTestExpectation* uploadFinishedBlockCalled2 = [self expectationWithDescription:@"Upload 2 should run to completion."];
+    XCTestExpectation* uploadFinishedBlockCalled3 = [self expectationWithDescription:@"Upload 3 should run to completion."];
+    
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
-    [client uploadWithFinishedBlock:nil];
-    [client uploadWithFinishedBlock:nil];
-    [client uploadWithFinishedBlock:nil];
+    [client uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled1 fulfill];
+    }];
+    [client uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled2 fulfill];
+    }];
+    [client uploadWithFinishedBlock:^ {
+        [uploadFinishedBlockCalled3 fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:nil];
 }
 
 - (void)testUploadMultipleTimesInstanceClient {
+    XCTestExpectation* uploadFinishedBlockCalled1 = [self expectationWithDescription:@"Upload 1 should run to completion."];
+    XCTestExpectation* uploadFinishedBlockCalled2 = [self expectationWithDescription:@"Upload 2 should run to completion."];
+    XCTestExpectation* uploadFinishedBlockCalled3 = [self expectationWithDescription:@"Upload 3 should run to completion."];
+
     KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
-    [client uploadWithFinishedBlock:nil];
-    [client uploadWithFinishedBlock:nil];
-    [client uploadWithFinishedBlock:nil];
+    [client uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled1 fulfill];
+    }];
+    [client uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled2 fulfill];
+    }];
+    [client uploadWithFinishedBlock:^ {
+        [uploadFinishedBlockCalled3 fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:nil];
 }
 
 - (void)testMigrateFSEvents {
@@ -1962,9 +2002,9 @@ NSString* kDefaultReadKey = @"rk";
 
 - (void)testSdkTrackingHeadersOnMultiAnalysis {
     KeenClient* client = [self createClientWithResponseData:@{@"result": @{@"query1": @10, @"query2": @1}}
-                                   andStatusCode:HTTPCode200OK
-                             andNetworkConnected:@YES
-                             andRequestValidator:^BOOL(id obj) {
+                                              andStatusCode:HTTPCode200OK
+                                        andNetworkConnected:@YES
+                                        andRequestValidator:^BOOL(id obj) {
         [self validateSdkVersionHeaderFieldForRequest:obj];
         return @YES;
     }];
@@ -1972,15 +2012,15 @@ NSString* kDefaultReadKey = @"rk";
     // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
     id urlSessionMock = client.network.urlSession;
 
-    KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count"
+    KIOQuery* countQuery = [[KIOQuery alloc] initWithQuery:@"count"
                                    andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
-    KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique"
+    KIOQuery* averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique"
                                      andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [client runMultiAnalysisWithQueries:@[countQuery, averageQuery]
-                      completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+                      completionHandler:^(NSData* queryResponseData, NSURLResponse* response, NSError* error) {
         // Check for the sdk version header
         [urlSessionMock verify];
 
