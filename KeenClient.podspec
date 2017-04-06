@@ -10,7 +10,8 @@ Pod::Spec.new do |spec|
     'Daniel Kador'    => 'dan@keen.io',
     'Terry Horner'    => 'terry@keen.io',
     'Claire Young'    => 'claire@keen.io',
-    'Heitor Sergent'  => 'heitor@keen.io'
+    'Heitor Sergent'  => 'heitor@keen.io',
+    'Brian Baumhover' => 'b.baumhover@gmail.com'
   }
 
   spec.summary      = 'Keen iOS client library.'
