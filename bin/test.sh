@@ -16,6 +16,13 @@ xcodebuild \
 	clean build | bundle exec xcpretty --color
 
 xcodebuild \
+	-scheme KeenClientFramework \
+	-sdk iphonesimulator \
+	-destination 'platform=iOS Simulator,name=iPhone 6,OS=9.2' \
+  ONLY_ACTIVE_ARCH=NO \
+	clean build | bundle exec xcpretty --color
+
+xcodebuild \
 	-scheme KeenClient \
 	-sdk iphonesimulator \
 	-destination 'platform=iOS Simulator,name=iPhone 6,OS=9.2' \
