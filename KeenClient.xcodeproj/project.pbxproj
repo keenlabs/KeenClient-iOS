@@ -82,10 +82,12 @@
 		480FEB741E846F7500641112 /* KIOUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 480FEB701E846F7500641112 /* KIOUtil.m */; };
 		480FEB751E846F7500641112 /* KIOUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 480FEB701E846F7500641112 /* KIOUtil.m */; };
 		480FEB761E846F7500641112 /* KIOUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 480FEB701E846F7500641112 /* KIOUtil.m */; };
-		482CB31D1E552F5300FCFACF /* corrupt.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 482CB31C1E552F5300FCFACF /* corrupt.sqlite */; };
 		481A9B7C1E5690950094B985 /* KeenLogSinkNSLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 481A9B7A1E5690950094B985 /* KeenLogSinkNSLog.h */; };
 		481A9B7D1E5690950094B985 /* KeenLogSinkNSLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 481A9B7B1E5690950094B985 /* KeenLogSinkNSLog.m */; };
 		481A9B7E1E5691270094B985 /* KeenLogSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 481A9B711E5687EA0094B985 /* KeenLogSink.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		482CB31D1E552F5300FCFACF /* corrupt.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 482CB31C1E552F5300FCFACF /* corrupt.sqlite */; };
+		48472CA51E9C526400DB3B41 /* KeenLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 48583E061E58CDE2002CFD99 /* KeenLogger.m */; };
+		48472CA91E9C52D700DB3B41 /* KeenLogSinkNSLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 481A9B7B1E5690950094B985 /* KeenLogSinkNSLog.m */; };
 		48583E071E58CDE2002CFD99 /* KeenLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 48583E051E58CDE2002CFD99 /* KeenLogger.h */; };
 		48583E081E58CDE2002CFD99 /* KeenLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 48583E061E58CDE2002CFD99 /* KeenLogger.m */; };
 		48583E0F1E5904FD002CFD99 /* KeenLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 48583E0E1E5904FD002CFD99 /* KeenLoggerTests.m */; };
@@ -207,10 +209,10 @@
 		3EE9A7301C59873F00B7B2D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		480FEB6F1E846F7500641112 /* KIOUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOUtil.h; sourceTree = "<group>"; };
 		480FEB701E846F7500641112 /* KIOUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOUtil.m; sourceTree = "<group>"; };
-		482CB31C1E552F5300FCFACF /* corrupt.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = corrupt.sqlite; sourceTree = "<group>"; };
 		481A9B711E5687EA0094B985 /* KeenLogSink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenLogSink.h; sourceTree = "<group>"; };
 		481A9B7A1E5690950094B985 /* KeenLogSinkNSLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenLogSinkNSLog.h; sourceTree = "<group>"; };
 		481A9B7B1E5690950094B985 /* KeenLogSinkNSLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenLogSinkNSLog.m; sourceTree = "<group>"; };
+		482CB31C1E552F5300FCFACF /* corrupt.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = corrupt.sqlite; sourceTree = "<group>"; };
 		48583E051E58CDE2002CFD99 /* KeenLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenLogger.h; sourceTree = "<group>"; };
 		48583E061E58CDE2002CFD99 /* KeenLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenLogger.m; sourceTree = "<group>"; };
 		48583E0D1E5904FD002CFD99 /* KeenLoggerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenLoggerTests.h; sourceTree = "<group>"; };
@@ -805,6 +807,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48472CA91E9C52D700DB3B41 /* KeenLogSinkNSLog.m in Sources */,
+				48472CA51E9C526400DB3B41 /* KeenLogger.m in Sources */,
 				48AC67E31E8348BA00E9C0A9 /* KIOUploader.m in Sources */,
 				48AC67DB1E833C2D00E9C0A9 /* KIONetwork.m in Sources */,
 				3EE9A7371C5988D200B7B2D9 /* KIOReachability.m in Sources */,
