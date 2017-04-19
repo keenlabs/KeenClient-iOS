@@ -3,13 +3,23 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
-## [Unreleased] - Unreleased
+## [3.6.0] - 2017-04-05
 ### Added
 - Extensibility hooks for custom logging implementations.
 
+### Changed
+- Updated Travis CI image to Xcode 8.2
+- Enabled bundler gem caching for faster CI builds
+- Added example apps to CI build
+
 ### Fixed
-- Fixed bug where KIODBStore would close and reopen db when performing any query, which could contribute to experiencing issue #183 more often.
+- Fixed bug where KIODBStore would close and reopen DB when performing any query, which could contribute to experiencing issue #183 more often.
+- Fixed a similar issue where KIODBStore would close and reopen the DB when attempting to get a query that wasn't in the DB, also leading to more observations of #183.
 - Fixed unit test setup issues leading to non-deterministic test failures.
+- Fixed unit test issues where async tests weren't waiting for completion of async operations.
+- Fixed issue #156, which could lead to duplicate event uploads.
+- Fixed Travis CI issue where test.sh wouldn't correctly report a build failure.
+- Fixed build break in example Obj-C app
 
 ## [3.5.7] - 2017-03-03
 ### Changed

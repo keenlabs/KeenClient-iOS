@@ -385,7 +385,8 @@ NS_SWIFT_NAME(addLogSink(_:));
 /**
  Remove a log sink
  */
-+ (void)removeLogSink:(id<KeenLogSink>)sink;
++ (void)removeLogSink:(id<KeenLogSink>)sink
+NS_SWIFT_NAME(removeLogSink(_:));
 
 /**
  Set the verbosity of logging that will be sent to the sinks.
