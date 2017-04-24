@@ -969,7 +969,7 @@
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/**";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Library",
@@ -994,7 +994,7 @@
 				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/KeenClient/KeenClient-Prefix.pch";
 				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/**";
 				INFOPLIST_FILE = "KeenClientTests/KeenClientTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/Library",
