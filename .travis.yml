@@ -7,9 +7,6 @@ xcode_sdk: iphonesimulator10.3
 before_install:
   - gem install bundler
   - rvm use 2.3.0
-  - brew update
-  - brew outdated xctool || brew upgrade xctool
 after_success:
-  - bundle exec slather coverage -s --scheme KeenClient KeenClient.xcodeproj
   - bundle exec slather
 script: ./bin/test.sh
