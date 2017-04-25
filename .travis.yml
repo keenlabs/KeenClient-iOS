@@ -3,7 +3,7 @@ cache: bundler
 osx_image: xcode8.3
 xcode_project: KeenClient.xcodeproj
 xcode_scheme: KeenClient
-xcode_sdk: iphonesimulator9.2
+xcode_sdk: iphonesimulator10.3
 before_install:
   - gem install bundler
   - rvm use 2.3.0
