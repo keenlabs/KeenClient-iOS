@@ -1,12 +1,12 @@
 language: objective-c
 cache: bundler
-osx_image: xcode8.2
+osx_image: xcode8.3
 xcode_project: KeenClient.xcodeproj
 xcode_scheme: KeenClient
 xcode_sdk: iphonesimulator9.2
 before_install:
   - gem install bundler
-  - rvm use 2.2.1 --install
+  - rvm use 2.3.0
   - brew update
   - brew outdated xctool || brew upgrade xctool
 after_success:
