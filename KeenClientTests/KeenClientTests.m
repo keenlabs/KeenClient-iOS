@@ -583,7 +583,7 @@ NSString* kDefaultReadKey = @"rk";
 
 -(void)testUploadWithNoEvents {
     XCTestExpectation* uploadFinishedBlockCalled = [self expectationWithDescription:@"Upload should finish."];
-    
+
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK];
 
     [mock uploadWithFinishedBlock:^{
@@ -1492,7 +1492,7 @@ NSString* kDefaultReadKey = @"rk";
     XCTestExpectation* uploadFinishedBlockCalled1 = [self expectationWithDescription:@"Upload 1 should run to completion."];
     XCTestExpectation* uploadFinishedBlockCalled2 = [self expectationWithDescription:@"Upload 2 should run to completion."];
     XCTestExpectation* uploadFinishedBlockCalled3 = [self expectationWithDescription:@"Upload 3 should run to completion."];
-    
+
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
@@ -1505,7 +1505,7 @@ NSString* kDefaultReadKey = @"rk";
     [client uploadWithFinishedBlock:^ {
         [uploadFinishedBlockCalled3 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:nil];
 }
 
@@ -1526,7 +1526,7 @@ NSString* kDefaultReadKey = @"rk";
     [client uploadWithFinishedBlock:^ {
         [uploadFinishedBlockCalled3 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:nil];
 }
 
@@ -1629,7 +1629,7 @@ NSString* kDefaultReadKey = @"rk";
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{}];
 
-    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [mock runAsyncQuery:query withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
 
@@ -1656,7 +1656,7 @@ NSString* kDefaultReadKey = @"rk";
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
-    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [mock runAsyncQuery:query withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
 
@@ -1684,7 +1684,7 @@ NSString* kDefaultReadKey = @"rk";
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection",
                                                                                          @"group_by": @"key"}];
 
-    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [mock runAsyncQuery:query withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
 
@@ -1715,7 +1715,7 @@ NSString* kDefaultReadKey = @"rk";
                                                        @"interval": @"daily",
                                                        @"timeframe": @"last_1_days"}];
 
-    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [mock runAsyncQuery:query withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
 
@@ -1742,7 +1742,7 @@ NSString* kDefaultReadKey = @"rk";
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
-    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [mock runAsyncQuery:query withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
 
@@ -1769,7 +1769,7 @@ NSString* kDefaultReadKey = @"rk";
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
 
-    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [mock runAsyncQuery:query withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
 
@@ -1798,7 +1798,8 @@ NSString* kDefaultReadKey = @"rk";
 
     KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
 
-    [mock runMultiAnalysisWithQueries:@[countQuery, averageQuery] completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [mock runAsyncMultiAnalysisWithQueries:@[countQuery, averageQuery]
+                            withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
 
@@ -1830,7 +1831,7 @@ NSString* kDefaultReadKey = @"rk";
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up", @"actor_property": @"user.id"},
                                                                                                       @{@"event_collection": @"user_completed_profile", @"actor_property": @"user.id"}]}];
 
-    [mock runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [mock runAsyncQuery:query withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         KCLogInfo(@"error: %@", error);
         KCLogInfo(@"response: %@", response);
 
@@ -1988,7 +1989,7 @@ NSString* kDefaultReadKey = @"rk";
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [client runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+    [client runAsyncQuery:query withCompletion:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
         // Check for the sdk version header
         [urlSessionMock verify];
 
@@ -2019,8 +2020,8 @@ NSString* kDefaultReadKey = @"rk";
                                      andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
 
     XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [client runMultiAnalysisWithQueries:@[countQuery, averageQuery]
-                      completionHandler:^(NSData* queryResponseData, NSURLResponse* response, NSError* error) {
+    [client runAsyncMultiAnalysisWithQueries:@[countQuery, averageQuery]
+                              withCompletion:^(NSData* queryResponseData, NSURLResponse* response, NSError* error) {
         // Check for the sdk version header
         [urlSessionMock verify];
 
