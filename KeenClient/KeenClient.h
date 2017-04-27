@@ -306,7 +306,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
  @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(AnalysisCompletionBlock)block
-DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runQuery:withCompletion:");
+DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncQuery:completionHandler:");
 
 /**
  Runs an asynchronous query.
@@ -316,7 +316,7 @@ DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runQuery:withCompletion:");
  @param keenQuery The KIOQuery object containing the information about the query.
  @param completion The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
-- (void)runAsyncQuery:(KIOQuery *)keenQuery withCompletion:(AnalysisCompletionBlock)completion;
+- (void)runAsyncQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
  Runs an asynchronous multi-analysis query.
@@ -327,7 +327,7 @@ DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runQuery:withCompletion:");
  @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(AnalysisCompletionBlock)block
-DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncMultiAnalysisWithQueries:withCompletion:");
+DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncMultiAnalysisWithQueries:completionHandler:");
 
 /**
  Runs an asynchronous multi-analysis query.
@@ -337,7 +337,7 @@ DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncMultiAnalysisWithQuerie
  @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
  @param completion The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
-- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries withCompletion:(AnalysisCompletionBlock)completion;
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
  Runs a synchronous query.
@@ -349,7 +349,7 @@ DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncMultiAnalysisWithQuerie
  @param error The NSError (if any) for the query.
  */
 - (void)runQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler
-DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:withCompletion: instead.");
+DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
 
 /**
  Runs a synchronous multi-analysis query.
@@ -362,7 +362,7 @@ DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:withCompletion: instead.");
  */
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
                   completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler
-                  DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:withCompletion: instead.");
+                  DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:completionHandler: instead.");
 
 /**
  Call this to indiscriminately delete all queries.

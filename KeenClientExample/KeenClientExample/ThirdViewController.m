@@ -71,7 +71,7 @@
     // Async querying
     KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"collection", @"timeframe": @"this_7_days"}];
 
-    [[KeenClient sharedClient] runAsyncQuery:countQuery withCompletion:countQueryCompleted];
+    [[KeenClient sharedClient] runAsyncQuery:countQuery completionHandler:countQueryCompleted];
 
     // Multi-analysis querying example
     /*

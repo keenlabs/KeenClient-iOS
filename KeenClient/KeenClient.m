@@ -641,10 +641,10 @@ static BOOL geoLocationRequestEnabled = YES;
 # pragma mark Async methods
 
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(AnalysisCompletionBlock)block {
-    [self runAsyncQuery:keenQuery withCompletion:block];
+    [self runAsyncQuery:keenQuery completionHandler:block];
 }
 
-- (void)runAsyncQuery:(KIOQuery *)keenQuery withCompletion:(AnalysisCompletionBlock)completion {
+- (void)runAsyncQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler {
     dispatch_async(self.queryQueue, ^{
         [self.network runQuery:keenQuery
                  withProjectID:self.projectID
@@ -653,10 +653,10 @@ static BOOL geoLocationRequestEnabled = YES;
             // we're done querying, call the main queue and execute the block
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)
-                if (completion) {
+                if (completionHandler) {
                     KCLogVerbose(@"Running user-specified block.");
                     @try {
-                        completion(data, response, error);
+                        completionHandler(data, response, error);
                     } @finally {
                         // do nothing
                     }
@@ -667,10 +667,10 @@ static BOOL geoLocationRequestEnabled = YES;
 }
 
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(AnalysisCompletionBlock)block {
-    [self runAsyncMultiAnalysisWithQueries:keenQueries withCompletion:block];
+    [self runAsyncMultiAnalysisWithQueries:keenQueries completionHandler:block];
 }
 
-- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries withCompletion:(AnalysisCompletionBlock)completion {
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler {
     dispatch_async(self.queryQueue, ^{
         [self.network runMultiAnalysisWithQueries:keenQueries
                                     withProjectID:self.projectID
@@ -679,10 +679,10 @@ static BOOL geoLocationRequestEnabled = YES;
             // we're done querying, call the main queue and execute the block
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)
-                if (completion) {
+                if (completionHandler) {
                     KCLogVerbose(@"Running user-specified block.");
                     @try {
-                        completion(data, response, error);
+                        completionHandler(data, response, error);
                     } @finally {
                         // do nothing
                     }

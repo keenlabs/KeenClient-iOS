@@ -45,7 +45,7 @@ import UIKit
 
         // Async querying
         let countQuery: KIOQuery = KIOQuery(query:"count", andPropertiesDictionary:["event_collection": "tab_views", "timeframe": "this_7_days"]);
-        KeenClient.shared().runAsyncQuery(countQuery, withCompletion: countQueryCompleted);
+        KeenClient.shared().runAsyncQuery(countQuery, completionHandler: countQueryCompleted);
 
         // Multi-analysis querying example
         /*
