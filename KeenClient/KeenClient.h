@@ -306,7 +306,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
  @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
 - (void)runAsyncQuery:(KIOQuery *)keenQuery block:(AnalysisCompletionBlock)block
-DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncQuery:completionHandler:");
+    DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncQuery:completionHandler:");
 
 /**
  Runs an asynchronous query.
@@ -327,7 +327,7 @@ DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncQuery:completionHandler
  @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(AnalysisCompletionBlock)block
-DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncMultiAnalysisWithQueries:completionHandler:");
+    DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncMultiAnalysisWithQueries:completionHandler:");
 
 /**
  Runs an asynchronous multi-analysis query.
@@ -349,7 +349,7 @@ DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncMultiAnalysisWithQuerie
  @param error The NSError (if any) for the query.
  */
 - (void)runQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler
-DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
+    DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
 
 /**
  Runs a synchronous multi-analysis query.
@@ -360,9 +360,8 @@ DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
  @param returningResponse The NSURLResponse for the query.
  @param error The NSError (if any) for the query.
  */
-- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
-                  completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler
-                  DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:completionHandler: instead.");
+- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler
+    DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:completionHandler: instead.");
 
 /**
  Call this to indiscriminately delete all queries.
