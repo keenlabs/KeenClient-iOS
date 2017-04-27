@@ -38,5 +38,12 @@ before_install:
 
 script: ./bin/test.sh
 
-after_success:
-  - bundle exec slather
+after_success: |
+  case "$XCODEBUILD_ACTION" in
+    test)
+      bundle exec slather
+      ;;
+    *)
+      echo "Not slathering."
+      ;;
+  esac
