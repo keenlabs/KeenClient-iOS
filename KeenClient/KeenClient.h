@@ -314,7 +314,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
  See detailed documentation here: https://keen.io/docs/api/#analyses
 
  @param keenQuery The KIOQuery object containing the information about the query.
- @param completion The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
 - (void)runAsyncQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler;
 
@@ -335,7 +335,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
  See detailed documentation here: https://keen.io/docs/api/#multi-analysis
 
  @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
- @param completion The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler;
 
@@ -345,9 +345,8 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
  This method is only used for testing.
 
  @param keenQuery The KIOQuery object containing the information about the query.
- @param returningResponse The NSURLResponse for the query.
- @param error The NSError (if any) for the query.
- */
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+  */
 - (void)runQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
 
@@ -357,9 +356,8 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
  This method is only used for testing.
 
  @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
- @param returningResponse The NSURLResponse for the query.
- @param error The NSError (if any) for the query.
- */
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+  */
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:completionHandler: instead.");
 
