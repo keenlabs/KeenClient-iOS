@@ -91,6 +91,16 @@
 		48583E071E58CDE2002CFD99 /* KeenLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 48583E051E58CDE2002CFD99 /* KeenLogger.h */; };
 		48583E081E58CDE2002CFD99 /* KeenLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 48583E061E58CDE2002CFD99 /* KeenLogger.m */; };
 		48583E0F1E5904FD002CFD99 /* KeenLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 48583E0E1E5904FD002CFD99 /* KeenLoggerTests.m */; };
+		486B59521EB24E6900D5251D /* KeenClientConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 486B59501EB24E6900D5251D /* KeenClientConfig.h */; };
+		486B59531EB24E6900D5251D /* KeenClientConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 486B59501EB24E6900D5251D /* KeenClientConfig.h */; };
+		486B59541EB24E6900D5251D /* KeenClientConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 486B59501EB24E6900D5251D /* KeenClientConfig.h */; };
+		486B59551EB24E6900D5251D /* KeenClientConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 486B59511EB24E6900D5251D /* KeenClientConfig.m */; };
+		486B59561EB24E6900D5251D /* KeenClientConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 486B59511EB24E6900D5251D /* KeenClientConfig.m */; };
+		486B59581EB24E6900D5251D /* KeenClientConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 486B59511EB24E6900D5251D /* KeenClientConfig.m */; };
+		486B596B1EB29AC500D5251D /* CachedQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 486B596A1EB29AC500D5251D /* CachedQueryTests.m */; };
+		486B596E1EB29B0A00D5251D /* KeenTestCaseBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 486B596D1EB29B0A00D5251D /* KeenTestCaseBase.m */; };
+		486B59741EB29D2B00D5251D /* KeenTestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 486B59731EB29D2B00D5251D /* KeenTestUtils.m */; };
+		486B59761EB29DC500D5251D /* KeenTestConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 486B59751EB29DC500D5251D /* KeenTestConstants.m */; };
 		48AC67CB1E83364100E9C0A9 /* KIOFileStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 48AC67C91E83364100E9C0A9 /* KIOFileStore.h */; };
 		48AC67CC1E83364100E9C0A9 /* KIOFileStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 48AC67C91E83364100E9C0A9 /* KIOFileStore.h */; };
 		48AC67CD1E83364100E9C0A9 /* KIOFileStore.h in Headers */ = {isa = PBXBuildFile; fileRef = 48AC67C91E83364100E9C0A9 /* KIOFileStore.h */; };
@@ -217,6 +227,19 @@
 		48583E061E58CDE2002CFD99 /* KeenLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenLogger.m; sourceTree = "<group>"; };
 		48583E0D1E5904FD002CFD99 /* KeenLoggerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenLoggerTests.h; sourceTree = "<group>"; };
 		48583E0E1E5904FD002CFD99 /* KeenLoggerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenLoggerTests.m; sourceTree = "<group>"; };
+		486B59501EB24E6900D5251D /* KeenClientConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenClientConfig.h; sourceTree = "<group>"; };
+		486B59511EB24E6900D5251D /* KeenClientConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenClientConfig.m; sourceTree = "<group>"; };
+		486B59691EB29AC500D5251D /* CachedQueryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CachedQueryTests.h; path = KeenClientTests/CachedQueryTests.h; sourceTree = SOURCE_ROOT; };
+		486B596A1EB29AC500D5251D /* CachedQueryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CachedQueryTests.m; path = KeenClientTests/CachedQueryTests.m; sourceTree = SOURCE_ROOT; };
+		486B596C1EB29B0A00D5251D /* KeenTestCaseBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenTestCaseBase.h; sourceTree = "<group>"; };
+		486B596D1EB29B0A00D5251D /* KeenTestCaseBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenTestCaseBase.m; sourceTree = "<group>"; };
+		486B596F1EB29B7100D5251D /* KeenClientTestable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenClientTestable.h; sourceTree = "<group>"; };
+		486B59701EB29C2500D5251D /* KIONetworkTestable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIONetworkTestable.h; sourceTree = "<group>"; };
+		486B59711EB29C5200D5251D /* KIOUploaderTestable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KIOUploaderTestable.h; sourceTree = "<group>"; };
+		486B59721EB29D2B00D5251D /* KeenTestUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenTestUtils.h; sourceTree = "<group>"; };
+		486B59731EB29D2B00D5251D /* KeenTestUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenTestUtils.m; sourceTree = "<group>"; };
+		486B59751EB29DC500D5251D /* KeenTestConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenTestConstants.m; sourceTree = "<group>"; };
+		486B59771EB29DD400D5251D /* KeenTestConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenTestConstants.h; sourceTree = "<group>"; };
 		48AC67C91E83364100E9C0A9 /* KIOFileStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOFileStore.h; sourceTree = "<group>"; };
 		48AC67CA1E83364100E9C0A9 /* KIOFileStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOFileStore.m; sourceTree = "<group>"; };
 		48AC67D41E833C2D00E9C0A9 /* KIONetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIONetwork.h; sourceTree = "<group>"; };
@@ -385,6 +408,10 @@
 				48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */,
 				480FEB6F1E846F7500641112 /* KIOUtil.h */,
 				480FEB701E846F7500641112 /* KIOUtil.m */,
+				486B59501EB24E6900D5251D /* KeenClientConfig.h */,
+				486B59511EB24E6900D5251D /* KeenClientConfig.m */,
+				486B59691EB29AC500D5251D /* CachedQueryTests.h */,
+				486B596A1EB29AC500D5251D /* CachedQueryTests.m */,
 			);
 			path = KeenClient;
 			sourceTree = "<group>";
@@ -400,6 +427,8 @@
 		017EE13714E30C96000F3868 /* KeenClientTests */ = {
 			isa = PBXGroup;
 			children = (
+				486B596C1EB29B0A00D5251D /* KeenTestCaseBase.h */,
+				486B596D1EB29B0A00D5251D /* KeenTestCaseBase.m */,
 				482CB31C1E552F5300FCFACF /* corrupt.sqlite */,
 				017EE13D14E30C96000F3868 /* KeenClientTests.h */,
 				017EE13E14E30C96000F3868 /* KeenClientTests.m */,
@@ -410,6 +439,13 @@
 				3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */,
 				48583E0D1E5904FD002CFD99 /* KeenLoggerTests.h */,
 				48583E0E1E5904FD002CFD99 /* KeenLoggerTests.m */,
+				486B596F1EB29B7100D5251D /* KeenClientTestable.h */,
+				486B59701EB29C2500D5251D /* KIONetworkTestable.h */,
+				486B59711EB29C5200D5251D /* KIOUploaderTestable.h */,
+				486B59721EB29D2B00D5251D /* KeenTestUtils.h */,
+				486B59731EB29D2B00D5251D /* KeenTestUtils.m */,
+				486B59751EB29DC500D5251D /* KeenTestConstants.m */,
+				486B59771EB29DD400D5251D /* KeenTestConstants.h */,
 			);
 			path = KeenClientTests;
 			sourceTree = "<group>";
@@ -518,6 +554,7 @@
 				48AC67D61E833C2D00E9C0A9 /* KIONetwork.h in Headers */,
 				A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */,
 				F4D3B6021A0D8EB4000825FE /* KIOReachability.h in Headers */,
+				486B59521EB24E6900D5251D /* KeenClientConfig.h in Headers */,
 				3E63D9F01AE7356C00E57A17 /* KIOQuery.h in Headers */,
 				481A9B7E1E5691270094B985 /* KeenLogSink.h in Headers */,
 				DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */,
@@ -533,6 +570,7 @@
 			files = (
 				480FEB721E846F7500641112 /* KIOUtil.h in Headers */,
 				48AC67CC1E83364100E9C0A9 /* KIOFileStore.h in Headers */,
+				486B59531EB24E6900D5251D /* KeenClientConfig.h in Headers */,
 				1296399019C10D0000B2B653 /* KeenClient.h in Headers */,
 				48AC67DF1E8348BA00E9C0A9 /* KIOUploader.h in Headers */,
 				1296399119C10D0000B2B653 /* KeenProperties.h in Headers */,
@@ -558,6 +596,7 @@
 				3EE9A7431C5988F100B7B2D9 /* KeenClient.h in Headers */,
 				48AC67CD1E83364100E9C0A9 /* KIOFileStore.h in Headers */,
 				3EE9A7441C5988F100B7B2D9 /* KeenProperties.h in Headers */,
+				486B59541EB24E6900D5251D /* KeenClientConfig.h in Headers */,
 				48AC67E01E8348BA00E9C0A9 /* KIOUploader.h in Headers */,
 				3EE9A7461C5988F100B7B2D9 /* KIODBStore.h in Headers */,
 				3EE9A7471C5988F100B7B2D9 /* KIOQuery.h in Headers */,
@@ -758,6 +797,7 @@
 			files = (
 				481A9B7D1E5690950094B985 /* KeenLogSinkNSLog.m in Sources */,
 				48AC67E11E8348BA00E9C0A9 /* KIOUploader.m in Sources */,
+				486B59551EB24E6900D5251D /* KeenClientConfig.m in Sources */,
 				48AC67D91E833C2D00E9C0A9 /* KIONetwork.m in Sources */,
 				3E63D9F11AE7356C00E57A17 /* KIOQuery.m in Sources */,
 				017EE12814E30C96000F3868 /* KeenClient.m in Sources */,
@@ -778,9 +818,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				CA6410E218E39F3A00E53E3C /* KIODBStoreTests.m in Sources */,
+				486B596E1EB29B0A00D5251D /* KeenTestCaseBase.m in Sources */,
 				3E63D9F71AE7425000E57A17 /* KIOQueryTests.m in Sources */,
+				486B59741EB29D2B00D5251D /* KeenTestUtils.m in Sources */,
 				48583E0F1E5904FD002CFD99 /* KeenLoggerTests.m in Sources */,
 				017EE13F14E30C96000F3868 /* KeenClientTests.m in Sources */,
+				486B59761EB29DC500D5251D /* KeenTestConstants.m in Sources */,
+				486B596B1EB29AC500D5251D /* CachedQueryTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -799,6 +843,7 @@
 				48AC67CF1E83364100E9C0A9 /* KIOFileStore.m in Sources */,
 				480FEB751E846F7500641112 /* KIOUtil.m in Sources */,
 				F4D3B60A1A0D8EB4000825FE /* KIOReachability.m in Sources */,
+				486B59561EB24E6900D5251D /* KeenClientConfig.m in Sources */,
 				1296399719C10D2C00B2B653 /* KIODBStore.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -809,6 +854,7 @@
 			files = (
 				48472CA91E9C52D700DB3B41 /* KeenLogSinkNSLog.m in Sources */,
 				48472CA51E9C526400DB3B41 /* KeenLogger.m in Sources */,
+				486B59581EB24E6900D5251D /* KeenClientConfig.m in Sources */,
 				48AC67E31E8348BA00E9C0A9 /* KIOUploader.m in Sources */,
 				48AC67DB1E833C2D00E9C0A9 /* KIONetwork.m in Sources */,
 				3EE9A7371C5988D200B7B2D9 /* KIOReachability.m in Sources */,

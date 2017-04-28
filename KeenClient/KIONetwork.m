@@ -14,6 +14,13 @@
 #import "HTTPCodes.h"
 
 
+typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
+    KeenHTTPMethodUnknown,
+    KeenHTTPMethodPost,
+    KeenHTTPMethodGet
+};
+
+
 @interface KIONetwork ()
 
 /**
@@ -30,6 +37,8 @@
 @property (nonatomic, readwrite) NSURLSession* urlSession;
 
 @property (nonatomic) KIODBStore* store;
+
+- (NSString*)getProjectURL:(NSString*)projectID;
 
 @end
 
@@ -64,40 +73,63 @@
 
 - (instancetype)initWithURLSession:(NSURLSession*)urlSession
                           andStore:(KIODBStore*)store {
+
     self = [super init];
+
     if (nil != self) {
         self.maxQueryAttempts = 10;
         self.queryTTL = 3600;
         self.urlSession = urlSession;
         self.store = store;
     }
+
     return self;
 }
 
 - (NSMutableURLRequest*)createRequestWithUrl:(NSString*)urlString
+                                   andMethod:(KeenHTTPMethod)eHttpMethod
                                      andBody:(NSData*)body
                                       andKey:(NSString*)key {
+
     NSURL* url = [NSURL URLWithString:urlString];
     NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:url
                                                            cachePolicy:NSURLRequestUseProtocolCachePolicy
                                                        timeoutInterval:30.0f];
-    [request setHTTPMethod:@"POST"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    NSString* httpMethod;
+    switch (eHttpMethod) {
+        case KeenHTTPMethodGet: {
+            httpMethod = @"GET";
+            break;
+        }
+        case KeenHTTPMethodPost: {
+            httpMethod = @"POST";
+            [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+            [request setValue:[NSString stringWithFormat:@"%lud",
+                               (unsigned long)[body length]] forHTTPHeaderField:@"Content-Length"];
+            [request setHTTPBody:body];
+            break;
+        }
+        default: {
+            KCLogError(@"Inavlid eHttpMethod: %@", [NSNumber numberWithInt:eHttpMethod]);
+            return nil;
+        }
+    }
+    [request setHTTPMethod:httpMethod];
     [request setValue:key forHTTPHeaderField:@"Authorization"];
-    [request setValue:[NSString stringWithFormat:@"%lud",(unsigned long) [body length]] forHTTPHeaderField:@"Content-Length"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [request setValue:kKeenSdkVersionWithPlatform forHTTPHeaderField:kKeenSdkVersionHeader];
-    [request setHTTPBody:body];
     return request;
 }
 
 - (void)executeRequest:(NSURLRequest*)request
-     completionHandler:(void (^)(NSData* data, NSURLResponse* response, NSError* error))completionHandler {
+     completionHandler:(AnalysisCompletionBlock)completionHandler {
+
     NSURLSession* session = self.urlSession;
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
 - (BOOL)hasQueryReachedMaxAttempts:(KIOQuery*)keenQuery withProjectID:(NSString*)projectID {
+
     return [self.store hasQueryWithMaxAttempts:[keenQuery convertQueryToData]
                                      queryType:keenQuery.queryType
                                     collection:[keenQuery.propertiesDictionary objectForKey:@"event_collection"]
@@ -106,41 +138,51 @@
                                       queryTTL:self.queryTTL];
 }
 
+- (NSString*)getProjectURL:(NSString*)projectID {
+    return [NSString stringWithFormat:@"%@/%@/projects/%@",
+            kKeenServerAddress, kKeenApiVersion, projectID];
+}
+
+
 # pragma mark Sync methods
 
 - (void)sendEvents:(NSData *)data
-     withProjectID:(NSString*)projectID
-      withWriteKey:(NSString*)writeKey
- completionHandler:(void (^)(NSData* data, NSURLResponse* response, NSError* error))completionHandler {
-    NSString* urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/events",
-                           kKeenServerAddress, kKeenApiVersion, projectID];
+            config:(KeenClientConfig*)config
+ completionHandler:(AnalysisCompletionBlock)completionHandler {
+
+    NSString* urlString = [NSString stringWithFormat:@"%@/events",
+                           [self getProjectURL:config.projectID]];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest* request = [self createRequestWithUrl:urlString
+                                                    andMethod:KeenHTTPMethodPost
                                                       andBody:data
-                                                       andKey:writeKey];
+                                                       andKey:config.writeKey];
 
     [self executeRequest:request
        completionHandler:completionHandler];
 }
 
 
-- (void)runQuery:(KIOQuery*)keenQuery withProjectID:(NSString*)projectID
-                                        withReadKey:(NSString*)readKey
-                                  completionHandler:(void (^)(NSData* data, NSURLResponse* response, NSError* error))completionHandler {
-    BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery withProjectID:projectID];
+- (void)runQuery:(KIOQuery*)keenQuery config:(KeenClientConfig*)config
+                           completionHandler:(AnalysisCompletionBlock)completionHandler {
+
+    BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery
+                                                      withProjectID:config.projectID];
 
     if (hasQueryWithMaxAttempts) {
         KCLogWarn(@"Not running query because it failed over %d times", self.maxQueryAttempts);
     } else {
-        NSString* urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                               kKeenServerAddress, kKeenApiVersion, projectID, keenQuery.queryType];
+        NSString* urlString = [NSString stringWithFormat:@"%@/queries/%@",
+                               [self getProjectURL:config.projectID], keenQuery.queryType];
         KCLogVerbose(@"Sending request to: %@", urlString);
 
         NSMutableURLRequest* request = [self createRequestWithUrl:urlString
+                                                        andMethod:KeenHTTPMethodPost
                                                           andBody:[keenQuery convertQueryToData]
-                                                           andKey:readKey];
-
+                                                           andKey:config.readKey];
+        // Capture config.projectID in case config changes someday
+        NSString* projectID = config.projectID;
         [self executeRequest:request
            completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
             [self handleQueryAPIResponse:response
@@ -183,41 +225,10 @@
 
 
 
-- (void)runMultiAnalysisWithQueries:(NSArray*)keenQueries
-                      withProjectID:(NSString*)projectID
-                        withReadKey:(NSString*)readKey
-                  completionHandler:(void (^)(NSData* data, NSURLResponse* response, NSError* error))completionHandler {
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@/projects/%@/queries/%@",
-                           kKeenServerAddress, kKeenApiVersion, projectID, @"multi_analysis"];
-    KCLogVerbose(@"Sending request to: %@", urlString);
-
-    NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
-    if (multiAnalysisDictionary == nil) {
-        return;
-    }
-
-    //convert the resulting dictionary to data and set it as HTTPBody
-    NSError *dictionarySerializationError = nil;
-
-    NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
-
-    if(dictionarySerializationError != nil) {
-        KCLogError(@"error with dictionary serialization");
-        return;
-    }
-
-    NSMutableURLRequest* request = [self createRequestWithUrl:urlString
-                                                      andBody:multiAnalysisData
-                                                       andKey:readKey];
-
-    [self executeRequest:request
-       completionHandler:completionHandler];
-}
-
-
 # pragma mark Helper Methods
 
 - (NSDictionary*)prepareQueriesDictionaryForMultiAnalysis:(NSArray*)keenQueries {
+
     NSMutableDictionary* multiAnalysisDictionary = [@{@"event_collection": [NSNull null],
                                                       @"filters": [NSNull null],
                                                       @"timeframe": [NSNull null],
@@ -225,6 +236,7 @@
                                                       @"group_by": [NSNull null],
                                                       @"interval": [NSNull null]} mutableCopy];
     NSMutableDictionary* queriesDictionary = [[NSMutableDictionary alloc] init];
+
     for (int i = 0; i < keenQueries.count; i++) {
         if (![keenQueries[i] isKindOfClass:[KIOQuery class]]) {
             KCLogError(@"keenQueries array contain objects that are not of class KIOQuery");
@@ -257,6 +269,60 @@
     [multiAnalysisDictionary setObject:queriesDictionary forKey:@"analyses"];
 
     return [multiAnalysisDictionary copy];
+}
+
+
+- (void)runMultiAnalysisWithQueries:(NSArray*)keenQueries
+                             config:(KeenClientConfig*)config
+                  completionHandler:(AnalysisCompletionBlock)completionHandler {
+
+    NSString* urlString = [NSString stringWithFormat:@"%@/queries/%@",
+                           [self getProjectURL:config.projectID], @"multi_analysis"];
+    KCLogVerbose(@"Sending request to: %@", urlString);
+
+    NSDictionary* multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
+    if (multiAnalysisDictionary == nil) {
+        return;
+    }
+
+    // convert the resulting dictionary to data and set it as HTTPBody
+    NSError* dictionarySerializationError = nil;
+
+    NSData* multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary
+                                                                options:0
+                                                                  error:&dictionarySerializationError];
+
+    if(dictionarySerializationError != nil) {
+        KCLogError(@"error with dictionary serialization");
+        return;
+    }
+
+    NSMutableURLRequest* request = [self createRequestWithUrl:urlString
+                                                    andMethod:KeenHTTPMethodPost
+                                                      andBody:multiAnalysisData
+                                                       andKey:config.readKey];
+
+    [self executeRequest:request
+       completionHandler:completionHandler];
+}
+
+
+// Run a saved/cached query request
+- (void)runAsyncSavedAnalysis:(NSString*)queryName
+                       config:(KeenClientConfig*)config
+            completionHandler:(AnalysisCompletionBlock)completionHandler {
+
+    NSString* urlString = [NSString stringWithFormat:@"%@/queries/saved/%@/result",
+                           [self getProjectURL:config.projectID], queryName];
+    KCLogVerbose(@"Sending request to: %@", urlString);
+
+    NSMutableURLRequest* request = [self createRequestWithUrl:urlString
+                                                    andMethod:KeenHTTPMethodGet
+                                                      andBody:nil
+                                                       andKey:config.readKey];
+
+    [self executeRequest:request
+       completionHandler:completionHandler];
 }
 
 

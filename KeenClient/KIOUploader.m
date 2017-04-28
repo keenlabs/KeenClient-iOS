@@ -9,6 +9,7 @@
 #import "HTTPCodes.h"
 #import "KeenConstants.h"
 #import "KeenClient.h"
+#import "KeenClientConfig.h"
 #import "KIOReachability.h"
 #import "KIODBStore.h"
 #import "KIONetwork.h"
@@ -156,26 +157,27 @@
     return [hostReachability KIOcurrentReachabilityStatus] != NotReachable;
 }
 
-- (void)uploadEventsForProjectID:(NSString*)projectID
-                    withWriteKey:(NSString*)writeKey
-               withFinishedBlock:(void (^)())block {
+
+- (void)uploadEventsForConfig:(KeenClientConfig*)config
+            completionHandler:(void (^)())completionHandler {
+
     dispatch_async(self.uploadQueue, ^{
         if (![self isNetworkConnected]) {
-            [self runUploadFinishedBlock:block];
+            [self runUploadFinishedBlock:completionHandler];
             return;
         }
 
         // Migrate data from old format if anything exists
         // for this project id.
-        [KIOFileStore maybeMigrateDataFromFileStore:projectID];
+        [KIOFileStore maybeMigrateDataFromFileStore:config.projectID];
 
         // get data for the API request we'll make
         NSData *data = nil;
         NSMutableDictionary *eventIDs = nil;
-        [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:projectID];
+        [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:config.projectID];
 
         if ([data length] == 0) {
-            [self runUploadFinishedBlock:block];
+            [self runUploadFinishedBlock:completionHandler];
         } else {
             // loop through events and increment their attempt count
             for (NSString *collectionName in eventIDs) {
@@ -186,26 +188,22 @@
 
             // then make an http request to the keen server.
             [self.network sendEvents:data
-                       withProjectID:projectID
-                        withWriteKey:writeKey
+                              config:config
                    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                 // then parse the http response and deal with it appropriately
                 [self handleEventAPIResponse:response andData:data forEvents:eventIDs];
 
-                [self runUploadFinishedBlock:block];
+                [self runUploadFinishedBlock:completionHandler];
             }];
         }
     });
 }
 
+
 - (void)runUploadFinishedBlock:(void (^)())block {
     if (block) {
         KCLogVerbose(@"Running user-specified block.");
-        @try {
-            block();
-        } @catch(NSException *exception) {
-            KCLogError(@"Error executing user-specified block. \nName: %@\nReason: %@", exception.name, exception.reason);
-        }
+        block();
     }
 }
 

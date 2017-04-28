@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "KeenClientConfig.h"
 
 // Class for handling network operations
 @interface KIONetwork : NSObject
@@ -20,20 +21,22 @@
 
 // Upload events to keen
 - (void)sendEvents:(NSData*)data
-     withProjectID:(NSString*)projectID
-      withWriteKey:(NSString*)writeKey
- completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
+            config:(KeenClientConfig*)config
+ completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 // Run an analysis request
-- (void)runQuery:(KIOQuery*)keenQuery withProjectID:(NSString*)projectID
-     withReadKey:(NSString*)readKey
-completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
+- (void)runQuery:(KIOQuery*)keenQuery config:(KeenClientConfig*)config
+                           completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 // Run a multi-analysis request
 - (void)runMultiAnalysisWithQueries:(NSArray*)keenQueries
-                      withProjectID:(NSString*)projectID
-                        withReadKey:(NSString*)readKey
-                  completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
+                             config:(KeenClientConfig*)config
+                  completionHandler:(AnalysisCompletionBlock)completionHandler;
+
+// Run a saved/cached query request
+- (void)runAsyncSavedAnalysis:(NSString*)queryName
+                       config:(KeenClientConfig*)config
+            completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 
 // The maximum number of times to try a query before stop attempting it.

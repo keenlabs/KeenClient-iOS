@@ -42,4 +42,10 @@
  */
 + (id)convertDate:(id)date;
 
+// Validate a project id
++ (BOOL)validateProjectID:(NSString*)projectID;
+
+// Validate an access key
++ (BOOL)validateKey:(NSString*)key;
+
 @end

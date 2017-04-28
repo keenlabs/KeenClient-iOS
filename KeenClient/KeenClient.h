@@ -340,6 +340,16 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
+ Runs a saved or gets a cached query result.
+
+ See detailed documentation here: https://keen.io/docs/api/#saved-queries
+
+ @param queryName The saved/cached query name.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ */
+- (void)runAsyncSavedAnalysis:(NSString*)queryName completionHandler:(AnalysisCompletionBlock)completionHandler;
+
+/**
  Runs a synchronous query.
 
  This method is only used for testing.

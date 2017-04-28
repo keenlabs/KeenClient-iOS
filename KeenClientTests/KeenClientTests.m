@@ -8,6 +8,7 @@
 
 #import "KeenClientTests.h"
 #import "KeenClient.h"
+#import "KeenClientConfig.h"
 #import <OCMock/OCMock.h>
 #import "KeenConstants.h"
 #import "KeenProperties.h"
@@ -18,118 +19,26 @@
 #import "KIONetwork.h"
 #import "KIOUploader.h"
 
-NSString* kDefaultProjectID = @"id";
-NSString* kDefaultWriteKey = @"wk";
-NSString* kDefaultReadKey = @"rk";
+#import "KeenTestUtils.h"
+#import "KeenTestConstants.h"
+#import "KeenClientTestable.h"
+#import "KIONetworkTestable.h"
+#import "KIOUploaderTestable.h"
 
-@interface KIONetwork (Testable)
-
-- (void)handleQueryAPIResponse:(NSURLResponse*)response
-                       andData:(NSData*)responseData
-                      andQuery:(KIOQuery*)query
-                  andProjectID:(NSString*)projectID;
-
-@end
-
-@interface KIOUploader (Testable)
-
-- (BOOL)isNetworkConnected;
-
-@end
-
-@interface KeenClient (testability)
-
-// The project ID for this particular client.
-@property (nonatomic, strong) NSString *projectID;
-@property (nonatomic, strong) NSString *writeKey;
-@property (nonatomic, strong) NSString *readKey;
-
-@property (nonatomic) KIONetwork* network;
-
-// If we're running tests.
-@property (nonatomic) BOOL isRunningTests;
-
-- (id)initWithProjectID:(NSString *)projectID
-            andWriteKey:(NSString *)writeKey
-             andReadKey:(NSString *)readKey
-             andNetwork:(KIONetwork*)network
-               andStore:(KIODBStore*)store
-            andUploader:(KIOUploader*)uploader;
-
-@end
-
-@interface KeenClientTests ()
-
-@property (nonatomic) NSTimeInterval asyncTimeInterval;
-
-- (NSString *)cacheDirectory;
-- (NSString *)keenDirectory;
-- (NSString *)eventDirectoryForCollection:(NSString *)collection;
-- (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection;
-- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp;
-- (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file;
-@end
 
 @implementation KeenClientTests
 
-- (void)setUp {
-    [super setUp];
-
-    // initialize is called automatically for a class, but
-    // call it again to ensure static global state
-    // is consistently set to defaults for each test
-    // This relies on initialize being idempotent
-    [KeenClient initialize];
-    [KeenClient enableLogging];
-    [KeenClient setLogLevel:KeenLogLevelVerbose];
-
-    // Configure initial state for shared KeenClient instance
-    [[KeenClient sharedClient] setCurrentLocation:nil];
-    [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
-    [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
-    [[KeenClient sharedClient] setReadKey:nil];
-    [[KeenClient sharedClient] setWriteKey:nil];
-    [[KeenClient sharedClient] setProjectID:nil];
-
-    _asyncTimeInterval = 100;
-}
-
-- (void)tearDown {
-    // Tear-down code here.
-    NSLog(@"\n");
-    [[KeenClient sharedClient] clearAllEvents];
-    [[KeenClient sharedClient] clearAllQueries];
-
-    [[KeenClient sharedClient] setWriteKey:nil];
-    [[KeenClient sharedClient] setReadKey:nil];
-    [[KeenClient sharedClient] setCurrentLocation:nil];
-    [[KeenClient sharedClient] setGlobalPropertiesBlock:nil];
-    [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
-    // Clear project key last since it makes sharedClient return nil
-    [[KeenClient sharedClient] setProjectID:nil];
-
-    // delete all collections and their events.
-    NSError *error = nil;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:[self keenDirectory]]) {
-        [fileManager removeItemAtPath:[self keenDirectory] error:&error];
-        if (error) {
-            XCTFail(@"No error should be thrown when cleaning up: %@", [error localizedDescription]);
-        }
-    }
-    [super tearDown];
-}
 
 - (void)testInitWithProjectID{
     KeenClient *client = [[KeenClient alloc] initWithProjectID:@"something" andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
-    XCTAssertEqualObjects(@"something", client.projectID, @"init with a valid project id should work");
-    XCTAssertEqualObjects(kDefaultWriteKey, client.writeKey, @"init with a valid project id should work");
-    XCTAssertEqualObjects(kDefaultReadKey, client.readKey, @"init with a valid project id should work");
+    XCTAssertEqualObjects(@"something", client.config.projectID, @"init with a valid project id should work");
+    XCTAssertEqualObjects(kDefaultWriteKey, client.config.writeKey, @"init with a valid project id should work");
+    XCTAssertEqualObjects(kDefaultReadKey, client.config.readKey, @"init with a valid project id should work");
 
     KeenClient *client2 = [[KeenClient alloc] initWithProjectID:@"another" andWriteKey:@"wk2" andReadKey:@"rk2"];
-    XCTAssertEqualObjects(@"another", client2.projectID, @"init with a valid project id should work");
-    XCTAssertEqualObjects(@"wk2", client2.writeKey, @"init with a valid project id should work");
-    XCTAssertEqualObjects(@"rk2", client2.readKey, @"init with a valid project id should work");
+    XCTAssertEqualObjects(@"another", client2.config.projectID, @"init with a valid project id should work");
+    XCTAssertEqualObjects(@"wk2", client2.config.writeKey, @"init with a valid project id should work");
+    XCTAssertEqualObjects(@"rk2", client2.config.readKey, @"init with a valid project id should work");
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
 
     client = [[KeenClient alloc] initWithProjectID:nil andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
@@ -138,9 +47,9 @@ NSString* kDefaultReadKey = @"rk";
 
 - (void)testInstanceClient {
     KeenClient *client = [[KeenClient alloc] init];
-    XCTAssertNil(client.projectID, @"a client's project id should be nil at first");
-    XCTAssertNil(client.writeKey, @"a client's write key should be nil at first");
-    XCTAssertNil(client.readKey, @"a client's read key should be nil at first");
+    XCTAssertNil(client.config.projectID, @"a client's project id should be nil at first");
+    XCTAssertNil(client.config.writeKey, @"a client's write key should be nil at first");
+    XCTAssertNil(client.config.readKey, @"a client's read key should be nil at first");
 
     KeenClient *client2 = [[KeenClient alloc] init];
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
@@ -148,14 +57,14 @@ NSString* kDefaultReadKey = @"rk";
 
 - (void)testSharedClientWithProjectID{
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
-    XCTAssertEqual(kDefaultProjectID, client.projectID, @"sharedClientWithProjectID with a non-nil project id should work.");
-    XCTAssertEqualObjects(kDefaultWriteKey, client.writeKey, @"init with a valid project id should work");
-    XCTAssertEqualObjects(kDefaultReadKey, client.readKey, @"init with a valid project id should work");
+    XCTAssertEqual(kDefaultProjectID, client.config.projectID, @"sharedClientWithProjectID with a non-nil project id should work.");
+    XCTAssertEqualObjects(kDefaultWriteKey, client.config.writeKey, @"init with a valid project id should work");
+    XCTAssertEqualObjects(kDefaultReadKey, client.config.readKey, @"init with a valid project id should work");
 
     KeenClient *client2 = [KeenClient sharedClientWithProjectID:@"other" andWriteKey:@"wk2" andReadKey:@"rk2"];
     XCTAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
-    XCTAssertEqualObjects(@"wk2", client2.writeKey, @"sharedClient with a valid project id should work");
-    XCTAssertEqualObjects(@"rk2", client2.readKey, @"sharedClient with a valid project id should work");
+    XCTAssertEqualObjects(@"wk2", client2.config.writeKey, @"sharedClient with a valid project id should work");
+    XCTAssertEqualObjects(@"rk2", client2.config.readKey, @"sharedClient with a valid project id should work");
 
     client = [KeenClient sharedClientWithProjectID:nil andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     XCTAssertNil(client, @"sharedClient with an invalid project id should return nil");
@@ -163,9 +72,9 @@ NSString* kDefaultReadKey = @"rk";
 
 - (void)testSharedClient {
     KeenClient *client = [KeenClient sharedClient];
-    XCTAssertNil(client.projectID, @"a client's project id should be nil at first");
-    XCTAssertNil(client.writeKey, @"a client's write key should be nil at first");
-    XCTAssertNil(client.readKey, @"a client's read key should be nil at first");
+    XCTAssertNil(client.config.projectID, @"a client's project id should be nil at first");
+    XCTAssertNil(client.config.writeKey, @"a client's write key should be nil at first");
+    XCTAssertNil(client.config.readKey, @"a client's read key should be nil at first");
 
     KeenClient *client2 = [KeenClient sharedClient];
     XCTAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
@@ -266,7 +175,7 @@ NSString* kDefaultReadKey = @"rk";
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -291,7 +200,7 @@ NSString* kDefaultReadKey = @"rk";
     [client addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} withKeenProperties:keenProperties toEventCollection:@"foo" error:nil];
 
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -314,7 +223,7 @@ NSString* kDefaultReadKey = @"rk";
 
     [client addEvent:eventDictionary toEventCollection:@"foo" error:nil];
     [clientI addEvent:eventDictionary toEventCollection:@"foo" error:nil];
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -339,7 +248,7 @@ NSString* kDefaultReadKey = @"rk";
     [client addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     [clientI addEvent:@{@"a": @"b"} toEventCollection:@"foo" error:nil];
     // now get the stored event
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -365,7 +274,7 @@ NSString* kDefaultReadKey = @"rk";
     // now get the stored event
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"bar"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -389,7 +298,7 @@ NSString* kDefaultReadKey = @"rk";
   // now get the stored event
 
   // Grab the first event we get back
-  NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"bar"];
+  NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"bar"];
   // Grab the first event we get back
   NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
   NSError *error = nil;
@@ -439,7 +348,7 @@ NSString* kDefaultReadKey = @"rk";
     XCTAssertNil(error, @"event should add");
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
@@ -590,8 +499,8 @@ NSString* kDefaultReadKey = @"rk";
         [uploadFinishedBlockCalled fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertEqual([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]],
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
+        XCTAssertEqual([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID],
                        0,
                        @"Upload method should return with message Request data is empty.");
     }];
@@ -605,8 +514,8 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 0, @"There should be no files after a successful upload.");
     }];
 }
 
@@ -619,8 +528,8 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0, @"There should be no files after a successful upload.");
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 0, @"There should be no files after a successful upload.");
     }];
 }
 
@@ -632,9 +541,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
@@ -646,9 +555,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
@@ -660,9 +569,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
@@ -674,9 +583,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after a failed upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"There should be one file after a failed upload.");
     }];
 }
 
@@ -691,17 +600,17 @@ NSString* kDefaultReadKey = @"rk";
     // and "upload" it
     [mock uploadWithFinishedBlock:^{
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one file after an unsuccessful attempts.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"There should be one file after an unsuccessful attempts.");
 
         // add another event
         [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
         [mock uploadWithFinishedBlock:^{
             // make sure both files weren't deleted from the store
-            XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 2, @"There should be two files after 2 unsuccessful attempts.");
+            XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 2, @"There should be two files after 2 unsuccessful attempts.");
 
             [mock uploadWithFinishedBlock:^{
                 // make sure the first file was deleted from the store, but the second one remains
-                XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one file after 3 unsuccessful attempts.");
+                XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock config].projectID] allKeys].count == 1, @"There should be one file after 3 unsuccessful attempts.");
 
                 [mock uploadWithFinishedBlock:^{
                     [responseArrived fulfill];
@@ -710,9 +619,9 @@ NSString* kDefaultReadKey = @"rk";
         }];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure both files were deleted from the store
-        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock config].projectID] allKeys].count == 0, @"There should be no files after 3 unsuccessfull attempts.");
     }];
 }
 
@@ -727,12 +636,12 @@ NSString* kDefaultReadKey = @"rk";
     // and "upload" it
     [mock uploadWithFinishedBlock:^{
         // make sure the file wasn't deleted from the store
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after an unsuccessful attempt.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"There should be one event after an unsuccessful attempt.");
 
         // add another event
         [mock uploadWithFinishedBlock:^{
             // make sure both files weren't deleted from the store
-            XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"There should be one event after 2 unsuccessful attempts.");
+            XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"There should be one event after 2 unsuccessful attempts.");
 
             [mock uploadWithFinishedBlock:^{
                 [responseArrived fulfill];
@@ -740,10 +649,10 @@ NSString* kDefaultReadKey = @"rk";
         }];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the event was incremented
-        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock projectID]] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
-        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:4 andProjectID:[mock projectID]] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:[mock config].projectID] allKeys].count == 0, @"There should be no events with less than 3 unsuccessful attempts.");
+        XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:4 andProjectID:[mock config].projectID] allKeys].count == 1, @"There should be one event with less than 4 unsuccessful attempts.");
     }];
 }
 
@@ -758,7 +667,7 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file was deleted locally
         // make sure the event was deleted from the store
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
@@ -776,7 +685,7 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file was deleted locally
         // make sure the event was deleted from the store
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"An invalid event should be deleted after an upload attempt.");
@@ -791,9 +700,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
@@ -805,9 +714,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
@@ -819,9 +728,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
@@ -833,9 +742,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1, @"An upload that results in an unexpected error should not delete the event.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1, @"An upload that results in an unexpected error should not delete the event.");
     }];
 }
 
@@ -848,9 +757,9 @@ NSString* kDefaultReadKey = @"rk";
         [uploadFinishedBlockCalled fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file wasn't deleted locally
-        XCTAssertEqual([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]],
+        XCTAssertEqual([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID],
                        1,
                        @"An upload with no network should not delete the event.");
     }];
@@ -877,7 +786,7 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the events were deleted locally
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
     }];
@@ -904,7 +813,7 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the events were deleted locally
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
     }];
@@ -932,7 +841,7 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
     }];
@@ -960,7 +869,7 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no events after a successful upload.");
     }];
@@ -987,9 +896,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file were deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1014,9 +923,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the file were deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1042,9 +951,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1070,9 +979,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 0,  @"There should be no events after a successful upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 0,  @"There should be no events after a successful upload.");
     }];
 }
 
@@ -1098,9 +1007,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 events after a partial upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1,  @"There should be 1 events after a partial upload.");
     }];
 }
 
@@ -1126,9 +1035,9 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         // make sure the files were deleted locally
-        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock projectID]] == 1,  @"There should be 1 event after a partial upload.");
+        XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1,  @"There should be 1 event after a partial upload.");
     }];
 }
 
@@ -1140,11 +1049,11 @@ NSString* kDefaultReadKey = @"rk";
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testTooManyEventsCachedInstanceClient {
@@ -1155,11 +1064,11 @@ NSString* kDefaultReadKey = @"rk";
     for (int i=0; i<5; i++) {
         [client addEvent:event toEventCollection:@"something" error:nil];
     }
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 5,  @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID] == 5,  @"There should be exactly five events.");
     // now do one more, should age out 1 old ones
     [client addEvent:event toEventCollection:@"something" error:nil];
     // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 4, @"There should be exactly five events.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID] == 4, @"There should be exactly five events.");
 }
 
 - (void)testGlobalPropertiesDictionary {
@@ -1172,7 +1081,7 @@ NSString* kDefaultReadKey = @"rk";
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1227,7 +1136,7 @@ NSString* kDefaultReadKey = @"rk";
         client.globalPropertiesDictionary = globalProperties;
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
-        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1283,7 +1192,7 @@ NSString* kDefaultReadKey = @"rk";
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1346,7 +1255,7 @@ NSString* kDefaultReadKey = @"rk";
         NSDictionary *event = @{@"foo": @"bar"};
         [client addEvent:event toEventCollection:eventCollectionName error:nil];
 
-        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:eventCollectionName];
+        NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:eventCollectionName];
         // Grab the first event we get back
         NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
         NSError *error = nil;
@@ -1410,7 +1319,7 @@ NSString* kDefaultReadKey = @"rk";
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1435,7 +1344,7 @@ NSString* kDefaultReadKey = @"rk";
     };
     [client addEvent:@{@"foo": @"bar"} toEventCollection:@"apples" error:nil];
 
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.projectID] objectForKey:@"apples"];
+    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"apples"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
     NSError *error = nil;
@@ -1506,7 +1415,7 @@ NSString* kDefaultReadKey = @"rk";
         [uploadFinishedBlockCalled3 fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:nil];
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
 
 - (void)testUploadMultipleTimesInstanceClient {
@@ -1527,7 +1436,7 @@ NSString* kDefaultReadKey = @"rk";
         [uploadFinishedBlockCalled3 fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:nil];
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
 
 - (void)testMigrateFSEvents {
@@ -1536,7 +1445,7 @@ NSString* kDefaultReadKey = @"rk";
     client.isRunningTests = YES;
 
     // make sure the directory we want to write the file to exists
-    NSString *dirPath = [self eventDirectoryForCollection:@"foo"];
+    NSString *dirPath = [KeenTestUtils eventDirectoryForCollection:@"foo"];
     NSFileManager *manager = [NSFileManager defaultManager];
     NSError *error = nil;
     [manager createDirectoryAtPath:dirPath withIntermediateDirectories:true attributes:nil error:&error];
@@ -1549,11 +1458,11 @@ NSString* kDefaultReadKey = @"rk";
     NSData *json1 = [NSJSONSerialization dataWithJSONObject:event1 options:0 error:&error];
     NSData *json2 =[NSJSONSerialization dataWithJSONObject:event2 options:0 error:&error];
 
-    NSString *fileName1 = [self pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
-    NSString *fileName2 = [self pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
+    NSString *fileName1 = [KeenTestUtils pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
+    NSString *fileName2 = [KeenTestUtils pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
 
-    [self writeNSData:json1 toFile:fileName1];
-    [self writeNSData:json2 toFile:fileName2];
+    [KeenTestUtils writeNSData:json1 toFile:fileName1];
+    [KeenTestUtils writeNSData:json2 toFile:fileName2];
 
     [KIOFileStore importFileDataWithProjectID:kDefaultProjectID];
     // Now we're gonna add an event and verify the events we just wrote to the fs
@@ -1563,9 +1472,9 @@ NSString* kDefaultReadKey = @"rk";
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
     XCTAssertEqual(3,
-                   [KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID],
+                   [KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID],
                    @"There should be 3 events after an import.");
-    XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true],
+    XCTAssertFalse([manager fileExistsAtPath:[KeenTestUtils keenDirectory] isDirectory:true],
                    @"The Keen directory should be gone.");
 }
 
@@ -1574,7 +1483,7 @@ NSString* kDefaultReadKey = @"rk";
     client.isRunningTests = YES;
 
     // make sure the directory we want to write the file to exists
-    NSString *dirPath = [self eventDirectoryForCollection:@"foo"];
+    NSString *dirPath = [KeenTestUtils eventDirectoryForCollection:@"foo"];
     NSFileManager *manager = [NSFileManager defaultManager];
     NSError *error = nil;
     [manager createDirectoryAtPath:dirPath withIntermediateDirectories:true attributes:nil error:&error];
@@ -1587,11 +1496,11 @@ NSString* kDefaultReadKey = @"rk";
     NSData *json1 = [NSJSONSerialization dataWithJSONObject:event1 options:0 error:&error];
     NSData *json2 =[NSJSONSerialization dataWithJSONObject:event2 options:0 error:&error];
 
-    NSString *fileName1 = [self pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
-    NSString *fileName2 = [self pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
+    NSString *fileName1 = [KeenTestUtils pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
+    NSString *fileName2 = [KeenTestUtils pathForEventInCollection:@"foo" WithTimestamp:[NSDate date]];
 
-    [self writeNSData:json1 toFile:fileName1];
-    [self writeNSData:json2 toFile:fileName2];
+    [KeenTestUtils writeNSData:json1 toFile:fileName1];
+    [KeenTestUtils writeNSData:json2 toFile:fileName2];
 
     [KIOFileStore importFileDataWithProjectID:kDefaultProjectID];
     // Now we're gonna add an event and verify the events we just wrote to the fs
@@ -1600,8 +1509,8 @@ NSString* kDefaultReadKey = @"rk";
     NSDictionary *event3 = @{@"nested": @{@"keen": @"whatever"}};
     [client addEvent:event3 toEventCollection:@"foo" error:nil];
 
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.projectID] == 3,  @"There should be 3 events after an import.");
-    XCTAssertFalse([manager fileExistsAtPath:[self keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
+    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID] == 3,  @"There should be 3 events after an import.");
+    XCTAssertFalse([manager fileExistsAtPath:[KeenTestUtils keenDirectory] isDirectory:true], @"The Keen directory should be gone.");
 }
 
 - (void)testSDKVersion {
@@ -1969,7 +1878,7 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         XCTAssertNil(error, @"Test should complete within expected interval.");
     }];
 }
@@ -1996,7 +1905,7 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         XCTAssertNil(error, @"Test should complete within expected interval.");
     }];
 }
@@ -2028,76 +1937,10 @@ NSString* kDefaultReadKey = @"rk";
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:^(NSError * _Nullable error) {
         XCTAssertNil(error, @"Test should complete within expected interval.");
     }];
 }
 
-# pragma mark - test filesystem utility methods
-
-- (NSString *)cacheDirectory {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];
-    return documentsDirectory;
-}
-
-- (NSString *)keenDirectory {
-    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:kDefaultProjectID];
-}
-
-- (NSString *)eventDirectoryForCollection:(NSString *)collection {
-    return [[self keenDirectory] stringByAppendingPathComponent:collection];
-}
-
-- (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection {
-    NSString *path = [self eventDirectoryForCollection:collection];
-    NSFileManager *manager = [NSFileManager defaultManager];
-    NSError *error = nil;
-    NSArray *contents = [manager contentsOfDirectoryAtPath:path error:&error];
-    if (error) {
-        XCTFail(@"Error when listing contents of directory for collection %@: %@",
-               collection, [error localizedDescription]);
-    }
-    return contents;
-}
-
-- (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
-    // get a file manager.
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    // determine the root of the filename.
-    NSString *name = [NSString stringWithFormat:@"%f", [timestamp timeIntervalSince1970]];
-    // get the path to the directory where the file will be written
-    NSString *directory = [self eventDirectoryForCollection:collection];
-    // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
-    // we'll be able to handle it.
-    uint count = 0;
-
-    // declare a tiny helper block to get the next path based on the counter.
-    NSString * (^getNextPath)(uint count) = ^(uint count) {
-        return [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%i", name, count]];
-    };
-
-    // starting with our root filename.0, see if a file exists.  if it doesn't, great.  but if it does, then go
-    // on to filename.1, filename.2, etc.
-    NSString *path = getNextPath(count);
-    while ([fileManager fileExistsAtPath:path]) {
-        count++;
-        path = getNextPath(count);
-    }
-
-    return path;
-}
-
-- (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
-    // write file atomically so we don't ever have a partial event to worry about.
-    BOOL success = [data writeToFile:file atomically:YES];
-    if (!success) {
-        KCLogError(@"Error when writing event to file: %@", file);
-        return NO;
-    } else {
-        KCLogInfo(@"Successfully wrote event to file: %@", file);
-    }
-    return YES;
-}
 
 @end

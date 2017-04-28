@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Keen Labs. All rights reserved.
 //
 
-#import <XCTest/XCTest.h>
+#import "KeenTestCaseBase.h"
 
-@interface KeenClientTests : XCTestCase
+@interface KeenClientTests : KeenTestCaseBase
 
 @end
