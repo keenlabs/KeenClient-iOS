@@ -640,16 +640,23 @@ static BOOL geoLocationRequestEnabled = YES;
 
 # pragma mark Async methods
 
-- (void)runAsyncQuery:(KIOQuery *)keenQuery block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
+- (void)runAsyncQuery:(KIOQuery *)keenQuery block:(AnalysisCompletionBlock)block {
+    [self runAsyncQuery:keenQuery completionHandler:block];
+}
+
+- (void)runAsyncQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler {
     dispatch_async(self.queryQueue, ^{
-        [self runQuery:keenQuery completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        [self.network runQuery:keenQuery
+                 withProjectID:self.projectID
+                   withReadKey:self.readKey
+             completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             // we're done querying, call the main queue and execute the block
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)
-                if (block) {
+                if (completionHandler) {
                     KCLogVerbose(@"Running user-specified block.");
                     @try {
-                        block(data, response, error);
+                        completionHandler(data, response, error);
                     } @finally {
                         // do nothing
                     }
@@ -659,17 +666,23 @@ static BOOL geoLocationRequestEnabled = YES;
     });
 }
 
-- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(void (^)(NSData *, NSURLResponse *, NSError *))block {
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(AnalysisCompletionBlock)block {
+    [self runAsyncMultiAnalysisWithQueries:keenQueries completionHandler:block];
+}
+
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler {
     dispatch_async(self.queryQueue, ^{
-        [self runMultiAnalysisWithQueries:keenQueries
-                        completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
+        [self.network runMultiAnalysisWithQueries:keenQueries
+                                    withProjectID:self.projectID
+                                      withReadKey:self.readKey
+                                completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
             // we're done querying, call the main queue and execute the block
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)
-                if (block) {
+                if (completionHandler) {
                     KCLogVerbose(@"Running user-specified block.");
                     @try {
-                        block(data, response, error);
+                        completionHandler(data, response, error);
                     } @finally {
                         // do nothing
                     }
@@ -679,14 +692,15 @@ static BOOL geoLocationRequestEnabled = YES;
     });
 }
 
-- (void)runQuery:(KIOQuery *)keenQuery completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
+- (void)runQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler {
     [self.network runQuery:keenQuery
              withProjectID:self.projectID
                withReadKey:self.readKey
          completionHandler:completionHandler];
 }
 
-- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
+- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
+                  completionHandler:(AnalysisCompletionBlock)completionHandler {
     [self.network runMultiAnalysisWithQueries:keenQueries
                                 withProjectID:self.projectID
                                   withReadKey:self.readKey
