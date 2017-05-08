@@ -10,8 +10,8 @@
 
 @implementation KeenLogSinkNSLog
 
-- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message {
-    NSString* logPrefix;
+- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString *)message {
+    NSString *logPrefix;
     switch (msgLevel) {
         case KeenLogLevelError:
             logPrefix = @"E:";

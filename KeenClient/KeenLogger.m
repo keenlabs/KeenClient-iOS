@@ -20,8 +20,8 @@ dispatch_queue_t _loggerQueue;
 KeenLogSinkNSLog* _logSinkNSLog;
 
 
-+ (KeenLogger*)sharedLogger {
-    static KeenLogger* s_logger;
++ (KeenLogger *)sharedLogger {
+    static KeenLogger *s_logger;
 
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -39,10 +39,10 @@ KeenLogSinkNSLog* _logSinkNSLog;
 }
 
 
-- (KeenLogger*)init {
+- (KeenLogger *)init {
     self = [super init];
 
-    if (nil != self) {
+    if (self) {
         // By default we won't enable logging.
         _areLogSinksEnabled = NO;
         _isLoggingEnabled = NO;
@@ -54,13 +54,13 @@ KeenLogSinkNSLog* _logSinkNSLog;
         // about concurrent access when adding and removing loggers
         // since those operations will be dispatched to this queue as well.
         _loggerQueue = dispatch_queue_create("io.keen.logger", DISPATCH_QUEUE_SERIAL);
-        if (NULL == _loggerQueue) {
+        if (_loggerQueue == NULL) {
             // Failed to allocate the queue
             self = nil;
         }
 
-        _logSinks = [[NSMutableArray alloc] init];
-        if (nil == _logSinks) {
+        _logSinks = [NSMutableArray array];
+        if (_logSinks == nil) {
             // Failed to allocate the array
             self = nil;
         }
@@ -100,7 +100,7 @@ KeenLogSinkNSLog* _logSinkNSLog;
         if (isNSLogEnabled) {
             if (nil == _logSinkNSLog) {
                 // Create the NSLog logger
-                _logSinkNSLog = [[KeenLogSinkNSLog alloc] init];
+                _logSinkNSLog = [KeenLogSinkNSLog new];
             }
 
             if (!([_logSinks containsObject:_logSinkNSLog])) {
@@ -153,7 +153,7 @@ KeenLogSinkNSLog* _logSinkNSLog;
 }
 
 
-- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message {
+- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString *)message {
     if (YES == _isLoggingEnabled) { // Only bother to dispatch if logging is currently enabled
         dispatch_async(_loggerQueue, ^() {
             if (_areLogSinksEnabled &&
