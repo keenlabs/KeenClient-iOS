@@ -391,10 +391,8 @@ static BOOL geoLocationRequestEnabled = YES;
 }
 
 - (void)startMonitoringLocation {
-    if (self.locationManager) {
-        [self.locationManager startUpdatingLocation];
-        KCLogInfo(@"Started location manager.");
-    }
+    [self.locationManager startUpdatingLocation];
+    KCLogInfo(@"Started location manager.");
 }
 
 + (BOOL)isLocationAuthorized:(CLAuthorizationStatus)status {
