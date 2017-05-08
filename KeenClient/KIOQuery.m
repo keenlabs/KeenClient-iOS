@@ -15,7 +15,7 @@
         return nil;
     }
     
-    self = [self init];
+    self = [super init];
     
     if (self) {
         self.queryType = queryType;
@@ -30,7 +30,7 @@
         return nil;
     }
     
-    self = [self init];
+    self = [super init];
     
     if (self) {
         self.queryType = queryType;
