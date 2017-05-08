@@ -335,7 +335,6 @@ static BOOL geoLocationRequestEnabled = YES;
 + (KeenClient *)sharedClientWithProjectID:(NSString *)projectID
                               andWriteKey:(NSString *)writeKey
                                andReadKey:(NSString *)readKey {
-
     // Validate key parameters
     if (![KeenClient validateProjectID:projectID]) {
         KCLogError(@"Invalid projectID: %@", projectID);
@@ -352,6 +351,11 @@ static BOOL geoLocationRequestEnabled = YES;
         ![KeenClient validateKey:readKey]) {
         KCLogError(@"Invalid readKey: %@", readKey);
         return nil;
+    }
+
+    // If the keys are already set, return the existing instance, don't overwrite the keys
+    if (self.sharedClient.projectID != nil || self.sharedClient.writeKey != nil || self.sharedClient.readKey != nil) {
+        return self.sharedClient;
     }
 
     self.sharedClient.projectID = projectID;
