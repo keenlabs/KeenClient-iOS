@@ -53,6 +53,12 @@ When making an ad-hoc query request:
 
 3. Is the same type of delay acceptable for 503 failures?
 
+4. Will a Retry-After response header be included with 429 or 503 responses? [https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After]()
+
+5. Should SDK clients be given control over retry parameters like base delay?
+
+6. Should SDK clients be able notified that a request is going to be delayed? Should they be able to abort instead of making the request after a delay?
+
 ##### References
 [1] [https://www.awsarchitectureblog.com/2015/03/backoff.html]()
 
