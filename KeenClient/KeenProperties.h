@@ -19,12 +19,12 @@
  The time a particular event occured. The Keen Client will automatically generate this for you,
  but you can set it yourself if you'd like.
  */
-@property (nonatomic, strong) NSDate *timestamp;
+@property (nonatomic) NSDate *timestamp;
 
 /**
  The location where a particular event occured. The Keen Client will automatically generate this for you,
  but you can set it yourself if you'd like.
  */
-@property (nonatomic, strong) CLLocation *location;
+@property (nonatomic) CLLocation *location;
 
 @end
