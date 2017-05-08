@@ -13,7 +13,7 @@
  /**
   Singleton instance of this class.
   */
-+ (KIODBStore*)sharedInstance;
++ (KIODBStore *)sharedInstance;
 
  /**
   Reset any pending events so they can be resent.
@@ -60,7 +60,7 @@
 
   @param eventId The id of the event to delete.
   */
-- (void)deleteEvent: (NSNumber *)eventId;
+- (void)deleteEvent:(NSNumber *)eventId;
 
  /**
   Delete all events from the store
@@ -88,7 +88,7 @@
  @param eventCollection Your event collection.
  @param projectID Your project ID.
  */
-- (BOOL)addQuery:(NSData *)queryData queryType:(NSString*)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+- (BOOL)addQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
 /**
  Get a dictionary of the found query parameters.
