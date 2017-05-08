@@ -74,17 +74,6 @@ static BOOL geoLocationRequestEnabled = YES;
 
 @implementation KeenClient
 
-@synthesize projectID=_projectID;
-@synthesize writeKey=_writeKey;
-@synthesize readKey=_readKey;
-@synthesize locationManager=_locationManager;
-@synthesize currentLocation=_currentLocation;
-@synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
-@synthesize isRunningTests=_isRunningTests;
-@synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
-@synthesize globalPropertiesBlock=_globalPropertiesBlock;
-@synthesize queryQueue;
-
 /**
  The maximum number of times to try POSTing an event before purging it from the DB.
  */
