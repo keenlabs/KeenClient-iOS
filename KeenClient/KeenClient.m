@@ -355,50 +355,43 @@ static BOOL geoLocationRequestEnabled = YES;
 # pragma mark - Geo stuff
 
 - (void)refreshCurrentLocation {
-    // only do this if geo is enabled
-    if (geoLocationEnabled == YES) {
-        KCLogInfo(@"Geo Location is enabled.");
-        // set up the location manager
-        if (self.locationManager == nil && [CLLocationManager locationServicesEnabled]) {
-            self.locationManager = [[CLLocationManager alloc] init];
-            self.locationManager.delegate = self;
-        }
-
-        // check for iOS 8 and provide appropriate authorization for location services
-
-        if(self.locationManager != nil)
-        {
-            // If location services are already authorized, then just start monitoring.
-            CLAuthorizationStatus clAuthStatus = [CLLocationManager authorizationStatus];
-            if ([KeenClient isLocationAuthorized:clAuthStatus]) {
-                [self startMonitoringLocation];
-            }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
-            // Else, try and request permission for that.
-            else if (geoLocationRequestEnabled &&
-                     [self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
-                // allow explicit control over the type of authorization
-                if(authorizedGeoLocationAlways) {
-                    [self.locationManager requestAlwaysAuthorization];
-                }
-                else if(authorizedGeoLocationWhenInUse) {
-                    [self.locationManager requestWhenInUseAuthorization];
-                }
-                else if(!authorizedGeoLocationAlways && !authorizedGeoLocationWhenInUse) {
-                    // default to when in use because it is the least invasive authorization
-                    [self.locationManager requestWhenInUseAuthorization];
-                }
-            }
-#endif
-        }
-
-    } else {
+    if (geoLocationEnabled == NO) {
         KCLogInfo(@"Geo Location is disabled.");
+        return;
+    }
+
+    KCLogInfo(@"Geo Location is enabled.");
+    // set up the location manager
+    if (self.locationManager == nil && [CLLocationManager locationServicesEnabled]) {
+        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager.delegate = self;
+    }
+
+    // Provide appropriate authorization for location services
+
+    if (self.locationManager != nil) {
+        // If location services are already authorized, then just start monitoring.
+        CLAuthorizationStatus clAuthStatus = [CLLocationManager authorizationStatus];
+        if ([KeenClient isLocationAuthorized:clAuthStatus]) {
+            [self startMonitoringLocation];
+        }
+        // Else, try and request permission for that.
+        else if (geoLocationRequestEnabled) {
+            // allow explicit control over the type of authorization
+            if (authorizedGeoLocationAlways) {
+                [self.locationManager requestAlwaysAuthorization];
+            } else if (authorizedGeoLocationWhenInUse) {
+                [self.locationManager requestWhenInUseAuthorization];
+            } else if (!authorizedGeoLocationAlways && !authorizedGeoLocationWhenInUse) {
+                // default to when in use because it is the least invasive authorization
+                [self.locationManager requestWhenInUseAuthorization];
+            }
+        }
     }
 }
 
--(void)startMonitoringLocation {
-    if(self.locationManager) {
+- (void)startMonitoringLocation {
+    if (self.locationManager) {
         [self.locationManager startUpdatingLocation];
         KCLogInfo(@"Started location manager.");
     }
