@@ -15,24 +15,24 @@
 + (instancetype)sharedInstance;
 
 // Initialize the object
-- (instancetype)initWithURLSession:(NSURLSession*)urlSession
-                          andStore:(KIODBStore*)store;
+- (instancetype)initWithURLSession:(NSURLSession *)urlSession
+                          andStore:(KIODBStore *)store;
 
 // Upload events to keen
-- (void)sendEvents:(NSData*)data
-     withProjectID:(NSString*)projectID
-      withWriteKey:(NSString*)writeKey
+- (void)sendEvents:(NSData *)data
+     withProjectID:(NSString *)projectID
+      withWriteKey:(NSString *)writeKey
  completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
 // Run an analysis request
-- (void)runQuery:(KIOQuery*)keenQuery withProjectID:(NSString*)projectID
-     withReadKey:(NSString*)readKey
+- (void)runQuery:(KIOQuery *)keenQuery withProjectID:(NSString *)projectID
+     withReadKey:(NSString *)readKey
 completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
 // Run a multi-analysis request
-- (void)runMultiAnalysisWithQueries:(NSArray*)keenQueries
-                      withProjectID:(NSString*)projectID
-                        withReadKey:(NSString*)readKey
+- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
+                      withProjectID:(NSString *)projectID
+                        withReadKey:(NSString *)readKey
                   completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
 
@@ -43,6 +43,6 @@ completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *erro
 @property int queryTTL;
 
 // The NSURLSession instance to use for requests
-@property (nonatomic, readonly) NSURLSession* urlSession;
+@property (nonatomic, readonly) NSURLSession *urlSession;
 
 @end
