@@ -158,7 +158,7 @@ static BOOL geoLocationRequestEnabled = YES;
     [[KeenLogger sharedLogger] setLogLevel:level];
 }
 
-+ (void)logMessageWithLevel:(KeenLogLevel)level andMessage:(NSString*)message {
++ (void)logMessageWithLevel:(KeenLogLevel)level andMessage:(NSString *)message {
     [[KeenLogger sharedLogger] logMessageWithLevel:level andMessage:message];
 }
 
@@ -352,7 +352,7 @@ static BOOL geoLocationRequestEnabled = YES;
     KCLogInfo(@"Geo Location is enabled.");
     // set up the location manager
     if (self.locationManager == nil && [CLLocationManager locationServicesEnabled]) {
-        self.locationManager = [[CLLocationManager alloc] init];
+        self.locationManager = [CLLocationManager new];
         self.locationManager.delegate = self;
     }
 
@@ -430,7 +430,7 @@ static BOOL geoLocationRequestEnabled = YES;
 # pragma mark - Add events
 
 - (BOOL)validateEventCollection:(NSString *)eventCollection error:(NSError **)anError {
-    NSString *errorMessage = nil;
+    NSString *errorMessage;
 
     if ([eventCollection hasPrefix:@"$"]) {
         errorMessage = @"An event collection name cannot start with the dollar sign ($) character.";
