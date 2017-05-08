@@ -29,16 +29,16 @@ static BOOL geoLocationRequestEnabled = YES;
 @interface KeenClient ()
 
 // The project ID for this particular client.
-@property (nonatomic, strong) NSString *projectID;
+@property (nonatomic) NSString *projectID;
 
 // The Write Key for this particular client.
-@property (nonatomic, strong) NSString *writeKey;
+@property (nonatomic) NSString *writeKey;
 
 // The Read Key for this particular client.
-@property (nonatomic, strong) NSString *readKey;
+@property (nonatomic) NSString *readKey;
 
 // NSLocationManager
-@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic) CLLocationManager *locationManager;
 
 // How many times the previous timestamp has been used.
 @property (nonatomic) NSInteger numTimesTimestampUsed;
@@ -56,13 +56,13 @@ static BOOL geoLocationRequestEnabled = YES;
 @property (nonatomic) BOOL isRunningTests;
 
 // Component for doing network operations
-@property (nonatomic) KIONetwork* network;
+@property (nonatomic) KIONetwork *network;
 
 // Component for event durability
-@property (nonatomic) KIODBStore* store;
+@property (nonatomic) KIODBStore *store;
 
 // Component for handling event uploads
-@property (nonatomic) KIOUploader* uploader;
+@property (nonatomic) KIOUploader *uploader;
 
 /**
  Initializes KeenClient without setting its project ID or API key.
@@ -218,7 +218,7 @@ static BOOL geoLocationRequestEnabled = YES;
     [self.sharedClient clearAllQueries];
 }
 
-- (KIODBStore*)getDBStore {
+- (KIODBStore *)getDBStore {
     return self.store;
 }
 
@@ -226,12 +226,12 @@ static BOOL geoLocationRequestEnabled = YES;
     return self.sharedClient.store;
 }
 
-- (instancetype)initWithNetwork:(KIONetwork*)network
-                       andStore:(KIODBStore*)store
-                    andUploader:(KIOUploader*)uploader {
+- (instancetype)initWithNetwork:(KIONetwork *)network
+                       andStore:(KIODBStore *)store
+                    andUploader:(KIOUploader *)uploader {
     self = [super init];
 
-    if (nil != self) {
+    if (self) {
         // log the current version number
         KCLogInfo(@"KeenClient-iOS %@", kKeenSdkVersion);
 
@@ -289,9 +289,9 @@ static BOOL geoLocationRequestEnabled = YES;
                      andUploader:KIOUploader.sharedInstance];
 }
 
-- (id)initWithProjectID:(NSString*)projectID
-            andWriteKey:(NSString*)writeKey
-             andReadKey:(NSString*)readKey {
+- (id)initWithProjectID:(NSString *)projectID
+            andWriteKey:(NSString *)writeKey
+             andReadKey:(NSString *)readKey {
     return [self initWithProjectID:projectID
                        andWriteKey:writeKey
                         andReadKey:readKey
@@ -334,8 +334,8 @@ static BOOL geoLocationRequestEnabled = YES;
     return self.sharedClient;
 }
 
-+ (KeenClient*)sharedClient {
-    static KeenClient* s_sharedClient = nil;
++ (KeenClient *)sharedClient {
+    static KeenClient *s_sharedClient = nil;
 
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -397,7 +397,7 @@ static BOOL geoLocationRequestEnabled = YES;
     }
 }
 
-+(BOOL)isLocationAuthorized:(CLAuthorizationStatus)status {
++ (BOOL)isLocationAuthorized:(CLAuthorizationStatus)status {
 #if TARGET_OS_IOS
   if (status == kCLAuthorizationStatusAuthorizedWhenInUse ||
       status == kCLAuthorizationStatusAuthorizedAlways) {
@@ -431,22 +431,21 @@ static BOOL geoLocationRequestEnabled = YES;
     }
 }
 
--(void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     if ([KeenClient isLocationAuthorized:status]) {
         [self startMonitoringLocation];
     }
 }
--(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
-{
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     KCLogError(@"locationManager-didFailWithError: %@", [error localizedDescription]);
 }
 
 # pragma mark - Add events
 
-- (BOOL)validateEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (BOOL)validateEventCollection:(NSString *)eventCollection error:(NSError **)anError {
     NSString *errorMessage = nil;
 
-    if ([eventCollection rangeOfString:@"$"].location == 0) {
+    if ([eventCollection hasPrefix:@"$"]) {
         errorMessage = @"An event collection name cannot start with the dollar sign ($) character.";
         return [KIOUtil handleError:anError withErrorMessage:errorMessage];
     }
@@ -457,11 +456,11 @@ static BOOL geoLocationRequestEnabled = YES;
     return YES;
 }
 
-- (BOOL)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **) anError {
+- (BOOL)validateEvent:(NSDictionary *)event withDepth:(NSUInteger)depth error:(NSError **)anError {
     NSString *errorMessage = nil;
 
     if (depth == 0) {
-        if (!event || [event count] == 0) {
+        if (!event || event.count == 0) {
             errorMessage = @"You must specify a non-null, non-empty event.";
             return [KIOUtil handleError:anError withErrorMessage:errorMessage];
         }
@@ -474,11 +473,11 @@ static BOOL geoLocationRequestEnabled = YES;
 
     for (NSString *key in event) {
         // validate keys
-        if ([key rangeOfString:@"."].location != NSNotFound) {
+        if ([key containsString:@"."]) {
             errorMessage = @"An event cannot contain a property with the period (.) character in it.";
             return [KIOUtil handleError:anError withErrorMessage:errorMessage];
         }
-        if ([key rangeOfString:@"$"].location == 0) {
+        if ([key hasPrefix:@"$"]) {
             errorMessage = @"An event cannot contain a property that starts with the dollar sign ($) character in it.";
             return [KIOUtil handleError:anError withErrorMessage:errorMessage];
         }
@@ -504,11 +503,11 @@ static BOOL geoLocationRequestEnabled = YES;
     return YES;
 }
 
-- (BOOL)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (BOOL)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **)anError {
     return [self addEvent:event withKeenProperties:nil toEventCollection:eventCollection error:anError];
 }
 
-- (BOOL)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (BOOL)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **)anError {
     // make sure the write key has been set - can't do anything without that
     if (self.writeKey == nil || self.writeKey.length <= 0) {
         [NSException raise:@"KeenNoWriteKeyProvided" format:@"You tried to add an event without setting a write key, please set one!"];
@@ -569,7 +568,6 @@ static BOOL geoLocationRequestEnabled = YES;
         NSMutableDictionary *keenDict = [KIOUtil handleInvalidJSONInObject:keenProperties];
         [keenDict addEntriesFromDictionary:originalKeenDict];
         [eventToWrite setObject:keenDict forKey:@"keen"];
-
     } else {
         // just set it directly
         [eventToWrite setObject:keenProperties forKey:@"keen"];
