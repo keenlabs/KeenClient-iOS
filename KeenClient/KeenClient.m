@@ -70,20 +70,6 @@ static BOOL geoLocationRequestEnabled = YES;
  */
 - (id)init;
 
-/**
- Validates that the given project ID is valid.
- @param projectID The Keen project ID.
- @returns YES if project id is valid, NO otherwise.
- */
-+ (BOOL)validateProjectID:(NSString *)projectID;
-
-/**
- Validates that the given key is valid.
- @param key The key to check.
- @returns YES if key is valid, NO otherwise.
- */
-+ (BOOL)validateKey:(NSString *)key;
-
 @end
 
 @implementation KeenClient
@@ -240,19 +226,6 @@ static BOOL geoLocationRequestEnabled = YES;
     return self.sharedClient.store;
 }
 
-+ (BOOL)validateProjectID:(NSString *)projectID {
-    // validate that project ID is acceptable
-    if (!projectID || [projectID length] == 0) {
-        return NO;
-    }
-    return YES;
-}
-
-+ (BOOL)validateKey:(NSString *)key {
-    // for now just use the same rules as project ID
-    return [KeenClient validateProjectID:key];
-}
-
 - (instancetype)initWithNetwork:(KIONetwork*)network
                        andStore:(KIODBStore*)store
                     andUploader:(KIOUploader*)uploader {
@@ -278,31 +251,29 @@ static BOOL geoLocationRequestEnabled = YES;
 - (id)initWithProjectID:(NSString *)projectID
             andWriteKey:(NSString *)writeKey
              andReadKey:(NSString *)readKey
-             andNetwork:(KIONetwork*)network
-               andStore:(KIODBStore*)store
-            andUploader:(KIOUploader*)uploader {
-    // Validate key parameters
-    if (![KeenClient validateProjectID:projectID]) {
-        KCLogError(@"Invalid projectID: %@", projectID);
+             andNetwork:(KIONetwork *)network
+               andStore:(KIODBStore *)store
+            andUploader:(KIOUploader *)uploader {
+    if (projectID == nil || projectID.length <= 0) {
+        KCLogError(@"You must provide a projectID.");
         return nil;
     }
 
-    if (nil != writeKey && // only validate a non-nil value
-        ![KeenClient validateKey:writeKey]) {
-        KCLogError(@"Invalid writeKey: %@", writeKey);
+    if (writeKey && writeKey.length <= 0) {
+        KCLogError(@"Your writeKey cannot be an empty string.");
         return nil;
     }
 
-    if (nil != readKey && // only validate a non-nil value
-        ![KeenClient validateKey:readKey]) {
-        KCLogError(@"Invalid readKey: %@", readKey);
+    if (readKey && readKey.length <= 0) {
+        KCLogError(@"Your readKey cannot be an empty string.");
         return nil;
     }
 
     self = [self initWithNetwork:network
                         andStore:store
                      andUploader:uploader];
-    if (nil != self) {
+
+    if (self) {
         self.projectID = projectID;
         self.writeKey = writeKey;
         self.readKey = readKey;
@@ -336,20 +307,18 @@ static BOOL geoLocationRequestEnabled = YES;
                               andWriteKey:(NSString *)writeKey
                                andReadKey:(NSString *)readKey {
     // Validate key parameters
-    if (![KeenClient validateProjectID:projectID]) {
-        KCLogError(@"Invalid projectID: %@", projectID);
+    if (projectID == nil || projectID.length <= 0) {
+        KCLogError(@"You must provide a projectID.");
         return nil;
     }
 
-    if (nil != writeKey && // only validate a non-nil value
-        ![KeenClient validateKey:writeKey]) {
-        KCLogError(@"Invalid writeKey: %@", writeKey);
+    if (writeKey && writeKey.length <= 0) {
+        KCLogError(@"Your writeKey cannot be an empty string.");
         return nil;
     }
 
-    if (nil != readKey && // only validate a non-nil value
-        ![KeenClient validateKey:readKey]) {
-        KCLogError(@"Invalid readKey: %@", readKey);
+    if (readKey && readKey.length <= 0) {
+        KCLogError(@"Your readKey cannot be an empty string.");
         return nil;
     }
 
@@ -548,7 +517,7 @@ static BOOL geoLocationRequestEnabled = YES;
 
 - (BOOL)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
     // make sure the write key has been set - can't do anything without that
-    if (![KeenClient validateKey:self.writeKey]) {
+    if (self.writeKey == nil || self.writeKey.length <= 0) {
         [NSException raise:@"KeenNoWriteKeyProvided" format:@"You tried to add an event without setting a write key, please set one!"];
     }
 
