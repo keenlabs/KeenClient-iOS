@@ -1,5 +1,5 @@
 //
-//  KIOEventStoreTests.m
+//  KIODBStoreTests.m
 //  KeenClient
 //
 //  Created by Cory Watson on 3/26/14.
@@ -7,9 +7,15 @@
 //
 
 #import "KIODBStore.h"
+
+#import "KeenTestConstants.h"
+#import "KeenTestUtils.h"
+#import "KeenTestCaseBase.h"
 #import "KIODBStoreTests.h"
-#import "KIOEventStore_PrivateMethods.h"
+#import "KIODBStorePrivate.h"
+#import "KIODBStoreTestable.h"
 #import "KIOQuery.h"
+#import "TestDatabaseRequirement.h"
 
 @interface KIODBStoreTests ()
 
@@ -24,30 +30,12 @@
 @synthesize projectID;
 
 - (void)setUp {
-    // Clean up, just in case.
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if([fileManager removeItemAtPath:[self databaseFile] error:NULL] == YES) {
-        NSLog(@"Removed database file.");
-    } else {
-        NSLog(@"Failed to remove database file.");
-    }
+    [super setUp];
 
     projectID = @"pid";
-
-    [super setUp];
 }
 
 - (void)tearDown {
-    // Tear-down code here.
-    NSLog(@"\n");
-
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if([fileManager removeItemAtPath:[self databaseFile] error:NULL] == YES) {
-        NSLog(@"Removed database file.");
-    } else {
-        NSLog(@"Failed to remove database file.");
-    }
-
     [super tearDown];
 }
 
@@ -341,8 +329,7 @@
 # pragma mark - Helper Methods
 
 - (NSString *)databaseFile {
-    NSString *databasePath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    return [databasePath stringByAppendingPathComponent:@"keenEvents.sqlite"];
+    return [KIODBStore getSqliteFullFileName];
 }
 
 - (void) setUpCorruptDb {

@@ -61,12 +61,12 @@
     // start a counter that we'll use to make sure that even if multiple events are written with the same timestamp,
     // we'll be able to handle it.
     uint count = 0;
-    
+
     // declare a tiny helper block to get the next path based on the counter.
     NSString * (^getNextPath)(uint count) = ^(uint count) {
         return [directory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%i", name, count]];
     };
-    
+
     // starting with our root filename.0, see if a file exists.  if it doesn't, great.  but if it does, then go
     // on to filename.1, filename.2, etc.
     NSString *path = getNextPath(count);
@@ -74,7 +74,7 @@
         count++;
         path = getNextPath(count);
     }
-    
+
     return path;
 }
 

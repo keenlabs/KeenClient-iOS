@@ -196,9 +196,9 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
 
 
 /**
- Call this to retrieve an instance of KIOEventStore.
+ Call this to retrieve an instance of KIODBStore.
 
- @return An instance of KIOEventStore.
+ @return An instance of KIODBStore.
  */
 + (KIODBStore*)getDBStore DEPRECATED_MSG_ATTRIBUTE("use instance method instead.");
 - (KIODBStore*)getDBStore;

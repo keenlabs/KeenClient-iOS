@@ -10,11 +10,11 @@
 
 @interface KeenTestUtils : NSObject
 
-+ (NSString *)cacheDirectory;
-+ (NSString *)keenDirectory;
-+ (NSString *)eventDirectoryForCollection:(NSString *)collection;
-+ (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection;
-+ (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp;
-+ (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file;
++ (NSString*)cacheDirectory;
++ (NSString*)keenDirectory;
++ (NSString*)eventDirectoryForCollection:(NSString*)collection;
++ (NSArray*)contentsOfDirectoryForCollection:(NSString*)collection;
++ (NSString*)pathForEventInCollection:(NSString*)collection WithTimestamp:(NSDate*)timestamp;
++ (BOOL)writeNSData:(NSData*)data toFile:(NSString*)file;
 
 @end

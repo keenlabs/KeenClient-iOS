@@ -1,5 +1,5 @@
 //
-//  KIOEventStore_PrivateMethods.h
+//  KIODBStorePrivate.h
 //  KeenClient
 //
 //  Created by Cory Watson on 3/31/14.
@@ -9,5 +9,7 @@
 #import "KIODBStore.h"
 
 @interface KIODBStore ()
+
 - (void)closeDB;
+
 @end

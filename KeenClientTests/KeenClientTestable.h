@@ -17,6 +17,8 @@
 
 @property (nonatomic) KIONetwork* network;
 
+@property (nonatomic) KIODBStore* store;
+
 // If we're running tests.
 // TODO: Remove this flag
 @property (nonatomic) BOOL isRunningTests;
