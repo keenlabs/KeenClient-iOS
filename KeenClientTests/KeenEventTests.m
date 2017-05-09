@@ -745,6 +745,48 @@
     }];
 }
 
+- (void)testUploadMultipleTimes {
+    XCTestExpectation* uploadFinishedBlockCalled1 = [self expectationWithDescription:@"Upload 1 should run to completion."];
+    XCTestExpectation* uploadFinishedBlockCalled2 = [self expectationWithDescription:@"Upload 2 should run to completion."];
+    XCTestExpectation* uploadFinishedBlockCalled3 = [self expectationWithDescription:@"Upload 3 should run to completion."];
+    
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    client.isRunningTests = YES;
+    
+    [client uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled1 fulfill];
+    }];
+    [client uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled2 fulfill];
+    }];
+    [client uploadWithFinishedBlock:^ {
+        [uploadFinishedBlockCalled3 fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
+}
+
+- (void)testUploadMultipleTimesInstanceClient {
+    XCTestExpectation* uploadFinishedBlockCalled1 = [self expectationWithDescription:@"Upload 1 should run to completion."];
+    XCTestExpectation* uploadFinishedBlockCalled2 = [self expectationWithDescription:@"Upload 2 should run to completion."];
+    XCTestExpectation* uploadFinishedBlockCalled3 = [self expectationWithDescription:@"Upload 3 should run to completion."];
+    
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    client.isRunningTests = YES;
+    
+    [client uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled1 fulfill];
+    }];
+    [client uploadWithFinishedBlock:^{
+        [uploadFinishedBlockCalled2 fulfill];
+    }];
+    [client uploadWithFinishedBlock:^ {
+        [uploadFinishedBlockCalled3 fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
+}
+
 - (void)testTooManyEventsCached {
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
@@ -774,5 +816,46 @@
     // so now there should be 4 left (5 - 2 + 1)
     XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID] == 4, @"There should be exactly four events.");
 }
+
+- (void)testInvalidEventCollection {
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    client.isRunningTests = YES;
+    
+    NSDictionary *event = @{@"a": @"b"};
+    // collection can't start with $
+    NSError *error = nil;
+    [client addEvent:event toEventCollection:@"$asd" error:&error];
+    XCTAssertNotNil(error, @"collection can't start with $");
+    error = nil;
+    
+    // collection can't be over 256 chars
+    NSMutableString *longString = [NSMutableString stringWithCapacity:257];
+    for (int i=0; i<257; i++) {
+        [longString appendString:@"a"];
+    }
+    [client addEvent:event toEventCollection:@"$asd" error:&error];
+    XCTAssertNotNil(error, @"collection can't be longer than 256 chars");
+}
+
+- (void)testInvalidEventCollectionInstanceClient {
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    client.isRunningTests = YES;
+    
+    NSDictionary *event = @{@"a": @"b"};
+    // collection can't start with $
+    NSError *error = nil;
+    [client addEvent:event toEventCollection:@"$asd" error:&error];
+    XCTAssertNotNil(error, @"collection can't start with $");
+    error = nil;
+    
+    // collection can't be over 256 chars
+    NSMutableString *longString = [NSMutableString stringWithCapacity:257];
+    for (int i=0; i<257; i++) {
+        [longString appendString:@"a"];
+    }
+    [client addEvent:event toEventCollection:@"$asd" error:&error];
+    XCTAssertNotNil(error, @"collection can't be longer than 256 chars");
+}
+
 
 @end
