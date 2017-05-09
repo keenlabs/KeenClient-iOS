@@ -364,15 +364,15 @@
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
-				A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */,
-				0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */,
-				01BA1AD414E77DC600CF9F84 /* Library */,
-				017EE12314E30C96000F3868 /* KeenClient */,
-				017EE13714E30C96000F3868 /* KeenClientTests */,
-				3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */,
-				017EE12014E30C96000F3868 /* Frameworks */,
-				017EE11F14E30C96000F3868 /* Products */,
 				01A9A34314FE95210082AB22 /* docs */,
+				017EE12014E30C96000F3868 /* Frameworks */,
+				017EE12314E30C96000F3868 /* KeenClient */,
+				0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */,
+				3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */,
+				017EE13714E30C96000F3868 /* KeenClientTests */,
+				A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */,
+				01BA1AD414E77DC600CF9F84 /* Library */,
+				017EE11F14E30C96000F3868 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -390,16 +390,16 @@
 		017EE12014E30C96000F3868 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1296398C19C10B8500B2B653 /* Cocoa.framework */,
+				1296396419C10AD200B2B653 /* Cocoa.framework */,
 				012E8A5C1672BE860021F6FA /* CoreLocation.framework */,
+				017EE12114E30C96000F3868 /* Foundation.framework */,
+				CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */,
+				1296396619C10AD200B2B653 /* Other Frameworks */,
 				3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */,
 				F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */,
-				1296398C19C10B8500B2B653 /* Cocoa.framework */,
-				CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */,
-				017EE12114E30C96000F3868 /* Foundation.framework */,
 				017EE13114E30C96000F3868 /* UIKit.framework */,
-				1296396419C10AD200B2B653 /* Cocoa.framework */,
 				1296397519C10AD200B2B653 /* XCTest.framework */,
-				1296396619C10AD200B2B653 /* Other Frameworks */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -407,33 +407,33 @@
 		017EE12314E30C96000F3868 /* KeenClient */ = {
 			isa = PBXGroup;
 			children = (
-				481A9B791E568FC10094B985 /* Logging */,
+				486B59691EB29AC500D5251D /* CachedQueryTests.h */,
+				486B596A1EB29AC500D5251D /* CachedQueryTests.m */,
 				A51E31221B03C6EF00008248 /* HTTPCodes.h */,
 				A51E31231B03C6EF00008248 /* HTTPCodes.m */,
 				017EE12614E30C96000F3868 /* KeenClient.h */,
 				017EE12714E30C96000F3868 /* KeenClient.m */,
-				012E8A541672B9A90021F6FA /* KeenProperties.h */,
-				012E8A551672B9A90021F6FA /* KeenProperties.m */,
+				486B59501EB24E6900D5251D /* KeenClientConfig.h */,
+				486B59511EB24E6900D5251D /* KeenClientConfig.m */,
 				01BA1B0314E895BC00CF9F84 /* KeenConstants.h */,
 				01BA1B0414E895BC00CF9F84 /* KeenConstants.m */,
-				017EE12414E30C96000F3868 /* Supporting Files */,
+				012E8A541672B9A90021F6FA /* KeenProperties.h */,
+				012E8A551672B9A90021F6FA /* KeenProperties.m */,
 				CA6410D618E37E7C00E53E3C /* KIODBStore.h */,
 				CA6410D718E37E7C00E53E3C /* KIODBStore.m */,
 				CACE78C918EA0CD800A4AB5B /* KIODBStorePrivate.h */,
-				3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */,
-				3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */,
 				48AC67C91E83364100E9C0A9 /* KIOFileStore.h */,
 				48AC67CA1E83364100E9C0A9 /* KIOFileStore.m */,
 				48AC67D41E833C2D00E9C0A9 /* KIONetwork.h */,
 				48AC67D51E833C2D00E9C0A9 /* KIONetwork.m */,
+				3E63D9EE1AE7356C00E57A17 /* KIOQuery.h */,
+				3E63D9EF1AE7356C00E57A17 /* KIOQuery.m */,
 				48AC67DC1E8348BA00E9C0A9 /* KIOUploader.h */,
 				48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */,
 				480FEB6F1E846F7500641112 /* KIOUtil.h */,
 				480FEB701E846F7500641112 /* KIOUtil.m */,
-				486B59501EB24E6900D5251D /* KeenClientConfig.h */,
-				486B59511EB24E6900D5251D /* KeenClientConfig.m */,
-				486B59691EB29AC500D5251D /* CachedQueryTests.h */,
-				486B596A1EB29AC500D5251D /* CachedQueryTests.m */,
+				481A9B791E568FC10094B985 /* Logging */,
+				017EE12414E30C96000F3868 /* Supporting Files */,
 			);
 			path = KeenClient;
 			sourceTree = "<group>";
@@ -449,40 +449,10 @@
 		017EE13714E30C96000F3868 /* KeenClientTests */ = {
 			isa = PBXGroup;
 			children = (
-				486B596C1EB29B0A00D5251D /* KeenTestCaseBase.h */,
-				486B596D1EB29B0A00D5251D /* KeenTestCaseBase.m */,
+				48E9F0D11EC25A1D009A1BF8 /* Tests */,
+				48E9F0D01EC259F0009A1BF8 /* Shared */,
 				482CB31C1E552F5300FCFACF /* corrupt.sqlite */,
-				017EE13D14E30C96000F3868 /* KeenClientTests.h */,
-				017EE13E14E30C96000F3868 /* KeenClientTests.m */,
 				017EE13814E30C96000F3868 /* Supporting Files */,
-				CA6410E018E39F3A00E53E3C /* KIODBStoreTests.h */,
-				CA6410E118E39F3A00E53E3C /* KIODBStoreTests.m */,
-				3E63D9F51AE7425000E57A17 /* KIOQueryTests.h */,
-				3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */,
-				48583E0D1E5904FD002CFD99 /* KeenLoggerTests.h */,
-				48583E0E1E5904FD002CFD99 /* KeenLoggerTests.m */,
-				486B596F1EB29B7100D5251D /* KeenClientTestable.h */,
-				486B59701EB29C2500D5251D /* KIONetworkTestable.h */,
-				486B59711EB29C5200D5251D /* KIOUploaderTestable.h */,
-				486B59721EB29D2B00D5251D /* KeenTestUtils.h */,
-				486B59731EB29D2B00D5251D /* KeenTestUtils.m */,
-				486B59751EB29DC500D5251D /* KeenTestConstants.m */,
-				486B59771EB29DD400D5251D /* KeenTestConstants.h */,
-				488892421EC12D06008C6024 /* KeenEventTests.h */,
-				488892431EC12D06008C6024 /* KeenEventTests.m */,
-				488892481EC12E81008C6024 /* KeenGeoLocationTests.h */,
-				488892491EC12E81008C6024 /* KeenGeoLocationTests.m */,
-				4888924B1EC13C21008C6024 /* TestDatabaseRequirement.h */,
-				4888924C1EC13C21008C6024 /* TestDatabaseRequirement.m */,
-				48E9F0C31EC24CA8009A1BF8 /* KIODBStoreTestable.h */,
-				48E9F0C41EC255D1009A1BF8 /* FileStoreMigrationTests.h */,
-				48E9F0C51EC255D1009A1BF8 /* FileStoreMigrationTests.m */,
-				48E9F0C71EC2563F009A1BF8 /* GlobalPropertiesTests.h */,
-				48E9F0C81EC2563F009A1BF8 /* GlobalPropertiesTests.m */,
-				48E9F0CA1EC25719009A1BF8 /* SdkTrackingHeaderTests.h */,
-				48E9F0CB1EC25719009A1BF8 /* SdkTrackingHeaderTests.m */,
-				48E9F0CD1EC257BC009A1BF8 /* QueryTests.h */,
-				48E9F0CE1EC257BC009A1BF8 /* QueryTests.m */,
 			);
 			path = KeenClientTests;
 			sourceTree = "<group>";
@@ -528,8 +498,8 @@
 		3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */ = {
 			isa = PBXGroup;
 			children = (
-				3EE9A72E1C59873F00B7B2D9 /* KeenClientFramework.h */,
 				3EE9A7301C59873F00B7B2D9 /* Info.plist */,
+				3EE9A72E1C59873F00B7B2D9 /* KeenClientFramework.h */,
 			);
 			path = KeenClientFramework;
 			sourceTree = "<group>";
@@ -537,13 +507,59 @@
 		481A9B791E568FC10094B985 /* Logging */ = {
 			isa = PBXGroup;
 			children = (
+				48583E051E58CDE2002CFD99 /* KeenLogger.h */,
+				48583E061E58CDE2002CFD99 /* KeenLogger.m */,
 				481A9B711E5687EA0094B985 /* KeenLogSink.h */,
 				481A9B7A1E5690950094B985 /* KeenLogSinkNSLog.h */,
 				481A9B7B1E5690950094B985 /* KeenLogSinkNSLog.m */,
-				48583E051E58CDE2002CFD99 /* KeenLogger.h */,
-				48583E061E58CDE2002CFD99 /* KeenLogger.m */,
 			);
 			name = Logging;
+			sourceTree = "<group>";
+		};
+		48E9F0D01EC259F0009A1BF8 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				486B596F1EB29B7100D5251D /* KeenClientTestable.h */,
+				486B596C1EB29B0A00D5251D /* KeenTestCaseBase.h */,
+				486B596D1EB29B0A00D5251D /* KeenTestCaseBase.m */,
+				486B59771EB29DD400D5251D /* KeenTestConstants.h */,
+				486B59751EB29DC500D5251D /* KeenTestConstants.m */,
+				486B59721EB29D2B00D5251D /* KeenTestUtils.h */,
+				486B59731EB29D2B00D5251D /* KeenTestUtils.m */,
+				48E9F0C31EC24CA8009A1BF8 /* KIODBStoreTestable.h */,
+				486B59701EB29C2500D5251D /* KIONetworkTestable.h */,
+				486B59711EB29C5200D5251D /* KIOUploaderTestable.h */,
+				4888924B1EC13C21008C6024 /* TestDatabaseRequirement.h */,
+				4888924C1EC13C21008C6024 /* TestDatabaseRequirement.m */,
+			);
+			name = Shared;
+			sourceTree = "<group>";
+		};
+		48E9F0D11EC25A1D009A1BF8 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				48E9F0C41EC255D1009A1BF8 /* FileStoreMigrationTests.h */,
+				48E9F0C51EC255D1009A1BF8 /* FileStoreMigrationTests.m */,
+				48E9F0C71EC2563F009A1BF8 /* GlobalPropertiesTests.h */,
+				48E9F0C81EC2563F009A1BF8 /* GlobalPropertiesTests.m */,
+				017EE13D14E30C96000F3868 /* KeenClientTests.h */,
+				017EE13E14E30C96000F3868 /* KeenClientTests.m */,
+				488892421EC12D06008C6024 /* KeenEventTests.h */,
+				488892431EC12D06008C6024 /* KeenEventTests.m */,
+				488892481EC12E81008C6024 /* KeenGeoLocationTests.h */,
+				488892491EC12E81008C6024 /* KeenGeoLocationTests.m */,
+				48583E0D1E5904FD002CFD99 /* KeenLoggerTests.h */,
+				48583E0E1E5904FD002CFD99 /* KeenLoggerTests.m */,
+				CA6410E018E39F3A00E53E3C /* KIODBStoreTests.h */,
+				CA6410E118E39F3A00E53E3C /* KIODBStoreTests.m */,
+				3E63D9F51AE7425000E57A17 /* KIOQueryTests.h */,
+				3E63D9F61AE7425000E57A17 /* KIOQueryTests.m */,
+				48E9F0CD1EC257BC009A1BF8 /* QueryTests.h */,
+				48E9F0CE1EC257BC009A1BF8 /* QueryTests.m */,
+				48E9F0CA1EC25719009A1BF8 /* SdkTrackingHeaderTests.h */,
+				48E9F0CB1EC25719009A1BF8 /* SdkTrackingHeaderTests.m */,
+			);
+			name = Tests;
 			sourceTree = "<group>";
 		};
 		A58E0C071AF85F3C00DF2B71 /* Products */ = {
