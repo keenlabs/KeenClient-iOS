@@ -9,26 +9,23 @@
 #import "KIONetwork.h"
 #import "KIOUploader.h"
 
-
 @interface KeenClient (Testable)
 
+@property KeenClientConfig *config;
 
-@property KeenClientConfig* config;
+@property (nonatomic) KIONetwork *network;
 
-@property (nonatomic) KIONetwork* network;
-
-@property (nonatomic) KIODBStore* store;
+@property (nonatomic) KIODBStore *store;
 
 // If we're running tests.
 // TODO: Remove this flag
 @property (nonatomic) BOOL isRunningTests;
 
-- (id)initWithProjectID:(NSString*)projectID
-            andWriteKey:(NSString*)writeKey
-             andReadKey:(NSString*)readKey
-             andNetwork:(KIONetwork*)network
-               andStore:(KIODBStore*)store
-            andUploader:(KIOUploader*)uploader;
-
+- (id)initWithProjectID:(NSString *)projectID
+            andWriteKey:(NSString *)writeKey
+             andReadKey:(NSString *)readKey
+             andNetwork:(KIONetwork *)network
+               andStore:(KIODBStore *)store
+            andUploader:(KIOUploader *)uploader;
 
 @end

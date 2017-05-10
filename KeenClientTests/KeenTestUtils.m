@@ -13,12 +13,9 @@
 #import "KeenTestConstants.h"
 #import "KeenTestUtils.h"
 
-
 @implementation KeenTestUtils
 
-
-# pragma mark - test filesystem utility methods
-
+#pragma mark - test filesystem utility methods
 
 + (NSString *)cacheDirectory {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
@@ -26,16 +23,14 @@
     return documentsDirectory;
 }
 
-
 + (NSString *)keenDirectory {
-    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"] stringByAppendingPathComponent:kDefaultProjectID];
+    return [[[self cacheDirectory] stringByAppendingPathComponent:@"keen"]
+        stringByAppendingPathComponent:kDefaultProjectID];
 }
-
 
 + (NSString *)eventDirectoryForCollection:(NSString *)collection {
     return [[self keenDirectory] stringByAppendingPathComponent:collection];
 }
-
 
 + (NSArray *)contentsOfDirectoryForCollection:(NSString *)collection {
     NSString *path = [self eventDirectoryForCollection:collection];
@@ -44,12 +39,12 @@
     NSArray *contents = [manager contentsOfDirectoryAtPath:path error:&error];
     if (error) {
         KCLogError(@"Error when listing contents of directory for collection %@: %@",
-                   collection, [error localizedDescription]);
+                   collection,
+                   [error localizedDescription]);
         contents = nil;
     }
     return contents;
 }
-
 
 + (NSString *)pathForEventInCollection:(NSString *)collection WithTimestamp:(NSDate *)timestamp {
     // get a file manager.
@@ -78,7 +73,6 @@
     return path;
 }
 
-
 + (BOOL)writeNSData:(NSData *)data toFile:(NSString *)file {
     // write file atomically so we don't ever have a partial event to worry about.
     BOOL success = [data writeToFile:file atomically:YES];
@@ -90,6 +84,5 @@
     }
     return YES;
 }
-
 
 @end

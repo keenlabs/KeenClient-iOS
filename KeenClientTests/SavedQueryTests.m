@@ -18,8 +18,8 @@
 - (NSDictionary *)urlsForSavedQuery:(NSString *)queryName withProjectID:(NSString *)projectID {
     // Create strings for the "urls" key of a saved query response
     return @{
-        @"cached_query_url" : [NSString stringWithFormat:@"/3.0/projects/%@/queries/saved/%@", projectID, queryName],
-        @"cached_query_results_url" :
+        @"cached_query_url": [NSString stringWithFormat:@"/3.0/projects/%@/queries/saved/%@", projectID, queryName],
+        @"cached_query_results_url":
             [NSString stringWithFormat:@"/3.0/projects/%@/queries/saved/%@/result", projectID, queryName]
     };
 }
@@ -42,7 +42,8 @@
                                  NSString *expectedUrl =
                                      [NSString stringWithFormat:@"https://api.keen.io/3.0/projects/%@/"
                                                                 @"queries/saved/%@/result",
-                                                                kDefaultProjectID, queryName];
+                                                                kDefaultProjectID,
+                                                                queryName];
                                  XCTAssertEqualObjects(expectedUrl, request.URL.absoluteString);
                                  return @YES;
                              }];
@@ -77,25 +78,25 @@
     NSNumber *resultValue = @880;
 
     NSDictionary *responseDictionary = @{
-        @"refresh_rate" : @0,
-        @"user_last_modified_date" : @"2017-05-09T21:28:12.408000+00:00",
-        @"last_modified_date" : @"2017-05-09T21:28:12.408000+00:00",
-        @"query_name" : queryName,
-        @"result" : resultValue,
-        @"urls" : [self urlsForSavedQuery:queryName withProjectID:kDefaultProjectID],
-        @"created_date" : @"2017-05-09T21:28:12.408000+00:00",
-        @"query" : @{
-            @"target_property" : @"price",
-            @"event_collection" : @"purchases2",
-            @"filters" : @[],
-            @"interval" : [NSNull null],
-            @"group_by" : [NSNull null],
-            @"analysis_type" : @"sum",
-            @"timezone" : [NSNull null],
-            @"timeframe" : @"this_2_weeks"
+        @"refresh_rate": @0,
+        @"user_last_modified_date": @"2017-05-09T21:28:12.408000+00:00",
+        @"last_modified_date": @"2017-05-09T21:28:12.408000+00:00",
+        @"query_name": queryName,
+        @"result": resultValue,
+        @"urls": [self urlsForSavedQuery:queryName withProjectID:kDefaultProjectID],
+        @"created_date": @"2017-05-09T21:28:12.408000+00:00",
+        @"query": @{
+            @"target_property": @"price",
+            @"event_collection": @"purchases2",
+            @"filters": @[],
+            @"interval": [NSNull null],
+            @"group_by": [NSNull null],
+            @"analysis_type": @"sum",
+            @"timezone": [NSNull null],
+            @"timeframe": @"this_2_weeks"
         },
-        @"metadata" : [NSNull null],
-        @"run_information" : [NSNull null]
+        @"metadata": [NSNull null],
+        @"run_information": [NSNull null]
     };
 
     [self makeAndValidateSavedQueryRequest:queryName
@@ -106,88 +107,88 @@
 - (void)testSavedFunnelQuerySuccess {
     NSString *queryName = @"saved_funnel";
     NSDictionary *resultValue = @{
-        @"steps" : @[
+        @"steps": @[
             @{
-               @"with_actors" : @NO,
-               @"actor_property" : @"visitor.guid",
-               @"filters" : @[],
-               @"timeframe" : @"this_7_days",
-               @"timezone" : [NSNull null],
-               @"event_collection" : @"signed up",
-               @"optional" : @NO,
-               @"inverted" : @NO
+               @"with_actors": @NO,
+               @"actor_property": @"visitor.guid",
+               @"filters": @[],
+               @"timeframe": @"this_7_days",
+               @"timezone": [NSNull null],
+               @"event_collection": @"signed up",
+               @"optional": @NO,
+               @"inverted": @NO
             },
             @{
-               @"with_actors" : @NO,
-               @"actor_property" : @"user.guid",
-               @"filters" : @[],
-               @"timeframe" : @"this_7_days",
-               @"timezone" : [NSNull null],
-               @"event_collection" : @"completed profile",
-               @"optional" : @NO,
-               @"inverted" : @NO
+               @"with_actors": @NO,
+               @"actor_property": @"user.guid",
+               @"filters": @[],
+               @"timeframe": @"this_7_days",
+               @"timezone": [NSNull null],
+               @"event_collection": @"completed profile",
+               @"optional": @NO,
+               @"inverted": @NO
             },
             @{
-               @"with_actors" : @NO,
-               @"actor_property" : @"user.guid",
-               @"filters" : @[],
-               @"timeframe" : @"this_7_days",
-               @"timezone" : [NSNull null],
-               @"event_collection" : @"referred user",
-               @"optional" : @NO,
-               @"inverted" : @NO
+               @"with_actors": @NO,
+               @"actor_property": @"user.guid",
+               @"filters": @[],
+               @"timeframe": @"this_7_days",
+               @"timezone": [NSNull null],
+               @"event_collection": @"referred user",
+               @"optional": @NO,
+               @"inverted": @NO
             }
         ],
-        @"result" : @[ @0, @0, @0 ]
+        @"result": @[@0, @0, @0]
     };
 
     NSDictionary *responseDictionary = @{
-        @"refresh_rate" : @0,
-        @"user_last_modified_date" : @"2017-05-10T16:44:44.358000+00:00",
-        @"last_modified_date" : @"2017-05-10T16:44:44.358000+00:00",
-        @"query_name" : queryName,
-        @"result" : resultValue,
-        @"urls" : [self urlsForSavedQuery:queryName withProjectID:kDefaultProjectID],
-        @"created_date" : @"2017-05-10T16:44:44.358000+00:00",
-        @"query" : @{
-            @"analysis_type" : @"funnel",
-            @"timezone" : [NSNull null],
-            @"steps" : @[
+        @"refresh_rate": @0,
+        @"user_last_modified_date": @"2017-05-10T16:44:44.358000+00:00",
+        @"last_modified_date": @"2017-05-10T16:44:44.358000+00:00",
+        @"query_name": queryName,
+        @"result": resultValue,
+        @"urls": [self urlsForSavedQuery:queryName withProjectID:kDefaultProjectID],
+        @"created_date": @"2017-05-10T16:44:44.358000+00:00",
+        @"query": @{
+            @"analysis_type": @"funnel",
+            @"timezone": [NSNull null],
+            @"steps": @[
                 @{
-                   @"with_actors" : @NO,
-                   @"actor_property" : @"visitor.guid",
-                   @"filters" : @[],
-                   @"timeframe" : @"this_7_days",
-                   @"timezone" : [NSNull null],
-                   @"event_collection" : @"signed up",
-                   @"optional" : @NO,
-                   @"inverted" : @NO
+                   @"with_actors": @NO,
+                   @"actor_property": @"visitor.guid",
+                   @"filters": @[],
+                   @"timeframe": @"this_7_days",
+                   @"timezone": [NSNull null],
+                   @"event_collection": @"signed up",
+                   @"optional": @NO,
+                   @"inverted": @NO
                 },
                 @{
-                   @"with_actors" : @NO,
-                   @"actor_property" : @"user.guid",
-                   @"filters" : @[],
-                   @"timeframe" : @"this_7_days",
-                   @"timezone" : [NSNull null],
-                   @"event_collection" : @"completed profile",
-                   @"optional" : @NO,
-                   @"inverted" : @NO
+                   @"with_actors": @NO,
+                   @"actor_property": @"user.guid",
+                   @"filters": @[],
+                   @"timeframe": @"this_7_days",
+                   @"timezone": [NSNull null],
+                   @"event_collection": @"completed profile",
+                   @"optional": @NO,
+                   @"inverted": @NO
                 },
                 @{
-                   @"with_actors" : @NO,
-                   @"actor_property" : @"user.guid",
-                   @"filters" : @[],
-                   @"timeframe" : @"this_7_days",
-                   @"timezone" : [NSNull null],
-                   @"event_collection" : @"referred user",
-                   @"optional" : @NO,
-                   @"inverted" : @NO
+                   @"with_actors": @NO,
+                   @"actor_property": @"user.guid",
+                   @"filters": @[],
+                   @"timeframe": @"this_7_days",
+                   @"timezone": [NSNull null],
+                   @"event_collection": @"referred user",
+                   @"optional": @NO,
+                   @"inverted": @NO
                 }
             ],
-            @"timeframe" : [NSNull null]
+            @"timeframe": [NSNull null]
         },
-        @"metadata" : [NSNull null],
-        @"run_information" : [NSNull null]
+        @"metadata": [NSNull null],
+        @"run_information": [NSNull null]
     };
 
     [self makeAndValidateSavedQueryRequest:queryName
@@ -197,31 +198,31 @@
 
 - (void)testSavedMultiAnalysisQuerySuccess {
     NSString *queryName = @"saved_multi";
-    NSDictionary *resultValue = @{ @"total visits" : @100, @"unique users" : @55 };
+    NSDictionary *resultValue = @{ @"total visits": @100, @"unique users": @55 };
 
     NSDictionary *responseDictionary = @{
-        @"refresh_rate" : @0,
-        @"user_last_modified_date" : @"2017-05-10T17:13:44.932000+00:00",
-        @"last_modified_date" : @"2017-05-10T17:13:44.932000+00:00",
-        @"query_name" : queryName,
-        @"result" : resultValue,
-        @"urls" : [self urlsForSavedQuery:queryName withProjectID:kDefaultProjectID],
-        @"created_date" : @"2017-05-10T17:13:44.932000+00:00",
-        @"query" : @{
-            @"event_collection" : @"signed up",
-            @"filters" : @[],
-            @"interval" : [NSNull null],
-            @"group_by" : [NSNull null],
-            @"analysis_type" : @"multi_analysis",
-            @"timezone" : [NSNull null],
-            @"analyses" : @{
-                @"total visits" : @{@"analysis_type" : @"count", @"target_property" : [NSNull null]},
-                @"unique users" : @{@"analysis_type" : @"count_unique", @"target_property" : @"user.id"}
+        @"refresh_rate": @0,
+        @"user_last_modified_date": @"2017-05-10T17:13:44.932000+00:00",
+        @"last_modified_date": @"2017-05-10T17:13:44.932000+00:00",
+        @"query_name": queryName,
+        @"result": resultValue,
+        @"urls": [self urlsForSavedQuery:queryName withProjectID:kDefaultProjectID],
+        @"created_date": @"2017-05-10T17:13:44.932000+00:00",
+        @"query": @{
+            @"event_collection": @"signed up",
+            @"filters": @[],
+            @"interval": [NSNull null],
+            @"group_by": [NSNull null],
+            @"analysis_type": @"multi_analysis",
+            @"timezone": [NSNull null],
+            @"analyses": @{
+                @"total visits": @{@"analysis_type": @"count", @"target_property": [NSNull null]},
+                @"unique users": @{@"analysis_type": @"count_unique", @"target_property": @"user.id"}
             },
-            @"timeframe" : @"this_7_days"
+            @"timeframe": @"this_7_days"
         },
-        @"metadata" : [NSNull null],
-        @"run_information" : [NSNull null]
+        @"metadata": [NSNull null],
+        @"run_information": [NSNull null]
     };
 
     [self makeAndValidateSavedQueryRequest:queryName

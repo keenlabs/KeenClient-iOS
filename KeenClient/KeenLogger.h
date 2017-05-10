@@ -9,13 +9,12 @@
 #import <Foundation/Foundation.h>
 #import "KeenLogSink.h"
 
-
 @interface KeenLogger : NSObject
 
 /**
  Get the shared logger instance.
  */
-+ (KeenLogger*)sharedLogger;
++ (KeenLogger *)sharedLogger;
 
 /**
  Call this to disable debug logging. It's disabled by default.
@@ -63,6 +62,6 @@
 /**
  Log a message using registered loggers
  */
-- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message;
+- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString *)message;
 
 @end

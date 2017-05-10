@@ -8,9 +8,9 @@
 
 @interface KIONetwork (Testable)
 
-- (void)handleQueryAPIResponse:(NSURLResponse*)response
-                       andData:(NSData*)responseData
-                      andQuery:(KIOQuery*)query
-                  andProjectID:(NSString*)projectID;
+- (void)handleQueryAPIResponse:(NSURLResponse *)response
+                       andData:(NSData *)responseData
+                      andQuery:(KIOQuery *)query
+                  andProjectID:(NSString *)projectID;
 
 @end

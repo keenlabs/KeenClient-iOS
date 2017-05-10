@@ -8,19 +8,19 @@
 
 #import "KeenConstants.h"
 
-NSString * const kKeenServerAddress = @"https://api.keen.io";
-NSString * const kKeenApiVersion = @"3.0";
+NSString *const kKeenServerAddress = @"https://api.keen.io";
+NSString *const kKeenApiVersion = @"3.0";
 
 // Keen API constants
 
-NSString * const kKeenNameParam = @"name";
-NSString * const kKeenDescriptionParam = @"description";
-NSString * const kKeenSuccessParam = @"success";
-NSString * const kKeenErrorParam = @"error";
-NSString * const kKeenErrorCodeParam = @"error_code";
-NSString * const kKeenInvalidCollectionNameError = @"InvalidCollectionNameError";
-NSString * const kKeenInvalidPropertyNameError = @"InvalidPropertyNameError";
-NSString * const kKeenInvalidPropertyValueError = @"InvalidPropertyValueError";
+NSString *const kKeenNameParam = @"name";
+NSString *const kKeenDescriptionParam = @"description";
+NSString *const kKeenSuccessParam = @"success";
+NSString *const kKeenErrorParam = @"error";
+NSString *const kKeenErrorCodeParam = @"error_code";
+NSString *const kKeenInvalidCollectionNameError = @"InvalidCollectionNameError";
+NSString *const kKeenInvalidPropertyNameError = @"InvalidPropertyNameError";
+NSString *const kKeenInvalidPropertyValueError = @"InvalidPropertyValueError";
 
 // Keen constants related to how much data we'll cache on the device before aging it out
 
@@ -30,12 +30,12 @@ NSUInteger const kKeenMaxEventsPerCollection = 10000;
 NSUInteger const kKeenNumberEventsToForget = 100;
 
 // custom domain for NSErrors
-NSString * const kKeenErrorDomain = @"io.keen";
+NSString *const kKeenErrorDomain = @"io.keen";
 
 // Name of header that provides SDK version info
-NSString * const kKeenSdkVersionHeader = @"Keen-Sdk";
+NSString *const kKeenSdkVersionHeader = @"Keen-Sdk";
 // The SDK version info header content.
-NSString * const kKeenSdkVersionWithPlatform = @"ios-" kKeenSdkVersion;
+NSString *const kKeenSdkVersionWithPlatform = @"ios-" kKeenSdkVersion;
 
 // User settings key indicating that a file store import has already been done.
-NSString * const kKeenFileStoreImportedKey = @"didFSImport";
+NSString *const kKeenFileStoreImportedKey = @"didFSImport";

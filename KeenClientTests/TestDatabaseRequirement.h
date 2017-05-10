@@ -10,7 +10,7 @@
 
 @interface TestDatabaseRequirement : NSObject
 
-- (instancetype)initWithDatabasePath:(NSString*)path;
+- (instancetype)initWithDatabasePath:(NSString *)path;
 
 - (void)unlock;
 

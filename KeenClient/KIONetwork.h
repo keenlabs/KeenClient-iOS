@@ -16,28 +16,27 @@
 + (instancetype)sharedInstance;
 
 // Initialize the object
-- (instancetype)initWithURLSession:(NSURLSession*)urlSession
-                          andStore:(KIODBStore*)store;
+- (instancetype)initWithURLSession:(NSURLSession *)urlSession andStore:(KIODBStore *)store;
 
 // Upload events to keen
-- (void)sendEvents:(NSData*)data
-            config:(KeenClientConfig*)config
- completionHandler:(AnalysisCompletionBlock)completionHandler;
+- (void)sendEvents:(NSData *)data
+               config:(KeenClientConfig *)config
+    completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 // Run an analysis request
-- (void)runQuery:(KIOQuery*)keenQuery config:(KeenClientConfig*)config
-                           completionHandler:(AnalysisCompletionBlock)completionHandler;
+- (void)runQuery:(KIOQuery *)keenQuery
+               config:(KeenClientConfig *)config
+    completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 // Run a multi-analysis request
-- (void)runMultiAnalysisWithQueries:(NSArray*)keenQueries
-                             config:(KeenClientConfig*)config
+- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
+                             config:(KeenClientConfig *)config
                   completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 // Run a saved/cached query request
-- (void)runSavedAnalysis:(NSString*)queryName
-                  config:(KeenClientConfig*)config
+- (void)runSavedAnalysis:(NSString *)queryName
+                  config:(KeenClientConfig *)config
        completionHandler:(AnalysisCompletionBlock)completionHandler;
-
 
 // The maximum number of times to try a query before stop attempting it.
 @property int maxQueryAttempts;
@@ -46,6 +45,6 @@
 @property int queryTTL;
 
 // The NSURLSession instance to use for requests
-@property (nonatomic, readonly) NSURLSession* urlSession;
+@property (nonatomic, readonly) NSURLSession *urlSession;
 
 @end

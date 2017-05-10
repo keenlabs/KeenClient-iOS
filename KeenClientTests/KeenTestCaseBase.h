@@ -10,30 +10,29 @@
 
 @interface KeenTestCaseBase : XCTestCase
 
-- (NSDictionary*)buildResultWithSuccess:(BOOL)success
-                            andErrorCode:(NSString*)errorCode
-                          andDescription:(NSString*)description;
+- (NSDictionary *)buildResultWithSuccess:(BOOL)success
+                            andErrorCode:(NSString *)errorCode
+                          andDescription:(NSString *)description;
 
-- (NSDictionary*)buildResponseJsonWithSuccess:(BOOL)success
-                                  AndErrorCode:(NSString*)errorCode
-                                AndDescription:(NSString*)description;
+- (NSDictionary *)buildResponseJsonWithSuccess:(BOOL)success
+                                  AndErrorCode:(NSString *)errorCode
+                                AndDescription:(NSString *)description;
 
 - (id)createClientWithRequestValidator:(BOOL (^)(id obj))validator;
 
-- (id)createClientWithResponseData:(id)data
-                     andStatusCode:(NSInteger)code;
+- (id)createClientWithResponseData:(id)data andStatusCode:(NSInteger)code;
 
 - (id)createClientWithResponseData:(id)data
                      andStatusCode:(NSInteger)code
-               andNetworkConnected:(NSNumber*)isNetworkConnected;
+               andNetworkConnected:(NSNumber *)isNetworkConnected;
 
-- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse*)response
-                 andResponseData:(NSData*)responseData
+- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse *)response
+                 andResponseData:(NSData *)responseData
              andRequestValidator:(BOOL (^)(id requestObject))requestValidator;
 
 - (id)createClientWithResponseData:(id)data
                      andStatusCode:(NSInteger)code
-               andNetworkConnected:(NSNumber*)isNetworkConnected
+               andNetworkConnected:(NSNumber *)isNetworkConnected
                andRequestValidator:(BOOL (^)(id obj))requestValidator;
 
 @end
