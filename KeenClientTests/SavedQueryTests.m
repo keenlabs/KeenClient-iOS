@@ -15,7 +15,7 @@
 
 @implementation SavedQueryTests
 
-- (NSDictionary*)urlsForSavedQuery:(NSString*)queryName withProjectID:(NSString*)projectID {
+- (NSDictionary *)urlsForSavedQuery:(NSString *)queryName withProjectID:(NSString *)projectID {
     // Create strings for the "urls" key of a saved query response
     return @{
         @"cached_query_url" : [NSString stringWithFormat:@"/3.0/projects/%@/queries/saved/%@", projectID, queryName],
@@ -24,10 +24,10 @@
     };
 }
 
-- (void)makeAndValidateSavedQueryRequest:(NSString*)queryName
-                  withResponseDictionary:(NSDictionary*)responseDictionary
+- (void)makeAndValidateSavedQueryRequest:(NSString *)queryName
+                  withResponseDictionary:(NSDictionary *)responseDictionary
                       withExpectedResult:(id)expectedResult {
-    XCTestExpectation* queryCompleted =
+    XCTestExpectation *queryCompleted =
         [self expectationWithDescription:@"runAsyncSavedAnalysis should call completionHandler."];
 
     // Create a KeenClient instance with a canned HTTP response and a parameter
@@ -37,9 +37,9 @@
                              andNetworkConnected:@YES
                              andRequestValidator:^BOOL(id requestObject) {
                                  XCTAssertTrue([requestObject isKindOfClass:[NSMutableURLRequest class]]);
-                                 NSMutableURLRequest* request = requestObject;
+                                 NSMutableURLRequest *request = requestObject;
 
-                                 NSString* expectedUrl =
+                                 NSString *expectedUrl =
                                      [NSString stringWithFormat:@"https://api.keen.io/3.0/projects/%@/"
                                                                 @"queries/saved/%@/result",
                                                                 kDefaultProjectID, queryName];
@@ -49,19 +49,19 @@
 
     // Run the saved query request
     [mock runAsyncSavedAnalysis:queryName
-              completionHandler:^(NSData* responseData, NSURLResponse* response, NSError* error) {
+              completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
                   XCTAssertNil(error);
 
                   // Validate the http code
-                  NSHTTPURLResponse* httpResponse = (NSHTTPURLResponse*)response;
+                  NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
                   XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
 
                   // Deserialize the response dictionary
-                  NSDictionary* responseDictionary =
+                  NSDictionary *responseDictionary =
                       [NSJSONSerialization JSONObjectWithData:responseData options:kNilOptions error:&error];
 
                   // Get the result from the response dictionary
-                  NSNumber* result = [responseDictionary objectForKey:@"result"];
+                  NSNumber *result = [responseDictionary objectForKey:@"result"];
 
                   // Assert that the result is as expected
                   XCTAssertEqualObjects(result, expectedResult);
@@ -73,10 +73,10 @@
 }
 
 - (void)testSavedCountQuerySuccess {
-    NSString* queryName = @"saved_count";
-    NSNumber* resultValue = @880;
+    NSString *queryName = @"saved_count";
+    NSNumber *resultValue = @880;
 
-    NSDictionary* responseDictionary = @{
+    NSDictionary *responseDictionary = @{
         @"refresh_rate" : @0,
         @"user_last_modified_date" : @"2017-05-09T21:28:12.408000+00:00",
         @"last_modified_date" : @"2017-05-09T21:28:12.408000+00:00",
@@ -104,8 +104,8 @@
 }
 
 - (void)testSavedFunnelQuerySuccess {
-    NSString* queryName = @"saved_funnel";
-    NSDictionary* resultValue = @{
+    NSString *queryName = @"saved_funnel";
+    NSDictionary *resultValue = @{
         @"steps" : @[
             @{
                @"with_actors" : @NO,
@@ -141,7 +141,7 @@
         @"result" : @[ @0, @0, @0 ]
     };
 
-    NSDictionary* responseDictionary = @{
+    NSDictionary *responseDictionary = @{
         @"refresh_rate" : @0,
         @"user_last_modified_date" : @"2017-05-10T16:44:44.358000+00:00",
         @"last_modified_date" : @"2017-05-10T16:44:44.358000+00:00",
@@ -196,10 +196,10 @@
 }
 
 - (void)testSavedMultiAnalysisQuerySuccess {
-    NSString* queryName = @"saved_multi";
-    NSDictionary* resultValue = @{ @"total visits" : @100, @"unique users" : @55 };
+    NSString *queryName = @"saved_multi";
+    NSDictionary *resultValue = @{ @"total visits" : @100, @"unique users" : @55 };
 
-    NSDictionary* responseDictionary = @{
+    NSDictionary *responseDictionary = @{
         @"refresh_rate" : @0,
         @"user_last_modified_date" : @"2017-05-10T17:13:44.932000+00:00",
         @"last_modified_date" : @"2017-05-10T17:13:44.932000+00:00",
