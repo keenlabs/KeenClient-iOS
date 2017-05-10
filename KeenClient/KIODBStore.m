@@ -60,7 +60,7 @@
 }
 
 + (KIODBStore *)sharedInstance {
-    static KIODBStore *s_sharedDBStore = nil;
+    static KIODBStore *s_sharedDBStore;
     
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -71,7 +71,7 @@
     // for the block to complete.
     static dispatch_once_t predicate = {0};
     dispatch_once(&predicate, ^{
-        s_sharedDBStore = [[KIODBStore alloc] init];
+        s_sharedDBStore = [KIODBStore new];
     });
     
     return s_sharedDBStore;
@@ -275,7 +275,7 @@
     return databaseVersion;
 }
 
-- (BOOL)setUserVersion: (int)userVersion {
+- (BOOL)setUserVersion:(int)userVersion {
     char *err;
     NSString *sql = [NSString stringWithFormat:@"PRAGMA user_version = %d;", userVersion];
     if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {

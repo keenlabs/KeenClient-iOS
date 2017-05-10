@@ -52,7 +52,7 @@
 
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         NSString *isoDate = [self convertDate:keenProperties.timestamp];
-        if (isoDate != nil) {
+        if (isoDate) {
             [dict setObject:isoDate forKey:@"timestamp"];
         }
 

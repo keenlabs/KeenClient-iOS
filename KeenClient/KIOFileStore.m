@@ -118,7 +118,7 @@
         // that out first.
         if ([fileManager fileExistsAtPath:rootPath]) {
             // declare an error object
-            NSError *error = nil;
+            NSError *error;
 
             // iterate through each directory
             NSArray *directories = [self keenSubDirectoriesForProjectID:projectID];

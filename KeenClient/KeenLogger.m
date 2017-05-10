@@ -98,7 +98,7 @@ KeenLogSinkNSLog* _logSinkNSLog;
     _isNSLogEnabled = isNSLogEnabled;
     dispatch_async(_loggerQueue, ^() {
         if (isNSLogEnabled) {
-            if (nil == _logSinkNSLog) {
+            if (_logSinkNSLog == nil) {
                 // Create the NSLog logger
                 _logSinkNSLog = [KeenLogSinkNSLog new];
             }
@@ -109,7 +109,7 @@ KeenLogSinkNSLog* _logSinkNSLog;
             }
         } else {
             // Remove the logger if it has been added
-            if (nil != _logSinkNSLog) {
+            if (_logSinkNSLog) {
                 if ([_logSinks containsObject:_logSinkNSLog]) {
                     [_logSinks removeObject:_logSinkNSLog];
                 }
