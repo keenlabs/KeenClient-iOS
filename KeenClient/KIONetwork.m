@@ -37,7 +37,7 @@
 @implementation KIONetwork
 
 + (instancetype)sharedInstance {
-    static KIONetwork *s_sharedInstance = nil;
+    static KIONetwork *s_sharedInstance;
 
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -49,18 +49,11 @@
     static dispatch_once_t predicate = {0};
     dispatch_once(&predicate, ^{
         s_sharedInstance = [[KIONetwork alloc] initWithURLSession:[NSURLSession sharedSession]
-                                                         andStore:KIODBStore.sharedInstance];
+                                                         andStore:[KIODBStore sharedInstance]];
     });
 
     return s_sharedInstance;
 }
-
-
-- (instancetype)init {
-    [NSException raise:@"InvalidOperation" format:@"init not implemented."];
-    return nil;
-}
-
 
 - (instancetype)initWithURLSession:(NSURLSession *)urlSession
                           andStore:(KIODBStore *)store {
@@ -93,8 +86,7 @@
 
 - (void)executeRequest:(NSURLRequest *)request
      completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
-    NSURLSession* session = self.urlSession;
-    [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
+    [[self.urlSession dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
 - (BOOL)hasQueryReachedMaxAttempts:(KIOQuery *)keenQuery withProjectID:(NSString *)projectID {
@@ -128,7 +120,6 @@
                                         withReadKey:(NSString *)readKey
                                   completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
     BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery withProjectID:projectID];
-
     if (hasQueryWithMaxAttempts) {
         KCLogWarn(@"Not running query because it failed over %d times", self.maxQueryAttempts);
         return;
@@ -166,7 +157,7 @@
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
 
     // if the query failed because of a client error, let's add it to the database
-    if ([HTTPCodes httpCodeType:(responseCode)] == HTTPCode4XXClientError && query != nil) {
+    if (query && [HTTPCodes httpCodeType:(responseCode)] == HTTPCode4XXClientError) {
         // log what happened
         KCLogError(@"Response code was 4xx Client Error. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
@@ -199,7 +190,7 @@
     //convert the resulting dictionary to data and set it as HTTPBody
     NSError *dictionarySerializationError;
     NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
-    if (dictionarySerializationError != nil) {
+    if (dictionarySerializationError) {
         KCLogError(@"error with dictionary serialization");
         return;
     }

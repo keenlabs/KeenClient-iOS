@@ -15,6 +15,7 @@
 + (instancetype)sharedInstance;
 
 // Initialize the object
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithURLSession:(NSURLSession *)urlSession
                           andStore:(KIODBStore *)store;
 
