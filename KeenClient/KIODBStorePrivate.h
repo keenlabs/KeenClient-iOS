@@ -12,4 +12,6 @@
 
 - (void)closeDB;
 
+- (void)drainQueue;
+
 @end

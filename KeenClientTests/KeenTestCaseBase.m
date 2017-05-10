@@ -62,11 +62,7 @@
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
     [KeenClient sharedClient].config = nil;
 
-    // Ensure the sqlite database has been closed since we'll
-    // likely be blowing it away and will need to open it again
-    [[KeenClient sharedClient].store closeDB];
-
-    // delete all collections and their events.
+    // Delete all file-based collections/events
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:[KeenTestUtils keenDirectory]]) {
@@ -75,6 +71,13 @@
             XCTFail(@"No error should be thrown when cleaning up: %@", [error localizedDescription]);
         }
     }
+
+    // Ensure all db operations have finished
+    [[KeenClient sharedClient].store drainQueue];
+
+    // Ensure the sqlite database has been closed since we'll
+    // likely be blowing it away and will need to open it again
+    [[KeenClient sharedClient].store closeDB];
 
     // Done with sqlite, free the lock on it
     [self.databaseRequirement unlock];

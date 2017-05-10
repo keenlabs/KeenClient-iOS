@@ -15,6 +15,8 @@
 
 - (void)closeDB;
 
+- (void)drainQueue;
+
 // A dispatch queue used for sqlite.
 @property (nonatomic) dispatch_queue_t dbQueue;
 
@@ -191,7 +193,7 @@
 
 - (void)closeDB {
     // Free all the prepared statements. This is safe on null pointers.
-    if(dbIsOpen) {
+    if (dbIsOpen) {
         self.dbQueue = nil;
 
         keen_io_sqlite3_finalize(insert_event_stmt);
@@ -220,6 +222,22 @@
         keen_dbname = NULL;
         // Reset state in case it matters.
         dbIsOpen = NO;
+    }
+}
+
+- (void)drainQueue {
+    if (dbIsOpen) {
+        dispatch_group_t group = dispatch_group_create();
+        
+        // Add a task to be run after all other tasks
+        dispatch_group_async(group, self.dbQueue, ^{
+            KCLogVerbose(@"Queue complete");
+        });
+        
+        // Wait for the task to be run, which means all other
+        // queued tasks have run. Of note: if a task is added
+        // after this one, the queue isn't going to be empty.
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     }
 }
 
