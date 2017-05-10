@@ -17,7 +17,7 @@
 typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
 // Block type for analysis/query completion
-typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
+typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* response, NSError* error);
 
 /**
  KeenClient has class methods to return managed instances of itself and instance methods

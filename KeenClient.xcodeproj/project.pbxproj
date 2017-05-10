@@ -367,13 +367,13 @@
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
+				0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */,
+				A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */,
 				01A9A34314FE95210082AB22 /* docs */,
 				017EE12014E30C96000F3868 /* Frameworks */,
 				017EE12314E30C96000F3868 /* KeenClient */,
-				0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */,
 				3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */,
 				017EE13714E30C96000F3868 /* KeenClientTests */,
-				A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */,
 				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE11F14E30C96000F3868 /* Products */,
 			);
