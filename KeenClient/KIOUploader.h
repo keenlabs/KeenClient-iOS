@@ -19,6 +19,7 @@
 + (instancetype)sharedInstance;
 
 // Initialize an instance of the object
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithNetwork:(KIONetwork *)network
                        andStore:(KIODBStore *)store;
 

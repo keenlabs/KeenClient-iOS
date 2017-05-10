@@ -47,7 +47,7 @@
 
 
 + (instancetype)sharedInstance {
-    static KIOUploader *s_sharedInstance = nil;
+    static KIOUploader *s_sharedInstance;
 
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -65,15 +65,10 @@
     return s_sharedInstance;
 }
 
-- (instancetype)init {
-    [NSException raise:@"InvalidOperation" format:@"init not implemented."];
-    return nil;
-}
-
 - (instancetype)initWithNetwork:(KIONetwork *)network
                        andStore:(KIODBStore *)store {
     self = [super init];
-    if (self){
+    if (self) {
         // Create a serialized queue to handle all upload operations
         self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
 
@@ -120,9 +115,9 @@
             // add it to the array of events
             [eventsArray addObject:eventDict];
             if ([eventIDDict objectForKey:coll] == nil) {
-                [eventIDDict setObject: [NSMutableArray array] forKey: coll];
+                [eventIDDict setObject: [NSMutableArray array] forKey:coll];
             }
-            [[eventIDDict objectForKey:coll] addObject: eid];
+            [[eventIDDict objectForKey:coll] addObject:eid];
         }
 
         // add the array of events to the request
@@ -170,8 +165,8 @@
         [KIOFileStore maybeMigrateDataFromFileStore:projectID];
 
         // get data for the API request we'll make
-        NSData *data = nil;
-        NSMutableDictionary *eventIDs = nil;
+        NSData *data;
+        NSMutableDictionary *eventIDs;
         [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:projectID];
 
         if ([data length] == 0) {
@@ -274,7 +269,7 @@
 
             // delete the file if we need to
             if (deleteFile) {
-                [self.store deleteEvent: eid];
+                [self.store deleteEvent:eid];
                 KCLogVerbose(@"Successfully deleted event: %@", eid);
             }
             count++;
