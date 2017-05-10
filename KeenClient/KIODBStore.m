@@ -686,7 +686,7 @@
         return;
     }
 
-    dispatch_sync(self.dbQueue, ^{
+    dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_step(delete_all_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete all events"];
             return;
@@ -999,7 +999,7 @@
         return;
     }
 
-    dispatch_sync(self.dbQueue, ^{
+    dispatch_async(self.dbQueue, ^{
         if (keen_io_sqlite3_step(delete_all_queries_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete all queries"];
             return;
