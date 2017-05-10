@@ -625,9 +625,9 @@ static BOOL geoLocationRequestEnabled = YES;
 - (void)runAsyncSavedAnalysis:(NSString*)queryName
             completionHandler:(AnalysisCompletionBlock)completionHandler {
     dispatch_async(self.queryQueue, ^{
-        [self.network runAsyncSavedAnalysis:queryName
-                                     config:self.config
-                          completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
+        [self.network runSavedAnalysis:queryName
+                                config:self.config
+                     completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
             // we're done querying, call the main queue and execute the block
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)

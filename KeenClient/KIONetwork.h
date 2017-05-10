@@ -34,9 +34,9 @@
                   completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 // Run a saved/cached query request
-- (void)runAsyncSavedAnalysis:(NSString*)queryName
-                       config:(KeenClientConfig*)config
-            completionHandler:(AnalysisCompletionBlock)completionHandler;
+- (void)runSavedAnalysis:(NSString*)queryName
+                  config:(KeenClientConfig*)config
+       completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 
 // The maximum number of times to try a query before stop attempting it.

@@ -308,9 +308,9 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
 
 
 // Run a saved/cached query request
-- (void)runAsyncSavedAnalysis:(NSString*)queryName
-                       config:(KeenClientConfig*)config
-            completionHandler:(AnalysisCompletionBlock)completionHandler {
+- (void)runSavedAnalysis:(NSString*)queryName
+                  config:(KeenClientConfig*)config
+       completionHandler:(AnalysisCompletionBlock)completionHandler {
 
     NSString* urlString = [NSString stringWithFormat:@"%@/queries/saved/%@/result",
                            [self getProjectURL:config.projectID], queryName];
