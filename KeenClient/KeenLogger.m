@@ -17,11 +17,10 @@ _Atomic(BOOL) _isNSLogEnabled;
 KeenLogLevel _logLevel;
 NSMutableArray *_logSinks;
 dispatch_queue_t _loggerQueue;
-KeenLogSinkNSLog* _logSinkNSLog;
+KeenLogSinkNSLog *_logSinkNSLog;
 
-
-+ (KeenLogger*)sharedLogger {
-    static KeenLogger* s_logger;
++ (KeenLogger *)sharedLogger {
+    static KeenLogger *s_logger;
 
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -38,8 +37,7 @@ KeenLogSinkNSLog* _logSinkNSLog;
     return s_logger;
 }
 
-
-- (KeenLogger*)init {
+- (KeenLogger *)init {
     self = [super init];
 
     if (nil != self) {
@@ -72,7 +70,6 @@ KeenLogSinkNSLog* _logSinkNSLog;
     return self;
 }
 
-
 - (void)disableLogging {
     _isLoggingEnabled = NO;
     dispatch_async(_loggerQueue, ^() {
@@ -85,14 +82,12 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
 - (void)enableLogging {
     _isLoggingEnabled = YES;
     dispatch_async(_loggerQueue, ^() {
         _areLogSinksEnabled = YES;
     });
 }
-
 
 - (void)setIsNSLogEnabled:(BOOL)isNSLogEnabled {
     _isNSLogEnabled = isNSLogEnabled;
@@ -120,16 +115,13 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
 - (BOOL)isNSLogEnabled {
     return _isNSLogEnabled;
 }
 
-
 - (BOOL)isLoggingEnabled {
     return _isLoggingEnabled;
 }
-
 
 - (void)setLogLevel:(KeenLogLevel)level {
     dispatch_async(_loggerQueue, ^() {
@@ -137,13 +129,11 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
 - (void)addLogSink:(id<KeenLogSink>)sink {
     dispatch_async(_loggerQueue, ^() {
         [_logSinks addObject:sink];
     });
 }
-
 
 - (void)removeLogSink:(id<KeenLogSink>)sink {
     dispatch_async(_loggerQueue, ^() {
@@ -152,12 +142,10 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
-- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message {
+- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString *)message {
     if (YES == _isLoggingEnabled) { // Only bother to dispatch if logging is currently enabled
         dispatch_async(_loggerQueue, ^() {
-            if (_areLogSinksEnabled &&
-                msgLevel <= _logLevel) {
+            if (_areLogSinksEnabled && msgLevel <= _logLevel) {
                 for (id<KeenLogSink> sink in _logSinks) {
                     [sink logMessageWithLevel:msgLevel andMessage:message];
                 }
@@ -165,6 +153,5 @@ KeenLogSinkNSLog* _logSinkNSLog;
         });
     }
 }
-
 
 @end

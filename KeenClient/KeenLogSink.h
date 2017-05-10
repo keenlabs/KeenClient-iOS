@@ -16,7 +16,7 @@ typedef NS_ENUM(NSInteger, KeenLogLevel) {
     KeenLogLevelError = 0,
     KeenLogLevelWarning = 1,
     KeenLogLevelInfo = 2,
-    KeenLogLevelVerbose = 3
+    KeenLogLevelVerbose = 3,
 };
 
 //
@@ -25,7 +25,7 @@ typedef NS_ENUM(NSInteger, KeenLogLevel) {
 //
 @protocol KeenLogSink
 
-- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message;
+- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString *)message;
 
 // Even after calling KeenClient removeLogSink, a sink will
 // receive messages that had already been queued before the call

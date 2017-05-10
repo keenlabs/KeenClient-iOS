@@ -11,11 +11,9 @@
 #import "KeenProperties.h"
 #import "KIOUtil.h"
 
-
 @implementation KIOUtil
 
-
-+ (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError**) error {
++ (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError **)error {
     id fixed = [self handleInvalidJSONInObject:event];
 
     if (![NSJSONSerialization isValidJSONObject:fixed]) {
@@ -25,16 +23,13 @@
     return [NSJSONSerialization dataWithJSONObject:fixed options:0 error:error];
 }
 
-
 + (NSMutableDictionary *)makeDictionaryMutable:(NSDictionary *)dict {
     return [dict mutableCopy];
 }
 
-
 + (NSMutableArray *)makeArrayMutable:(NSArray *)array {
     return [array mutableCopy];
 }
-
 
 + (id)handleInvalidJSONInObject:(id)value {
     if (!value) {
@@ -52,7 +47,7 @@
     } else if ([value isKindOfClass:[NSArray class]]) {
         // make sure the array is mutable and then recurse for every element
         NSMutableArray *mutArr = [self makeArrayMutable:value];
-        for (NSUInteger i=0; i<[mutArr count]; i++) {
+        for (NSUInteger i = 0; i < [mutArr count]; i++) {
             id arrVal = [mutArr objectAtIndex:i];
             arrVal = [self handleInvalidJSONInObject:arrVal];
             [mutArr setObject:arrVal atIndexedSubscript:i];
@@ -84,18 +79,13 @@
     }
 }
 
-
-+ (BOOL)handleError:(NSError**)error
-   withErrorMessage:(NSString*)errorMessage {
-    return [self handleError:error
-            withErrorMessage:errorMessage
-             underlyingError:nil];
++ (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {
+    return [self handleError:error withErrorMessage:errorMessage underlyingError:nil];
 }
 
-
-+ (BOOL)handleError:(NSError**)error
-   withErrorMessage:(NSString*)errorMessage
-    underlyingError:(NSError *)underlyingError {
++ (BOOL)handleError:(NSError **)error
+    withErrorMessage:(NSString *)errorMessage
+     underlyingError:(NSError *)underlyingError {
     if (error != NULL) {
         const id<NSCopying> keys[] = {NSLocalizedDescriptionKey, NSUnderlyingErrorKey};
         const id objects[] = {errorMessage, underlyingError};
@@ -108,8 +98,7 @@
     return NO;
 }
 
-
-# pragma mark - NSDate => NSString
+#pragma mark - NSDate => NSString
 
 + (id)convertDate:(id)date {
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
@@ -121,8 +110,7 @@
     return iso8601String;
 }
 
-
-+ (BOOL)validateProjectID:(NSString*)projectID {
++ (BOOL)validateProjectID:(NSString *)projectID {
     // validate that project ID is acceptable
     if (!projectID || [projectID length] == 0) {
         return NO;
@@ -130,11 +118,9 @@
     return YES;
 }
 
-
-+ (BOOL)validateKey:(NSString*)key {
++ (BOOL)validateKey:(NSString *)key {
     // for now just use the same rules as project ID
     return [self validateProjectID:key];
 }
-
 
 @end

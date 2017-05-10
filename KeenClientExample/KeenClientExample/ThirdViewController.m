@@ -57,9 +57,9 @@
             // NSLog(@"resultValue: %@", resultValue);
 
             if (error || [responseDictionary objectForKey:@"error_code"]) {
-                self.resultTextView.text =
-                    [NSString stringWithFormat:@"Failure! 😞 \n\n error: %@\n\n response: %@",
-                                               [error localizedDescription], [responseDictionary description]];
+                self.resultTextView.text = [NSString stringWithFormat:@"Failure! 😞 \n\n error: %@\n\n response: %@",
+                                                                      [error localizedDescription],
+                                                                      [responseDictionary description]];
             } else {
                 self.resultTextView.text =
                     [NSString stringWithFormat:@"Success! 😄 \n\n response: %@", [responseDictionary description]];
@@ -69,8 +69,8 @@
     // Async querying
     KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count"
                                    andPropertiesDictionary:@{
-                                       @"event_collection" : @"collection",
-                                       @"timeframe" : @"this_7_days"
+                                       @"event_collection": @"collection",
+                                       @"timeframe": @"this_7_days"
                                    }];
 
     [[KeenClient sharedClient] runAsyncQuery:countQuery completionHandler:countQueryCompleted];

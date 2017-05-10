@@ -9,12 +9,10 @@
 #import "TestDatabaseRequirement.h"
 #import "KeenTestUtils.h"
 
-
 @implementation TestDatabaseRequirement
 
-
-+ (NSLock*)sharedLock {
-    static NSLock* s_sharedLock = nil;
++ (NSLock *)sharedLock {
+    static NSLock *s_sharedLock = nil;
 
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -31,14 +29,12 @@
     return s_sharedLock;
 }
 
-
 - (instancetype)init {
     [NSException raise:@"Not Implemented" format:@"Not Implemented"];
     return nil;
 }
 
-
-- (instancetype)initWithDatabasePath:(NSString*)path {
+- (instancetype)initWithDatabasePath:(NSString *)path {
     self = [super init];
     if (nil != self) {
         // Acquire the lock and then delete the database
@@ -47,13 +43,12 @@
     return self;
 }
 
-
-- (void)lockAndCleanDatabase:(NSString*)databasePath {
+- (void)lockAndCleanDatabase:(NSString *)databasePath {
     [[self.class sharedLock] lock];
 
     // Blow away any existing database so we start fresh
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:databasePath]){
+    if ([fileManager fileExistsAtPath:databasePath]) {
         if ([fileManager removeItemAtPath:databasePath error:NULL] == YES) {
             NSLog(@"Removed database file.");
         } else {
@@ -62,15 +57,12 @@
     }
 }
 
-
 - (void)unlock {
     [[self.class sharedLock] unlock];
 }
 
-
 - (void)dealloc {
     [self unlock];
 }
-
 
 @end

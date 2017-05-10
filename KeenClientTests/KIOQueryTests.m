@@ -27,23 +27,29 @@
 
 - (void)testInit {
     KIOQuery *query = [[KIOQuery alloc] init];
-    
+
     XCTAssertNotNil(query, @"init is not null");
 }
 
 - (void)testInitWithQueryType {
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"test"}];
+    KIOQuery *query =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"test"
+        }];
     XCTAssertTrue([query.queryType isEqual:@"count"], @"count");
     XCTAssertTrue([[query.propertiesDictionary valueForKey:@"event_collection"] isEqual:@"test"], @"test");
 }
 
 - (void)testGetQueryData {
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"awesome code"}];
-    
+    KIOQuery *query =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"awesome code"
+        }];
+
     NSData *data = [query convertQueryToData];
-    
+
     KCLogError(@"Error when writing event to file: %@", data);
-    
+
     XCTAssertNotNil(data, @"data is not null");
 }
 
