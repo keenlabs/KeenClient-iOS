@@ -311,11 +311,6 @@ static BOOL geoLocationRequestEnabled = YES;
         return nil;
     }
 
-    // If the keys are already set, return the existing instance, don't overwrite the keys
-    if (self.sharedClient.projectID || self.sharedClient.writeKey || self.sharedClient.readKey) {
-        return self.sharedClient;
-    }
-
     self.sharedClient.projectID = projectID;
     self.sharedClient.writeKey = writeKey;
     self.sharedClient.readKey = readKey;
