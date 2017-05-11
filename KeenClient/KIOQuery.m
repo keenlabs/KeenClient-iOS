@@ -11,11 +11,11 @@
 @implementation KIOQuery
 
 - (id)initWithQuery:(NSString *)queryType andPropertiesDictionary:(NSDictionary *)propertiesDictionary {
-    if (![KIOQuery validateQueryType:queryType]) {
+    if (queryType == nil || queryType.length <= 0) {
         return nil;
     }
     
-    self = [self init];
+    self = [super init];
     
     if (self) {
         self.queryType = queryType;
@@ -26,11 +26,11 @@
 }
 
 - (id)initWithQuery:(NSString *)queryType andQueryName:(NSString *)queryName andPropertiesDictionary:(NSDictionary *)propertiesDictionary {
-    if (![KIOQuery validateQueryType:queryType]) {
+    if (queryType == nil || queryType.length <= 0) {
         return nil;
     }
     
-    self = [self init];
+    self = [super init];
     
     if (self) {
         self.queryType = queryType;
@@ -41,17 +41,8 @@
     return self;
 }
 
-+ (BOOL)validateQueryType:(NSString *)queryType {
-    // TODO: Validate query type on client side?
-    if (!queryType || [queryType length] == 0) {
-        return NO;
-    }
-    return YES;
-}
-
 - (NSData *)convertQueryToData {
-    NSError *error = nil;
-    
+    NSError *error;
     NSData *data = [NSJSONSerialization dataWithJSONObject:self.propertiesDictionary options:0 error:&error];
     
     return data;

@@ -50,16 +50,17 @@
 - (instancetype)init {
     self = [super init];
 
-    if(self) {
+    if (self) {
         keen_dbname = NULL;
         dbIsOpen = NO;
         [self openAndInitDB];
     }
+
     return self;
 }
 
-+ (KIODBStore*)sharedInstance {
-    static KIODBStore* s_sharedDBStore = nil;
++ (KIODBStore *)sharedInstance {
+    static KIODBStore *s_sharedDBStore;
     
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -70,7 +71,7 @@
     // for the block to complete.
     static dispatch_once_t predicate = {0};
     dispatch_once(&predicate, ^{
-        s_sharedDBStore = [[KIODBStore alloc] init];
+        s_sharedDBStore = [KIODBStore new];
     });
     
     return s_sharedDBStore;
@@ -80,7 +81,7 @@
 
 # pragma mark Database Methods
 
-- (NSString*) getSqliteFullFileName {
+- (NSString *)getSqliteFullFileName {
     NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     return [libraryPath stringByAppendingPathComponent:@"keenEvents.sqlite"];
 }
@@ -88,7 +89,7 @@
 - (BOOL)openDB {
     __block BOOL wasOpened = NO;
     
-    NSString* dbFile = [self getSqliteFullFileName];
+    NSString *dbFile = [self getSqliteFullFileName];
     KCLogInfo(@"%@", dbFile);
     
     // we're going to use a queue for all database operations, so let's create it
@@ -103,10 +104,9 @@
 	
         int openDBResult = keen_io_sqlite3_open([dbFile UTF8String], &keen_dbname);
         if (openDBResult != SQLITE_OK) {
-            if(openDBResult == SQLITE_CORRUPT) {
+            if (openDBResult == SQLITE_CORRUPT) {
                 wasOpened = [self deleteAndRecreateCorruptDB];
-            }
-            else {
+            } else {
                 [self handleSQLiteFailure:@"create database"];
             }
         } else {
@@ -121,13 +121,12 @@
 - (BOOL)deleteAndRecreateCorruptDB {
     BOOL wasOpened = NO;
     // Close the existing db if it's open
-    if (NULL != keen_dbname)
-    {
+    if (keen_dbname) {
         keen_io_sqlite3_close(keen_dbname);
         keen_dbname = NULL;
     }
     
-    NSString* dbFile = [self getSqliteFullFileName];
+    NSString *dbFile = [self getSqliteFullFileName];
     KCLogError(@"Deleting corrupt db: %@", dbFile);
     [[NSFileManager defaultManager] removeItemAtPath:dbFile error:nil];
     
@@ -143,11 +142,11 @@
 }
 
 - (BOOL)openAndInitDB {
-    if(!dbIsOpen) {
+    if (!dbIsOpen) {
         if (![self openDB]) {
             return false;
         } else {
-            if(![self createTables]) {
+            if (![self createTables]) {
                 KCLogError(@"Failed to create SQLite table!");
                 [self closeDB];
                 return false;
@@ -169,7 +168,7 @@
 
 - (void)closeDB {
     // Free all the prepared statements. This is safe on null pointers.
-    if(dbIsOpen) {
+    if (dbIsOpen) {
         self.dbQueue = nil;
         
         keen_io_sqlite3_finalize(insert_event_stmt);
@@ -215,15 +214,13 @@
         char *eventsError;
         NSString *createEventsTableSQL = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS 'events' (ID INTEGER PRIMARY KEY AUTOINCREMENT, collection TEXT, projectID TEXT, eventData BLOB, pending INTEGER, dateCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP);"];
         int result = SQLITE_FAIL;
-        for (int i = 0; i < 2; ++i)
-        {
+        for (int i = 0; i < 2; ++i) {
             // The database is loaded on demand and this is the first time we use it, so here
             // is where we're likely to actually notice corruption. Handle it by deleting the
             // corrupt db and creating a new one.
             result = keen_io_sqlite3_exec(keen_dbname, [createEventsTableSQL UTF8String], NULL, NULL, &eventsError);
             if (result == SQLITE_CORRUPT) {
-                if (![self deleteAndRecreateCorruptDB])
-                {
+                if (![self deleteAndRecreateCorruptDB]) {
                     KCLogError(@"Failed to replace corrupt db while creating events table: %@", [NSString stringWithCString:eventsError encoding:NSUTF8StringEncoding]);
                     keen_io_sqlite3_free(eventsError); // Free that error message
                     [self closeDB];
@@ -261,11 +258,11 @@
     // get current database version of schema
     static keen_io_sqlite3_stmt *stmt_version;
     
-    if(keen_io_sqlite3_prepare_v2(keen_dbname, "PRAGMA user_version;", -1, &stmt_version, NULL) != SQLITE_OK) {
+    if (keen_io_sqlite3_prepare_v2(keen_dbname, "PRAGMA user_version;", -1, &stmt_version, NULL) != SQLITE_OK) {
         return -1;
     }
     
-    while(keen_io_sqlite3_step(stmt_version) == SQLITE_ROW) {
+    while (keen_io_sqlite3_step(stmt_version) == SQLITE_ROW) {
         databaseVersion = keen_io_sqlite3_column_int(stmt_version, 0);
     }
     keen_io_sqlite3_finalize(stmt_version);
@@ -278,7 +275,7 @@
     return databaseVersion;
 }
 
-- (BOOL)setUserVersion: (int)userVersion {
+- (BOOL)setUserVersion:(int)userVersion {
     char *err;
     NSString *sql = [NSString stringWithFormat:@"PRAGMA user_version = %d;", userVersion];
     if (keen_io_sqlite3_exec(keen_dbname, [sql UTF8String], NULL, NULL, &err) != SQLITE_OK) {
@@ -309,11 +306,11 @@
     return wasMigrated;
 }
 
--(BOOL)migrateFromVersion: (int)userVersion {
+- (BOOL)migrateFromVersion:(int)userVersion {
     // this is really more of a while loop, but we use a for loop with a limit to avoid
     // getting stuck in an infinite loop if there is a bug in the loop breaking logic
-    for(int i = 0; i < 1000; i++) {
-        if(![self beginTransaction]) {
+    for (int i = 0; i < 1000; i++) {
+        if (![self beginTransaction]) {
             // deal with error?
             KCLogError(@"Migration failed to begin a transaction with userVersion = %d.", userVersion);
             return NO;
@@ -433,7 +430,7 @@
 - (BOOL)addEvent:(NSData *)eventData collection:(NSString *)eventCollection projectID:(NSString *)projectID {
     __block BOOL wasAdded = NO;
 
-    if(![self checkOpenDB:@"DB is closed, skipping addEvent"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping addEvent"]) {
         return wasAdded;
     }
     
@@ -473,12 +470,12 @@
     // Create a dictionary to hold the contents of our select.
     __block NSMutableDictionary *events = [NSMutableDictionary dictionary];
 
-    if(![self checkOpenDB:@"DB is closed, skipping getEvents"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping getEvents"]) {
         return events;
     }
     
     // reset pending events, if necessary
-    if([self hasPendingEventsWithProjectID:projectID]) {
+    if ([self hasPendingEventsWithProjectID:projectID]) {
         [self resetPendingEventsWithProjectID:projectID];
     }
     
@@ -490,7 +487,7 @@
             return;
         }
         
-        if(keen_io_sqlite3_bind_int64(find_event_stmt, 2, maxAttempts) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_int64(find_event_stmt, 2, maxAttempts) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind coll to add event statement"];
             return;
         }
@@ -508,7 +505,7 @@
             NSData *data = [[NSData alloc] initWithBytes:dataPtr length:dataSize];
 
             // Bind and mark the event pending.
-            if(keen_io_sqlite3_bind_int64(make_pending_event_stmt, 1, eventId) != SQLITE_OK) {
+            if (keen_io_sqlite3_bind_int64(make_pending_event_stmt, 1, eventId) != SQLITE_OK) {
                 [self handleSQLiteFailure:@"bind int for make pending"];
                 return;
             }
@@ -536,7 +533,7 @@
 }
 
 - (void)resetPendingEventsWithProjectID:(NSString *)projectID {
-    if(![self checkOpenDB:@"DB is closed, skipping resetPendingEvents"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping resetPendingEvents"]) {
         return;
     }
     
@@ -558,7 +555,7 @@
 - (BOOL)hasPendingEventsWithProjectID:(NSString *)projectID {
     BOOL hasRows = NO;
 
-    if(![self checkOpenDB:@"DB is closed, skipping hasPendingEvents"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping hasPendingEvents"]) {
         return hasRows;
     }
 
@@ -571,7 +568,7 @@
 - (NSUInteger)getPendingEventCountWithProjectID:(NSString *)projectID {
     __block NSUInteger eventCount = 0;
 
-    if(![self checkOpenDB:@"DB is closed, skipping getPendingEventcount"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping getPendingEventcount"]) {
         return eventCount;
     }
 
@@ -598,7 +595,7 @@
 - (NSUInteger)getTotalEventCountWithProjectID:(NSString *)projectID {
     __block NSUInteger eventCount = 0;
 
-    if(![self checkOpenDB:@"DB is closed, skipping getTotalEventCount"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping getTotalEventCount"]) {
         return eventCount;
     }
 
@@ -623,7 +620,7 @@
 }
 
 - (void)deleteEvent:(NSNumber *)eventId {
-    if(![self checkOpenDB:@"DB is closed, skipping deleteEvent"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping deleteEvent"]) {
         return;
     }
     
@@ -642,7 +639,7 @@
 }
 
 - (void)deleteAllEvents {
-    if(![self checkOpenDB:@"DB is closed, skipping deleteEvent"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping deleteEvent"]) {
         return;
     }
     
@@ -657,7 +654,7 @@
 }
 
 - (void)deleteEventsFromOffset:(NSNumber *)offset {
-    if(![self checkOpenDB:@"DB is closed, skipping deleteEvent"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping deleteEvent"]) {
         return;
     }
 
@@ -676,7 +673,7 @@
 }
 
 - (void)incrementEventUploadAttempts:(NSNumber *)eventId {
-    if(![self checkOpenDB:@"DB is closed, skipping incrementAttempts"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping incrementAttempts"]) {
         return;
     }
 
@@ -695,7 +692,7 @@
 }
 
 - (void)purgePendingEventsWithProjectID:(NSString *)projectID {
-    if(![self checkOpenDB:@"DB is closed, skipping purgePendingEvents"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping purgePendingEvents"]) {
         return;
     }
 
@@ -719,7 +716,7 @@
 - (BOOL)addQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID {
     __block BOOL wasAdded = NO;
 
-    if(![self checkOpenDB:@"DB is closed, skipping addQuery"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping addQuery"]) {
         return wasAdded;
     }
 
@@ -765,7 +762,7 @@
     // Create a dictionary to hold the contents of our select.
     __block NSMutableDictionary *query = nil;
     
-    if(![self checkOpenDB:@"DB is closed, skipping getQuery"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping getQuery"]) {
         return query;
     }
     
@@ -833,7 +830,7 @@
 - (BOOL)incrementQueryAttempts:(NSNumber *)queryID {
     __block BOOL wasUpdated = NO;
     
-    if(![self checkOpenDB:@"DB is closed, skipping query increment attempt"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping query increment attempt"]) {
         return wasUpdated;
     }
     
@@ -857,7 +854,7 @@
 
 - (void)findOrUpdateQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID {
     NSMutableDictionary *returnedQuery = [self getQuery:queryData queryType:queryType collection:eventCollection projectID:projectID];
-    if(returnedQuery != nil) {
+    if (returnedQuery != nil) {
         // if query is found, update query attempts
         [self incrementQueryAttempts:[returnedQuery objectForKey:@"queryID"]];
     } else {
@@ -869,7 +866,7 @@
 - (NSUInteger)getTotalQueryCountWithProjectID:(NSString *)projectID {
     __block NSUInteger queryCount = 0;
     
-    if(![self checkOpenDB:@"DB is closed, skipping getTotalQueryCount"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping getTotalQueryCount"]) {
         return queryCount;
     }
 
@@ -902,7 +899,7 @@
     
     __block BOOL hasFoundQueryWithMaxAttempts = NO;
     
-    if(![self checkOpenDB:@"DB is closed, skipping hasQueryWithMaxAttempts"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping hasQueryWithMaxAttempts"]) {
         return hasFoundQueryWithMaxAttempts;
     }
     
@@ -955,7 +952,7 @@
 }
 
 - (void)deleteAllQueries {
-    if(![self checkOpenDB:@"DB is closed, skipping deleteAllQueries"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping deleteAllQueries"]) {
         return;
     }
     
@@ -970,7 +967,7 @@
 }
 
 - (void)deleteQueriesOlderThan:(NSNumber *)seconds {
-    if(![self checkOpenDB:@"DB is closed, skipping deleteQueries"]) {
+    if (![self checkOpenDB:@"DB is closed, skipping deleteQueries"]) {
         return;
     }
     
@@ -993,7 +990,7 @@
 # pragma mark - Helper Methods -
 
 - (BOOL)checkOpenDB:(NSString *)failureMessage {
-    if(![self openAndInitDB]) {
+    if (![self openAndInitDB]) {
         KCLogError(@"%@", failureMessage);
         return false;
     }
@@ -1002,7 +999,7 @@
 }
 
 - (BOOL)prepareSQLStatement:(keen_io_sqlite3_stmt **)sqlStatement sqlQuery:(char *)sqlQuery failureMessage:(NSString *)failureMessage {
-    if(keen_io_sqlite3_prepare_v2(keen_dbname, sqlQuery, -1, sqlStatement, NULL) != SQLITE_OK) {
+    if (keen_io_sqlite3_prepare_v2(keen_dbname, sqlQuery, -1, sqlStatement, NULL) != SQLITE_OK) {
         [self handleSQLiteFailure:failureMessage];
         return NO;
     }
@@ -1019,64 +1016,64 @@
     // EVENT STATEMENTS
     
     // This statement inserts events into the table.
-    if(![self prepareSQLStatement:&insert_event_stmt sqlQuery:"INSERT INTO events (projectID, collection, eventData, pending, attempts) VALUES (?, ?, ?, 0, 0)" failureMessage:@"prepare insert event statement"]) return NO;
+    if (![self prepareSQLStatement:&insert_event_stmt sqlQuery:"INSERT INTO events (projectID, collection, eventData, pending, attempts) VALUES (?, ?, ?, 0, 0)" failureMessage:@"prepare insert event statement"]) return NO;
     
     // This statement finds non-pending events in the table.
-    if(![self prepareSQLStatement:&find_event_stmt sqlQuery:"SELECT id, collection, eventData FROM events WHERE pending=0 AND projectID=? AND attempts<?" failureMessage:@"prepare find non-pending events statement"]) return NO;
+    if (![self prepareSQLStatement:&find_event_stmt sqlQuery:"SELECT id, collection, eventData FROM events WHERE pending=0 AND projectID=? AND attempts<?" failureMessage:@"prepare find non-pending events statement"]) return NO;
     
     // This statement counts the total number of events (pending or not)
-    if(![self prepareSQLStatement:&count_all_events_stmt sqlQuery:"SELECT count(*) FROM events WHERE projectID=?" failureMessage:@"prepare count all events statement"]) return NO;
+    if (![self prepareSQLStatement:&count_all_events_stmt sqlQuery:"SELECT count(*) FROM events WHERE projectID=?" failureMessage:@"prepare count all events statement"]) return NO;
     
     // This statement counts the number of pending events.
-    if(![self prepareSQLStatement:&count_pending_events_stmt sqlQuery:"SELECT count(*) FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare count pending events statement"]) return NO;
+    if (![self prepareSQLStatement:&count_pending_events_stmt sqlQuery:"SELECT count(*) FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare count pending events statement"]) return NO;
     
     // This statement marks an event as pending.
-    if(![self prepareSQLStatement:&make_pending_event_stmt sqlQuery:"UPDATE events SET pending=1 WHERE id=?" failureMessage:@"prepare mark event as pending statement"]) return NO;
+    if (![self prepareSQLStatement:&make_pending_event_stmt sqlQuery:"UPDATE events SET pending=1 WHERE id=?" failureMessage:@"prepare mark event as pending statement"]) return NO;
     
     // This statement resets pending events back to normal.
-    if(![self prepareSQLStatement:&reset_pending_events_stmt sqlQuery:"UPDATE events SET pending=0 WHERE projectID=?" failureMessage:@"prepare reset pending statement"]) return NO;
+    if (![self prepareSQLStatement:&reset_pending_events_stmt sqlQuery:"UPDATE events SET pending=0 WHERE projectID=?" failureMessage:@"prepare reset pending statement"]) return NO;
     
     // This statement purges all pending events.
-    if(![self prepareSQLStatement:&purge_events_stmt sqlQuery:"DELETE FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare purge pending events statement"]) return NO;
+    if (![self prepareSQLStatement:&purge_events_stmt sqlQuery:"DELETE FROM events WHERE pending=1 AND projectID=?" failureMessage:@"prepare purge pending events statement"]) return NO;
     
     // This statement deletes a specific event.
-    if(![self prepareSQLStatement:&delete_event_stmt sqlQuery:"DELETE FROM events WHERE id=?" failureMessage:@"prepare delete specific event statement"]) return NO;
+    if (![self prepareSQLStatement:&delete_event_stmt sqlQuery:"DELETE FROM events WHERE id=?" failureMessage:@"prepare delete specific event statement"]) return NO;
     
     // This statement deletes all events.
-    if(![self prepareSQLStatement:&delete_all_events_stmt sqlQuery:"DELETE FROM events" failureMessage:@"prepare delete all events statement"]) return NO;
+    if (![self prepareSQLStatement:&delete_all_events_stmt sqlQuery:"DELETE FROM events" failureMessage:@"prepare delete all events statement"]) return NO;
     
     // This statement deletes old events at a given offset.
-    if(![self prepareSQLStatement:&age_out_events_stmt sqlQuery:"DELETE FROM events WHERE id <= (SELECT id FROM events ORDER BY id DESC LIMIT 1 OFFSET ?)" failureMessage:@"prepare delete old events at offset statement"]) return NO;
+    if (![self prepareSQLStatement:&age_out_events_stmt sqlQuery:"DELETE FROM events WHERE id <= (SELECT id FROM events ORDER BY id DESC LIMIT 1 OFFSET ?)" failureMessage:@"prepare delete old events at offset statement"]) return NO;
     
     // This statement increments the attempts count of an event.
-    if(![self prepareSQLStatement:&increment_event_attempts_statement sqlQuery:"UPDATE events SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare event increment attempt statement"]) return NO;
+    if (![self prepareSQLStatement:&increment_event_attempts_statement sqlQuery:"UPDATE events SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare event increment attempt statement"]) return NO;
     
     // This statement deletes events exceeding a max attempt limit.
-    if(![self prepareSQLStatement:&delete_too_many_attempts_events_statement sqlQuery:"DELETE FROM events WHERE attempts >= ?" failureMessage:@"prepare delete max attempts events statement"]) return NO;
+    if (![self prepareSQLStatement:&delete_too_many_attempts_events_statement sqlQuery:"DELETE FROM events WHERE attempts >= ?" failureMessage:@"prepare delete max attempts events statement"]) return NO;
 
     
     // QUERY STATEMENTS
     
     // This statement inserts queries into the table.
-    if(![self prepareSQLStatement:&insert_query_stmt sqlQuery:"INSERT INTO queries (projectID, collection, queryData, queryType, attempts) VALUES (?, ?, ?, ?, 0)" failureMessage:@"prepare insert query statement"]) return NO;
+    if (![self prepareSQLStatement:&insert_query_stmt sqlQuery:"INSERT INTO queries (projectID, collection, queryData, queryType, attempts) VALUES (?, ?, ?, ?, 0)" failureMessage:@"prepare insert query statement"]) return NO;
     
     // This statement counts the total number of queries
-    if(![self prepareSQLStatement:&count_all_queries_stmt sqlQuery:"SELECT count(*) FROM queries WHERE projectID=?" failureMessage:@"prepare count all queries statement"]) return NO;
+    if (![self prepareSQLStatement:&count_all_queries_stmt sqlQuery:"SELECT count(*) FROM queries WHERE projectID=?" failureMessage:@"prepare count all queries statement"]) return NO;
  
     // This statement searches for and returns a query.
-    if(![self prepareSQLStatement:&get_query_stmt sqlQuery:"SELECT id, collection, queryData, queryType, attempts FROM queries WHERE projectID=? AND collection=? AND queryData=? AND queryType=?" failureMessage:@"prepare find query statement"]) return NO;
+    if (![self prepareSQLStatement:&get_query_stmt sqlQuery:"SELECT id, collection, queryData, queryType, attempts FROM queries WHERE projectID=? AND collection=? AND queryData=? AND queryType=?" failureMessage:@"prepare find query statement"]) return NO;
     
     // This statement searches for and returns a query given an attempts value.
-    if(![self prepareSQLStatement:&get_query_with_attempts_stmt sqlQuery:"SELECT id FROM queries WHERE projectID=? AND collection=? AND queryData=? AND queryType=? AND attempts >=?" failureMessage:@"prepare find query with attempts statement"]) return NO;
+    if (![self prepareSQLStatement:&get_query_with_attempts_stmt sqlQuery:"SELECT id FROM queries WHERE projectID=? AND collection=? AND queryData=? AND queryType=? AND attempts >=?" failureMessage:@"prepare find query with attempts statement"]) return NO;
     
     // This statement increments the attempts count of a query.
-    if(![self prepareSQLStatement:&increment_query_attempts_statement sqlQuery:"UPDATE queries SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare query increment attempt statement"]) return NO;
+    if (![self prepareSQLStatement:&increment_query_attempts_statement sqlQuery:"UPDATE queries SET attempts = attempts + 1 WHERE id=?" failureMessage:@"prepare query increment attempt statement"]) return NO;
     
     // This statement deletes all queries.
-    if(![self prepareSQLStatement:&delete_all_queries_stmt sqlQuery:"DELETE FROM queries" failureMessage:@"prepare delete all queries statement"]) return NO;
+    if (![self prepareSQLStatement:&delete_all_queries_stmt sqlQuery:"DELETE FROM queries" failureMessage:@"prepare delete all queries statement"]) return NO;
     
     // This statement deletes old queries at a given time.
-    if(![self prepareSQLStatement:&age_out_queries_stmt sqlQuery:"DELETE FROM queries WHERE dateCreated <= datetime('now', ?)" failureMessage:@"prepare delete old queries at seconds statement"]) return NO;
+    if (![self prepareSQLStatement:&age_out_queries_stmt sqlQuery:"DELETE FROM queries WHERE dateCreated <= datetime('now', ?)" failureMessage:@"prepare delete old queries at seconds statement"]) return NO;
     
     return YES;
 }
@@ -1086,8 +1083,7 @@
           msg, [NSString stringWithCString:keen_io_sqlite3_errmsg(keen_dbname) encoding:NSUTF8StringEncoding]);
     int result = keen_io_sqlite3_errcode(keen_dbname);
     [self closeDB];
-    if (SQLITE_CORRUPT == result)
-    {
+    if (SQLITE_CORRUPT == result) {
         NSString* dbFile = [self getSqliteFullFileName];
         KCLogError(@"Deleting corrupt db: %@", dbFile);
         [[NSFileManager defaultManager] removeItemAtPath:dbFile error:nil];

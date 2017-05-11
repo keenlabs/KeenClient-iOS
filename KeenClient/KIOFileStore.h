@@ -13,11 +13,11 @@
 /**
  Migrate data from old file-based store if present
  */
-+ (void)maybeMigrateDataFromFileStore:(NSString*)projectID;
++ (void)maybeMigrateDataFromFileStore:(NSString *)projectID;
 
 /**
  Migrate data from old file-based store
  */
-+ (void)importFileDataWithProjectID:(NSString*)projectID;
++ (void)importFileDataWithProjectID:(NSString *)projectID;
 
 @end
