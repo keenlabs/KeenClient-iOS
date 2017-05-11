@@ -366,7 +366,8 @@ static BOOL geoLocationRequestEnabled = YES;
         }
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
         // Else, try and request permission for that.
-        else if (geoLocationRequestEnabled) {
+        else if (geoLocationRequestEnabled &&
+                 [self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
             // allow explicit control over the type of authorization
             if (authorizedGeoLocationAlways) {
                 [self.locationManager requestAlwaysAuthorization];
