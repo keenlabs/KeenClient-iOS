@@ -146,7 +146,7 @@ NSString* kDefaultReadKey = @"rk";
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
 }
 
-- (void)testSharedClientWithProjectID{
+- (void)testSharedClientWithProjectID {
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     XCTAssertEqual(kDefaultProjectID, client.projectID, @"sharedClientWithProjectID with a non-nil project id should work.");
     XCTAssertEqualObjects(kDefaultWriteKey, client.writeKey, @"init with a valid project id should work");
@@ -154,8 +154,8 @@ NSString* kDefaultReadKey = @"rk";
 
     KeenClient *client2 = [KeenClient sharedClientWithProjectID:@"other" andWriteKey:@"wk2" andReadKey:@"rk2"];
     XCTAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
-    XCTAssertEqualObjects(@"wk2", client2.writeKey, @"sharedClient with a valid project id should work");
-    XCTAssertEqualObjects(@"rk2", client2.readKey, @"sharedClient with a valid project id should work");
+    XCTAssertEqualObjects(kDefaultWriteKey, client2.writeKey, @"sharedClient should not change the writeKey after first init.");
+    XCTAssertEqualObjects(kDefaultReadKey, client2.readKey, @"sharedClient should not change the readKey after first init.");
 
     client = [KeenClient sharedClientWithProjectID:nil andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     XCTAssertNil(client, @"sharedClient with an invalid project id should return nil");

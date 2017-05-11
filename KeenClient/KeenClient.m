@@ -354,6 +354,12 @@ static BOOL geoLocationRequestEnabled = YES;
         return nil;
     }
 
+    // If the keys are already set, return the existing instance, don't overwrite the keys
+    if (self.sharedClient.projectID || self.sharedClient.writeKey || self.sharedClient.readKey) {
+        KCLogError(@"You cannot modify the projectID, writeKey, or readKey from this method.");
+        return self.sharedClient;
+    }
+
     self.sharedClient.projectID = projectID;
     self.sharedClient.writeKey = writeKey;
     self.sharedClient.readKey = readKey;
@@ -400,10 +406,8 @@ static BOOL geoLocationRequestEnabled = YES;
             if ([KeenClient isLocationAuthorized:clAuthStatus]) {
                 [self startMonitoringLocation];
             }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
             // Else, try and request permission for that.
-            else if (geoLocationRequestEnabled &&
-                     [self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
+            else if (geoLocationRequestEnabled) {
                 // allow explicit control over the type of authorization
                 if(authorizedGeoLocationAlways) {
                     [self.locationManager requestAlwaysAuthorization];
@@ -416,7 +420,6 @@ static BOOL geoLocationRequestEnabled = YES;
                     [self.locationManager requestWhenInUseAuthorization];
                 }
             }
-#endif
         }
 
     } else {
