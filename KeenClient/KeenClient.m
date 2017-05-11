@@ -356,6 +356,7 @@ static BOOL geoLocationRequestEnabled = YES;
 
     // If the keys are already set, return the existing instance, don't overwrite the keys
     if (self.sharedClient.projectID || self.sharedClient.writeKey || self.sharedClient.readKey) {
+        KCLogError(@"You cannot modify the projectID, writeKey, or readKey from this method.");
         return self.sharedClient;
     }
 
