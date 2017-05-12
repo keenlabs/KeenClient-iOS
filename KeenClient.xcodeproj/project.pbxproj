@@ -122,6 +122,9 @@
 		F4D3B6061A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
 		F4D3B60A1A0D8EB4000825FE /* KIOReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D3B6011A0D8EB4000825FE /* KIOReachability.m */; };
 		F4D3B61E1A0D98B4000825FE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */; };
+		FA4A14C91EC6236F0002E6CC /* KeenLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 48583E051E58CDE2002CFD99 /* KeenLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA4A14CD1EC623740002E6CC /* KeenLogSinkNSLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 481A9B7A1E5690950094B985 /* KeenLogSinkNSLog.h */; };
+		FA4A14CE1EC623760002E6CC /* KeenLogSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 481A9B711E5687EA0094B985 /* KeenLogSink.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -556,6 +559,7 @@
 				3EE9A7421C5988F100B7B2D9 /* HTTPCodes.h in Headers */,
 				48AC67D81E833C2D00E9C0A9 /* KIONetwork.h in Headers */,
 				3EE9A7431C5988F100B7B2D9 /* KeenClient.h in Headers */,
+				FA4A14CD1EC623740002E6CC /* KeenLogSinkNSLog.h in Headers */,
 				48AC67CD1E83364100E9C0A9 /* KIOFileStore.h in Headers */,
 				3EE9A7441C5988F100B7B2D9 /* KeenProperties.h in Headers */,
 				48AC67E01E8348BA00E9C0A9 /* KIOUploader.h in Headers */,
@@ -563,7 +567,9 @@
 				3EE9A7471C5988F100B7B2D9 /* KIOQuery.h in Headers */,
 				480FEB731E846F7500641112 /* KIOUtil.h in Headers */,
 				3EE9A7401C5988F100B7B2D9 /* keen_io_sqlite3.h in Headers */,
+				FA4A14CE1EC623760002E6CC /* KeenLogSink.h in Headers */,
 				3EE9A7411C5988F100B7B2D9 /* keen_io_sqlite3ext.h in Headers */,
+				FA4A14C91EC6236F0002E6CC /* KeenLogger.h in Headers */,
 				3EE9A7451C5988F100B7B2D9 /* KeenConstants.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
