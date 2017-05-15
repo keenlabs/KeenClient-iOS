@@ -17,9 +17,9 @@
     return nil;
 }
 
-- (instancetype)initWithProjectID:(NSString*)projectID
-                      andWriteKey:(NSString*)writeKey
-                       andReadKey:(NSString*)readKey {
+- (instancetype)initWithProjectID:(NSString *)projectID
+                      andWriteKey:(NSString *)writeKey
+                       andReadKey:(NSString *)readKey {
     if (projectID == nil || projectID.length <= 0) {
         KCLogError(@"You must provide a projectID.");
         return nil;
@@ -45,6 +45,5 @@
 
     return self;
 }
-
 
 @end

@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "KeenLogSink.h"
 
-
 @interface KeenLogger : NSObject
 
 /**
@@ -63,6 +62,6 @@
 /**
  Log a message using registered loggers
  */
-- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message;
+- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString *)message;
 
 @end

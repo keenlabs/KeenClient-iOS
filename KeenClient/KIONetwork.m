@@ -13,13 +13,7 @@
 #import "KIODBStore.h"
 #import "HTTPCodes.h"
 
-
-typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
-    KeenHTTPMethodUnknown,
-    KeenHTTPMethodPost,
-    KeenHTTPMethodGet
-};
-
+typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMethodPost, KeenHTTPMethodGet };
 
 @interface KIONetwork ()
 
@@ -38,10 +32,9 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
 
 @property (nonatomic) KIODBStore *store;
 
-- (NSString*)getProjectURL:(NSString*)projectID;
+- (NSString *)getProjectURL:(NSString *)projectID;
 
 @end
-
 
 @implementation KIONetwork
 
@@ -57,15 +50,14 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
     // for the block to complete.
     static dispatch_once_t predicate = {0};
     dispatch_once(&predicate, ^{
-        s_sharedInstance = [[KIONetwork alloc] initWithURLSession:[NSURLSession sharedSession]
-                                                         andStore:[KIODBStore sharedInstance]];
+        s_sharedInstance =
+            [[KIONetwork alloc] initWithURLSession:[NSURLSession sharedSession] andStore:[KIODBStore sharedInstance]];
     });
 
     return s_sharedInstance;
 }
 
-- (instancetype)initWithURLSession:(NSURLSession *)urlSession
-                          andStore:(KIODBStore *)store {
+- (instancetype)initWithURLSession:(NSURLSession *)urlSession andStore:(KIODBStore *)store {
     self = [super init];
 
     if (self) {
@@ -78,16 +70,14 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
     return self;
 }
 
-- (NSMutableURLRequest*)createRequestWithUrl:(NSString *)urlString
-                                   andMethod:(KeenHTTPMethod)eHttpMethod
-                                     andBody:(NSData *)body
-                                      andKey:(NSString *)key {
-
+- (NSMutableURLRequest *)createRequestWithUrl:(NSString *)urlString
+                                    andMethod:(KeenHTTPMethod)eHttpMethod
+                                      andBody:(NSData *)body
+                                       andKey:(NSString *)key {
     NSURL *url = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url
-                                                           cachePolicy:NSURLRequestUseProtocolCachePolicy
-                                                       timeoutInterval:30.0f];
-    NSString* httpMethod;
+    NSMutableURLRequest *request =
+        [NSMutableURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:30.0f];
+    NSString *httpMethod;
     switch (eHttpMethod) {
         case KeenHTTPMethodGet: {
             httpMethod = @"GET";
@@ -96,8 +86,8 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
         case KeenHTTPMethodPost: {
             httpMethod = @"POST";
             [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-            [request setValue:[NSString stringWithFormat:@"%lud",
-                               (unsigned long)[body length]] forHTTPHeaderField:@"Content-Length"];
+            [request setValue:[NSString stringWithFormat:@"%lud", (unsigned long)[body length]]
+                forHTTPHeaderField:@"Content-Length"];
             [request setHTTPBody:body];
             break;
         }
@@ -113,9 +103,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
     return request;
 }
 
-- (void)executeRequest:(NSURLRequest *)request
-     completionHandler:(AnalysisCompletionBlock)completionHandler {
-
+- (void)executeRequest:(NSURLRequest *)request completionHandler:(AnalysisCompletionBlock)completionHandler {
     NSURLSession *session = self.urlSession;
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
@@ -129,41 +117,35 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
                                       queryTTL:self.queryTTL];
 }
 
-- (NSString*)getProjectURL:(NSString*)projectID {
-    return [NSString stringWithFormat:@"%@/%@/projects/%@",
-            kKeenServerAddress, kKeenApiVersion, projectID];
+- (NSString *)getProjectURL:(NSString *)projectID {
+    return [NSString stringWithFormat:@"%@/%@/projects/%@", kKeenServerAddress, kKeenApiVersion, projectID];
 }
 
-
-# pragma mark Sync methods
+#pragma mark Sync methods
 
 - (void)sendEvents:(NSData *)data
-            config:(KeenClientConfig *)config
- completionHandler:(AnalysisCompletionBlock)completionHandler {
-
-    NSString *urlString = [NSString stringWithFormat:@"%@/events",
-                           [self getProjectURL:config.projectID]];
+               config:(KeenClientConfig *)config
+    completionHandler:(AnalysisCompletionBlock)completionHandler {
+    NSString *urlString = [NSString stringWithFormat:@"%@/events", [self getProjectURL:config.projectID]];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
-    NSMutableURLRequest *request = [self createRequestWithUrl:urlString
-                                                    andMethod:KeenHTTPMethodPost
-                                                      andBody:data
-                                                       andKey:config.writeKey];
+    NSMutableURLRequest *request =
+        [self createRequestWithUrl:urlString andMethod:KeenHTTPMethodPost andBody:data andKey:config.writeKey];
 
     [self executeRequest:request completionHandler:completionHandler];
 }
 
-
-- (void)runQuery:(KIOQuery *)keenQuery config:(KeenClientConfig *)config
-                            completionHandler:(AnalysisCompletionBlock)completionHandler {
+- (void)runQuery:(KIOQuery *)keenQuery
+               config:(KeenClientConfig *)config
+    completionHandler:(AnalysisCompletionBlock)completionHandler {
     BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery withProjectID:config.projectID];
     if (hasQueryWithMaxAttempts) {
         KCLogWarn(@"Not running query because it failed over %d times", self.maxQueryAttempts);
         return;
     }
 
-    NSString *urlString = [NSString stringWithFormat:@"%@/queries/%@",
-                           [self getProjectURL:config.projectID], keenQuery.queryType];
+    NSString *urlString =
+        [NSString stringWithFormat:@"%@/queries/%@", [self getProjectURL:config.projectID], keenQuery.queryType];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest *request = [self createRequestWithUrl:urlString
@@ -174,14 +156,10 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
     NSString *projectID = config.projectID;
     [self executeRequest:request
         completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        [self handleQueryAPIResponse:response
-                                andData:data
-                            andQuery:keenQuery
-                        andProjectID:projectID];
-        completionHandler(data, response, error);
-    }];
+            [self handleQueryAPIResponse:response andData:data andQuery:keenQuery andProjectID:projectID];
+            completionHandler(data, response, error);
+        }];
 }
-
 
 - (void)handleQueryAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
@@ -190,11 +168,11 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
     // Check if call to the Query API failed
     if (!responseData) {
         KCLogError(@"responseData was nil for some reason.  That's not great.");
-        KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse*)response) statusCode]);
+        KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse *)response)statusCode]);
         return;
     }
 
-    NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
+    NSInteger responseCode = [((NSHTTPURLResponse *)response)statusCode];
 
     // if the query failed because of a client error, let's add it to the database
     if (query && [HTTPCodes httpCodeType:(responseCode)] == HTTPCode4XXClientError) {
@@ -212,14 +190,15 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
     }
 }
 
-
 - (NSDictionary *)prepareQueriesDictionaryForMultiAnalysis:(NSArray *)keenQueries {
-    NSMutableDictionary *multiAnalysisDictionary = [@{@"event_collection": [NSNull null],
-                                                      @"filters": [NSNull null],
-                                                      @"timeframe": [NSNull null],
-                                                      @"timezone": [NSNull null],
-                                                      @"group_by": [NSNull null],
-                                                      @"interval": [NSNull null]} mutableCopy];
+    NSMutableDictionary *multiAnalysisDictionary = [@{
+        @"event_collection": [NSNull null],
+        @"filters": [NSNull null],
+        @"timeframe": [NSNull null],
+        @"timezone": [NSNull null],
+        @"group_by": [NSNull null],
+        @"interval": [NSNull null]
+    } mutableCopy];
     NSMutableDictionary *queriesDictionary = [NSMutableDictionary dictionary];
     for (int i = 0; i < keenQueries.count; i++) {
         if (![keenQueries[i] isKindOfClass:[KIOQuery class]]) {
@@ -230,7 +209,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
         KIOQuery *query = keenQueries[i];
         NSMutableDictionary *queryMutablePropertiesDictionary = [[query propertiesDictionary] mutableCopy];
 
-        //check that Keen queries have the same parameters
+        // check that Keen queries have the same parameters
         for (NSString *key in [multiAnalysisDictionary allKeys]) {
             NSObject *queryProperty = [[query propertiesDictionary] objectForKey:key];
             if (queryProperty != nil) {
@@ -246,7 +225,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
 
         [queryMutablePropertiesDictionary setObject:[query queryType] forKey:@"analysis_type"];
 
-        NSString *queryName = [query queryName] ? : [[NSString alloc] initWithFormat:@"query%d", i];
+        NSString *queryName = [query queryName] ?: [[NSString alloc] initWithFormat:@"query%d", i];
         [queriesDictionary setObject:queryMutablePropertiesDictionary forKey:queryName];
     }
 
@@ -255,13 +234,11 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
     return [multiAnalysisDictionary copy];
 }
 
-
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
                              config:(KeenClientConfig *)config
                   completionHandler:(AnalysisCompletionBlock)completionHandler {
-
-    NSString *urlString = [NSString stringWithFormat:@"%@/queries/%@",
-                           [self getProjectURL:config.projectID], @"multi_analysis"];
+    NSString *urlString =
+        [NSString stringWithFormat:@"%@/queries/%@", [self getProjectURL:config.projectID], @"multi_analysis"];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
@@ -272,11 +249,10 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
     // convert the resulting dictionary to data and set it as HTTPBody
     NSError *dictionarySerializationError = nil;
 
-    NSData *multiAnalysisData = [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary
-                                                                options:0
-                                                                  error:&dictionarySerializationError];
+    NSData *multiAnalysisData =
+        [NSJSONSerialization dataWithJSONObject:multiAnalysisDictionary options:0 error:&dictionarySerializationError];
 
-    if(dictionarySerializationError != nil) {
+    if (dictionarySerializationError != nil) {
         KCLogError(@"error with dictionary serialization");
         return;
     }
@@ -286,28 +262,21 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) {
                                                       andBody:multiAnalysisData
                                                        andKey:config.readKey];
 
-    [self executeRequest:request
-       completionHandler:completionHandler];
+    [self executeRequest:request completionHandler:completionHandler];
 }
-
 
 // Run a saved/cached query request
-- (void)runSavedAnalysis:(NSString*)queryName
-                  config:(KeenClientConfig*)config
+- (void)runSavedAnalysis:(NSString *)queryName
+                  config:(KeenClientConfig *)config
        completionHandler:(AnalysisCompletionBlock)completionHandler {
-
-    NSString* urlString = [NSString stringWithFormat:@"%@/queries/saved/%@/result",
-                           [self getProjectURL:config.projectID], queryName];
+    NSString *urlString =
+        [NSString stringWithFormat:@"%@/queries/saved/%@/result", [self getProjectURL:config.projectID], queryName];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
-    NSMutableURLRequest* request = [self createRequestWithUrl:urlString
-                                                    andMethod:KeenHTTPMethodGet
-                                                      andBody:nil
-                                                       andKey:config.readKey];
+    NSMutableURLRequest *request =
+        [self createRequestWithUrl:urlString andMethod:KeenHTTPMethodGet andBody:nil andKey:config.readKey];
 
-    [self executeRequest:request
-       completionHandler:completionHandler];
+    [self executeRequest:request completionHandler:completionHandler];
 }
-
 
 @end

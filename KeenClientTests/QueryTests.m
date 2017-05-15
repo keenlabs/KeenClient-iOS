@@ -17,219 +17,245 @@
 
 #import "QueryTests.h"
 
-
 @implementation QueryTests
 
-
 - (void)testCountQueryFailure {
-    XCTestExpectation* queryCompleted = [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
+    XCTestExpectation *queryCompleted =
+        [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
     id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode5XXServerError];
 
     KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{}];
 
-    [mock runAsyncQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLogInfo(@"error: %@", error);
-        KCLogInfo(@"response: %@", response);
+    [mock runAsyncQuery:query
+        completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+            KCLogInfo(@"error: %@", error);
+            KCLogInfo(@"response: %@", response);
 
-        XCTAssertNil(error);
+            XCTAssertNil(error);
 
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-        XCTAssertEqual([httpResponse statusCode], HTTPCode5XXServerError);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            XCTAssertEqual([httpResponse statusCode], HTTPCode5XXServerError);
 
-        NSDictionary *responseDictionary = [NSJSONSerialization
-                                            JSONObjectWithData:queryResponseData
-                                            options:kNilOptions
-                                            error:&error];
+            NSDictionary *responseDictionary =
+                [NSJSONSerialization JSONObjectWithData:queryResponseData options:kNilOptions error:&error];
 
-        KCLogInfo(@"response: %@", responseDictionary);
+            KCLogInfo(@"response: %@", responseDictionary);
 
-        NSNumber *result = [responseDictionary objectForKey:@"result"];
+            NSNumber *result = [responseDictionary objectForKey:@"result"];
 
-        XCTAssertNil(result);
+            XCTAssertNil(result);
 
-        [queryCompleted fulfill];
-    }];
+            [queryCompleted fulfill];
+        }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
-
 
 - (void)testCountQuerySuccess {
-    XCTestExpectation* queryCompleted = [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
-    id mock = [self createClientWithResponseData:@{@"result": @10} andStatusCode:HTTPCode200OK];
+    XCTestExpectation *queryCompleted =
+        [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
+    id mock = [self createClientWithResponseData:@{ @"result": @10 } andStatusCode:HTTPCode200OK];
 
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
+    KIOQuery *query =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"event_collection"
+        }];
 
-    [mock runAsyncQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLogInfo(@"error: %@", error);
-        KCLogInfo(@"response: %@", response);
+    [mock runAsyncQuery:query
+        completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+            KCLogInfo(@"error: %@", error);
+            KCLogInfo(@"response: %@", response);
 
-        XCTAssertNil(error);
+            XCTAssertNil(error);
 
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
 
-        NSDictionary *responseDictionary = [NSJSONSerialization
-                                            JSONObjectWithData:queryResponseData
-                                            options:kNilOptions
-                                            error:&error];
+            NSDictionary *responseDictionary =
+                [NSJSONSerialization JSONObjectWithData:queryResponseData options:kNilOptions error:&error];
 
-        KCLogInfo(@"response: %@", responseDictionary);
+            KCLogInfo(@"response: %@", responseDictionary);
 
-        NSNumber *result = [responseDictionary objectForKey:@"result"];
+            NSNumber *result = [responseDictionary objectForKey:@"result"];
 
-        XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+            XCTAssertEqual(result, [NSNumber numberWithInt:10]);
 
-        [queryCompleted fulfill];
-    }];
+            [queryCompleted fulfill];
+        }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
-
 
 - (void)testCountQuerySuccessWithGroupByProperty {
-    XCTestExpectation* queryCompleted = [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
-    id mock = [self createClientWithResponseData:@{@"result": @[@{ @"result": @10, @"key": @"value" }]} andStatusCode:HTTPCode200OK];
+    XCTestExpectation *queryCompleted =
+        [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
+    id mock = [self createClientWithResponseData:@{
+        @"result": @[@{@"result": @10, @"key": @"value"}]
+    }
+                                   andStatusCode:HTTPCode200OK];
 
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection",
-                                                                                         @"group_by": @"key"}];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count"
+                              andPropertiesDictionary:@{
+                                  @"event_collection": @"event_collection",
+                                  @"group_by": @"key"
+                              }];
 
-    [mock runAsyncQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLogInfo(@"error: %@", error);
-        KCLogInfo(@"response: %@", response);
+    [mock runAsyncQuery:query
+        completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+            KCLogInfo(@"error: %@", error);
+            KCLogInfo(@"response: %@", response);
 
-        XCTAssertNil(error);
+            XCTAssertNil(error);
 
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
 
-        NSDictionary *responseDictionary = [NSJSONSerialization
-                                            JSONObjectWithData:queryResponseData
-                                            options:kNilOptions
-                                            error:&error];
+            NSDictionary *responseDictionary =
+                [NSJSONSerialization JSONObjectWithData:queryResponseData options:kNilOptions error:&error];
 
-        KCLogInfo(@"response: %@", responseDictionary);
+            KCLogInfo(@"response: %@", responseDictionary);
 
-        NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"result"];
+            NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"result"];
 
-        XCTAssertEqual(result, [NSNumber numberWithInt:10]);
-        [queryCompleted fulfill];
-    }];
+            XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+            [queryCompleted fulfill];
+        }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
-
 
 - (void)testCountQuerySuccessWithTimeframeAndIntervalProperties {
-    XCTestExpectation* queryCompleted = [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
-    id mock = [self createClientWithResponseData:@{@"result": @[@{@"value": @10,
-                                                                  @"timeframe": @{@"start": @"2015-06-19T00:00:00.000Z",
-                                                                                  @"end": @"2015-06-20T00:00:00.000Z"} }]} andStatusCode:HTTPCode200OK];
+    XCTestExpectation *queryCompleted =
+        [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
+    id mock = [self createClientWithResponseData:@{
+        @"result": @[@{
+            @"value": @10,
+            @"timeframe": @{@"start": @"2015-06-19T00:00:00.000Z", @"end": @"2015-06-20T00:00:00.000Z"}
+        }]
+    }
+                                   andStatusCode:HTTPCode200OK];
 
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection",
-                                                                                         @"interval": @"daily",
-                                                                                         @"timeframe": @"last_1_days"}];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count"
+                              andPropertiesDictionary:@{
+                                  @"event_collection": @"event_collection",
+                                  @"interval": @"daily",
+                                  @"timeframe": @"last_1_days"
+                              }];
 
-    [mock runAsyncQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLogInfo(@"error: %@", error);
-        KCLogInfo(@"response: %@", response);
+    [mock runAsyncQuery:query
+        completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+            KCLogInfo(@"error: %@", error);
+            KCLogInfo(@"response: %@", response);
 
-        XCTAssertNil(error);
+            XCTAssertNil(error);
 
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
 
-        NSDictionary *responseDictionary = [NSJSONSerialization
-                                            JSONObjectWithData:queryResponseData
-                                            options:kNilOptions
-                                            error:&error];
+            NSDictionary *responseDictionary =
+                [NSJSONSerialization JSONObjectWithData:queryResponseData options:kNilOptions error:&error];
 
-        KCLogInfo(@"response: %@", responseDictionary);
+            KCLogInfo(@"response: %@", responseDictionary);
 
-        NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"value"];
+            NSNumber *result = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"value"];
 
-        XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+            XCTAssertEqual(result, [NSNumber numberWithInt:10]);
 
-        [queryCompleted fulfill];
-    }];
+            [queryCompleted fulfill];
+        }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
-
 
 - (void)testCountUniqueQueryWithMissingTargetProperty {
-    XCTestExpectation* queryCompleted = [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
+    XCTestExpectation *queryCompleted =
+        [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
     id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode400BadRequest];
 
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
+    KIOQuery *query =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"event_collection"
+        }];
 
-    [mock runAsyncQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLogInfo(@"error: %@", error);
-        KCLogInfo(@"response: %@", response);
+    [mock runAsyncQuery:query
+        completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+            KCLogInfo(@"error: %@", error);
+            KCLogInfo(@"response: %@", response);
 
-        XCTAssertNil(error);
+            XCTAssertNil(error);
 
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-        XCTAssertEqual([httpResponse statusCode], HTTPCode400BadRequest);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            XCTAssertEqual([httpResponse statusCode], HTTPCode400BadRequest);
 
-        NSDictionary *responseDictionary = [NSJSONSerialization
-                                            JSONObjectWithData:queryResponseData
-                                            options:kNilOptions
-                                            error:&error];
+            NSDictionary *responseDictionary =
+                [NSJSONSerialization JSONObjectWithData:queryResponseData options:kNilOptions error:&error];
 
-        KCLogInfo(@"response: %@", responseDictionary);
+            KCLogInfo(@"response: %@", responseDictionary);
 
-        NSNumber *result = [responseDictionary objectForKey:@"result"];
+            NSNumber *result = [responseDictionary objectForKey:@"result"];
 
-        XCTAssertNil(result);
+            XCTAssertNil(result);
 
-        [queryCompleted fulfill];
-    }];
+            [queryCompleted fulfill];
+        }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
-
 
 - (void)testCountUniqueQuerySuccess {
-    XCTestExpectation* queryCompleted = [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
-    id mock = [self createClientWithResponseData:@{@"result": @10} andStatusCode:HTTPCode200OK];
+    XCTestExpectation *queryCompleted =
+        [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
+    id mock = [self createClientWithResponseData:@{ @"result": @10 } andStatusCode:HTTPCode200OK];
 
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count"
+                              andPropertiesDictionary:@{
+                                  @"event_collection": @"event_collection",
+                                  @"target_property": @"something"
+                              }];
 
-    [mock runAsyncQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLogInfo(@"error: %@", error);
-        KCLogInfo(@"response: %@", response);
+    [mock runAsyncQuery:query
+        completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+            KCLogInfo(@"error: %@", error);
+            KCLogInfo(@"response: %@", response);
 
-        XCTAssertNil(error);
+            XCTAssertNil(error);
 
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
 
-        NSDictionary *responseDictionary = [NSJSONSerialization
-                                            JSONObjectWithData:queryResponseData
-                                            options:kNilOptions
-                                            error:&error];
+            NSDictionary *responseDictionary =
+                [NSJSONSerialization JSONObjectWithData:queryResponseData options:kNilOptions error:&error];
 
-        KCLogInfo(@"response: %@", responseDictionary);
+            KCLogInfo(@"response: %@", responseDictionary);
 
-        NSNumber *result = [responseDictionary objectForKey:@"result"];
+            NSNumber *result = [responseDictionary objectForKey:@"result"];
 
-        XCTAssertEqual(result, [NSNumber numberWithInt:10]);
+            XCTAssertEqual(result, [NSNumber numberWithInt:10]);
 
-        [queryCompleted fulfill];
-    }];
+            [queryCompleted fulfill];
+        }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
 
-
 - (void)testMultiAnalysisSuccess {
-    XCTestExpectation* queryCompleted = [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
-    id mock = [self createClientWithResponseData:@{@"result": @{@"query1": @10, @"query2": @1}} andStatusCode:HTTPCode200OK];
+    XCTestExpectation *queryCompleted =
+        [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
+    id mock = [self createClientWithResponseData:@{
+        @"result": @{@"query1": @10, @"query2": @1}
+    }
+                                   andStatusCode:HTTPCode200OK];
 
-    KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
+    KIOQuery *countQuery =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"event_collection"
+        }];
 
-    KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique" andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
+    KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique"
+                                     andPropertiesDictionary:@{
+                                         @"event_collection": @"event_collection",
+                                         @"target_property": @"something"
+                                     }];
 
     [mock runAsyncMultiAnalysisWithQueries:@[countQuery, averageQuery]
                          completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
@@ -238,13 +264,13 @@
 
                              XCTAssertNil(error);
 
-                             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
+                             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
                              XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
 
-                             NSDictionary *responseDictionary = [NSJSONSerialization
-                                                                 JSONObjectWithData:queryResponseData
+                             NSDictionary *responseDictionary =
+                                 [NSJSONSerialization JSONObjectWithData:queryResponseData
                                                                  options:kNilOptions
-                                                                 error:&error];
+                                                                   error:&error];
 
                              KCLogInfo(@"response: %@", responseDictionary);
 
@@ -258,50 +284,56 @@
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
 
-
 - (void)testFunnelQuerySuccess {
-    XCTestExpectation* queryCompleted = [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
-    id mock = [self createClientWithResponseData:@{@"result": @[@10, @5],
-                                                   @"steps":@[@{@"actor_property": @[@"user.id"],
-                                                                @"event_collection": @"user_signed_up"},
-                                                              @{@"actor_property": @[@"user.id"],
-                                                                @"event_collection": @"user_completed_profile"}]} andStatusCode:HTTPCode200OK];
+    XCTestExpectation *queryCompleted =
+        [self expectationWithDescription:@"runAsyncQuery should call completionHandler."];
+    id mock = [self createClientWithResponseData:@{
+        @"result": @[@10, @5],
+        @"steps": @[
+            @{@"actor_property": @[@"user.id"], @"event_collection": @"user_signed_up"},
+            @{@"actor_property": @[@"user.id"], @"event_collection": @"user_completed_profile"}
+        ]
+    }
+                                   andStatusCode:HTTPCode200OK];
 
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"funnel" andPropertiesDictionary:@{@"steps": @[@{@"event_collection": @"user_signed_up", @"actor_property": @"user.id"},
-                                                                                                      @{@"event_collection": @"user_completed_profile", @"actor_property": @"user.id"}]}];
+    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"funnel"
+                              andPropertiesDictionary:@{
+                                  @"steps": @[
+                                      @{@"event_collection": @"user_signed_up", @"actor_property": @"user.id"},
+                                      @{@"event_collection": @"user_completed_profile", @"actor_property": @"user.id"}
+                                  ]
+                              }];
 
-    [mock runAsyncQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        KCLogInfo(@"error: %@", error);
-        KCLogInfo(@"response: %@", response);
+    [mock runAsyncQuery:query
+        completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+            KCLogInfo(@"error: %@", error);
+            KCLogInfo(@"response: %@", response);
 
-        XCTAssertNil(error);
+            XCTAssertNil(error);
 
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*) response;
-        XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            XCTAssertEqual([httpResponse statusCode], HTTPCode200OK);
 
-        NSDictionary *responseDictionary = [NSJSONSerialization
-                                            JSONObjectWithData:queryResponseData
-                                            options:kNilOptions
-                                            error:&error];
+            NSDictionary *responseDictionary =
+                [NSJSONSerialization JSONObjectWithData:queryResponseData options:kNilOptions error:&error];
 
-        KCLogInfo(@"response: %@", responseDictionary);
+            KCLogInfo(@"response: %@", responseDictionary);
 
-        NSArray *result = [responseDictionary objectForKey:@"result"];
-        NSArray *resultArray = @[@10, @5];
+            NSArray *result = [responseDictionary objectForKey:@"result"];
+            NSArray *resultArray = @[@10, @5];
 
-        KCLogInfo(@"result: %@", [result class]);
-        KCLogInfo(@"resultArray: %@", [resultArray class]);
+            KCLogInfo(@"result: %@", [result class]);
+            KCLogInfo(@"resultArray: %@", [resultArray class]);
 
-        XCTAssertEqual([result count], (NSUInteger)2);
-        XCTAssertEqualObjects(result, resultArray);
-        [queryCompleted fulfill];
-    }];
+            XCTAssertEqual([result count], (NSUInteger)2);
+            XCTAssertEqualObjects(result, resultArray);
+            [queryCompleted fulfill];
+        }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
 
-
-- (void) testSuccessfulQueryAPIResponse {
+- (void)testSuccessfulQueryAPIResponse {
     KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
                                                    andWriteKey:kDefaultWriteKey
                                                     andReadKey:kDefaultReadKey];
@@ -313,10 +345,7 @@
                                                             headerFields:@{}];
     NSData *responseData = [@"query failed" dataUsingEncoding:NSUTF8StringEncoding];
 
-    [client.network handleQueryAPIResponse:response
-                                   andData:responseData
-                                  andQuery:nil
-                              andProjectID:kDefaultProjectID];
+    [client.network handleQueryAPIResponse:response andData:responseData andQuery:nil andProjectID:kDefaultProjectID];
 
     // test that there are no entries in the query database
     XCTAssertEqual([KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID],
@@ -324,8 +353,7 @@
                    @"There should be no queries after a successful query API call");
 }
 
-
-- (void) testFailedQueryAPIResponse {
+- (void)testFailedQueryAPIResponse {
     KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
                                                    andWriteKey:kDefaultWriteKey
                                                     andReadKey:kDefaultReadKey];
@@ -338,23 +366,23 @@
     NSData *responseData = [@"query failed" dataUsingEncoding:NSUTF8StringEncoding];
 
     // test that there is 1 entry in the query database after a failed query API call
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count"
-                              andPropertiesDictionary:@{@"event_collection": @"collection"}];
+    KIOQuery *query =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"collection"
+        }];
 
-    [client.network handleQueryAPIResponse:response
-                                   andData:responseData
-                                  andQuery:query
-                              andProjectID:kDefaultProjectID];
+    [client.network handleQueryAPIResponse:response andData:responseData andQuery:query andProjectID:kDefaultProjectID];
 
     NSUInteger numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID];
 
-    XCTAssertEqual(numberOfQueries,
-                   (NSUInteger)1,
-                   @"There should be 1 query in the database after a failed query API call");
+    XCTAssertEqual(
+        numberOfQueries, (NSUInteger)1, @"There should be 1 query in the database after a failed query API call");
 
     // test that there are 2 entries in the query database after two failed different query API calls
-    KIOQuery *query2 = [[KIOQuery alloc] initWithQuery:@"count"
-                               andPropertiesDictionary:@{@"event_collection": @"collection2"}];
+    KIOQuery *query2 =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"collection2"
+        }];
 
     [client.network handleQueryAPIResponse:response
                                    andData:responseData
@@ -362,9 +390,8 @@
                               andProjectID:kDefaultProjectID];
 
     numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID];
-    XCTAssertEqual(numberOfQueries,
-                   (NSUInteger)2,
-                   @"There should be 2 queries in the database after two failed query API calls");
+    XCTAssertEqual(
+        numberOfQueries, (NSUInteger)2, @"There should be 2 queries in the database after two failed query API calls");
 
     // test that there is still 2 entries in the query database after the same query fails twice
     [client.network handleQueryAPIResponse:response
@@ -377,6 +404,5 @@
                    (NSUInteger)2,
                    @"There should still be 2 queries in the database after two of the same failed query API call");
 }
-
 
 @end

@@ -17,17 +17,17 @@
 
 // Initialize the object
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithURLSession:(NSURLSession *)urlSession
-                          andStore:(KIODBStore *)store;
+- (instancetype)initWithURLSession:(NSURLSession *)urlSession andStore:(KIODBStore *)store;
 
 // Upload events to keen
 - (void)sendEvents:(NSData *)data
-            config:(KeenClientConfig *)config
- completionHandler:(AnalysisCompletionBlock)completionHandler;
+               config:(KeenClientConfig *)config
+    completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 // Run an analysis request
-- (void)runQuery:(KIOQuery *)keenQuery config:(KeenClientConfig *)config
-                           completionHandler:(AnalysisCompletionBlock)completionHandler;
+- (void)runQuery:(KIOQuery *)keenQuery
+               config:(KeenClientConfig *)config
+    completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 // Run a multi-analysis request
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries

@@ -25,12 +25,11 @@
 #import "KIONetworkTestable.h"
 #import "KIOUploaderTestable.h"
 
-
 @implementation KeenClientTests
 
-
-- (void)testInitWithProjectID{
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:@"something" andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+- (void)testInitWithProjectID {
+    KeenClient *client =
+        [[KeenClient alloc] initWithProjectID:@"something" andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     XCTAssertEqualObjects(@"something", client.config.projectID, @"init with a valid project id should work");
     XCTAssertEqualObjects(kDefaultWriteKey, client.config.writeKey, @"init with a valid project id should work");
     XCTAssertEqualObjects(kDefaultReadKey, client.config.readKey, @"init with a valid project id should work");
@@ -45,7 +44,6 @@
     XCTAssertNil(client, @"init with a nil project ID should return nil");
 }
 
-
 - (void)testInstanceClient {
     KeenClient *client = [[KeenClient alloc] init];
     XCTAssertNil(client.config.projectID, @"a client's project id should be nil at first");
@@ -56,10 +54,13 @@
     XCTAssertTrue(client != client2, @"Another init should return a separate instance");
 }
 
-
-- (void)testSharedClientWithProjectID{
-    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
-    XCTAssertEqual(kDefaultProjectID, client.config.projectID, @"sharedClientWithProjectID with a non-nil project id should work.");
+- (void)testSharedClientWithProjectID {
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey];
+    XCTAssertEqual(kDefaultProjectID,
+                   client.config.projectID,
+                   @"sharedClientWithProjectID with a non-nil project id should work.");
     XCTAssertEqualObjects(kDefaultWriteKey, client.config.writeKey, @"init with a valid project id should work");
     XCTAssertEqualObjects(kDefaultReadKey, client.config.readKey, @"init with a valid project id should work");
 
@@ -72,7 +73,6 @@
     XCTAssertNil(client, @"sharedClient with an invalid project id should return nil");
 }
 
-
 - (void)testSharedClient {
     KeenClient *client = [KeenClient sharedClient];
     XCTAssertNil(client.config.projectID, @"a client's project id should be nil at first");
@@ -83,23 +83,24 @@
     XCTAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
 }
 
-
 - (void)testBasicAddon {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
-    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey];
+    KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+                                                    andWriteKey:kDefaultWriteKey
+                                                     andReadKey:kDefaultReadKey];
 
     NSDictionary *theEvent = @{
-                               @"keen":@{
-                                       @"addons" : @[
-                                               @{
-                                                   @"name" : @"addon:name",
-                                                   @"input" : @{@"param_name" : @"property_that_contains_param"},
-                                                   @"output" : @"property.to.store.output"
-                                                   }
-                                               ]
-                                       },
-                               @"a": @"b"
-                               };
+        @"keen": @{
+            @"addons": @[@{
+                @"name": @"addon:name",
+                @"input": @{@"param_name": @"property_that_contains_param"},
+                @"output": @"property.to.store.output"
+            }]
+        },
+        @"a": @"b"
+    };
 
     // add the event
     NSError *error = nil;
@@ -108,36 +109,41 @@
     XCTAssertNil(error, @"event should add");
 
     // Grab the first event we get back
-    NSDictionary *eventsForCollection = [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID] objectForKey:@"foo"];
+    NSDictionary *eventsForCollection =
+        [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
+            objectForKey:@"foo"];
     // Grab the first event we get back
     NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
-    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData
-                                                                     options:0
-                                                                       error:&error];
+    NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
     NSDictionary *deserializedAddon = deserializedDict[@"keen"][@"addons"][0];
     XCTAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
-
 - (void)testSDKVersion {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     // result from class method should equal the SDK Version constant
-    XCTAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],  @"SDK Version from class method equals the SDK Version constant.");
-    XCTAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
+    XCTAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],
+                  @"SDK Version from class method equals the SDK Version constant.");
+    XCTAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion],
+                   @"SDK Version from class method doesn't equal the SDK Version constant.");
 }
-
 
 - (void)testSDKVersionInstanceClient {
-    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
     // result from class method should equal the SDK Version constant
-    XCTAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],  @"SDK Version from class method equals the SDK Version constant.");
-    XCTAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion], @"SDK Version from class method doesn't equal the SDK Version constant.");
+    XCTAssertTrue([[KeenClient sdkVersion] isEqual:kKeenSdkVersion],
+                  @"SDK Version from class method equals the SDK Version constant.");
+    XCTAssertFalse(![[KeenClient sdkVersion] isEqual:kKeenSdkVersion],
+                   @"SDK Version from class method doesn't equal the SDK Version constant.");
 }
-
 
 @end

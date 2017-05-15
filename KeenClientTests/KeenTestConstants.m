@@ -9,8 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "KeenTestConstants.h"
 
-NSString* const kDefaultProjectID = @"id";
-NSString* const kDefaultWriteKey = @"wk";
-NSString* const kDefaultReadKey = @"rk";
+NSString *const kDefaultProjectID = @"id";
+NSString *const kDefaultWriteKey = @"wk";
+NSString *const kDefaultReadKey = @"rk";
 
 const NSTimeInterval kTestExpectationTimeoutInterval = 100;
