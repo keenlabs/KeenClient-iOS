@@ -197,7 +197,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
  @return An instance of KIOEventStore.
  */
-+ (KIODBStore *)getDBStore DEPRECATED_MSG_ATTRIBUTE("Class method getDBStore is deprecated. User instance method instead.");
++ (KIODBStore *)getDBStore DEPRECATED_MSG_ATTRIBUTE("Class method getDBStore is deprecated. Use instance method instead.");
 - (KIODBStore *)getDBStore;
 
 /**
@@ -320,8 +320,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  This method is only used for testing.
 
  @param keenQuery The KIOQuery object containing the information about the query.
- @param returningResponse The NSURLResponse for the query.
- @param error The NSError (if any) for the query.
+ @param completionHandler The block to call upon completion of the query.
  */
 - (void)runQuery:(KIOQuery *)keenQuery completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
@@ -331,8 +330,7 @@ typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
  This method is only used for testing.
 
  @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
- @param returningResponse The NSURLResponse for the query.
- @param error The NSError (if any) for the query.
+ @param completionHandler The block to call upon completion of the query.
  */
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
