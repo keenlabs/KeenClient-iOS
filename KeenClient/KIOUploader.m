@@ -26,7 +26,7 @@
  and then removing any events from the local filesystem that have been handled by the keen API.
  @param response The response from the server.
  @param responseData The data returned from the server.
- @param eventPaths A dictionary that maps events to their paths on the file system.
+ @param eventIds A dictionary that maps events to their ID's in the local store.
  */
 - (void)handleEventAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
