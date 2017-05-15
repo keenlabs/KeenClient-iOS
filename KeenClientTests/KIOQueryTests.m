@@ -47,12 +47,4 @@
     XCTAssertNotNil(data, @"data is not null");
 }
 
-//- (void)testAdd{
-//    KIOEventStore *store = [[KIOEventStore alloc] init];
-//    store.projectID = @"1234";
-//    [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection: @"foo"];
-//    XCTAssertTrue([store getTotalEventCount] == 1, @"1 total event after add");
-//    XCTAssertTrue([store getPendingEventCount] == 0, @"0 pending events after add");
-//}
-
 @end

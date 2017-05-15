@@ -17,7 +17,7 @@
 typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
 // Block type for analysis/query completion
-typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
+typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* response, NSError* error);
 
 /**
  KeenClient has class methods to return managed instances of itself and instance methods
@@ -196,9 +196,9 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
 
 
 /**
- Call this to retrieve an instance of KIOEventStore.
+ Call this to retrieve an instance of KIODBStore.
 
- @return An instance of KIOEventStore.
+ @return An instance of KIODBStore.
  */
 + (KIODBStore*)getDBStore DEPRECATED_MSG_ATTRIBUTE("use instance method instead.");
 - (KIODBStore*)getDBStore;
@@ -338,6 +338,16 @@ typedef void (^AnalysisCompletionBlock)(NSData *, NSURLResponse *, NSError *);
  @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
  */
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler;
+
+/**
+ Runs a saved or gets a cached query result.
+
+ See detailed documentation here: https://keen.io/docs/api/#saved-queries
+
+ @param queryName The saved/cached query name.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ */
+- (void)runAsyncSavedAnalysis:(NSString*)queryName completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
  Runs a synchronous query.

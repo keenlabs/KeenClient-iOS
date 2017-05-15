@@ -8,6 +8,7 @@
 
 #import "KeenClient.h"
 #import "KeenConstants.h"
+#import "KeenClientConfig.h"
 #import "KIOUtil.h"
 #import "KIODBStore.h"
 #import "KIOReachability.h"
@@ -28,14 +29,8 @@ static BOOL geoLocationRequestEnabled = YES;
 
 @interface KeenClient ()
 
-// The project ID for this particular client.
-@property (nonatomic, strong) NSString *projectID;
-
-// The Write Key for this particular client.
-@property (nonatomic, strong) NSString *writeKey;
-
-// The Read Key for this particular client.
-@property (nonatomic, strong) NSString *readKey;
+// Configuration for the client, including project id and authorization
+@property KeenClientConfig* config;
 
 // NSLocationManager
 @property (nonatomic, strong) CLLocationManager *locationManager;
@@ -70,34 +65,11 @@ static BOOL geoLocationRequestEnabled = YES;
  */
 - (id)init;
 
-/**
- Validates that the given project ID is valid.
- @param projectID The Keen project ID.
- @returns YES if project id is valid, NO otherwise.
- */
-+ (BOOL)validateProjectID:(NSString *)projectID;
-
-/**
- Validates that the given key is valid.
- @param key The key to check.
- @returns YES if key is valid, NO otherwise.
- */
-+ (BOOL)validateKey:(NSString *)key;
-
 @end
 
-@implementation KeenClient
 
-@synthesize projectID=_projectID;
-@synthesize writeKey=_writeKey;
-@synthesize readKey=_readKey;
-@synthesize locationManager=_locationManager;
-@synthesize currentLocation=_currentLocation;
-@synthesize numTimesTimestampUsed=_numTimesTimestampUsed;
-@synthesize isRunningTests=_isRunningTests;
-@synthesize globalPropertiesDictionary=_globalPropertiesDictionary;
-@synthesize globalPropertiesBlock=_globalPropertiesBlock;
-@synthesize queryQueue;
+
+@implementation KeenClient
 
 /**
  The maximum number of times to try POSTing an event before purging it from the DB.
@@ -240,19 +212,6 @@ static BOOL geoLocationRequestEnabled = YES;
     return self.sharedClient.store;
 }
 
-+ (BOOL)validateProjectID:(NSString *)projectID {
-    // validate that project ID is acceptable
-    if (!projectID || [projectID length] == 0) {
-        return NO;
-    }
-    return YES;
-}
-
-+ (BOOL)validateKey:(NSString *)key {
-    // for now just use the same rules as project ID
-    return [KeenClient validateProjectID:key];
-}
-
 - (instancetype)initWithNetwork:(KIONetwork*)network
                        andStore:(KIODBStore*)store
                     andUploader:(KIOUploader*)uploader {
@@ -281,32 +240,20 @@ static BOOL geoLocationRequestEnabled = YES;
              andNetwork:(KIONetwork*)network
                andStore:(KIODBStore*)store
             andUploader:(KIOUploader*)uploader {
-    // Validate key parameters
-    if (![KeenClient validateProjectID:projectID]) {
-        KCLogError(@"Invalid projectID: %@", projectID);
-        return nil;
-    }
-
-    if (nil != writeKey && // only validate a non-nil value
-        ![KeenClient validateKey:writeKey]) {
-        KCLogError(@"Invalid writeKey: %@", writeKey);
-        return nil;
-    }
-
-    if (nil != readKey && // only validate a non-nil value
-        ![KeenClient validateKey:readKey]) {
-        KCLogError(@"Invalid readKey: %@", readKey);
-        return nil;
-    }
 
     self = [self initWithNetwork:network
                         andStore:store
                      andUploader:uploader];
+
     if (nil != self) {
-        self.projectID = projectID;
-        self.writeKey = writeKey;
-        self.readKey = readKey;
-        self.uploader = uploader;
+        KeenClientConfig* config = [[KeenClientConfig alloc] initWithProjectID:projectID
+                                                                   andWriteKey:writeKey
+                                                                    andReadKey:readKey];
+        if (nil != config) {
+            self.config = config;
+        } else {
+            self = nil;
+        }
     }
 
     return self;
@@ -332,33 +279,20 @@ static BOOL geoLocationRequestEnabled = YES;
 
 # pragma mark - Get a shared client
 
-+ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID
-                              andWriteKey:(NSString *)writeKey
-                               andReadKey:(NSString *)readKey {
++ (KeenClient*)sharedClientWithProjectID:(NSString*)projectID
+                             andWriteKey:(NSString*)writeKey
+                              andReadKey:(NSString*)readKey {
 
-    // Validate key parameters
-    if (![KeenClient validateProjectID:projectID]) {
-        KCLogError(@"Invalid projectID: %@", projectID);
-        return nil;
+    KeenClient* client = nil;
+
+    self.sharedClient.config = [[KeenClientConfig alloc] initWithProjectID:projectID
+                                                               andWriteKey:writeKey
+                                                                andReadKey:readKey];
+    if (nil != self.sharedClient.config) {
+        client = self.sharedClient;
     }
 
-    if (nil != writeKey && // only validate a non-nil value
-        ![KeenClient validateKey:writeKey]) {
-        KCLogError(@"Invalid writeKey: %@", writeKey);
-        return nil;
-    }
-
-    if (nil != readKey && // only validate a non-nil value
-        ![KeenClient validateKey:readKey]) {
-        KCLogError(@"Invalid readKey: %@", readKey);
-        return nil;
-    }
-
-    self.sharedClient.projectID = projectID;
-    self.sharedClient.writeKey = writeKey;
-    self.sharedClient.readKey = readKey;
-
-    return self.sharedClient;
+    return client;
 }
 
 + (KeenClient*)sharedClient {
@@ -538,21 +472,26 @@ static BOOL geoLocationRequestEnabled = YES;
     return YES;
 }
 
-- (BOOL)addEvent:(NSDictionary *)event toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
-    return [self addEvent:event withKeenProperties:nil toEventCollection:eventCollection error:anError];
+- (BOOL)addEvent:(NSDictionary*)event toEventCollection:(NSString*)eventCollection
+                                                   error:(NSError**)error {
+    return [self addEvent:event withKeenProperties:nil
+                                 toEventCollection:eventCollection error:error];
 }
 
-- (BOOL)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **) anError {
+- (BOOL)addEvent:(NSDictionary*)event withKeenProperties:(KeenProperties*)keenProperties
+                                       toEventCollection:(NSString*)eventCollection
+                                                   error:(NSError**)error {
     // make sure the write key has been set - can't do anything without that
-    if (![KeenClient validateKey:self.writeKey]) {
-        [NSException raise:@"KeenNoWriteKeyProvided" format:@"You tried to add an event without setting a write key, please set one!"];
+    if (![KIOUtil validateKey:self.config.writeKey]) {
+        [NSException raise:@"KeenNoWriteKeyProvided"
+                    format:@"You tried to add an event without setting a write key, please set one!"];
     }
 
     // don't do anything if the event itself or the event collection name are invalid somehow.
-    if (![self validateEventCollection:eventCollection error:anError]) {
+    if (![self validateEventCollection:eventCollection error:error]) {
         return NO;
     }
-    if (![self validateEvent:event withDepth:0 error:anError]) {
+    if (![self validateEvent:event withDepth:0 error:error]) {
         return NO;
     }
 
@@ -561,12 +500,12 @@ static BOOL geoLocationRequestEnabled = YES;
     // create the body of the event we'll send off. first copy over all keys from the global properties
     // dictionary, then copy over all the keys from the global properties block, then copy over all the
     // keys from the user-defined event.
-    NSMutableDictionary *newEvent = [NSMutableDictionary dictionary];
+    NSMutableDictionary* newEvent = [NSMutableDictionary dictionary];
     if (self.globalPropertiesDictionary) {
         [newEvent addEntriesFromDictionary:self.globalPropertiesDictionary];
     }
     if (self.globalPropertiesBlock) {
-        NSDictionary *globalProperties = self.globalPropertiesBlock(eventCollection);
+        NSDictionary* globalProperties = self.globalPropertiesBlock(eventCollection);
         if (globalProperties) {
             [newEvent addEntriesFromDictionary:globalProperties];
         }
@@ -575,7 +514,7 @@ static BOOL geoLocationRequestEnabled = YES;
     event = newEvent;
 
     // now make sure that we haven't hit the max number of events in this collection already
-    NSUInteger eventCount = [self.store getTotalEventCountWithProjectID:self.projectID];
+    NSUInteger eventCount = [self.store getTotalEventCountWithProjectID:self.config.projectID];
 
     // We add 1 because we want to know if this will push us over the limit
     if (eventCount + 1 > self.maxEventsPerCollection) {
@@ -586,7 +525,7 @@ static BOOL geoLocationRequestEnabled = YES;
     }
 
     if (!keenProperties) {
-        KeenProperties *newProperties = [[KeenProperties alloc] init];
+        KeenProperties* newProperties = [[KeenProperties alloc] init];
         keenProperties = newProperties;
     }
     if (geoLocationEnabled && self.currentLocation != nil && keenProperties.location == nil) {
@@ -594,10 +533,10 @@ static BOOL geoLocationRequestEnabled = YES;
     }
 
     // this is the event we'll actually write
-    NSMutableDictionary *eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
+    NSMutableDictionary* eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
 
     // either set "keen" only from keen properties or merge in
-    NSDictionary *originalKeenDict = [eventToWrite objectForKey:@"keen"];
+    NSDictionary* originalKeenDict = [eventToWrite objectForKey:@"keen"];
     if (originalKeenDict) {
         // have to merge
         NSMutableDictionary *keenDict = [KIOUtil handleInvalidJSONInObject:keenProperties];
@@ -609,16 +548,17 @@ static BOOL geoLocationRequestEnabled = YES;
         [eventToWrite setObject:keenProperties forKey:@"keen"];
     }
 
-    NSError *error = nil;
-    NSData *jsonData = [KIOUtil serializeEventToJSON:eventToWrite error:&error];
-    if (error) {
-        return [KIOUtil handleError:anError
-                   withErrorMessage:[NSString stringWithFormat:@"An error occurred when serializing event to JSON: %@", [error localizedDescription]]
-                    underlyingError:error];
+    NSError* serializationError = nil;
+    NSData* jsonData = [KIOUtil serializeEventToJSON:eventToWrite error:&serializationError];
+    if (serializationError) {
+        return [KIOUtil handleError:error
+                   withErrorMessage:[NSString stringWithFormat:@"An error occurred when serializing event to JSON: %@",
+                                     [serializationError localizedDescription]]
+                    underlyingError:serializationError];
     }
 
     // write JSON to store
-    [self.store addEvent:jsonData collection:eventCollection projectID:self.projectID];
+    [self.store addEvent:jsonData collection:eventCollection projectID:self.config.projectID];
 
     // log the event
     KCLogVerbose(@"Event: %@", eventToWrite);
@@ -627,13 +567,12 @@ static BOOL geoLocationRequestEnabled = YES;
 }
 
 - (void)importFileData {
-    [KIOFileStore importFileDataWithProjectID:self.projectID];
+    [KIOFileStore importFileDataWithProjectID:self.config.projectID];
 }
 
 - (void)uploadWithFinishedBlock:(void (^)())block {
-    [self.uploader uploadEventsForProjectID:self.projectID
-                               withWriteKey:self.writeKey
-                          withFinishedBlock:block];
+    [self.uploader uploadEventsForConfig:self.config
+                       completionHandler:block];
 }
 
 # pragma mark - Querying
@@ -647,19 +586,14 @@ static BOOL geoLocationRequestEnabled = YES;
 - (void)runAsyncQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler {
     dispatch_async(self.queryQueue, ^{
         [self.network runQuery:keenQuery
-                 withProjectID:self.projectID
-                   withReadKey:self.readKey
+                        config:self.config
              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
             // we're done querying, call the main queue and execute the block
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)
                 if (completionHandler) {
                     KCLogVerbose(@"Running user-specified block.");
-                    @try {
-                        completionHandler(data, response, error);
-                    } @finally {
-                        // do nothing
-                    }
+                    completionHandler(data, response, error);
                 }
             });
         }];
@@ -673,37 +607,49 @@ static BOOL geoLocationRequestEnabled = YES;
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler {
     dispatch_async(self.queryQueue, ^{
         [self.network runMultiAnalysisWithQueries:keenQueries
-                                    withProjectID:self.projectID
-                                      withReadKey:self.readKey
+                                           config:self.config
                                 completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
             // we're done querying, call the main queue and execute the block
             dispatch_async(dispatch_get_main_queue(), ^{
                 // run the user-specific block (if there is one)
                 if (completionHandler) {
                     KCLogVerbose(@"Running user-specified block.");
-                    @try {
-                        completionHandler(data, response, error);
-                    } @finally {
-                        // do nothing
-                    }
+                    completionHandler(data, response, error);
                 }
             });
         }];
     });
 }
 
+
+- (void)runAsyncSavedAnalysis:(NSString*)queryName
+            completionHandler:(AnalysisCompletionBlock)completionHandler {
+    dispatch_async(self.queryQueue, ^{
+        [self.network runSavedAnalysis:queryName
+                                config:self.config
+                     completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
+            // we're done querying, call the main queue and execute the block
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // run the user-specific block (if there is one)
+                if (completionHandler) {
+                    completionHandler(data, response, error);
+                }
+            });
+        }];
+    });
+}
+
+
 - (void)runQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler {
     [self.network runQuery:keenQuery
-             withProjectID:self.projectID
-               withReadKey:self.readKey
+                    config:self.config
          completionHandler:completionHandler];
 }
 
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
                   completionHandler:(AnalysisCompletionBlock)completionHandler {
     [self.network runMultiAnalysisWithQueries:keenQueries
-                                withProjectID:self.projectID
-                                  withReadKey:self.readKey
+                                       config:self.config
                             completionHandler:completionHandler];
 }
 
