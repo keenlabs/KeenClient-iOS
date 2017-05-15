@@ -14,8 +14,7 @@
 
 @implementation KIOUtil
 
-
-+ (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError**) error {
++ (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError **) error {
     id fixed = [self handleInvalidJSONInObject:event];
 
     if (![NSJSONSerialization isValidJSONObject:fixed]) {
@@ -25,24 +24,13 @@
     return [NSJSONSerialization dataWithJSONObject:fixed options:0 error:error];
 }
 
-
-+ (NSMutableDictionary *)makeDictionaryMutable:(NSDictionary *)dict {
-    return [dict mutableCopy];
-}
-
-
-+ (NSMutableArray *)makeArrayMutable:(NSArray *)array {
-    return [array mutableCopy];
-}
-
-
 + (id)handleInvalidJSONInObject:(id)value {
     if (!value) {
         return value;
     }
 
     if ([value isKindOfClass:[NSDictionary class]]) {
-        NSMutableDictionary *mutDict = [self makeDictionaryMutable:value];
+        NSMutableDictionary *mutDict = [value mutableCopy];
         NSArray *keys = [mutDict allKeys];
         for (NSString *dictKey in keys) {
             id newValue = [self handleInvalidJSONInObject:[mutDict objectForKey:dictKey]];
@@ -51,7 +39,7 @@
         return mutDict;
     } else if ([value isKindOfClass:[NSArray class]]) {
         // make sure the array is mutable and then recurse for every element
-        NSMutableArray *mutArr = [self makeArrayMutable:value];
+        NSMutableArray *mutArr = [value mutableCopy];
         for (NSUInteger i=0; i<[mutArr count]; i++) {
             id arrVal = [mutArr objectAtIndex:i];
             arrVal = [self handleInvalidJSONInObject:arrVal];
@@ -63,14 +51,14 @@
     } else if ([value isKindOfClass:[KeenProperties class]]) {
         KeenProperties *keenProperties = value;
 
-        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         NSString *isoDate = [self convertDate:keenProperties.timestamp];
-        if (isoDate != nil) {
+        if (isoDate) {
             [dict setObject:isoDate forKey:@"timestamp"];
         }
 
         CLLocation *location = keenProperties.location;
-        if (location != nil) {
+        if (location) {
             NSNumber *longitude = [NSNumber numberWithDouble:location.coordinate.longitude];
             NSNumber *latitude = [NSNumber numberWithDouble:location.coordinate.latitude];
             NSArray *coordinatesArray = [NSArray arrayWithObjects:longitude, latitude, nil];
@@ -84,19 +72,17 @@
     }
 }
 
-
-+ (BOOL)handleError:(NSError**)error
-   withErrorMessage:(NSString*)errorMessage {
++ (BOOL)handleError:(NSError **)error
+   withErrorMessage:(NSString *)errorMessage {
     return [self handleError:error
             withErrorMessage:errorMessage
              underlyingError:nil];
 }
 
-
 + (BOOL)handleError:(NSError**)error
    withErrorMessage:(NSString*)errorMessage
     underlyingError:(NSError *)underlyingError {
-    if (error != NULL) {
+    if (error) {
         const id<NSCopying> keys[] = {NSLocalizedDescriptionKey, NSUnderlyingErrorKey};
         const id objects[] = {errorMessage, underlyingError};
         NSUInteger count = underlyingError ? 2 : 1;
@@ -112,28 +98,13 @@
 # pragma mark - NSDate => NSString
 
 + (id)convertDate:(id)date {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    NSDateFormatter *dateFormatter = [NSDateFormatter new];
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
     [dateFormatter setLocale:enUSPOSIXLocale];
     [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
 
     NSString *iso8601String = [dateFormatter stringFromDate:date];
     return iso8601String;
-}
-
-
-+ (BOOL)validateProjectID:(NSString*)projectID {
-    // validate that project ID is acceptable
-    if (!projectID || [projectID length] == 0) {
-        return NO;
-    }
-    return YES;
-}
-
-
-+ (BOOL)validateKey:(NSString*)key {
-    // for now just use the same rules as project ID
-    return [self validateProjectID:key];
 }
 
 

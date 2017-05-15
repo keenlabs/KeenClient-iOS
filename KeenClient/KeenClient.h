@@ -200,8 +200,8 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
 
  @return An instance of KIODBStore.
  */
-+ (KIODBStore*)getDBStore DEPRECATED_MSG_ATTRIBUTE("use instance method instead.");
-- (KIODBStore*)getDBStore;
++ (KIODBStore *)getDBStore DEPRECATED_MSG_ATTRIBUTE("use instance method instead.");
+- (KIODBStore *)getDBStore;
 
 /**
  Call this if your code needs to use more than one Keen project.  By convention, if you

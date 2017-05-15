@@ -15,7 +15,7 @@
 /**
  Get the shared logger instance.
  */
-+ (KeenLogger*)sharedLogger;
++ (KeenLogger *)sharedLogger;
 
 /**
  Call this to disable debug logging. It's disabled by default.

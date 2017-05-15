@@ -20,32 +20,29 @@
 - (instancetype)initWithProjectID:(NSString*)projectID
                       andWriteKey:(NSString*)writeKey
                        andReadKey:(NSString*)readKey {
+    if (projectID == nil || projectID.length <= 0) {
+        KCLogError(@"You must provide a projectID.");
+        return nil;
+    }
+
+    if (writeKey && writeKey.length <= 0) {
+        KCLogError(@"Your writeKey cannot be an empty string.");
+        return nil;
+    }
+
+    if (readKey && readKey.length <= 0) {
+        KCLogError(@"Your readKey cannot be an empty string.");
+        return nil;
+    }
+
     self = [super init];
-    
-    if (nil != self) {
-        // Validate key parameters
-        if (![KIOUtil validateProjectID:projectID]) {
-            KCLogError(@"Invalid projectID: %@", projectID);
-            return nil;
-        }
-        
-        if (nil != writeKey && // only validate a non-nil value
-            ![KIOUtil validateKey:writeKey]) {
-            KCLogError(@"Invalid writeKey: %@", writeKey);
-            return nil;
-        }
-        
-        if (nil != readKey && // only validate a non-nil value
-            ![KIOUtil validateKey:readKey]) {
-            KCLogError(@"Invalid readKey: %@", readKey);
-            return nil;
-        }
-        
+
+    if (self) {
         self.projectID = projectID;
         self.writeKey = writeKey;
         self.readKey = readKey;
     }
-    
+
     return self;
 }
 

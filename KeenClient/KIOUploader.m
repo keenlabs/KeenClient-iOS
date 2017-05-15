@@ -37,9 +37,9 @@
 // A dispatch queue used for uploads.
 @property (nonatomic) dispatch_queue_t uploadQueue;
 
-@property (nonatomic) KIODBStore* store;
+@property (nonatomic) KIODBStore *store;
 
-@property (nonatomic) KIONetwork* network;
+@property (nonatomic) KIONetwork *network;
 
 @end
 
@@ -48,7 +48,7 @@
 
 
 + (instancetype)sharedInstance {
-    static KIOUploader* s_sharedInstance = nil;
+    static KIOUploader *s_sharedInstance;
 
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -66,15 +66,10 @@
     return s_sharedInstance;
 }
 
-- (instancetype)init {
-    [NSException raise:@"InvalidOperation" format:@"init not implemented."];
-    return nil;
-}
-
-- (instancetype)initWithNetwork:(KIONetwork*)network
-                       andStore:(KIODBStore*)store {
+- (instancetype)initWithNetwork:(KIONetwork *)network
+                       andStore:(KIODBStore *)store {
     self = [super init];
-    if (nil != self){
+    if (self) {
         // Create a serialized queue to handle all upload operations
         self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
 
@@ -88,9 +83,9 @@
 }
 
 
-- (void)prepareJSONData:(NSData**)jsonData
-            andEventIDs:(NSMutableDictionary**)eventIDs
-           forProjectID:(NSString*)projectID {
+- (void)prepareJSONData:(NSData **)jsonData
+            andEventIDs:(NSMutableDictionary **)eventIDs
+           forProjectID:(NSString *)projectID {
     // set up the request dictionary we'll send out.
     NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
 
@@ -101,12 +96,12 @@
     NSMutableDictionary *events = [self.store getEventsWithMaxAttempts:self.maxEventUploadAttempts
                                                           andProjectID:projectID];
 
-    NSError *error = nil;
+    NSError *error;
     for (NSString *coll in events) {
         NSDictionary *collEvents = [events objectForKey:coll];
 
         // create a separate array for event data so our dictionary serializes properly
-        NSMutableArray *eventsArray = [[NSMutableArray alloc] init];
+        NSMutableArray *eventsArray = [NSMutableArray array];
 
         for (NSNumber *eid in collEvents) {
             NSData *ev = [collEvents objectForKey:eid];
@@ -121,9 +116,9 @@
             // add it to the array of events
             [eventsArray addObject:eventDict];
             if ([eventIDDict objectForKey:coll] == nil) {
-                [eventIDDict setObject: [NSMutableArray array] forKey: coll];
+                [eventIDDict setObject: [NSMutableArray array] forKey:coll];
             }
-            [[eventIDDict objectForKey:coll] addObject: eid];
+            [[eventIDDict objectForKey:coll] addObject:eid];
         }
 
         // add the array of events to the request
@@ -157,10 +152,8 @@
     return [hostReachability KIOcurrentReachabilityStatus] != NotReachable;
 }
 
-
-- (void)uploadEventsForConfig:(KeenClientConfig*)config
+- (void)uploadEventsForConfig:(KeenClientConfig *)config
             completionHandler:(void (^)())completionHandler {
-
     dispatch_async(self.uploadQueue, ^{
         if (![self isNetworkConnected]) {
             [self runUploadFinishedBlock:completionHandler];
@@ -172,8 +165,8 @@
         [KIOFileStore maybeMigrateDataFromFileStore:config.projectID];
 
         // get data for the API request we'll make
-        NSData *data = nil;
-        NSMutableDictionary *eventIDs = nil;
+        NSData *data;
+        NSMutableDictionary *eventIDs;
         [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:config.projectID];
 
         if ([data length] == 0) {
@@ -219,63 +212,64 @@
         return;
     }
     NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
-    // if the request succeeded, dig into the response to figure out which events succeeded and which failed
-    if ([HTTPCodes httpCodeType:(responseCode)] == HTTPCode2XXSuccess) {
-        // deserialize the response
-        NSError *error = nil;
-        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData
-                                                                     options:0
-                                                                       error:&error];
-        if (error) {
-            NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-            KCLogError(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@",
-                  [error localizedDescription],
-                  responseString);
-            return;
-        }
-        // now iterate through the keys of the response, which represent collection names
-        NSArray *collectionNames = [responseDict allKeys];
-        for (NSString *collectionName in collectionNames) {
-            // grab the results for this collection
-            NSArray *results = [responseDict objectForKey:collectionName];
-            // go through and delete any successes and failures because of user error
-            // (making sure to keep any failures due to server error)
-            NSUInteger count = 0;
-            for (NSDictionary *result in results) {
-                BOOL deleteFile = YES;
-                BOOL success = [[result objectForKey:kKeenSuccessParam] boolValue];
-                if (!success) {
-                    // grab error code and description
-                    NSDictionary *errorDict = [result objectForKey:kKeenErrorParam];
-                    NSString *errorCode = [errorDict objectForKey:kKeenNameParam];
-                    if ([errorCode isEqualToString:kKeenInvalidCollectionNameError] ||
-                        [errorCode isEqualToString:kKeenInvalidPropertyNameError] ||
-                        [errorCode isEqualToString:kKeenInvalidPropertyValueError]) {
-                        KCLogError(@"An invalid event was found.  Deleting it.  Error: %@",
-                                   [errorDict objectForKey:kKeenDescriptionParam]);
-                        deleteFile = YES;
-                    } else {
-                        KCLogError(@"The event could not be inserted for some reason.  Error name and description: %@, %@",
-                                   errorCode, [errorDict objectForKey:kKeenDescriptionParam]);
-                        deleteFile = NO;
-                    }
-                }
-
-                NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
-
-                // delete the file if we need to
-                if (deleteFile) {
-                    [self.store deleteEvent: eid];
-                    KCLogVerbose(@"Successfully deleted event: %@", eid);
-                }
-                count++;
-            }
-        }
-    } else {
+    if ([HTTPCodes httpCodeType:(responseCode)] != HTTPCode2XXSuccess) {
         // response code was NOT 2xx, which means something else happened. log this.
         KCLogError(@"Response code was NOT 2xx. It was: %ld", (long)responseCode);
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLogError(@"Response body was: %@", responseString);
+        return;
+    }
+
+    // if the request succeeded, dig into the response to figure out which events succeeded and which failed
+    // deserialize the response
+    NSError *error;
+    NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData
+                                                                 options:0
+                                                                   error:&error];
+    if (error) {
+        NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+        KCLogError(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@",
+                   [error localizedDescription],
+                   responseString);
+        return;
+    }
+    // now iterate through the keys of the response, which represent collection names
+    NSArray *collectionNames = [responseDict allKeys];
+    for (NSString *collectionName in collectionNames) {
+        // grab the results for this collection
+        NSArray *results = [responseDict objectForKey:collectionName];
+        // go through and delete any successes and failures because of user error
+        // (making sure to keep any failures due to server error)
+        NSUInteger count = 0;
+        for (NSDictionary *result in results) {
+            BOOL deleteFile = YES;
+            BOOL success = [[result objectForKey:kKeenSuccessParam] boolValue];
+            if (!success) {
+                // grab error code and description
+                NSDictionary *errorDict = [result objectForKey:kKeenErrorParam];
+                NSString *errorCode = [errorDict objectForKey:kKeenNameParam];
+                if ([errorCode isEqualToString:kKeenInvalidCollectionNameError] ||
+                    [errorCode isEqualToString:kKeenInvalidPropertyNameError] ||
+                    [errorCode isEqualToString:kKeenInvalidPropertyValueError]) {
+                    KCLogError(@"An invalid event was found.  Deleting it.  Error: %@",
+                               [errorDict objectForKey:kKeenDescriptionParam]);
+                    deleteFile = YES;
+                } else {
+                    KCLogError(@"The event could not be inserted for some reason.  Error name and description: %@, %@",
+                               errorCode, [errorDict objectForKey:kKeenDescriptionParam]);
+                    deleteFile = NO;
+                }
+            }
+
+            NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
+
+            // delete the file if we need to
+            if (deleteFile) {
+                [self.store deleteEvent:eid];
+                KCLogVerbose(@"Successfully deleted event: %@", eid);
+            }
+            count++;
+        }
     }
 }
 

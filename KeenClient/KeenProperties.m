@@ -10,13 +10,12 @@
 
 @implementation KeenProperties
 
-@synthesize timestamp=_timestamp;
-@synthesize location=_location;
-
 - (id)init {
     self = [super init];
-    
-    self.timestamp = [NSDate date];
+
+    if (self) {
+        self.timestamp = [NSDate date];
+    }
     
     return self;
 }
