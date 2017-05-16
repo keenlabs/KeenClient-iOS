@@ -8,6 +8,6 @@
 
 @interface KIODBStore (Testable)
 
-+ (NSString*)getSqliteFullFileName;
++ (NSString *)getSqliteFullFileName;
 
 @end

@@ -14,10 +14,10 @@
 #import "KeenLogger.h"
 
 // defines a type for the block we'll use with our global properties
-typedef NSDictionary* (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
+typedef NSDictionary * (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
 // Block type for analysis/query completion
-typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* response, NSError* error);
+typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *response, NSError *error);
 
 /**
  KeenClient has class methods to return managed instances of itself and instance methods
@@ -129,27 +129,32 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  @param readKey Your Keen IO Read Key.
  @return A managed instance of KeenClient, or nil if projectID is invalid.
  */
-+ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
++ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID
+                              andWriteKey:(NSString *)writeKey
+                               andReadKey:(NSString *)readKey;
 
 /**
  Call this to retrieve the managed instance of KeenClient.
 
  If you only have to use a single Keen project, just use this.
 
- @return A managed instance of KeenClient, or nil if you haven't called [KeenClient sharedClientWithProjectID:andWriteKey:andReadKey:].
+ @return A managed instance of KeenClient, or nil if you haven't called [KeenClient
+ sharedClientWithProjectID:andWriteKey:andReadKey:].
  */
 + (KeenClient *)sharedClient;
 
 /**
- Call this to authorize geo location always (iOS 8 and above). You must also add NSLocationAlwaysUsageDescription string to Info.plist to
- authorize geo location always (foreground and background), call this BEFORE doing anything else with KeenClient.
+ Call this to authorize geo location always (iOS 8 and above). You must also add NSLocationAlwaysUsageDescription string
+ to Info.plist to authorize geo location always (foreground and background), call this BEFORE doing anything else with
+ KeenClient.
 
  */
 + (void)authorizeGeoLocationAlways;
 
 /**
- Call this to authorize geo location when in use (iOS 8 and above). You must also add NSLocationWhenInUsageDescription string to Info.plist to
- authorize geo location when in use (foreground), call this BEFORE doing anything else with KeenClient.
+ Call this to authorize geo location when in use (iOS 8 and above). You must also add NSLocationWhenInUsageDescription
+ string to Info.plist to authorize geo location when in use (foreground), call this BEFORE doing anything else with
+ KeenClient.
 
  When In Use is AUTHORIZED by default.
  */
@@ -186,14 +191,11 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  */
 + (void)disableGeoLocationDefaultRequest;
 
-
-
 /**
  Call this to indiscriminately delete all events queued for sending.
  */
 + (void)clearAllEvents DEPRECATED_MSG_ATTRIBUTE("use instance method instead.");
 - (void)clearAllEvents;
-
 
 /**
  Call this to retrieve an instance of KIODBStore.
@@ -241,9 +243,11 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  The event will be stored on the local file system until you decide to upload (usually this will happen
  in your application delegate right before your app goes into the background, but it could be any time).
 
- @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries or NSArrays are acceptable.
+ @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries
+ or NSArrays are acceptable.
  @param eventCollection The name of the collection you want to put this event into.
- @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't added.
+ @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't
+ added.
 
  @return YES if the event was added, or NO in case some error happened.
  */
@@ -256,14 +260,19 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  The event will be stored on the local file system until you decide to upload (usually this will happen
  in your application delegate right before your app goes into the background, but it could be any time).
 
- @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries or NSArrays are acceptable.
+ @param event An NSDictionary that consists of key/value pairs.  Keen naming conventions apply.  Nested NSDictionaries
+ or NSArrays are acceptable.
  @param keenProperties An instance of KeenProperties that consists of properties to override defaulted values.
  @param eventCollection The name of the event collection you want to put this event into.
- @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't added.
+ @param anError If the event was added, anError will be nil, otherwise it will contain information about why it wasn't
+ added.
 
  @return YES if the event was added, or NO in case some error happened.
  */
-- (BOOL)addEvent:(NSDictionary *)event withKeenProperties:(KeenProperties *)keenProperties toEventCollection:(NSString *)eventCollection error:(NSError **)anError;
+- (BOOL)addEvent:(NSDictionary *)event
+    withKeenProperties:(KeenProperties *)keenProperties
+     toEventCollection:(NSString *)eventCollection
+                 error:(NSError **)anError;
 
 /**
  Call this whenever you want to upload all the events captured so far.  This will spawn a low
@@ -280,8 +289,8 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
 - (void)uploadWithFinishedBlock:(void (^)())block;
 
 /**
- Refresh the current geo location. The Keen Client only gets geo at the beginning of each session (i.e. when the client is created).
- If you want to update geo to the current location, call this method.
+ Refresh the current geo location. The Keen Client only gets geo at the beginning of each session (i.e. when the client
+ is created). If you want to update geo to the current location, call this method.
  */
 - (void)refreshCurrentLocation;
 
@@ -303,9 +312,11 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  See detailed documentation here: https://keen.io/docs/api/#analyses
 
  @param keenQuery The KIOQuery object containing the information about the query.
- @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param block The block to be executed once querying is finished. It receives an NSData object containing the query
+ results, and an NSURLResponse and NSError objects.
  */
-- (void)runAsyncQuery:(KIOQuery *)keenQuery block:(AnalysisCompletionBlock)block
+- (void)runAsyncQuery:(KIOQuery *)keenQuery
+                block:(AnalysisCompletionBlock)block
     DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncQuery:completionHandler:");
 
 /**
@@ -314,7 +325,8 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  See detailed documentation here: https://keen.io/docs/api/#analyses
 
  @param keenQuery The KIOQuery object containing the information about the query.
- @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
+ the query results, and an NSURLResponse and NSError objects.
  */
 - (void)runAsyncQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler;
 
@@ -323,10 +335,13 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
 
  See detailed documentation here: https://keen.io/docs/api/#multi-analysis
 
- @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
- @param block The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for
+ the event_collection property.
+ @param block The block to be executed once querying is finished. It receives an NSData object containing the query
+ results, and an NSURLResponse and NSError objects.
  */
-- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(AnalysisCompletionBlock)block
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries
+                                   block:(AnalysisCompletionBlock)block
     DEPRECATED_MSG_ATTRIBUTE("it has been renamed to runAsyncMultiAnalysisWithQueries:completionHandler:");
 
 /**
@@ -334,10 +349,13 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
 
  See detailed documentation here: https://keen.io/docs/api/#multi-analysis
 
- @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
- @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for
+ the event_collection property.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
+ the query results, and an NSURLResponse and NSError objects.
  */
-- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler;
+- (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries
+                       completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
  Runs a saved or gets a cached query result.
@@ -345,9 +363,10 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  See detailed documentation here: https://keen.io/docs/api/#saved-queries
 
  @param queryName The saved/cached query name.
- @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
+ the query results, and an NSURLResponse and NSError objects.
  */
-- (void)runAsyncSavedAnalysis:(NSString*)queryName completionHandler:(AnalysisCompletionBlock)completionHandler;
+- (void)runAsyncSavedAnalysis:(NSString *)queryName completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
  Runs a synchronous query.
@@ -355,9 +374,11 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  This method is only used for testing.
 
  @param keenQuery The KIOQuery object containing the information about the query.
- @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
+ the query results, and an NSURLResponse and NSError objects.
   */
-- (void)runQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler
+- (void)runQuery:(KIOQuery *)keenQuery
+    completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
 
 /**
@@ -365,10 +386,13 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
 
  This method is only used for testing.
 
- @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for the event_collection property.
- @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing the query results, and an NSURLResponse and NSError objects.
+ @param keenQueries The NSArray object containing multiple KIOQuery objects. They must all contain the same value for
+ the event_collection property.
+ @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
+ the query results, and an NSURLResponse and NSError objects.
   */
-- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries completionHandler:(AnalysisCompletionBlock)completionHandler
+- (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
+                  completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:completionHandler: instead.");
 
 /**
@@ -376,7 +400,6 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
  */
 + (void)clearAllQueries DEPRECATED_MSG_ATTRIBUTE("use instance method instead.");
 - (void)clearAllQueries;
-
 
 /**
  KeenClient logging
@@ -414,14 +437,12 @@ typedef void (^AnalysisCompletionBlock)(NSData* responseData, NSURLResponse* res
 /**
  Add a log sink
  */
-+ (void)addLogSink:(id<KeenLogSink>)logSink
-NS_SWIFT_NAME(addLogSink(_:));
++ (void)addLogSink:(id<KeenLogSink>)logSink NS_SWIFT_NAME(addLogSink(_:));
 
 /**
  Remove a log sink
  */
-+ (void)removeLogSink:(id<KeenLogSink>)sink
-NS_SWIFT_NAME(removeLogSink(_:));
++ (void)removeLogSink:(id<KeenLogSink>)sink NS_SWIFT_NAME(removeLogSink(_:));
 
 /**
  Set the verbosity of logging that will be sent to the sinks.
@@ -429,14 +450,25 @@ NS_SWIFT_NAME(removeLogSink(_:));
  */
 + (void)setLogLevel:(KeenLogLevel)level;
 
-
-+ (void)logMessageWithLevel:(KeenLogLevel)level andMessage:(NSString*)message;
++ (void)logMessageWithLevel:(KeenLogLevel)level andMessage:(NSString *)message;
 
 // defines the KCLog macro
-#define KCLogError(message, ...)    { [KeenClient logMessageWithLevel:KeenLogLevelError andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
-#define KCLogWarn(message, ...)     { [KeenClient logMessageWithLevel:KeenLogLevelWarning andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
-#define KCLogInfo(message, ...)     { [KeenClient logMessageWithLevel:KeenLogLevelInfo andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
-#define KCLogVerbose(message, ...)  { [KeenClient logMessageWithLevel:KeenLogLevelVerbose andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
-
+#define KCLogError(message, ...)                                                             \
+    {                                                                                        \
+        [KeenClient logMessageWithLevel:KeenLogLevelError                                    \
+                             andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; \
+    }
+#define KCLogWarn(message, ...)                                                              \
+    {                                                                                        \
+        [KeenClient logMessageWithLevel:KeenLogLevelWarning                                  \
+                             andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; \
+    }
+#define KCLogInfo(message, ...) \
+    { [KeenClient logMessageWithLevel:KeenLogLevelInfo andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; }
+#define KCLogVerbose(message, ...)                                                           \
+    {                                                                                        \
+        [KeenClient logMessageWithLevel:KeenLogLevelVerbose                                  \
+                             andMessage:[NSString stringWithFormat:message, ##__VA_ARGS__]]; \
+    }
 
 @end

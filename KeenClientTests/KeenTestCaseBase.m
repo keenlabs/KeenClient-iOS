@@ -25,20 +25,19 @@
 
 @interface KeenTestCaseBase ()
 
-@property TestDatabaseRequirement* databaseRequirement;
+@property TestDatabaseRequirement *databaseRequirement;
 
 @end
 
-
 @implementation KeenTestCaseBase
-
 
 - (void)setUp {
     [super setUp];
 
     // Acquire a lock on the sqlite store and delete
     // any existing database
-    self.databaseRequirement = [[TestDatabaseRequirement alloc] initWithDatabasePath:[KIODBStore getSqliteFullFileName]];
+    self.databaseRequirement =
+        [[TestDatabaseRequirement alloc] initWithDatabasePath:[KIODBStore getSqliteFullFileName]];
 
     // initialize is called automatically for a class, but
     // call it again to ensure static global state
@@ -54,7 +53,6 @@
     [[KeenClient sharedClient] setGlobalPropertiesDictionary:nil];
     [KeenClient sharedClient].config = nil;
 }
-
 
 - (void)tearDown {
     [[KeenClient sharedClient] setCurrentLocation:nil];
@@ -85,17 +83,16 @@
     [super tearDown];
 }
 
-
-# pragma mark - test mock request methods
+#pragma mark - test mock request methods
 
 - (NSDictionary *)buildResultWithSuccess:(BOOL)success
                             andErrorCode:(NSString *)errorCode
                           andDescription:(NSString *)description {
-    NSDictionary *result = [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithBool:success]
-                                                              forKey:@"success"];
+    NSDictionary *result =
+        [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithBool:success] forKey:@"success"];
     if (!success) {
-        NSDictionary *error = [NSDictionary dictionaryWithObjectsAndKeys:errorCode, @"name",
-                               description, @"description", nil];
+        NSDictionary *error =
+            [NSDictionary dictionaryWithObjectsAndKeys:errorCode, @"name", description, @"description", nil];
         [result setValue:error forKey:@"error"];
     }
     return result;
@@ -104,9 +101,7 @@
 - (NSDictionary *)buildResponseJsonWithSuccess:(BOOL)success
                                   AndErrorCode:(NSString *)errorCode
                                 AndDescription:(NSString *)description {
-    NSDictionary *result = [self buildResultWithSuccess:success
-                                           andErrorCode:errorCode
-                                         andDescription:description];
+    NSDictionary *result = [self buildResultWithSuccess:success andErrorCode:errorCode andDescription:description];
     NSArray *array = [NSArray arrayWithObject:result];
     return [NSDictionary dictionaryWithObject:array forKey:@"foo"];
 }
@@ -118,24 +113,21 @@
                           andRequestValidator:validator];
 }
 
-- (id)createClientWithResponseData:(id)data
-                     andStatusCode:(NSInteger)code {
-    return [self createClientWithResponseData:data
-                                andStatusCode:code
-                          andNetworkConnected:@YES];
+- (id)createClientWithResponseData:(id)data andStatusCode:(NSInteger)code {
+    return [self createClientWithResponseData:data andStatusCode:code andNetworkConnected:@YES];
 }
 
 - (id)createClientWithResponseData:(id)data
                      andStatusCode:(NSInteger)code
-               andNetworkConnected:(NSNumber*)isNetworkConnected {
+               andNetworkConnected:(NSNumber *)isNetworkConnected {
     return [self createClientWithResponseData:data
                                 andStatusCode:code
                           andNetworkConnected:isNetworkConnected
                           andRequestValidator:nil];
 }
 
-- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse*)response
-                 andResponseData:(NSData*)responseData
+- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse *)response
+                 andResponseData:(NSData *)responseData
              andRequestValidator:(BOOL (^)(id requestObject))requestValidator {
     // Mock the NSURLSession to be used for the request
     id urlSessionMock = [OCMockObject partialMockForObject:[[NSURLSession alloc] init]];
@@ -143,13 +135,14 @@
     // Set up fake response data and request validation
     if (nil != requestValidator) {
         // Set up validation of the request
-        [[urlSessionMock expect] dataTaskWithRequest:[OCMArg checkWithBlock:requestValidator]
-                                   completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
+        [[urlSessionMock expect]
+            dataTaskWithRequest:[OCMArg checkWithBlock:requestValidator]
+              completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
     } else {
         // We won't check that the request contained anything specific
-        [[urlSessionMock stub] dataTaskWithRequest:[OCMArg any]
-                                 completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
-
+        [[urlSessionMock stub]
+            dataTaskWithRequest:[OCMArg any]
+              completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
     }
 
     return urlSessionMock;
@@ -157,17 +150,14 @@
 
 - (id)createClientWithResponseData:(id)data
                      andStatusCode:(NSInteger)code
-               andNetworkConnected:(NSNumber*)isNetworkConnected
+               andNetworkConnected:(NSNumber *)isNetworkConnected
                andRequestValidator:(BOOL (^)(id obj))requestValidator {
-
     // serialize the faked out response data
     if (!data) {
         data = [self buildResponseJsonWithSuccess:YES AndErrorCode:nil AndDescription:nil];
     }
     data = [KIOUtil handleInvalidJSONInObject:data];
-    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:data
-                                                             options:0
-                                                               error:nil];
+    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
 
     NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""]
                                                               statusCode:code
@@ -175,27 +165,24 @@
                                                             headerFields:nil];
 
     // Get mock NSURLSession
-    id mockSession = [self mockUrlSessionWithResponse:response
-                                      andResponseData:serializedData
-                                  andRequestValidator:requestValidator];
+    id mockSession =
+        [self mockUrlSessionWithResponse:response andResponseData:serializedData andRequestValidator:requestValidator];
 
     // Create/get store
-    KIODBStore* store = KIODBStore.sharedInstance;
+    KIODBStore *store = KIODBStore.sharedInstance;
 
     // Create network
-    KIONetwork* network = [[KIONetwork alloc] initWithURLSession:mockSession
-                                                        andStore:store];
+    KIONetwork *network = [[KIONetwork alloc] initWithURLSession:mockSession andStore:store];
 
     // Create uploader
-    KIOUploader* uploader = [[KIOUploader alloc] initWithNetwork:network
-                                                        andStore:store];
+    KIOUploader *uploader = [[KIOUploader alloc] initWithNetwork:network andStore:store];
     // Mock the KIOUploader to be used for the upload
     id mockUploader = [OCMockObject partialMockForObject:uploader];
 
     // Mock network status on the KIOUploader object
     [[[mockUploader stub] andReturnValue:isNetworkConnected] isNetworkConnected];
 
-    KeenClient* client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
                                                    andWriteKey:kDefaultWriteKey
                                                     andReadKey:kDefaultReadKey
                                                     andNetwork:network

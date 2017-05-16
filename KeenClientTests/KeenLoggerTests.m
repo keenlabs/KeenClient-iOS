@@ -13,14 +13,14 @@
 // Class to store messages we'll log or have logged.
 //
 @interface Message : NSObject
-- (Message*)initWithLogLevel:(KeenLogLevel)level andText:(NSString*)newText;
+- (Message *)initWithLogLevel:(KeenLogLevel)level andText:(NSString *)newText;
 @property KeenLogLevel logLevel;
-@property NSString* text;
+@property NSString *text;
 @end
 
 @implementation Message
 
-- (Message*)initWithLogLevel:(KeenLogLevel)level andText:(NSString*)newText {
+- (Message *)initWithLogLevel:(KeenLogLevel)level andText:(NSString *)newText {
     self = [super init];
     if (nil != self) {
         logLevel = level;
@@ -37,21 +37,19 @@
 //
 // A log sink implementation for testing
 //
-@interface TestLogSink : NSObject<KeenLogSink>
+@interface TestLogSink : NSObject <KeenLogSink>
 @end
 
 @implementation TestLogSink
 
-NSMutableArray* _loggedMessages;
-NSCondition* _removalCondition;
+NSMutableArray *_loggedMessages;
+NSCondition *_removalCondition;
 BOOL _removed;
 BOOL _logToNSLog;
-
 
 - (instancetype)init {
     return [self initWithLogToNSLog:YES];
 }
-
 
 - (instancetype)initWithLogToNSLog:(BOOL)logToNSLog {
     self = [super init];
@@ -97,12 +95,11 @@ BOOL _logToNSLog;
     return wasRemoved;
 }
 
-- (NSArray*)getLoggedMessages {
+- (NSArray *)getLoggedMessages {
     return _loggedMessages;
 }
 
 @end
-
 
 @implementation KeenLoggerTests
 
@@ -111,37 +108,34 @@ BOOL _logToNSLog;
 // when the logger is removed, then do validation of the received messages to expected
 // messages.
 
-
 // Helper method for logging messages
-- (void)logMessages:(NSArray*)messages usingLogger:(KeenLogger*)logger {
-    for (Message* message in messages) {
+- (void)logMessages:(NSArray *)messages usingLogger:(KeenLogger *)logger {
+    for (Message *message in messages) {
         [logger logMessageWithLevel:message.logLevel andMessage:message.text];
     }
 }
 
-
 // Helper method for checking for correctly logged messages
-- (void)verifyLoggedMessages:(NSArray*)actual withExpectedMessages:(NSArray*)expected {
+- (void)verifyLoggedMessages:(NSArray *)actual withExpectedMessages:(NSArray *)expected {
     XCTAssertEqual(actual.count, expected.count, @"Message count wasn't expected number.");
     if (actual.count == expected.count) {
         for (NSUInteger i = 0; i < expected.count; ++i) {
-            Message* expectedMsg = [expected objectAtIndex:i];
-            Message* actualMsg = [actual objectAtIndex:i];
+            Message *expectedMsg = [expected objectAtIndex:i];
+            Message *actualMsg = [actual objectAtIndex:i];
             XCTAssertEqual(expectedMsg.logLevel, actualMsg.logLevel, @"Log level of message was incorrect.");
             XCTAssertEqualObjects(expectedMsg.text, actualMsg.text, @"Log text of message was incorrect.");
         }
     }
 }
 
-
 - (void)testSimpleLogging {
-    NSArray* testMessages =
-        [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
+    NSArray *testMessages = [[NSArray alloc]
+        initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
 
-    KeenLogger* testLogger = [[KeenLogger alloc] init];
+    KeenLogger *testLogger = [[KeenLogger alloc] init];
 
     // 1. Add a LogSink
-    TestLogSink* testSink = [[TestLogSink alloc] init];
+    TestLogSink *testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
 
     // 2. Enable logging
@@ -156,26 +150,23 @@ BOOL _logToNSLog;
     [self verifyLoggedMessages:[testSink getLoggedMessages] withExpectedMessages:testMessages];
 }
 
-
 - (void)testEnableNSLogLogging {
     [self runNSLogTest:YES];
 }
-
 
 - (void)testDisableNSLogLogging {
     [self runNSLogTest:NO];
 }
 
-
 - (void)runNSLogTest:(BOOL)enableNSLog {
-    NSArray* testMessages =
-    [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
-    NSString* expectedMessage = @"E:error message";
+    NSArray *testMessages = [[NSArray alloc]
+        initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
+    NSString *expectedMessage = @"E:error message";
 
-    KeenLogger* testLogger = [[KeenLogger alloc] init];
+    KeenLogger *testLogger = [[KeenLogger alloc] init];
 
     // 1. Add a LogSink
-    TestLogSink* testSink = [[TestLogSink alloc] initWithLogToNSLog:NO];
+    TestLogSink *testSink = [[TestLogSink alloc] initWithLogToNSLog:NO];
     [testLogger addLogSink:testSink];
 
     // 2. Enable logging
@@ -188,9 +179,9 @@ BOOL _logToNSLog;
     int savedStdErr = dup(STDERR_FILENO);
 
     // Reopen stderr and point it to a writable temporary file
-    FILE* newStderr = freopen("test.log", "w", stderr);
+    FILE *newStderr = freopen("test.log", "w", stderr);
     XCTAssertTrue(newStderr != NULL, @"Failed to open log file for output");
-    
+
     // 4. log messages
     [self logMessages:testMessages usingLogger:testLogger];
 
@@ -209,9 +200,9 @@ BOOL _logToNSLog;
 
     // 5. verify message was/wasn't logged to NSLog
     const size_t cchMaxStringLength = 256;
-    char* pchString = malloc(cchMaxStringLength);
+    char *pchString = malloc(cchMaxStringLength);
     // Open the file stderr wrote to
-    FILE* logOutputFile = fopen("test.log", "r");
+    FILE *logOutputFile = fopen("test.log", "r");
     XCTAssertTrue(NULL != logOutputFile, @"Failed to open log output file. error: %d", errno);
     // Read the file contents
     fread(pchString, sizeof(char), cchMaxStringLength - 1, logOutputFile);
@@ -219,7 +210,7 @@ BOOL _logToNSLog;
     // Ensure the string is null terminated
     pchString[cchMaxStringLength - 1] = '\0';
     // Create an NSString from the c string
-    NSString* loggedString = [NSString stringWithCString:pchString encoding:NSASCIIStringEncoding];
+    NSString *loggedString = [NSString stringWithCString:pchString encoding:NSASCIIStringEncoding];
     // Find the expected message in the output
     NSRange expectedMessageRange = [loggedString rangeOfString:expectedMessage];
 
@@ -232,15 +223,14 @@ BOOL _logToNSLog;
     [self verifyLoggedMessages:[testSink getLoggedMessages] withExpectedMessages:testMessages];
 }
 
-
 - (void)testEnableAndDisable {
-    NSArray* testMessages =
-        [[NSArray alloc] initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
+    NSArray *testMessages = [[NSArray alloc]
+        initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
 
-    KeenLogger* testLogger = [[KeenLogger alloc] init];
+    KeenLogger *testLogger = [[KeenLogger alloc] init];
 
     // Add a log sink
-    TestLogSink* testSink = [[TestLogSink alloc] init];
+    TestLogSink *testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
 
     // Try logging some messages
@@ -249,7 +239,8 @@ BOOL _logToNSLog;
     // Verfy no messages received.
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
-    XCTAssertEqual(0, [testSink getLoggedMessages].count, @"Logging was disabled, so no messages should have been recorded.");
+    XCTAssertEqual(
+        0, [testSink getLoggedMessages].count, @"Logging was disabled, so no messages should have been recorded.");
 
     // Add a new log sink
     testSink = [[TestLogSink alloc] init];
@@ -279,45 +270,39 @@ BOOL _logToNSLog;
     // Verfy no messages received.
     [testLogger removeLogSink:testSink];
     [testSink waitForRemoval];
-    XCTAssertEqual(0, [testSink getLoggedMessages].count, @"Logging was disabled, so no messages should have been recorded.");
+    XCTAssertEqual(
+        0, [testSink getLoggedMessages].count, @"Logging was disabled, so no messages should have been recorded.");
 }
 
-
 - (void)testLogLevels {
-    NSArray* testMessages =
-        [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelVerbose andText:@"verbose message"],
-            nil];
-    NSArray* errorLevelMessages =
-        [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
-            nil];
-    NSArray* warningLevelMessages =
-        [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
-            nil];
-    NSArray* infoLevelMessages =
-        [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
-            nil];
-    NSArray* verboseLevelMessages =
-        [[NSArray alloc] initWithObjects:
-            [[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
-            [[Message alloc] initWithLogLevel:KeenLogLevelVerbose andText:@"verbose message"],
-            nil];
+    NSArray *testMessages = [[NSArray alloc]
+        initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelVerbose andText:@"verbose message"],
+                        nil];
+    NSArray *errorLevelMessages = [[NSArray alloc]
+        initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"], nil];
+    NSArray *warningLevelMessages = [[NSArray alloc]
+        initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
+                        nil];
+    NSArray *infoLevelMessages = [[NSArray alloc]
+        initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
+                        nil];
+    NSArray *verboseLevelMessages = [[NSArray alloc]
+        initWithObjects:[[Message alloc] initWithLogLevel:KeenLogLevelError andText:@"error message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelWarning andText:@"warning message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelInfo andText:@"info message"],
+                        [[Message alloc] initWithLogLevel:KeenLogLevelVerbose andText:@"verbose message"],
+                        nil];
 
-    KeenLogger* testLogger = [[KeenLogger alloc] init];
+    KeenLogger *testLogger = [[KeenLogger alloc] init];
 
     // Add a log sink
-    TestLogSink* testSink = [[TestLogSink alloc] init];
+    TestLogSink *testSink = [[TestLogSink alloc] init];
     [testLogger addLogSink:testSink];
 
     // Enable logging
@@ -370,6 +355,5 @@ BOOL _logToNSLog;
     [testSink waitForRemoval];
     [self verifyLoggedMessages:[testSink getLoggedMessages] withExpectedMessages:verboseLevelMessages];
 }
-
 
 @end

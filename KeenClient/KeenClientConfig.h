@@ -10,9 +10,7 @@
 
 @interface KeenClientConfig : NSObject
 
-- (instancetype)initWithProjectID:(NSString*)projectID
-                      andWriteKey:(NSString*)writeKey
-                       andReadKey:(NSString*)readKey;
+- (instancetype)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
 
 // The project ID for this particular client.
 @property (nonatomic, strong) NSString *projectID;
