@@ -30,7 +30,8 @@
  Add an event to the store.
 
  @param eventData Your event data.
- @param coll Your event collection.
+ @param eventCollection Your event collection.
+ @param projectID Project ID to add the event to.
  */
 - (BOOL)addEvent:(NSData *)eventData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
