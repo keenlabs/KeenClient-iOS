@@ -286,17 +286,19 @@ static BOOL geoLocationRequestEnabled = YES;
                               andWriteKey:(NSString *)writeKey
                                andReadKey:(NSString *)readKey {
     KeenClient *client = nil;
-
-    // If the keys are already set, return the existing instance, don't overwrite the keys
-    if (nil != self.sharedClient.config) {
-        KCLogError(@"You cannot modify the projectID, writeKey, or readKey from this method.");
-        return self.sharedClient;
-    }
-
-    self.sharedClient.config =
+    
+    KeenClientConfig *config =
         [[KeenClientConfig alloc] initWithProjectID:projectID andWriteKey:writeKey andReadKey:readKey];
-    if (self.sharedClient.config) {
-        client = self.sharedClient;
+    
+    if (nil != config) {
+        // If the keys are already set, return the existing instance, don't overwrite the keys
+        if (nil != self.sharedClient.config) {
+            KCLogError(@"You cannot modify the projectID, writeKey, or readKey from this method.");
+            client = self.sharedClient;
+        } else {
+            self.sharedClient.config = config;
+            client = self.sharedClient;
+        }
     }
 
     return client;
