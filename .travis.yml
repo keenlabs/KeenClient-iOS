@@ -1,15 +1,49 @@
 language: objective-c
+
 cache: bundler
-osx_image: xcode8.2
-xcode_project: KeenClient.xcodeproj
-xcode_scheme: KeenClient
-xcode_sdk: iphonesimulator9.2
+
+osx_image: xcode8.3
+
+xcode_workspace: KeenClient.xcworkspace
+xcode_scheme:
+  - KeenClientFramework
+  - KeenSwiftClientExample
+  - KeenClientExample
+xcode_sdk: iphonesimulator10.3
+env:
+  - XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=build
+
+matrix:
+  include:
+    - xcode_scheme: KeenClient
+      xcode_sdk: iphonesimulator10.3
+      env:
+        - XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=test
+    - xcode_scheme: KeenClient
+      xcode_sdk: iphonesimulator10.3
+      env:
+        - XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=9.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=test
+    - xcode_scheme: KeenClient
+      xcode_sdk: iphonesimulator10.3
+      env:
+        - XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=8.4 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=test
+    - xcode_scheme: KeenClient-Cocoa
+      xcode_sdk: macosx10.12
+      env:
+        - XCODEBUILD_PLATFORM='OS X' XCODEBUILD_ACTION=build
+
 before_install:
   - gem install bundler
-  - rvm use 2.2.1 --install
-  - brew update
-  - brew outdated xctool || brew upgrade xctool
-after_success:
-  - bundle exec slather coverage -s --scheme KeenClient KeenClient.xcodeproj
-  - bundle exec slather
+  - rvm use 2.3.0
+
 script: ./bin/test.sh
+
+after_success: |
+  case "$XCODEBUILD_ACTION" in
+    test)
+      bundle exec slather
+      ;;
+    *)
+      echo "Not slathering."
+      ;;
+  esac
