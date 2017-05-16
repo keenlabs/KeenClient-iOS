@@ -1,30 +1,17 @@
 #!/bin/sh
 set -e -o pipefail
 
-xcodebuild \
-	-scheme KeenSwiftClientExample \
-	-sdk iphonesimulator \
-	-destination 'platform=iOS Simulator,name=iPhone 6,OS=9.2' \
-  ONLY_ACTIVE_ARCH=NO \
-	clean build | bundle exec xcpretty --color
+if [[ "$XCODEBUILD_PLATFORM" == "iOS Simulator" ]]; then
+	# iOS build
+	XCODEBUILD_DESTINATION="platform=$XCODEBUILD_PLATFORM,OS=$XCODEBUILD_SIM_OS,name=$XCODEBUILD_DEVICE"
+else
+  # OS X build
+	XCODEBUILD_DESTINATION="platform=$XCODEBUILD_PLATFORM"
+fi
 
 xcodebuild \
-	-scheme KeenClientExample \
-	-sdk iphonesimulator \
-	-destination 'platform=iOS Simulator,name=iPhone 6,OS=9.2' \
-  ONLY_ACTIVE_ARCH=NO \
-	clean build | bundle exec xcpretty --color
-
-xcodebuild \
-	-scheme KeenClientFramework \
-	-sdk iphonesimulator \
-	-destination 'platform=iOS Simulator,name=iPhone 6,OS=9.2' \
-  ONLY_ACTIVE_ARCH=NO \
-	clean build | bundle exec xcpretty --color
-
-xcodebuild \
-	-scheme KeenClient \
-	-sdk iphonesimulator \
-	-destination 'platform=iOS Simulator,name=iPhone 6,OS=9.2' \
-  ONLY_ACTIVE_ARCH=NO \
-	clean test | bundle exec xcpretty --color
+	-workspace $TRAVIS_XCODE_WORKSPACE \
+	-scheme $TRAVIS_XCODE_SCHEME \
+	-sdk $TRAVIS_XCODE_SDK \
+	-destination "$XCODEBUILD_DESTINATION" \
+	ONLY_ACTIVE_ARCH=NO clean $XCODEBUILD_ACTION | bundle exec xcpretty --color
