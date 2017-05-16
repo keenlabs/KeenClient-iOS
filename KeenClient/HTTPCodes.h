@@ -11,14 +11,13 @@
 
 #import <Foundation/Foundation.h>
 
-
 typedef NS_ENUM(NSUInteger, HTTPCode) {
     // Informational
     HTTPCode1XXInformationalUnknown = 1,
     HTTPCode100Continue = 100,
     HTTPCode101SwitchingProtocols = 101,
     HTTPCode102Processing = 102,
-    
+
     // Success
     HTTPCode2XXSuccessUnknown = 2,
     HTTPCode200OK = 200,
@@ -31,7 +30,7 @@ typedef NS_ENUM(NSUInteger, HTTPCode) {
     HTTPCode207MultiStatus = 207,
     HTTPCode208AlreadyReported = 208,
     HTTPCode226IMUsed = 226,
-    
+
     // Redirection
     HTTPCode3XXSuccessUnknown = 3,
     HTTPCode300MultipleChoices = 300,
@@ -43,7 +42,7 @@ typedef NS_ENUM(NSUInteger, HTTPCode) {
     HTTPCode306SwitchProxy = 306,
     HTTPCode307TemporaryRedirect = 307,
     HTTPCode308PermanentRedirect = 308,
-    
+
     // Client error
     HTTPCode4XXSuccessUnknown = 4,
     HTTPCode400BadRequest = 400,
@@ -89,8 +88,7 @@ typedef NS_ENUM(NSUInteger, HTTPCode) {
     HTTPCode498TokenExpiredInvalid = 498,
     HTTPCode499ClientClosedRequestNginx = 499,
     HTTPCode499TokenRequiredEsri = 499,
-    
-    
+
     // Server error
     HTTPCode5XXSuccessUnknown = 5,
     HTTPCode500InternalServerError = 500,

@@ -10,75 +10,74 @@
 
 @interface KIODBStore : NSObject
 
- /**
-  Singleton instance of this class.
-  */
-+ (KIODBStore*)sharedInstance;
+/**
+ Singleton instance of this class.
+ */
++ (KIODBStore *)sharedInstance;
 
- /**
-  Reset any pending events so they can be resent.
-  */
+/**
+ Reset any pending events so they can be resent.
+ */
 - (void)resetPendingEventsWithProjectID:(NSString *)projectID;
 
- /**
-  Determine if there are any pending events so the caller can decide what to
-  do. See resetPendingEvents or purgePendingEvents.
-  */
+/**
+ Determine if there are any pending events so the caller can decide what to
+ do. See resetPendingEvents or purgePendingEvents.
+ */
 - (BOOL)hasPendingEventsWithProjectID:(NSString *)projectID;
 
- /**
-  Add an event to the store.
+/**
+ Add an event to the store.
 
-  @param eventData Your event data.
-  @param coll Your event collection.
-  */
+ @param eventData Your event data.
+ @param eventCollection Your event collection.
+ @param projectID Project ID to add the event to.
+ */
 - (BOOL)addEvent:(NSData *)eventData collection:(NSString *)eventCollection projectID:(NSString *)projectID;
 
- /**
-  Get a dictionary of events keyed by id that are ready to send to Keen. Events
-  that are returned have been flagged as pending in the underlying store.
-  */
+/**
+ Get a dictionary of events keyed by id that are ready to send to Keen. Events
+ that are returned have been flagged as pending in the underlying store.
+ */
 - (NSMutableDictionary *)getEventsWithMaxAttempts:(int)maxAttempts andProjectID:(NSString *)projectID;
 
- /**
-  Get a count of pending events.
-  */
+/**
+ Get a count of pending events.
+ */
 - (NSUInteger)getPendingEventCountWithProjectID:(NSString *)projectID;
 
- /**
-  Get a count of total events, pending or not.
-  */
+/**
+ Get a count of total events, pending or not.
+ */
 - (NSUInteger)getTotalEventCountWithProjectID:(NSString *)projectID;
 
- /**
-  Purge pending events that were returned from a previous call to getEvents.
-  */
+/**
+ Purge pending events that were returned from a previous call to getEvents.
+ */
 - (void)purgePendingEventsWithProjectID:(NSString *)projectID;
 
- /**
-  Delete an event from the store
+/**
+ Delete an event from the store
 
-  @param eventId The id of the event to delete.
-  */
-- (void)deleteEvent: (NSNumber *)eventId;
+ @param eventId The id of the event to delete.
+ */
+- (void)deleteEvent:(NSNumber *)eventId;
 
- /**
-  Delete all events from the store
-  */
+/**
+ Delete all events from the store
+ */
 - (void)deleteAllEvents;
 
+/**
+ Increment the `attempts` column
+ */
+- (void)incrementEventUploadAttempts:(NSNumber *)eventId;
 
- /**
-  Increment the `attempts` column
-  */
-- (void)incrementEventUploadAttempts: (NSNumber *)eventId;
+/**
+ Delete events starting at an offset. Helps to keep the "queue" bounded.
 
-
- /**
-  Delete events starting at an offset. Helps to keep the "queue" bounded.
-
-  @param offset The offset to start deleting events from.
-  */
+ @param offset The offset to start deleting events from.
+ */
 - (void)deleteEventsFromOffset:(NSNumber *)offset;
 
 /**
@@ -88,7 +87,10 @@
  @param eventCollection Your event collection.
  @param projectID Your project ID.
  */
-- (BOOL)addQuery:(NSData *)queryData queryType:(NSString*)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+- (BOOL)addQuery:(NSData *)queryData
+       queryType:(NSString *)queryType
+      collection:(NSString *)eventCollection
+       projectID:(NSString *)projectID;
 
 /**
  Get a dictionary of the found query parameters.
@@ -97,7 +99,10 @@
  @param eventCollection Your event collection.
  @param projectID Your project ID.
  */
-- (NSMutableDictionary *)getQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+- (NSMutableDictionary *)getQuery:(NSData *)queryData
+                        queryType:(NSString *)queryType
+                       collection:(NSString *)eventCollection
+                        projectID:(NSString *)projectID;
 
 /**
  Increment the query `attempts` column
@@ -113,7 +118,10 @@
  @param eventCollection Your event collection.
  @param projectID Your project ID.
  */
-- (void)findOrUpdateQuery:(NSData *)queryData queryType:(NSString *)queryType collection:(NSString *)eventCollection projectID:(NSString *)projectID;
+- (void)findOrUpdateQuery:(NSData *)queryData
+                queryType:(NSString *)queryType
+               collection:(NSString *)eventCollection
+                projectID:(NSString *)projectID;
 
 /**
  Get a count of total queries.

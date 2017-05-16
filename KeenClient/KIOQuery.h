@@ -10,14 +10,14 @@
 
 @interface KIOQuery : NSObject
 
-@property (nonatomic, strong) NSString *queryType;
-@property (nonatomic, strong) NSString *queryName;
-@property (nonatomic, strong) NSDictionary *propertiesDictionary;
+@property (nonatomic) NSString *queryType;
+@property (nonatomic) NSString *queryName;
+@property (nonatomic) NSDictionary *propertiesDictionary;
 
 - (id)initWithQuery:(NSString *)queryType andPropertiesDictionary:(NSDictionary *)propertiesDictionary;
-- (id)initWithQuery:(NSString *)queryType andQueryName:(NSString *)queryName andPropertiesDictionary:(NSDictionary *)propertiesDictionary;
-
-+ (BOOL)validateQueryType:(NSString *)queryType;
+- (id)initWithQuery:(NSString *)queryType
+               andQueryName:(NSString *)queryName
+    andPropertiesDictionary:(NSDictionary *)propertiesDictionary;
 
 - (NSData *)convertQueryToData;
 

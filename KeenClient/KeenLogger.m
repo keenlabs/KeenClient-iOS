@@ -17,11 +17,10 @@ _Atomic(BOOL) _isNSLogEnabled;
 KeenLogLevel _logLevel;
 NSMutableArray *_logSinks;
 dispatch_queue_t _loggerQueue;
-KeenLogSinkNSLog* _logSinkNSLog;
+KeenLogSinkNSLog *_logSinkNSLog;
 
-
-+ (KeenLogger*)sharedLogger {
-    static KeenLogger* s_logger;
++ (KeenLogger *)sharedLogger {
+    static KeenLogger *s_logger;
 
     // This black magic ensures this block
     // is dispatched only once over the lifetime
@@ -38,11 +37,10 @@ KeenLogSinkNSLog* _logSinkNSLog;
     return s_logger;
 }
 
-
-- (KeenLogger*)init {
+- (KeenLogger *)init {
     self = [super init];
 
-    if (nil != self) {
+    if (self) {
         // By default we won't enable logging.
         _areLogSinksEnabled = NO;
         _isLoggingEnabled = NO;
@@ -54,13 +52,13 @@ KeenLogSinkNSLog* _logSinkNSLog;
         // about concurrent access when adding and removing loggers
         // since those operations will be dispatched to this queue as well.
         _loggerQueue = dispatch_queue_create("io.keen.logger", DISPATCH_QUEUE_SERIAL);
-        if (NULL == _loggerQueue) {
+        if (_loggerQueue == NULL) {
             // Failed to allocate the queue
             self = nil;
         }
 
-        _logSinks = [[NSMutableArray alloc] init];
-        if (nil == _logSinks) {
+        _logSinks = [NSMutableArray array];
+        if (_logSinks == nil) {
             // Failed to allocate the array
             self = nil;
         }
@@ -71,7 +69,6 @@ KeenLogSinkNSLog* _logSinkNSLog;
 
     return self;
 }
-
 
 - (void)disableLogging {
     _isLoggingEnabled = NO;
@@ -85,7 +82,6 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
 - (void)enableLogging {
     _isLoggingEnabled = YES;
     dispatch_async(_loggerQueue, ^() {
@@ -93,14 +89,13 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
 - (void)setIsNSLogEnabled:(BOOL)isNSLogEnabled {
     _isNSLogEnabled = isNSLogEnabled;
     dispatch_async(_loggerQueue, ^() {
         if (isNSLogEnabled) {
-            if (nil == _logSinkNSLog) {
+            if (_logSinkNSLog == nil) {
                 // Create the NSLog logger
-                _logSinkNSLog = [[KeenLogSinkNSLog alloc] init];
+                _logSinkNSLog = [KeenLogSinkNSLog new];
             }
 
             if (!([_logSinks containsObject:_logSinkNSLog])) {
@@ -109,7 +104,7 @@ KeenLogSinkNSLog* _logSinkNSLog;
             }
         } else {
             // Remove the logger if it has been added
-            if (nil != _logSinkNSLog) {
+            if (_logSinkNSLog) {
                 if ([_logSinks containsObject:_logSinkNSLog]) {
                     [_logSinks removeObject:_logSinkNSLog];
                 }
@@ -120,16 +115,13 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
 - (BOOL)isNSLogEnabled {
     return _isNSLogEnabled;
 }
 
-
 - (BOOL)isLoggingEnabled {
     return _isLoggingEnabled;
 }
-
 
 - (void)setLogLevel:(KeenLogLevel)level {
     dispatch_async(_loggerQueue, ^() {
@@ -137,13 +129,11 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
 - (void)addLogSink:(id<KeenLogSink>)sink {
     dispatch_async(_loggerQueue, ^() {
         [_logSinks addObject:sink];
     });
 }
-
 
 - (void)removeLogSink:(id<KeenLogSink>)sink {
     dispatch_async(_loggerQueue, ^() {
@@ -152,12 +142,10 @@ KeenLogSinkNSLog* _logSinkNSLog;
     });
 }
 
-
-- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString*)message {
+- (void)logMessageWithLevel:(KeenLogLevel)msgLevel andMessage:(NSString *)message {
     if (YES == _isLoggingEnabled) { // Only bother to dispatch if logging is currently enabled
         dispatch_async(_loggerQueue, ^() {
-            if (_areLogSinksEnabled &&
-                msgLevel <= _logLevel) {
+            if (_areLogSinksEnabled && msgLevel <= _logLevel) {
                 for (id<KeenLogSink> sink in _logSinks) {
                     [sink logMessageWithLevel:msgLevel andMessage:message];
                 }
@@ -165,6 +153,5 @@ KeenLogSinkNSLog* _logSinkNSLog;
         });
     }
 }
-
 
 @end

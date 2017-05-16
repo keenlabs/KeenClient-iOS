@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [3.6.1] - 2017-05-12
+### Fixed
+- Fixed missing headers from framework build
+
 ## [3.6.0] - 2017-04-05
 ### Added
 - Extensibility hooks for custom logging implementations.
