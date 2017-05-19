@@ -22,9 +22,6 @@ $BUILD_SCRIPT
 export TRAVIS_XCODE_SCHEME=KeenSwiftClientExample
 $BUILD_SCRIPT
 
-export TRAVIS_XCODE_SCHEME=KeenClientExample
-$BUILD_SCRIPT
-
 export TRAVIS_XCODE_SCHEME=KeenClient
 export XCODEBUILD_ACTION=test
 $BUILD_SCRIPT
@@ -32,5 +29,12 @@ $BUILD_SCRIPT
 export TRAVIS_XCODE_SCHEME=KeenClient-Cocoa
 export TRAVIS_XCODE_SDK='macosx10.12'
 export XCODEBUILD_PLATFORM='OS X'
+export XCODEBUILD_ACTION=build
+$BUILD_SCRIPT
+
+export TRAVIS_XCODE_WORKSPACE=Examples/KeenClientExampleObjC/KeenClientExampleObjCCocoaPods/KeenClientExampleObjCCocoaPods.xcworkspace
+export TRAVIS_XCODE_SCHEME=KeenClientExampleObjCCocoaPods
+export TRAVIS_XCODE_SDK=iphonesimulator10.3
+export XCODEBUILD_PLATFORM='iOS Simulator'
 export XCODEBUILD_ACTION=build
 $BUILD_SCRIPT

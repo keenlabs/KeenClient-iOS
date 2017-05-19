@@ -9,8 +9,13 @@ else
 	XCODEBUILD_DESTINATION="platform=$XCODEBUILD_PLATFORM"
 fi
 
+# If XCODEBUILD_WORKSPACE hasn't been set, then use the value from the Travis config
+if [[ -z "$XCODEBUILD_WORKSPACE" ]]; then
+	XCODEBUILD_WORKSPACE=$TRAVIS_XCODE_WORKSPACE
+fi
+
 xcodebuild \
-	-workspace $TRAVIS_XCODE_WORKSPACE \
+	-workspace $XCODEBUILD_WORKSPACE \
 	-scheme $TRAVIS_XCODE_SCHEME \
 	-sdk $TRAVIS_XCODE_SDK \
 	-destination "$XCODEBUILD_DESTINATION" \
