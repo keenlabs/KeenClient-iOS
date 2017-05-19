@@ -1,0 +1,18 @@
+PODS:
+  - KeenClient (3.6.1):
+    - KeenClient/keen_sqlite (= 3.6.1)
+  - KeenClient/keen_sqlite (3.6.1)
+
+DEPENDENCIES:
+  - KeenClient (from `../../..`)
+
+EXTERNAL SOURCES:
+  KeenClient:
+    :path: "../../.."
+
+SPEC CHECKSUMS:
+  KeenClient: 39116dbab1f24ecad8b573c6f46ebe65e772fb71
+
+PODFILE CHECKSUM: ac1ea5b4b1b5ea28202cbce1494dfa6ccb7a2e63
+
+COCOAPODS: 1.2.1
