@@ -51,7 +51,7 @@ If you're using [Carthage](https://github.com/Carthage/Carthage), add the follow
 github "keenlabs/KeenClient-iOS"
 ```
 
-After that, just run `carthage update` and drag and drop the frameworks in the newly created Carthage/Build folder to the "Linked Frameworks and Libraries" in your project "General" settings tab.
+After that, just run `carthage update` and drag and drop the frameworks in the newly created Carthage/Build folder to the "Embedded Binaries" in your project target's "General" settings tab.
 
 Also, follow the instructions on step 4 found [here](https://github.com/Carthage/Carthage/blob/5fd867c4895b4f59d70181dec169a1644f4430e3/README.md#if-youre-building-for-ios) to work around a bug when submitting to the App Store.
 
