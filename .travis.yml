@@ -32,7 +32,7 @@ matrix:
         - XCODEBUILD_PLATFORM='OS X' XCODEBUILD_ACTION=build
     - xcode_scheme: KeenClientExampleObjCCocoaPods
       xcode_sdk: iphonesimulator10.3
-      env: XCODEBUILD_WORKSPACE=Examples/KeenClientExampleObjC/KeenClientExampleObjCCocoaPods/KeenClientExampleObjCCocoaPods.xcworkspace XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=build
+      env: POD_INSTALL=true XCODEBUILD_WORKSPACE=Examples/KeenClientExampleObjC/KeenClientExampleObjCCocoaPods/KeenClientExampleObjCCocoaPods.xcworkspace XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=build
 
 before_install:
   - gem install bundler

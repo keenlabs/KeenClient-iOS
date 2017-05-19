@@ -37,4 +37,5 @@ export TRAVIS_XCODE_SCHEME=KeenClientExampleObjCCocoaPods
 export TRAVIS_XCODE_SDK=iphonesimulator10.3
 export XCODEBUILD_PLATFORM='iOS Simulator'
 export XCODEBUILD_ACTION=build
+export POD_INSTALL=true
 $BUILD_SCRIPT

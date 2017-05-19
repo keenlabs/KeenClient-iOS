@@ -14,6 +14,17 @@ if [[ -z "$XCODEBUILD_WORKSPACE" ]]; then
 	XCODEBUILD_WORKSPACE=$TRAVIS_XCODE_WORKSPACE
 fi
 
+case "$POD_INSTALL" in
+	true)
+	  pushd $(dirname $XCODEBUILD_WORKSPACE)
+		pod install
+		popd
+		;;
+	*)
+		echo "$0: Not running pod install."
+	;;
+esac
+
 xcodebuild \
 	-workspace $XCODEBUILD_WORKSPACE \
 	-scheme $TRAVIS_XCODE_SCHEME \
