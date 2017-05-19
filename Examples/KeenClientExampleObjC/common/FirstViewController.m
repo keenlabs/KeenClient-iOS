@@ -7,7 +7,7 @@
 //
 
 #import "FirstViewController.h"
-#import "KeenClient.h"
+#import <KeenClient/KeenClient.h>
 
 @implementation FirstViewController
 

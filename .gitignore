@@ -22,3 +22,6 @@ Gemfile.lock
 
 # CocoaPods
 Pods/
+
+# Carthage
+Carthage/

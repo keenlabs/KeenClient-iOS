@@ -32,10 +32,19 @@ export XCODEBUILD_PLATFORM='OS X'
 export XCODEBUILD_ACTION=build
 $BUILD_SCRIPT
 
-export TRAVIS_XCODE_WORKSPACE=Examples/KeenClientExampleObjC/KeenClientExampleObjCCocoaPods/KeenClientExampleObjCCocoaPods.xcworkspace
+export XCODEBUILD_WORKSPACE=Examples/KeenClientExampleObjC/KeenClientExampleObjCCocoaPods/KeenClientExampleObjCCocoaPods.xcworkspace
 export TRAVIS_XCODE_SCHEME=KeenClientExampleObjCCocoaPods
 export TRAVIS_XCODE_SDK=iphonesimulator10.3
 export XCODEBUILD_PLATFORM='iOS Simulator'
 export XCODEBUILD_ACTION=build
 export POD_INSTALL=true
+$BUILD_SCRIPT
+
+export XCODEBUILD_PROJECT=Examples/KeenClientExampleObjC/KeenClientExampleObjCCarthage/KeenClientExampleObjCCarthage.xcodeproj
+export XCODEBUILD_PROJECT_TARGET=KeenClientExampleObjCCarthage
+export TRAVIS_XCODE_SDK=iphonesimulator10.3
+export XCODEBUILD_PLATFORM='iOS Simulator'
+export XCODEBUILD_ACTION=build
+export POD_INSTALL=false
+export CARTHAGE_INSTALL=true
 $BUILD_SCRIPT

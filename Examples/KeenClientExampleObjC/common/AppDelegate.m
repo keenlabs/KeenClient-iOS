@@ -12,7 +12,7 @@
 #import "SecondViewController.h"
 #import "ThirdViewController.h"
 
-#import "KeenClient.h"
+#import <KeenClient/KeenClient.h>
 
 @implementation AppDelegate
 

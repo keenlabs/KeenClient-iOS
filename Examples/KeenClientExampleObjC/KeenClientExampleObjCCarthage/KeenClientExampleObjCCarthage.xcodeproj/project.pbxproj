@@ -7,31 +7,64 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		485A137C1ECF9FD800C4A087 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A137B1ECF9FD800C4A087 /* main.m */; };
-		485A137F1ECF9FD800C4A087 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A137E1ECF9FD800C4A087 /* AppDelegate.m */; };
-		485A13821ECF9FD800C4A087 /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A13811ECF9FD800C4A087 /* RootViewController.m */; };
-		485A13851ECF9FD800C4A087 /* DataViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A13841ECF9FD800C4A087 /* DataViewController.m */; };
-		485A13881ECF9FD800C4A087 /* ModelController.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A13871ECF9FD800C4A087 /* ModelController.m */; };
-		485A138B1ECF9FD800C4A087 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 485A13891ECF9FD800C4A087 /* Main.storyboard */; };
 		485A138D1ECF9FD800C4A087 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 485A138C1ECF9FD800C4A087 /* Assets.xcassets */; };
 		485A13901ECF9FD800C4A087 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 485A138E1ECF9FD800C4A087 /* LaunchScreen.storyboard */; };
+		485A13A91ECFA01C00C4A087 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A13981ECFA01C00C4A087 /* AppDelegate.m */; };
+		485A13AA1ECFA01C00C4A087 /* first.png in Resources */ = {isa = PBXBuildFile; fileRef = 485A13991ECFA01C00C4A087 /* first.png */; };
+		485A13AB1ECFA01C00C4A087 /* first@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 485A139A1ECFA01C00C4A087 /* first@2x.png */; };
+		485A13AC1ECFA01C00C4A087 /* FirstViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A139C1ECFA01C00C4A087 /* FirstViewController.m */; };
+		485A13AD1ECFA01C00C4A087 /* FirstViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 485A139D1ECFA01C00C4A087 /* FirstViewController.xib */; };
+		485A13AE1ECFA01C00C4A087 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A139E1ECFA01C00C4A087 /* main.m */; };
+		485A13AF1ECFA01C00C4A087 /* second.png in Resources */ = {isa = PBXBuildFile; fileRef = 485A139F1ECFA01C00C4A087 /* second.png */; };
+		485A13B01ECFA01C00C4A087 /* second@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 485A13A01ECFA01C00C4A087 /* second@2x.png */; };
+		485A13B11ECFA01C00C4A087 /* SecondViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A13A21ECFA01C00C4A087 /* SecondViewController.m */; };
+		485A13B21ECFA01C00C4A087 /* SecondViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 485A13A31ECFA01C00C4A087 /* SecondViewController.xib */; };
+		485A13B31ECFA01C00C4A087 /* third.png in Resources */ = {isa = PBXBuildFile; fileRef = 485A13A41ECFA01C00C4A087 /* third.png */; };
+		485A13B41ECFA01C00C4A087 /* third@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 485A13A51ECFA01C00C4A087 /* third@2x.png */; };
+		485A13B51ECFA01C00C4A087 /* ThirdViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 485A13A71ECFA01C00C4A087 /* ThirdViewController.m */; };
+		485A13B61ECFA01C00C4A087 /* ThirdViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 485A13A81ECFA01C00C4A087 /* ThirdViewController.xib */; };
+		485A13B81ECFAA8C00C4A087 /* KeenClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 485A13B71ECFAA8C00C4A087 /* KeenClient.framework */; };
+		485A13B91ECFAA8C00C4A087 /* KeenClient.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 485A13B71ECFAA8C00C4A087 /* KeenClient.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		485A13BA1ECFAA8C00C4A087 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				485A13B91ECFAA8C00C4A087 /* KeenClient.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		485A13771ECF9FD800C4A087 /* KeenClientExampleObjCCarthage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenClientExampleObjCCarthage.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		485A137B1ECF9FD800C4A087 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		485A137D1ECF9FD800C4A087 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		485A137E1ECF9FD800C4A087 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		485A13801ECF9FD800C4A087 /* RootViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
-		485A13811ECF9FD800C4A087 /* RootViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
-		485A13831ECF9FD800C4A087 /* DataViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataViewController.h; sourceTree = "<group>"; };
-		485A13841ECF9FD800C4A087 /* DataViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DataViewController.m; sourceTree = "<group>"; };
-		485A13861ECF9FD800C4A087 /* ModelController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModelController.h; sourceTree = "<group>"; };
-		485A13871ECF9FD800C4A087 /* ModelController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModelController.m; sourceTree = "<group>"; };
-		485A138A1ECF9FD800C4A087 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		485A138C1ECF9FD800C4A087 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		485A138F1ECF9FD800C4A087 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		485A13911ECF9FD800C4A087 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		485A13971ECFA01C00C4A087 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ../../common/AppDelegate.h; sourceTree = "<group>"; };
+		485A13981ECFA01C00C4A087 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = ../../common/AppDelegate.m; sourceTree = "<group>"; };
+		485A13991ECFA01C00C4A087 /* first.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = first.png; path = ../../common/first.png; sourceTree = "<group>"; };
+		485A139A1ECFA01C00C4A087 /* first@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "first@2x.png"; path = "../../common/first@2x.png"; sourceTree = "<group>"; };
+		485A139B1ECFA01C00C4A087 /* FirstViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FirstViewController.h; path = ../../common/FirstViewController.h; sourceTree = "<group>"; };
+		485A139C1ECFA01C00C4A087 /* FirstViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FirstViewController.m; path = ../../common/FirstViewController.m; sourceTree = "<group>"; };
+		485A139D1ECFA01C00C4A087 /* FirstViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = FirstViewController.xib; path = ../../common/FirstViewController.xib; sourceTree = "<group>"; };
+		485A139E1ECFA01C00C4A087 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = ../../common/main.m; sourceTree = "<group>"; };
+		485A139F1ECFA01C00C4A087 /* second.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = second.png; path = ../../common/second.png; sourceTree = "<group>"; };
+		485A13A01ECFA01C00C4A087 /* second@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "second@2x.png"; path = "../../common/second@2x.png"; sourceTree = "<group>"; };
+		485A13A11ECFA01C00C4A087 /* SecondViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SecondViewController.h; path = ../../common/SecondViewController.h; sourceTree = "<group>"; };
+		485A13A21ECFA01C00C4A087 /* SecondViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SecondViewController.m; path = ../../common/SecondViewController.m; sourceTree = "<group>"; };
+		485A13A31ECFA01C00C4A087 /* SecondViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = SecondViewController.xib; path = ../../common/SecondViewController.xib; sourceTree = "<group>"; };
+		485A13A41ECFA01C00C4A087 /* third.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = third.png; path = ../../common/third.png; sourceTree = "<group>"; };
+		485A13A51ECFA01C00C4A087 /* third@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "third@2x.png"; path = "../../common/third@2x.png"; sourceTree = "<group>"; };
+		485A13A61ECFA01C00C4A087 /* ThirdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThirdViewController.h; path = ../../common/ThirdViewController.h; sourceTree = "<group>"; };
+		485A13A71ECFA01C00C4A087 /* ThirdViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ThirdViewController.m; path = ../../common/ThirdViewController.m; sourceTree = "<group>"; };
+		485A13A81ECFA01C00C4A087 /* ThirdViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ThirdViewController.xib; path = ../../common/ThirdViewController.xib; sourceTree = "<group>"; };
+		485A13B71ECFAA8C00C4A087 /* KeenClient.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = KeenClient.framework; path = Carthage/Build/iOS/KeenClient.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +72,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				485A13B81ECFAA8C00C4A087 /* KeenClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -48,6 +82,7 @@
 		485A136E1ECF9FD800C4A087 = {
 			isa = PBXGroup;
 			children = (
+				485A13B71ECFAA8C00C4A087 /* KeenClient.framework */,
 				485A13791ECF9FD800C4A087 /* KeenClientExampleObjCCarthage */,
 				485A13781ECF9FD800C4A087 /* Products */,
 			);
@@ -64,18 +99,25 @@
 		485A13791ECF9FD800C4A087 /* KeenClientExampleObjCCarthage */ = {
 			isa = PBXGroup;
 			children = (
-				485A137D1ECF9FD800C4A087 /* AppDelegate.h */,
-				485A137E1ECF9FD800C4A087 /* AppDelegate.m */,
-				485A13801ECF9FD800C4A087 /* RootViewController.h */,
-				485A13811ECF9FD800C4A087 /* RootViewController.m */,
-				485A13831ECF9FD800C4A087 /* DataViewController.h */,
-				485A13841ECF9FD800C4A087 /* DataViewController.m */,
-				485A13861ECF9FD800C4A087 /* ModelController.h */,
-				485A13871ECF9FD800C4A087 /* ModelController.m */,
-				485A13891ECF9FD800C4A087 /* Main.storyboard */,
+				485A13971ECFA01C00C4A087 /* AppDelegate.h */,
+				485A13981ECFA01C00C4A087 /* AppDelegate.m */,
+				485A139B1ECFA01C00C4A087 /* FirstViewController.h */,
+				485A139C1ECFA01C00C4A087 /* FirstViewController.m */,
+				485A13A11ECFA01C00C4A087 /* SecondViewController.h */,
+				485A13A21ECFA01C00C4A087 /* SecondViewController.m */,
+				485A13A61ECFA01C00C4A087 /* ThirdViewController.h */,
+				485A13A71ECFA01C00C4A087 /* ThirdViewController.m */,
+				485A139D1ECFA01C00C4A087 /* FirstViewController.xib */,
+				485A13A31ECFA01C00C4A087 /* SecondViewController.xib */,
+				485A13A81ECFA01C00C4A087 /* ThirdViewController.xib */,
+				485A13991ECFA01C00C4A087 /* first.png */,
+				485A139A1ECFA01C00C4A087 /* first@2x.png */,
+				485A139F1ECFA01C00C4A087 /* second.png */,
+				485A13A01ECFA01C00C4A087 /* second@2x.png */,
+				485A13A41ECFA01C00C4A087 /* third.png */,
+				485A13A51ECFA01C00C4A087 /* third@2x.png */,
 				485A138C1ECF9FD800C4A087 /* Assets.xcassets */,
 				485A138E1ECF9FD800C4A087 /* LaunchScreen.storyboard */,
-				485A13911ECF9FD800C4A087 /* Info.plist */,
 				485A137A1ECF9FD800C4A087 /* Supporting Files */,
 			);
 			path = KeenClientExampleObjCCarthage;
@@ -84,7 +126,8 @@
 		485A137A1ECF9FD800C4A087 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				485A137B1ECF9FD800C4A087 /* main.m */,
+				485A13911ECF9FD800C4A087 /* Info.plist */,
+				485A139E1ECFA01C00C4A087 /* main.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -99,6 +142,8 @@
 				485A13731ECF9FD800C4A087 /* Sources */,
 				485A13741ECF9FD800C4A087 /* Frameworks */,
 				485A13751ECF9FD800C4A087 /* Resources */,
+				485A13BA1ECFAA8C00C4A087 /* Embed Frameworks */,
+				485A13BC1ECFAAC700C4A087 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -147,38 +192,54 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				485A13AA1ECFA01C00C4A087 /* first.png in Resources */,
+				485A13B01ECFA01C00C4A087 /* second@2x.png in Resources */,
+				485A13AD1ECFA01C00C4A087 /* FirstViewController.xib in Resources */,
+				485A13AB1ECFA01C00C4A087 /* first@2x.png in Resources */,
+				485A13B61ECFA01C00C4A087 /* ThirdViewController.xib in Resources */,
+				485A13B21ECFA01C00C4A087 /* SecondViewController.xib in Resources */,
+				485A13AF1ECFA01C00C4A087 /* second.png in Resources */,
 				485A13901ECF9FD800C4A087 /* LaunchScreen.storyboard in Resources */,
 				485A138D1ECF9FD800C4A087 /* Assets.xcassets in Resources */,
-				485A138B1ECF9FD800C4A087 /* Main.storyboard in Resources */,
+				485A13B41ECFA01C00C4A087 /* third@2x.png in Resources */,
+				485A13B31ECFA01C00C4A087 /* third.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		485A13BC1ECFAAC700C4A087 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/local/bin/carthage copy-frameworks";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		485A13731ECF9FD800C4A087 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				485A13851ECF9FD800C4A087 /* DataViewController.m in Sources */,
-				485A137F1ECF9FD800C4A087 /* AppDelegate.m in Sources */,
-				485A13881ECF9FD800C4A087 /* ModelController.m in Sources */,
-				485A137C1ECF9FD800C4A087 /* main.m in Sources */,
-				485A13821ECF9FD800C4A087 /* RootViewController.m in Sources */,
+				485A13B11ECFA01C00C4A087 /* SecondViewController.m in Sources */,
+				485A13B51ECFA01C00C4A087 /* ThirdViewController.m in Sources */,
+				485A13A91ECFA01C00C4A087 /* AppDelegate.m in Sources */,
+				485A13AE1ECFA01C00C4A087 /* main.m in Sources */,
+				485A13AC1ECFA01C00C4A087 /* FirstViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		485A13891ECF9FD800C4A087 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				485A138A1ECF9FD800C4A087 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		485A138E1ECF9FD800C4A087 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -286,6 +347,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = KeenClientExampleObjCCarthage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.keen.KeenClientExampleObjCCarthage;
@@ -297,6 +362,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = KeenClientExampleObjCCarthage/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.keen.KeenClientExampleObjCCarthage;

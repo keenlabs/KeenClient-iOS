@@ -10,13 +10,23 @@ else
 fi
 
 # If XCODEBUILD_WORKSPACE hasn't been set, then use the value from the Travis config
-if [[ -z "$XCODEBUILD_WORKSPACE" ]]; then
+if [[ -z "$XCODEBUILD_WORKSPACE" ]] && [[ -z "$XCODEBUILD_PROJECT" ]]; then
 	XCODEBUILD_WORKSPACE=$TRAVIS_XCODE_WORKSPACE
+fi
+
+if [[ -n "$XCODEBUILD_WORKSPACE" ]]; then
+	XCODEBUILD_ROOT_DIR=$(dirname $XCODEBUILD_WORKSPACE)
+	BUILD_TARGET_ARGUMENTS="-workspace $XCODEBUILD_WORKSPACE -scheme $TRAVIS_XCODE_SCHEME"
+fi
+
+if [[ -n "$XCODEBUILD_PROJECT" ]]; then
+	XCODEBUILD_ROOT_DIR=$(dirname $XCODEBUILD_PROJECT)
+	BUILD_TARGET_ARGUMENTS="-project $XCODEBUILD_PROJECT -target $XCODEBUILD_PROJECT_TARGET"
 fi
 
 case "$POD_INSTALL" in
 	true)
-	  pushd $(dirname $XCODEBUILD_WORKSPACE)
+	  pushd $XCODEBUILD_ROOT_DIR
 		pod install
 		popd
 		;;
@@ -25,9 +35,19 @@ case "$POD_INSTALL" in
 	;;
 esac
 
+case "$CARTHAGE_INSTALL" in
+	true)
+	  pushd $XCODEBUILD_ROOT_DIR
+		./carthage_update.sh
+		popd
+		;;
+	*)
+		echo "$0: Not running carthage update."
+	;;
+esac
+
 xcodebuild \
-	-workspace $XCODEBUILD_WORKSPACE \
-	-scheme $TRAVIS_XCODE_SCHEME \
+	$BUILD_TARGET_ARGUMENTS \
 	-sdk $TRAVIS_XCODE_SDK \
 	-destination "$XCODEBUILD_DESTINATION" \
 	ONLY_ACTIVE_ARCH=NO clean $XCODEBUILD_ACTION | bundle exec xcpretty --color
