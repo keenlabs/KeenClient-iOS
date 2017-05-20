@@ -1,3 +1,2 @@
-# Ignore CocoaPods files for generated Podfile
-Podfile
+# Ignore Podfile.lock so it won't be out of sync when releases are made
 Podfile.lock

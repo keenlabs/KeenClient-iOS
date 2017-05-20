@@ -1,3 +1,2 @@
-# Ignore generated Cartfile
-Cartfile
+# Ignore Cartfile.resolved so it won't be out of sync when new releases are made
 Cartfile.resolved

@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e -o pipefail
 
+SCRIPT_PATH=$(dirname $0)
+pushd $SCRIPT_PATH
+SCRIPT_FULL_PATH=$(pwd)
+popd
+
 if [[ "$XCODEBUILD_PLATFORM" == "iOS Simulator" ]]; then
 	# iOS build
 	XCODEBUILD_DESTINATION="platform=$XCODEBUILD_PLATFORM,OS=$XCODEBUILD_SIM_OS,name=$XCODEBUILD_DEVICE"
@@ -27,7 +32,7 @@ fi
 case "$POD_INSTALL" in
 	true)
 	  pushd $XCODEBUILD_ROOT_DIR
-		./pod_install.sh
+		$SCRIPT_FULL_PATH/travis_pod_install.sh
 		popd
 		;;
 	*)
@@ -38,7 +43,7 @@ esac
 case "$CARTHAGE_INSTALL" in
 	true)
 	  pushd $XCODEBUILD_ROOT_DIR
-		./carthage_update.sh
+		$SCRIPT_FULL_PATH/travis_carthage_update.sh
 		popd
 		;;
 	*)
