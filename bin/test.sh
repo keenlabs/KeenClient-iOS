@@ -27,7 +27,7 @@ fi
 case "$POD_INSTALL" in
 	true)
 	  pushd $XCODEBUILD_ROOT_DIR
-		pod install
+		./pod_install.sh
 		popd
 		;;
 	*)
