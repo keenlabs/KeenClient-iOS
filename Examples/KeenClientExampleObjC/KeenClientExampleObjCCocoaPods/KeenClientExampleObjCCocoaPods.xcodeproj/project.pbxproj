@@ -24,10 +24,11 @@
 		48D2E3361ECF85BF00693484 /* third@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 48D2E3271ECF85BF00693484 /* third@2x.png */; };
 		48D2E3371ECF85BF00693484 /* ThirdViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 48D2E3291ECF85BF00693484 /* ThirdViewController.m */; };
 		48D2E3381ECF85BF00693484 /* ThirdViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48D2E32A1ECF85BF00693484 /* ThirdViewController.xib */; };
-		FFCA29D1DBEA8AA5A77F5506 /* libPods-KeenClientExampleObjCCocoaPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 789351425D5BAFA3E6BD10A0 /* libPods-KeenClientExampleObjCCocoaPods.a */; };
+		FF1023FC3B63A7EE3D6EF0D3 /* Pods_KeenClientExampleObjCCocoaPods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27854B4F2153C414C3002CD3 /* Pods_KeenClientExampleObjCCocoaPods.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		27854B4F2153C414C3002CD3 /* Pods_KeenClientExampleObjCCocoaPods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KeenClientExampleObjCCocoaPods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		48D2E2AB1ECF7F5C00693484 /* KeenClientExampleObjCCocoaPods.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenClientExampleObjCCocoaPods.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48D2E2C01ECF7F5C00693484 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		48D2E2C31ECF7F5C00693484 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -50,7 +51,6 @@
 		48D2E3281ECF85BF00693484 /* ThirdViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThirdViewController.h; path = ../../common/ThirdViewController.h; sourceTree = "<group>"; };
 		48D2E3291ECF85BF00693484 /* ThirdViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ThirdViewController.m; path = ../../common/ThirdViewController.m; sourceTree = "<group>"; };
 		48D2E32A1ECF85BF00693484 /* ThirdViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ThirdViewController.xib; path = ../../common/ThirdViewController.xib; sourceTree = "<group>"; };
-		789351425D5BAFA3E6BD10A0 /* libPods-KeenClientExampleObjCCocoaPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClientExampleObjCCocoaPods.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B8C63743257FC1A5ADED12B9 /* Pods-KeenClientExampleObjCCocoaPods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClientExampleObjCCocoaPods.release.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClientExampleObjCCocoaPods/Pods-KeenClientExampleObjCCocoaPods.release.xcconfig"; sourceTree = "<group>"; };
 		D0620B9F4591EFBFB03B050B /* Pods-KeenClientExampleObjCCocoaPods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClientExampleObjCCocoaPods.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClientExampleObjCCocoaPods/Pods-KeenClientExampleObjCCocoaPods.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -60,7 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FFCA29D1DBEA8AA5A77F5506 /* libPods-KeenClientExampleObjCCocoaPods.a in Frameworks */,
+				FF1023FC3B63A7EE3D6EF0D3 /* Pods_KeenClientExampleObjCCocoaPods.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -133,7 +133,7 @@
 		94AF39B25BE31AEB49A8237D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				789351425D5BAFA3E6BD10A0 /* libPods-KeenClientExampleObjCCocoaPods.a */,
+				27854B4F2153C414C3002CD3 /* Pods_KeenClientExampleObjCCocoaPods.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
