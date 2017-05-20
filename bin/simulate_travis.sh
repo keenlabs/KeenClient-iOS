@@ -48,3 +48,20 @@ export XCODEBUILD_ACTION=build
 export POD_INSTALL=false
 export CARTHAGE_INSTALL=true
 $BUILD_SCRIPT
+
+export XCODEBUILD_WORKSPACE=Examples/KeenClientExampleSwift/KeenClientExampleSwiftCocoaPods/KeenClientExampleSwiftCocoaPods.xcworkspace
+export TRAVIS_XCODE_SCHEME=KeenClientExampleSwiftCocoaPods
+export TRAVIS_XCODE_SDK=iphonesimulator10.3
+export XCODEBUILD_PLATFORM='iOS Simulator'
+export XCODEBUILD_ACTION=build
+export POD_INSTALL=true
+$BUILD_SCRIPT
+
+export XCODEBUILD_PROJECT=Examples/KeenClientExampleSwift/KeenClientExampleSwiftCarthage/KeenClientExampleSwiftCarthage.xcodeproj
+export XCODEBUILD_PROJECT_TARGET=KeenClientExampleSwiftCarthage
+export TRAVIS_XCODE_SDK=iphonesimulator10.3
+export XCODEBUILD_PLATFORM='iOS Simulator'
+export XCODEBUILD_ACTION=build
+export POD_INSTALL=false
+export CARTHAGE_INSTALL=true
+$BUILD_SCRIPT
