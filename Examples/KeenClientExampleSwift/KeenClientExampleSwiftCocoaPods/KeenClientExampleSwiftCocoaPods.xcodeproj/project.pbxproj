@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		343B20482865D8D64BCA0CA0 /* libPods-KeenClientExampleSwiftCocoaPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07DB1A6DA4F077DE264223C2 /* libPods-KeenClientExampleSwiftCocoaPods.a */; };
 		485A14081ED0D92100C4A087 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 485A14011ED0D92100C4A087 /* Info.plist */; };
 		485A14091ED0D92100C4A087 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A14021ED0D92100C4A087 /* AppDelegate.swift */; };
 		485A140A1ED0D92100C4A087 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A14031ED0D92100C4A087 /* FirstViewController.swift */; };
@@ -16,6 +15,7 @@
 		485A14171ED0D9D200C4A087 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 485A14161ED0D9D200C4A087 /* Assets.xcassets */; };
 		485A14191ED0D9EF00C4A087 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 485A14181ED0D9EF00C4A087 /* LaunchScreen.xib */; };
 		485A141B1ED0D9FD00C4A087 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 485A141A1ED0D9FD00C4A087 /* Main.storyboard */; };
+		827D7079E4787B836784CE4E /* Pods_KeenClientExampleSwiftCocoaPods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BD5303BD33102FEC11F1D76 /* Pods_KeenClientExampleSwiftCocoaPods.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,7 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		07DB1A6DA4F077DE264223C2 /* libPods-KeenClientExampleSwiftCocoaPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClientExampleSwiftCocoaPods.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0BD5303BD33102FEC11F1D76 /* Pods_KeenClientExampleSwiftCocoaPods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_KeenClientExampleSwiftCocoaPods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		485A13D61ED0D1B300C4A087 /* KeenClientExampleSwiftCocoaPods.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenClientExampleSwiftCocoaPods.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		485A14011ED0D92100C4A087 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../common/Info.plist; sourceTree = "<group>"; };
 		485A14021ED0D92100C4A087 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../common/AppDelegate.swift; sourceTree = "<group>"; };
@@ -51,7 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				343B20482865D8D64BCA0CA0 /* libPods-KeenClientExampleSwiftCocoaPods.a in Frameworks */,
+				827D7079E4787B836784CE4E /* Pods_KeenClientExampleSwiftCocoaPods.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,7 +102,7 @@
 		BF0602EC11D14A93435E5CFB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				07DB1A6DA4F077DE264223C2 /* libPods-KeenClientExampleSwiftCocoaPods.a */,
+				0BD5303BD33102FEC11F1D76 /* Pods_KeenClientExampleSwiftCocoaPods.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -357,8 +357,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.keen.KeenClientExampleSwiftCocoaPods;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_INSTALL_OBJC_HEADER = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../common/KeenClientExampleSwift-Bridging-Header.h";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
@@ -374,8 +373,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.keen.KeenClientExampleSwiftCocoaPods;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_INSTALL_OBJC_HEADER = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../common/KeenClientExampleSwift-Bridging-Header.h";
+				SWIFT_INSTALL_OBJC_HEADER = NO;
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
