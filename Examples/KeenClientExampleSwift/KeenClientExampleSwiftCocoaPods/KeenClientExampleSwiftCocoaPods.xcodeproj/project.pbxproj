@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		343B20482865D8D64BCA0CA0 /* libPods-KeenClientExampleSwiftCocoaPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07DB1A6DA4F077DE264223C2 /* libPods-KeenClientExampleSwiftCocoaPods.a */; };
 		485A14081ED0D92100C4A087 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 485A14011ED0D92100C4A087 /* Info.plist */; };
 		485A14091ED0D92100C4A087 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A14021ED0D92100C4A087 /* AppDelegate.swift */; };
 		485A140A1ED0D92100C4A087 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A14031ED0D92100C4A087 /* FirstViewController.swift */; };
@@ -31,6 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		07DB1A6DA4F077DE264223C2 /* libPods-KeenClientExampleSwiftCocoaPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KeenClientExampleSwiftCocoaPods.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		485A13D61ED0D1B300C4A087 /* KeenClientExampleSwiftCocoaPods.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenClientExampleSwiftCocoaPods.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		485A14011ED0D92100C4A087 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../common/Info.plist; sourceTree = "<group>"; };
 		485A14021ED0D92100C4A087 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../common/AppDelegate.swift; sourceTree = "<group>"; };
@@ -40,6 +42,8 @@
 		485A14161ED0D9D200C4A087 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../common/Assets.xcassets; sourceTree = "<group>"; };
 		485A14181ED0D9EF00C4A087 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = LaunchScreen.xib; path = ../../common/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		485A141A1ED0D9FD00C4A087 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = ../../common/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		4A3D6AD866CB071239E1E7C0 /* Pods-KeenClientExampleSwiftCocoaPods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClientExampleSwiftCocoaPods.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClientExampleSwiftCocoaPods/Pods-KeenClientExampleSwiftCocoaPods.debug.xcconfig"; sourceTree = "<group>"; };
+		BF6C06DA7FE60FE2401CF715 /* Pods-KeenClientExampleSwiftCocoaPods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KeenClientExampleSwiftCocoaPods.release.xcconfig"; path = "Pods/Target Support Files/Pods-KeenClientExampleSwiftCocoaPods/Pods-KeenClientExampleSwiftCocoaPods.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				343B20482865D8D64BCA0CA0 /* libPods-KeenClientExampleSwiftCocoaPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +63,8 @@
 			children = (
 				485A13D81ED0D1B300C4A087 /* KeenClientExampleSwiftCocoaPods */,
 				485A13D71ED0D1B300C4A087 /* Products */,
+				D29E222F61C6C2D09E703846 /* Pods */,
+				BF0602EC11D14A93435E5CFB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -92,6 +99,23 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		BF0602EC11D14A93435E5CFB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				07DB1A6DA4F077DE264223C2 /* libPods-KeenClientExampleSwiftCocoaPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D29E222F61C6C2D09E703846 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				4A3D6AD866CB071239E1E7C0 /* Pods-KeenClientExampleSwiftCocoaPods.debug.xcconfig */,
+				BF6C06DA7FE60FE2401CF715 /* Pods-KeenClientExampleSwiftCocoaPods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -99,10 +123,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 485A13EC1ED0D1B300C4A087 /* Build configuration list for PBXNativeTarget "KeenClientExampleSwiftCocoaPods" */;
 			buildPhases = (
+				00AF71E37E87F7156D278396 /* [CP] Check Pods Manifest.lock */,
 				485A13D21ED0D1B300C4A087 /* Sources */,
 				485A13D31ED0D1B300C4A087 /* Frameworks */,
 				485A13D41ED0D1B300C4A087 /* Resources */,
 				485A14201ED0DB4000C4A087 /* Embed Frameworks */,
+				5EDD460D68C9DF9086F31140 /* [CP] Embed Pods Frameworks */,
+				CFE2793AB60969AE0B98CB83 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -161,6 +188,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		00AF71E37E87F7156D278396 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		5EDD460D68C9DF9086F31140 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KeenClientExampleSwiftCocoaPods/Pods-KeenClientExampleSwiftCocoaPods-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CFE2793AB60969AE0B98CB83 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KeenClientExampleSwiftCocoaPods/Pods-KeenClientExampleSwiftCocoaPods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		485A13D21ED0D1B300C4A087 /* Sources */ = {
@@ -274,6 +349,7 @@
 		};
 		485A13ED1ED0D1B300C4A087 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4A3D6AD866CB071239E1E7C0 /* Pods-KeenClientExampleSwiftCocoaPods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -290,6 +366,7 @@
 		};
 		485A13EE1ED0D1B300C4A087 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BF6C06DA7FE60FE2401CF715 /* Pods-KeenClientExampleSwiftCocoaPods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
