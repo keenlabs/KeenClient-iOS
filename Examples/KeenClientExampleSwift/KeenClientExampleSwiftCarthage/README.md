@@ -1,3 +1,0 @@
-A Cartfile is provided which will point to the latest version of the SDK available from github. Note that this may or may not build--that depends on if the version of the sample app checked out matches the latest SDK version on github, but is provided as an example of how to configure a Carthage project with the Keen SDK.
-
-Also note that when running bin/simulate_travis.sh a Cartfile is generated that points to the local git repository and current local git branch, as well as a Cartfile.resolved that does the same.
