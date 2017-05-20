@@ -7,25 +7,43 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		485A13DA1ED0D1B300C4A087 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A13D91ED0D1B300C4A087 /* AppDelegate.swift */; };
-		485A13DC1ED0D1B300C4A087 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A13DB1ED0D1B300C4A087 /* RootViewController.swift */; };
-		485A13DE1ED0D1B300C4A087 /* DataViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A13DD1ED0D1B300C4A087 /* DataViewController.swift */; };
-		485A13E01ED0D1B300C4A087 /* ModelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A13DF1ED0D1B300C4A087 /* ModelController.swift */; };
-		485A13E31ED0D1B300C4A087 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 485A13E11ED0D1B300C4A087 /* Main.storyboard */; };
-		485A13E51ED0D1B300C4A087 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 485A13E41ED0D1B300C4A087 /* Assets.xcassets */; };
-		485A13E81ED0D1B300C4A087 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 485A13E61ED0D1B300C4A087 /* LaunchScreen.storyboard */; };
+		485A14081ED0D92100C4A087 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 485A14011ED0D92100C4A087 /* Info.plist */; };
+		485A14091ED0D92100C4A087 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A14021ED0D92100C4A087 /* AppDelegate.swift */; };
+		485A140A1ED0D92100C4A087 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A14031ED0D92100C4A087 /* FirstViewController.swift */; };
+		485A140B1ED0D92100C4A087 /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A14041ED0D92100C4A087 /* SecondViewController.swift */; };
+		485A140C1ED0D92100C4A087 /* ThirdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485A14051ED0D92100C4A087 /* ThirdViewController.swift */; };
+		485A14171ED0D9D200C4A087 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 485A14161ED0D9D200C4A087 /* Assets.xcassets */; };
+		485A14191ED0D9EF00C4A087 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 485A14181ED0D9EF00C4A087 /* LaunchScreen.xib */; };
+		485A141B1ED0D9FD00C4A087 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 485A141A1ED0D9FD00C4A087 /* Main.storyboard */; };
+		485A141E1ED0DB4000C4A087 /* KeenClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 485A141D1ED0DB4000C4A087 /* KeenClient.framework */; };
+		485A141F1ED0DB4000C4A087 /* KeenClient.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 485A141D1ED0DB4000C4A087 /* KeenClient.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		485A14201ED0DB4000C4A087 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				485A141F1ED0DB4000C4A087 /* KeenClient.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		485A13D61ED0D1B300C4A087 /* KeenClientExampleSwiftCocoaPods.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenClientExampleSwiftCocoaPods.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		485A13D91ED0D1B300C4A087 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		485A13DB1ED0D1B300C4A087 /* RootViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
-		485A13DD1ED0D1B300C4A087 /* DataViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataViewController.swift; sourceTree = "<group>"; };
-		485A13DF1ED0D1B300C4A087 /* ModelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelController.swift; sourceTree = "<group>"; };
-		485A13E21ED0D1B300C4A087 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		485A13E41ED0D1B300C4A087 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		485A13E71ED0D1B300C4A087 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		485A13E91ED0D1B300C4A087 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		485A14011ED0D92100C4A087 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../common/Info.plist; sourceTree = "<group>"; };
+		485A14021ED0D92100C4A087 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../common/AppDelegate.swift; sourceTree = "<group>"; };
+		485A14031ED0D92100C4A087 /* FirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FirstViewController.swift; path = ../../common/FirstViewController.swift; sourceTree = "<group>"; };
+		485A14041ED0D92100C4A087 /* SecondViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SecondViewController.swift; path = ../../common/SecondViewController.swift; sourceTree = "<group>"; };
+		485A14051ED0D92100C4A087 /* ThirdViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ThirdViewController.swift; path = ../../common/ThirdViewController.swift; sourceTree = "<group>"; };
+		485A14161ED0D9D200C4A087 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../common/Assets.xcassets; sourceTree = "<group>"; };
+		485A14181ED0D9EF00C4A087 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = LaunchScreen.xib; path = ../../common/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		485A141A1ED0D9FD00C4A087 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = ../../common/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		485A141D1ED0DB4000C4A087 /* KeenClient.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = KeenClient.framework; path = ../../KeenClientExampleObjC/KeenClientExampleObjCCarthage/Carthage/Build/iOS/KeenClient.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				485A141E1ED0DB4000C4A087 /* KeenClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +61,7 @@
 		485A13CD1ED0D1B300C4A087 = {
 			isa = PBXGroup;
 			children = (
+				485A141D1ED0DB4000C4A087 /* KeenClient.framework */,
 				485A13D81ED0D1B300C4A087 /* KeenClientExampleSwiftCocoaPods */,
 				485A13D71ED0D1B300C4A087 /* Products */,
 			);
@@ -58,16 +78,24 @@
 		485A13D81ED0D1B300C4A087 /* KeenClientExampleSwiftCocoaPods */ = {
 			isa = PBXGroup;
 			children = (
-				485A13D91ED0D1B300C4A087 /* AppDelegate.swift */,
-				485A13DB1ED0D1B300C4A087 /* RootViewController.swift */,
-				485A13DD1ED0D1B300C4A087 /* DataViewController.swift */,
-				485A13DF1ED0D1B300C4A087 /* ModelController.swift */,
-				485A13E11ED0D1B300C4A087 /* Main.storyboard */,
-				485A13E41ED0D1B300C4A087 /* Assets.xcassets */,
-				485A13E61ED0D1B300C4A087 /* LaunchScreen.storyboard */,
-				485A13E91ED0D1B300C4A087 /* Info.plist */,
+				485A141C1ED0DA1300C4A087 /* Supporting Files */,
+				485A14161ED0D9D200C4A087 /* Assets.xcassets */,
+				485A14021ED0D92100C4A087 /* AppDelegate.swift */,
+				485A14031ED0D92100C4A087 /* FirstViewController.swift */,
+				485A14041ED0D92100C4A087 /* SecondViewController.swift */,
+				485A14051ED0D92100C4A087 /* ThirdViewController.swift */,
+				485A14181ED0D9EF00C4A087 /* LaunchScreen.xib */,
+				485A141A1ED0D9FD00C4A087 /* Main.storyboard */,
 			);
 			path = KeenClientExampleSwiftCocoaPods;
+			sourceTree = "<group>";
+		};
+		485A141C1ED0DA1300C4A087 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				485A14011ED0D92100C4A087 /* Info.plist */,
+			);
+			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -80,6 +108,7 @@
 				485A13D21ED0D1B300C4A087 /* Sources */,
 				485A13D31ED0D1B300C4A087 /* Frameworks */,
 				485A13D41ED0D1B300C4A087 /* Resources */,
+				485A14201ED0DB4000C4A087 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -102,6 +131,7 @@
 				TargetAttributes = {
 					485A13D51ED0D1B300C4A087 = {
 						CreatedOnToolsVersion = 8.3.2;
+						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -129,9 +159,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				485A13E81ED0D1B300C4A087 /* LaunchScreen.storyboard in Resources */,
-				485A13E51ED0D1B300C4A087 /* Assets.xcassets in Resources */,
-				485A13E31ED0D1B300C4A087 /* Main.storyboard in Resources */,
+				485A14191ED0D9EF00C4A087 /* LaunchScreen.xib in Resources */,
+				485A141B1ED0D9FD00C4A087 /* Main.storyboard in Resources */,
+				485A14081ED0D92100C4A087 /* Info.plist in Resources */,
+				485A14171ED0D9D200C4A087 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,33 +173,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				485A13DC1ED0D1B300C4A087 /* RootViewController.swift in Sources */,
-				485A13E01ED0D1B300C4A087 /* ModelController.swift in Sources */,
-				485A13DE1ED0D1B300C4A087 /* DataViewController.swift in Sources */,
-				485A13DA1ED0D1B300C4A087 /* AppDelegate.swift in Sources */,
+				485A140B1ED0D92100C4A087 /* SecondViewController.swift in Sources */,
+				485A14091ED0D92100C4A087 /* AppDelegate.swift in Sources */,
+				485A140C1ED0D92100C4A087 /* ThirdViewController.swift in Sources */,
+				485A140A1ED0D92100C4A087 /* FirstViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		485A13E11ED0D1B300C4A087 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				485A13E21ED0D1B300C4A087 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		485A13E61ED0D1B300C4A087 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				485A13E71ED0D1B300C4A087 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		485A13EA1ED0D1B300C4A087 /* Debug */ = {
@@ -270,10 +282,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = KeenClientExampleSwiftCocoaPods/Info.plist;
+				CLANG_ENABLE_MODULES = YES;
+				FRAMEWORK_SEARCH_PATHS = "/Users/baumatron/projects/keenio/KeenClient-iOS/Examples/KeenClientExampleObjc/KeenClientExampleObjCCarthage/Carthage/Build/iOS";
+				INFOPLIST_FILE = "$(SRCROOT)/../common/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.keen.KeenClientExampleSwiftCocoaPods;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../common/KeenClientExampleSwift-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -282,10 +299,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = KeenClientExampleSwiftCocoaPods/Info.plist;
+				CLANG_ENABLE_MODULES = YES;
+				FRAMEWORK_SEARCH_PATHS = "/Users/baumatron/projects/keenio/KeenClient-iOS/Examples/KeenClientExampleObjc/KeenClientExampleObjCCarthage/Carthage/Build/iOS";
+				INFOPLIST_FILE = "$(SRCROOT)/../common/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.keen.KeenClientExampleSwiftCocoaPods;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/../common/KeenClientExampleSwift-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;

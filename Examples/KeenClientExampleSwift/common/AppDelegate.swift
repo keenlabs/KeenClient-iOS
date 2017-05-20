@@ -1,36 +1,65 @@
 //
 //  AppDelegate.swift
-//  KeenClientExampleSwiftCocoaPods
+//  KeenSwiftClientExample
 //
-//  Created by Brian Baumhover on 5/20/17.
-//  Copyright © 2017 Keen Labs. All rights reserved.
+//  Created by Claire Young on 5/4/15.
+//  Copyright (c) 2015 Keen.IO. All rights reserved.
 //
 
 import UIKit
+import KeenClient
+
+class ExampleLogger: KeenLogSink {
+    public func logMessage(with msgLevel: KeenLogLevel, andMessage message: String!) {
+        NSLog("%@", message)
+    }
+    
+    func onRemoved() {
+        NSLog("Logger removed.")
+    }
+}
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        KeenClient.addLogSink(ExampleLogger())
+        KeenClient.setIsNSLogEnabled(true);
+        KeenClient.setLogLevel(.verbose)
+        KeenClient.enableLogging()
+        
+        var client : KeenClient;
+        client = KeenClient.sharedClient(withProjectID: "project_id", andWriteKey: "wk", andReadKey: "rk");
+        
+        client.globalPropertiesBlock = {(eventCollection : String?) -> [AnyHashable: Any]? in
+            return [ "GLOBALS": "YEAH WHAT SWIFT"]
+        };
+        
+        NSLog("KeenClient-iOS %@ [from class method]", KeenClient.sdkVersion());
+        
         return true
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-        // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+        // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+        let taskId : UIBackgroundTaskIdentifier = application.beginBackgroundTask(expirationHandler: {() -> Void in
+            NSLog("Background task is being expired.")
+        });
+        KeenClient.shared().upload(finishedBlock: {() -> Void in
+            application.endBackgroundTask(taskId)});
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
