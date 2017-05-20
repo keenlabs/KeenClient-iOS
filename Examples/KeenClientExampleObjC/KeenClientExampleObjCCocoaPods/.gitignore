@@ -1,2 +1,0 @@
-# Ignore Podfile.lock so it won't be out of sync when releases are made
-Podfile.lock
