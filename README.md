@@ -93,11 +93,16 @@ Uncompress the ZIP file for the platform you're using, and drag the folder into 
 If your Swift project links against a static library version of KeenClient using CocoaPods (i.e., `use_frameworks!` has *not* been added to your podfile), you'll need to add a bridging header file, such as “ProjectName-Bridging-Header.h”. In the bridging header file, add:
 
 ```objc
-// If you're linking to a static library versin of KeenClient
+// If you're linking to a static library versin of KeenClient (CocoaPods without use_frameworks!)
 #import “KeenClient.h”
 ```
 
 In the `Build Settings` of your project target, set "Install Objective-C Compatibility Header" to "Yes", and set the "Objective-C Bridging Header” to your newly-created bridging header file "ProjectName-Bridging-Header.h".
+
+If you're using CocoaPods and have set `use_frameworks!`, or are using Carthage, just import the framework as normal in Swift:
+```
+import KeenClient
+```
 
 ### Usage
 
@@ -109,7 +114,9 @@ Register the `KeenClient` shared client with your Project ID and access keys. Th
 
 Objective C
 ```objc
-#import <KeenClient/KeenClient.h>
+#import <KeenClient/KeenClient.h> // This import works for a framework version of KeenClient (CocoaPods with use_frameworks! or Carthage).
+// or
+#import "KeenClient.h" // If linking against a static library version (CocoaPods without use_frameworks!)
 // ...
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -119,7 +126,7 @@ Objective C
 ```
 Swift
 ```Swift
-import KeenClient
+import KeenClient // Import only required if linking to a framework version of KeenClient. Otherwise the bridging header takes care of this.
 // ...
 func application(_ application: UIApplication,
 			didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool
