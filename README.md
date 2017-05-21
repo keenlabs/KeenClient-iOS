@@ -62,6 +62,10 @@ If you're using [CocoaPods](http://cocoapods.org/), add the following to your Po
 ```
 pod 'KeenClient'
 ```
+It's also recommended that you build pods as frameworks by adding the following to your Podfile target as well:
+```
+use_frameworks!
+```
 
 Then run:
 
@@ -86,28 +90,14 @@ Uncompress the ZIP file for the platform you're using, and drag the folder into 
 
 #### Swift
 
-Add a header file “ProjectName-Bridging-Header.h”. In the bridging header file, add:
+If your Swift project links against a static library version of KeenClient using CocoaPods (i.e., `use_frameworks!` has *not* been added to your podfile), you'll need to add a bridging header file, such as “ProjectName-Bridging-Header.h”. In the bridging header file, add:
 
 ```objc
-// If you're using the binary
+// If you're linking to a static library versin of KeenClient
 #import “KeenClient.h”
-
-// If you're using Carthage
-#import <KeenClient/KeenClient.h>
 ```
 
-In Build Settings, set the "Objective-C Bridging Header” section to your newly-created bridging header file ProjectName-Bridging-Header.h.
-
-##### Build Settings
-
-Make sure to add the following libraries in the "Link Binary with Libraries" section:
-
-* CoreLocation.framework
-* SystemConfiguration.framework
-
-Also enable the "-ObjC" linker flag under "Other Linker Flags".
-
-Voila!
+In the `Build Settings` of your project target, set "Install Objective-C Compatibility Header" to "Yes", and set the "Objective-C Bridging Header” to your newly-created bridging header file "ProjectName-Bridging-Header.h".
 
 ### Usage
 
@@ -119,6 +109,8 @@ Register the `KeenClient` shared client with your Project ID and access keys. Th
 
 Objective C
 ```objc
+#import <KeenClient/KeenClient.h>
+// ...
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 	[KeenClient sharedClientWithProjectID:@"your_project_id" andWriteKey:@"your_write_key" andReadKey:@"your_read_key"];
@@ -127,13 +119,13 @@ Objective C
 ```
 Swift
 ```Swift
+import KeenClient
+// ...
 func application(_ application: UIApplication,
 			didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool
 {
 	let client: KeenClient
-	client = KeenClient.sharedClient(withProjectID: "your_project_id",
-																	 andWriteKey: "your_write_key",
-																	 andReadKey: "your_read_key");
+	client = KeenClient.sharedClient(withProjectID: "your_project_id", andWriteKey: "your_write_key", andReadKey: "your_read_key");
 	return true
 }
 ```
