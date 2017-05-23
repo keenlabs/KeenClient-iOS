@@ -131,13 +131,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0105EE9014E9A4960048D871 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0105EE5D14E9A4940048D871;
-			remoteInfo = KeenClientExample;
-		};
 		017EE13414E30C96000F3868 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 017EE11514E30C95000F3868 /* Project object */;
@@ -152,24 +145,9 @@
 			remoteGlobalIDString = 1296396219C10AD200B2B653;
 			remoteInfo = "KeenClient-Cocoa";
 		};
-		A58E0C0C1AF85F3D00DF2B71 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A58E0BDF1AF85F3C00DF2B71;
-			remoteInfo = KeenSwiftClientExample;
-		};
-		A58E0C0E1AF85F3D00DF2B71 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A58E0BF61AF85F3C00DF2B71;
-			remoteInfo = KeenSwiftClientExampleTests;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenClientExample.xcodeproj; path = KeenClientExample/KeenClientExample.xcodeproj; sourceTree = "<group>"; };
 		012E8A541672B9A90021F6FA /* KeenProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenProperties.h; sourceTree = "<group>"; };
 		012E8A551672B9A90021F6FA /* KeenProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenProperties.m; sourceTree = "<group>"; };
 		012E8A5C1672BE860021F6FA /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -231,7 +209,6 @@
 		48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOUploader.m; sourceTree = "<group>"; };
 		A51E31221B03C6EF00008248 /* HTTPCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPCodes.h; sourceTree = "<group>"; };
 		A51E31231B03C6EF00008248 /* HTTPCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPCodes.m; sourceTree = "<group>"; };
-		A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = KeenSwiftClientExample.xcodeproj; path = KeenSwiftClientExample/KeenSwiftClientExample.xcodeproj; sourceTree = "<group>"; };
 		CA6410D618E37E7C00E53E3C /* KIODBStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIODBStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* KIODBStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIODBStore.m; sourceTree = "<group>"; wrapsLines = 0; };
 		CA6410E018E39F3A00E53E3C /* KIODBStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIODBStoreTests.h; sourceTree = "<group>"; };
@@ -289,14 +266,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0105EE8D14E9A4940048D871 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				0105EE9114E9A4960048D871 /* KeenClientExample.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		015D30821822E8D200F8735B /* Headers */ = {
 			isa = PBXGroup;
 			children = (
@@ -325,8 +294,6 @@
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
-				A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */,
-				0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */,
 				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE12314E30C96000F3868 /* KeenClient */,
 				017EE13714E30C96000F3868 /* KeenClientTests */,
@@ -477,15 +444,6 @@
 				48583E061E58CDE2002CFD99 /* KeenLogger.m */,
 			);
 			name = Logging;
-			sourceTree = "<group>";
-		};
-		A58E0C071AF85F3C00DF2B71 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				A58E0C0D1AF85F3D00DF2B71 /* KeenSwiftClientExample.app */,
-				A58E0C0F1AF85F3D00DF2B71 /* KeenSwiftClientExampleTests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		DE6955781951FBCC0044D2C4 /* sqlite-amalgamation */ = {
@@ -682,16 +640,6 @@
 			mainGroup = 017EE11314E30C95000F3868;
 			productRefGroup = 017EE11F14E30C96000F3868 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 0105EE8D14E9A4940048D871 /* Products */;
-					ProjectRef = 0105EE8C14E9A4940048D871 /* KeenClientExample.xcodeproj */;
-				},
-				{
-					ProductGroup = A58E0C071AF85F3C00DF2B71 /* Products */;
-					ProjectRef = A58E0C061AF85F3C00DF2B71 /* KeenSwiftClientExample.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				017EE11D14E30C96000F3868 /* KeenClient */,
@@ -702,30 +650,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		0105EE9114E9A4960048D871 /* KeenClientExample.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = KeenClientExample.app;
-			remoteRef = 0105EE9014E9A4960048D871 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		A58E0C0D1AF85F3D00DF2B71 /* KeenSwiftClientExample.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = KeenSwiftClientExample.app;
-			remoteRef = A58E0C0C1AF85F3D00DF2B71 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		A58E0C0F1AF85F3D00DF2B71 /* KeenSwiftClientExampleTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = KeenSwiftClientExampleTests.xctest;
-			remoteRef = A58E0C0E1AF85F3D00DF2B71 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		017EE12B14E30C96000F3868 /* Resources */ = {
@@ -1132,7 +1056,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MODULEMAP_FILE = "$(PROJECT_DIR)/Framework/module.modulemap";
+				MODULEMAP_FILE = "$(PROJECT_DIR)/Framework/KeenClientFramework.modulemap";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keenLabs.KeenClient;
@@ -1181,7 +1105,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MODULEMAP_FILE = "$(PROJECT_DIR)/Framework/module.modulemap";
+				MODULEMAP_FILE = "$(PROJECT_DIR)/Framework/KeenClientFramework.modulemap";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.keenLabs.KeenClient;
 				PRODUCT_NAME = KeenClient;

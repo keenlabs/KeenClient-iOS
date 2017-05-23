@@ -19,3 +19,9 @@ Gemfile.lock
 
 # VS Code
 .vscode/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Checkouts/
