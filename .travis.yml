@@ -7,8 +7,6 @@ osx_image: xcode8.3
 xcode_workspace: KeenClient.xcworkspace
 xcode_scheme:
   - KeenClientFramework
-  - KeenSwiftClientExample
-  - KeenClientExample
 xcode_sdk: iphonesimulator10.3
 env:
   - XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=build
@@ -31,6 +29,18 @@ matrix:
       xcode_sdk: macosx10.12
       env:
         - XCODEBUILD_PLATFORM='OS X' XCODEBUILD_ACTION=build
+    - xcode_scheme: KeenClientExampleObjCCocoaPods
+      xcode_sdk: iphonesimulator10.3
+      env: POD_INSTALL=true XCODEBUILD_WORKSPACE=Examples/objc/cocoapods/KeenClientExampleObjCCocoaPods.xcworkspace XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=build
+    - xcode_scheme: KeenClientExampleObjCCarthage
+      xcode_sdk: iphonesimulator10.3
+      env: CARTHAGE_INSTALL=true XCODEBUILD_PROJECT=Examples/objc/carthage/KeenClientExampleObjCCarthage.xcodeproj XCODEBUILD_PROJECT_TARGET=KeenClientExampleObjCCarthage XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=build
+    - xcode_scheme: KeenClientExampleSwiftCocoaPods
+      xcode_sdk: iphonesimulator10.3
+      env: POD_INSTALL=true XCODEBUILD_WORKSPACE=Examples/swift/cocoapods/KeenClientExampleSwiftCocoaPods.xcworkspace XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=build
+    - xcode_scheme: KeenClientExampleSwiftCarthage
+      xcode_sdk: iphonesimulator10.3
+      env: CARTHAGE_INSTALL=true XCODEBUILD_PROJECT=Examples/swift/carthage/KeenClientExampleSwiftCarthage.xcodeproj XCODEBUILD_PROJECT_TARGET=KeenClientExampleSwiftCarthage XCODEBUILD_PLATFORM='iOS Simulator' XCODEBUILD_SIM_OS=10.3 XCODEBUILD_DEVICE='iPhone 6' XCODEBUILD_ACTION=build
 
 before_install:
   - gem install bundler

@@ -1,0 +1,4 @@
+target 'KeenClientExampleObjCCocoaPods' do
+    use_frameworks!
+    pod 'KeenClient'
+end

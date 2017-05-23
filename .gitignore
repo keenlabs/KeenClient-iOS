@@ -22,3 +22,9 @@ Gemfile.lock
 
 # Build logs
 xcodebuild*.log
+
+# CocoaPods
+Pods/
+
+# Carthage
+Checkouts/
