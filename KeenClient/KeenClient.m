@@ -589,6 +589,18 @@ static BOOL geoLocationRequestEnabled = YES;
     });
 }
 
+- (AnalysisCompletionBlock)mainQueueCompletionHandler:(AnalysisCompletionBlock)completionHandler {
+    return ^(NSData *data, NSURLResponse *response, NSError *error) {
+        // If there's a completion handler, call it from the main queue
+        if (completionHandler) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // run the user-specific block
+                completionHandler(data, response, error);
+            });
+        }
+    };
+}
+
 - (void)runAsyncMultiAnalysisWithQueries:(NSArray *)keenQueries block:(AnalysisCompletionBlock)block {
     [self runAsyncMultiAnalysisWithQueries:keenQueries completionHandler:block];
 }
@@ -598,16 +610,7 @@ static BOOL geoLocationRequestEnabled = YES;
     dispatch_async(self.queryQueue, ^{
         [self.network runMultiAnalysisWithQueries:keenQueries
                                            config:self.config
-                                completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                                    // we're done querying, call the main queue and execute the block
-                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                        // run the user-specific block (if there is one)
-                                        if (completionHandler) {
-                                            KCLogVerbose(@"Running user-specified block.");
-                                            completionHandler(data, response, error);
-                                        }
-                                    });
-                                }];
+                                completionHandler:[self mainQueueCompletionHandler:completionHandler]];
     });
 }
 
@@ -615,15 +618,20 @@ static BOOL geoLocationRequestEnabled = YES;
     dispatch_async(self.queryQueue, ^{
         [self.network runSavedAnalysis:queryName
                                 config:self.config
-                     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                         // we're done querying, call the main queue and execute the block
-                         dispatch_async(dispatch_get_main_queue(), ^{
-                             // run the user-specific block (if there is one)
-                             if (completionHandler) {
-                                 completionHandler(data, response, error);
-                             }
-                         });
-                     }];
+                     completionHandler:[self mainQueueCompletionHandler:completionHandler]];
+    });
+}
+
+- (void)runAsyncDatasetQuery:(NSString *)datasetName
+                  indexValue:(NSString *)indexValue
+                   timeframe:(NSString *)timeframe
+           completionHandler:(AnalysisCompletionBlock)completionHandler {
+    dispatch_async(self.queryQueue, ^{
+        [self.network runDatasetQuery:datasetName
+                           indexValue:indexValue
+                            timeframe:timeframe
+                               config:self.config
+                    completionHandler:[self mainQueueCompletionHandler:completionHandler]];
     });
 }
 
