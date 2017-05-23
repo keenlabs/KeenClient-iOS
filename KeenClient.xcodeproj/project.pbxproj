@@ -343,7 +343,6 @@
 				017EE12314E30C96000F3868 /* KeenClient */,
 				3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */,
 				017EE13714E30C96000F3868 /* KeenClientTests */,
-				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE11F14E30C96000F3868 /* Products */,
 			);
 			sourceTree = "<group>";
