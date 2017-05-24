@@ -369,7 +369,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 - (void)runAsyncSavedAnalysis:(NSString *)queryName completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
- Gets results from a cached dataset query.
+ Gets results from a cached dataset query, which can be a single or multi-analysis query.
 
  See detailed documentation here: https://keen.io/docs/api/?shell#retrieving-results-from-a-cached-dataset
  and here: https://keen.io/docs/compute/cached-datasets/
