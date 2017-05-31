@@ -6,6 +6,9 @@
 //  Copyright (c) 2012 Keen Labs. All rights reserved.
 //
 
+#import <CoreLocation/CoreLocation.h>
+#import <CFNetwork/CFNetwork.h>
+
 #import "KeenClient.h"
 #import "KeenConstants.h"
 #import "KeenClientConfig.h"
@@ -17,7 +20,6 @@
 #import "KIOFileStore.h"
 #import "KIONetwork.h"
 #import "KIOUploader.h"
-#import <CoreLocation/CoreLocation.h>
 #import "KeenLogger.h"
 #import "KeenLogSinkNSLog.h"
 
@@ -635,6 +637,18 @@ static BOOL geoLocationRequestEnabled = YES;
     });
 }
 
+- (BOOL)setProxy:(NSString *)host port:(NSString *)port {
+    return [self.network setProxy:host port:port];
+}
+
+- (NSString *)getProxyHost {
+    return self.network.proxyHost;
+}
+
+- (NSString *)getProxyPort {
+    return self.network.proxyPort;
+}
+
 - (void)runQuery:(KIOQuery *)keenQuery completionHandler:(AnalysisCompletionBlock)completionHandler {
     [self.network runQuery:keenQuery config:self.config completionHandler:completionHandler];
 }
@@ -643,8 +657,6 @@ static BOOL geoLocationRequestEnabled = YES;
                   completionHandler:(AnalysisCompletionBlock)completionHandler {
     [self.network runMultiAnalysisWithQueries:keenQueries config:self.config completionHandler:completionHandler];
 }
-
-#pragma mark - SDK
 
 + (NSString *)sdkVersion {
     return kKeenSdkVersion;

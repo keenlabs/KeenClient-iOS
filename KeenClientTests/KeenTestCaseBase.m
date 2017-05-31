@@ -20,6 +20,7 @@
 #import "HTTPCodes.h"
 #import "TestDatabaseRequirement.h"
 #import "KIODBStoreTestable.h"
+#import "KIOMockNSURLSessionFactory.h"
 
 #import "KeenTestCaseBase.h"
 
@@ -167,12 +168,14 @@
     // Get mock NSURLSession
     id mockSession =
         [self mockUrlSessionWithResponse:response andResponseData:serializedData andRequestValidator:requestValidator];
+    
+    id<KIONSURLSessionFactory> sessionFactory = [[KIOMockNSURLSessionFactory alloc] initWithSession:mockSession];
 
     // Create/get store
     KIODBStore *store = KIODBStore.sharedInstance;
 
     // Create network
-    KIONetwork *network = [[KIONetwork alloc] initWithURLSession:mockSession andStore:store];
+    KIONetwork *network = [[KIONetwork alloc] initWithURLSessionFactory:sessionFactory andStore:store];
 
     // Create uploader
     KIOUploader *uploader = [[KIOUploader alloc] initWithNetwork:network andStore:store];

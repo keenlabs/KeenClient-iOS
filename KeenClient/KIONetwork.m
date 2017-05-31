@@ -13,6 +13,8 @@
 #import "KIODBStore.h"
 #import "HTTPCodes.h"
 #import "KIOUtil.h"
+#import "KIONSURLSessionFactory.h"
+#import "KIODefaultNSURLSessionFactory.h"
 
 typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMethodPost, KeenHTTPMethodGet };
 
@@ -29,11 +31,15 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
                       andQuery:(KIOQuery *)query
                   andProjectID:(NSString *)projectID;
 
-@property (nonatomic, readwrite) NSURLSession *urlSession;
+- (NSString *)getProjectURL:(NSString *)projectID;
+
+@property (nonatomic, readwrite) id<KIONSURLSessionFactory> urlSessionFactory;
 
 @property (nonatomic) KIODBStore *store;
 
-- (NSString *)getProjectURL:(NSString *)projectID;
+// Internal read/write versions of proxy host and port
+@property (nonatomic, readwrite) NSString *proxyHost;
+@property (nonatomic, readwrite) NSString *proxyPort;
 
 @end
 
@@ -51,24 +57,46 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     // for the block to complete.
     static dispatch_once_t predicate = {0};
     dispatch_once(&predicate, ^{
-        s_sharedInstance =
-            [[KIONetwork alloc] initWithURLSession:[NSURLSession sharedSession] andStore:[KIODBStore sharedInstance]];
+        s_sharedInstance = [[KIONetwork alloc] initWithURLSessionFactory:[KIODefaultNSURLSessionFactory new]
+                                                                andStore:[KIODBStore sharedInstance]];
     });
 
     return s_sharedInstance;
 }
 
-- (instancetype)initWithURLSession:(NSURLSession *)urlSession andStore:(KIODBStore *)store {
+- (instancetype)initWithURLSessionFactory:(id<KIONSURLSessionFactory>)urlSessionFactory andStore:(KIODBStore *)store {
     self = [super init];
 
     if (self) {
         self.maxQueryAttempts = 10;
         self.queryTTL = 3600;
-        self.urlSession = urlSession;
+        self.urlSessionFactory = urlSessionFactory;
         self.store = store;
     }
 
     return self;
+}
+
+- (BOOL)setProxy:(NSString *)host port:(NSString *)port {
+    BOOL success = NO;
+
+    if ((nil == host) != (nil == port)) {
+        // host is nil, but port is set
+        // port is nil, but host is set
+        KCLogError(@"setProxy: host and port must both be nil or both be set");
+        success = NO;
+    } else {
+        if (!host || !port) {
+            self.proxyHost = nil;
+            self.proxyPort = nil;
+        } else {
+            self.proxyHost = host;
+            self.proxyPort = port;
+        }
+        success = YES;
+    }
+
+    return success;
 }
 
 - (NSMutableURLRequest *)createRequestWithUrl:(NSString *)urlString
@@ -105,7 +133,29 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 }
 
 - (void)executeRequest:(NSURLRequest *)request completionHandler:(AnalysisCompletionBlock)completionHandler {
-    NSURLSession *session = self.urlSession;
+    NSURLSession *session;
+    // Use proxy if one has been configured
+    if (self.proxyHost && self.proxyPort) {
+        NSDictionary *proxyDict = @{
+            (__bridge NSString *)kCFNetworkProxiesHTTPEnable: @(YES),
+            (__bridge NSString *)kCFNetworkProxiesHTTPProxy: self.proxyHost,
+            (__bridge NSString *)kCFNetworkProxiesHTTPPort: self.proxyPort,
+
+#if !TARGET_OS_IPHONE
+            (__bridge NSString *)kCFNetworkProxiesHTTPSEnable: @(YES),
+            (__bridge NSString *)kCFNetworkProxiesHTTPSProxy: self.proxyHost,
+            (__bridge NSString *)kCFNetworkProxiesHTTPSPort: self.proxyPort,
+#endif
+        };
+
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+        configuration.connectionProxyDictionary = proxyDict;
+
+        session = [self.urlSessionFactory sessionWithConfiguration:configuration];
+    } else {
+        session = [self.urlSessionFactory session];
+    }
+
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 

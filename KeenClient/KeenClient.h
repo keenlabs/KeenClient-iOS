@@ -118,6 +118,12 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 @property int queryTTL;
 
 /**
+ The current proxy configuration, if set. To set the configuration, use setProxy:port:.
+ */
+@property (nonatomic, getter=getProxyHost) NSString *proxyHost;
+@property (nonatomic, getter=getProxyPort) NSString *proxyPort;
+
+/**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
  to the given parameters.
 
@@ -393,7 +399,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  @param keenQuery The KIOQuery object containing the information about the query.
  @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
  the query results, and an NSURLResponse and NSError objects.
- */
+  */
 - (void)runQuery:(KIOQuery *)keenQuery
     completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
@@ -411,6 +417,14 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
                   completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:completionHandler: instead.");
+
+/**
+ Sets an HTTP proxy server configuration for this client.
+ @param host The proxy hostname or IP address.
+ @param port The proxy port number.
+ @return YES on success, NO on failure
+ */
+- (BOOL)setProxy:(NSString *)host port:(NSString *)port;
 
 /**
  Call this to indiscriminately delete all queries.
@@ -437,7 +451,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 /**
  Returns whether or not logging is currently enabled.
 
- @return true if logging is enabled, false if disabled.
+ @return YES if logging is enabled, NO if disabled.
  */
 + (BOOL)isLoggingEnabled;
 
