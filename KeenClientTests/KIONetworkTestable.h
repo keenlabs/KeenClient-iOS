@@ -11,6 +11,7 @@
 - (void)handleQueryAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
                       andQuery:(KIOQuery *)query
-                  andProjectID:(NSString *)projectID;
+                  andProjectID:(NSString *)projectID
+                      andError:(NSError *)error;
 
 @end

@@ -25,11 +25,13 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
  @param response The response from the server.
  @param responseData The data returned from the server.
  @param query The query that was passed to the Keen API.
+ @param the error returned with the response.
  */
 - (void)handleQueryAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
                       andQuery:(KIOQuery *)query
-                  andProjectID:(NSString *)projectID;
+                  andProjectID:(NSString *)projectID
+                      andError:(NSError *)error;
 
 - (NSString *)getProjectURL:(NSString *)projectID;
 
@@ -39,7 +41,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 
 // Internal read/write versions of proxy host and port
 @property (nonatomic, readwrite) NSString *proxyHost;
-@property (nonatomic, readwrite) NSString *proxyPort;
+@property (nonatomic, readwrite) NSNumber *proxyPort;
 
 @end
 
@@ -77,7 +79,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     return self;
 }
 
-- (BOOL)setProxy:(NSString *)host port:(NSString *)port {
+- (BOOL)setProxy:(NSString *)host port:(NSNumber *)port {
     BOOL success = NO;
 
     if ((nil == host) != (nil == port)) {
@@ -136,26 +138,20 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     NSURLSession *session;
     // Use proxy if one has been configured
     if (self.proxyHost && self.proxyPort) {
-        NSDictionary *proxyDict = @{
-            (__bridge NSString *)kCFNetworkProxiesHTTPEnable: @(YES),
-            (__bridge NSString *)kCFNetworkProxiesHTTPProxy: self.proxyHost,
-            (__bridge NSString *)kCFNetworkProxiesHTTPPort: self.proxyPort,
-
-#if !TARGET_OS_IPHONE
-            (__bridge NSString *)kCFNetworkProxiesHTTPSEnable: @(YES),
-            (__bridge NSString *)kCFNetworkProxiesHTTPSProxy: self.proxyHost,
-            (__bridge NSString *)kCFNetworkProxiesHTTPSPort: self.proxyPort,
-#endif
-        };
-
+        // Create an NSURLSessionConfiguration that uses the proxy
         NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-        configuration.connectionProxyDictionary = proxyDict;
-
+        configuration.connectionProxyDictionary = @{
+            @"HTTPEnable": @(YES),
+            (NSString *)kCFStreamPropertyHTTPProxyHost: self.proxyHost,
+            (NSString *)kCFStreamPropertyHTTPProxyPort: self.proxyPort,
+            @"HTTPSEnable": @(YES),
+            (NSString *)kCFStreamPropertyHTTPSProxyHost: self.proxyHost,
+            (NSString *)kCFStreamPropertyHTTPSProxyPort: self.proxyPort,
+        };
         session = [self.urlSessionFactory sessionWithConfiguration:configuration];
     } else {
         session = [self.urlSessionFactory session];
     }
-
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
@@ -215,18 +211,25 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     NSString *projectID = config.projectID;
     [self executeRequest:request
         completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-            [self handleQueryAPIResponse:response andData:data andQuery:keenQuery andProjectID:projectID];
-            completionHandler(data, response, error);
+            [self handleQueryAPIResponse:response
+                                 andData:data
+                                andQuery:keenQuery
+                            andProjectID:projectID
+                                andError:error];
+            if (nil != completionHandler) {
+                completionHandler(data, response, error);
+            }
         }];
 }
 
 - (void)handleQueryAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
                       andQuery:(KIOQuery *)query
-                  andProjectID:(NSString *)projectID {
+                  andProjectID:(NSString *)projectID
+                      andError:(NSError *)error {
     // Check if call to the Query API failed
-    if (!responseData) {
-        KCLogError(@"responseData was nil for some reason.  That's not great.");
+    if (nil == responseData || nil != error) {
+        KCLogError(@"Error reading response. error: %@\nresponse data: %@", error, responseData);
         KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse *)response)statusCode]);
         return;
     }

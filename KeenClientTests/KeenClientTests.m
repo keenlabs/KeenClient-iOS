@@ -149,10 +149,10 @@
 - (void)testProxy {
     KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
 
-    BOOL success = [client setProxy:@"127.0.0.1" port:@"8888"];
+    BOOL success = [client setProxy:@"127.0.0.1" port:@(8888)];
     XCTAssertTrue(success);
-    XCTAssertEqual(client.proxyHost, @"127.0.0.1");
-    XCTAssertEqual(client.proxyPort, @"8888");
+    XCTAssertEqualObjects(client.proxyHost, @"127.0.0.1");
+    XCTAssertEqualObjects(client.proxyPort, @(8888));
 
     success = [client setProxy:nil port:nil];
     XCTAssertTrue(success);
@@ -164,7 +164,7 @@
     XCTAssertNil(client.proxyHost);
     XCTAssertNil(client.proxyPort);
 
-    success = [client setProxy:nil port:@"8888"];
+    success = [client setProxy:nil port:@(8888)];
     XCTAssertFalse(success);
     XCTAssertNil(client.proxyHost);
     XCTAssertNil(client.proxyPort);

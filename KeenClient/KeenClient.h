@@ -121,7 +121,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  The current proxy configuration, if set. To set the configuration, use setProxy:port:.
  */
 @property (nonatomic, readonly, getter=getProxyHost) NSString *proxyHost;
-@property (nonatomic, readonly, getter=getProxyPort) NSString *proxyPort;
+@property (nonatomic, readonly, getter=getProxyPort) NSNumber *proxyPort;
 
 /**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
@@ -424,7 +424,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  @param port The proxy port number.
  @return YES on success, NO on failure
  */
-- (BOOL)setProxy:(NSString *)host port:(NSString *)port;
+- (BOOL)setProxy:(NSString *)host port:(NSNumber *)port;
 
 /**
  Call this to indiscriminately delete all queries.

@@ -21,7 +21,7 @@
 - (instancetype)initWithURLSessionFactory:(id<KIONSURLSessionFactory>)urlSessionFactory andStore:(KIODBStore *)store;
 
 // Configure a proxy server
-- (BOOL)setProxy:(NSString *)host port:(NSString *)port;
+- (BOOL)setProxy:(NSString *)host port:(NSNumber *)port;
 
 // Upload events to keen
 - (void)sendEvents:(NSData *)data
@@ -61,6 +61,6 @@
 
 // The current proxy configuration, if set. To set the configuration, use setProxy:port:.
 @property (nonatomic, readonly) NSString *proxyHost;
-@property (nonatomic, readonly) NSString *proxyPort;
+@property (nonatomic, readonly) NSNumber *proxyPort;
 
 @end

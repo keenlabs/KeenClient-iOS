@@ -637,7 +637,7 @@ static BOOL geoLocationRequestEnabled = YES;
     });
 }
 
-- (BOOL)setProxy:(NSString *)host port:(NSString *)port {
+- (BOOL)setProxy:(NSString *)host port:(NSNumber *)port {
     return [self.network setProxy:host port:port];
 }
 
@@ -645,7 +645,7 @@ static BOOL geoLocationRequestEnabled = YES;
     return self.network.proxyHost;
 }
 
-- (NSString *)getProxyPort {
+- (NSNumber *)getProxyPort {
     return self.network.proxyPort;
 }
 

@@ -345,7 +345,7 @@
                                                             headerFields:@{}];
     NSData *responseData = [@"query failed" dataUsingEncoding:NSUTF8StringEncoding];
 
-    [client.network handleQueryAPIResponse:response andData:responseData andQuery:nil andProjectID:kDefaultProjectID];
+    [client.network handleQueryAPIResponse:response andData:responseData andQuery:nil andProjectID:kDefaultProjectID andError:nil];
 
     // test that there are no entries in the query database
     XCTAssertEqual([KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID],
@@ -371,7 +371,7 @@
             @"event_collection": @"collection"
         }];
 
-    [client.network handleQueryAPIResponse:response andData:responseData andQuery:query andProjectID:kDefaultProjectID];
+    [client.network handleQueryAPIResponse:response andData:responseData andQuery:query andProjectID:kDefaultProjectID andError:nil];
 
     NSUInteger numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID];
 
@@ -387,7 +387,8 @@
     [client.network handleQueryAPIResponse:response
                                    andData:responseData
                                   andQuery:query2
-                              andProjectID:kDefaultProjectID];
+                              andProjectID:kDefaultProjectID
+                                  andError:nil];
 
     numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID];
     XCTAssertEqual(
@@ -397,7 +398,8 @@
     [client.network handleQueryAPIResponse:response
                                    andData:responseData
                                   andQuery:query2
-                              andProjectID:kDefaultProjectID];
+                              andProjectID:kDefaultProjectID
+                                  andError:nil];
 
     numberOfQueries = [KIODBStore.sharedInstance getTotalQueryCountWithProjectID:kDefaultProjectID];
     XCTAssertEqual(numberOfQueries,
