@@ -8,7 +8,7 @@ pushd $SCRIPT_PATH
 SCRIPT_FULL_PATH=$(pwd)
 popd
 
-CARTHAGE_GIT_ROOT=$SCRIPT_FULL_PATH/../../KeenClient-iOS
+CARTHAGE_GIT_ROOT=$(cd $SCRIPT_FULL_PATH/..;pwd)
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
