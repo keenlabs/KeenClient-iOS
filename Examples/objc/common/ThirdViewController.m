@@ -69,7 +69,7 @@
     // Async querying
     KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count"
                                    andPropertiesDictionary:@{
-                                       @"event_collection": @"collection",
+                                       @"event_collection": @"tab_views",
                                        @"timeframe": @"this_7_days"
                                    }];
 
