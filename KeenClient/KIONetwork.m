@@ -12,6 +12,7 @@
 #import "KIOFileStore.h"
 #import "KIODBStore.h"
 #import "HTTPCodes.h"
+#import "KIOUtil.h"
 
 typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMethodPost, KeenHTTPMethodGet };
 
@@ -126,6 +127,10 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 - (void)sendEvents:(NSData *)data
                config:(KeenClientConfig *)config
     completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.writeKey);
+    IF_NIL_COMPLETE(data);
+
     NSString *urlString = [NSString stringWithFormat:@"%@/events", [self getProjectURL:config.projectID]];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
@@ -138,6 +143,10 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 - (void)runQuery:(KIOQuery *)keenQuery
                config:(KeenClientConfig *)config
     completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.readKey);
+    IF_NIL_COMPLETE(keenQuery);
+
     BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery withProjectID:config.projectID];
     if (hasQueryWithMaxAttempts) {
         KCLogWarn(@"Not running query because it failed over %d times", self.maxQueryAttempts);
@@ -237,6 +246,10 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
                              config:(KeenClientConfig *)config
                   completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.readKey);
+    IF_NIL_COMPLETE(keenQueries);
+
     NSString *urlString =
         [NSString stringWithFormat:@"%@/queries/%@", [self getProjectURL:config.projectID], @"multi_analysis"];
     KCLogVerbose(@"Sending request to: %@", urlString);
@@ -265,12 +278,39 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     [self executeRequest:request completionHandler:completionHandler];
 }
 
-// Run a saved/cached query request
 - (void)runSavedAnalysis:(NSString *)queryName
                   config:(KeenClientConfig *)config
        completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.readKey);
+    IF_STRING_EMPTY_COMPLETE(queryName);
+
     NSString *urlString =
         [NSString stringWithFormat:@"%@/queries/saved/%@/result", [self getProjectURL:config.projectID], queryName];
+    KCLogVerbose(@"Sending request to: %@", urlString);
+
+    NSMutableURLRequest *request =
+        [self createRequestWithUrl:urlString andMethod:KeenHTTPMethodGet andBody:nil andKey:config.readKey];
+
+    [self executeRequest:request completionHandler:completionHandler];
+}
+
+- (void)runDatasetQuery:(NSString *)datasetName
+             indexValue:(NSString *)indexValue
+              timeframe:(NSString *)timeframe
+                 config:(KeenClientConfig *)config
+      completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.readKey);
+    IF_STRING_EMPTY_COMPLETE(datasetName);
+    IF_STRING_EMPTY_COMPLETE(indexValue);
+    IF_STRING_EMPTY_COMPLETE(timeframe);
+
+    // Could use NSURLComponents and NSURLQueryItem for building this URL once we drop iOS 7- support
+    NSString *queryString = [[NSString stringWithFormat:@"index_by=%@&timeframe=%@", indexValue, timeframe]
+        stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *urlString = [NSString
+        stringWithFormat:@"%@/datasets/%@/results?%@", [self getProjectURL:config.projectID], datasetName, queryString];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest *request =

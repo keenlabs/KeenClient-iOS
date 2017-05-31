@@ -35,3 +35,33 @@
 + (id)convertDate:(id)date;
 
 @end
+
+#define IF_STRING_EMPTY_RETURN(argument) \
+if (nil == argument || argument.length <= 0) { \
+    NSError *error; \
+    [KIOUtil handleError:&error withErrorMessage:@"'" @#argument @"' must be set and not empty"]; \
+    return; \
+}
+
+#define IF_STRING_EMPTY_COMPLETE(argument) \
+if (nil == argument || argument.length <= 0) { \
+    NSError *error; \
+    [KIOUtil handleError:&error withErrorMessage:@"'" @#argument @"' must be set and not empty"]; \
+    completionHandler(nil, nil, error); \
+    return; \
+}
+
+#define IF_NIL_RETURN(argument) \
+if (nil == argument) { \
+    NSError *error; \
+    [KIOUtil handleError:&error withErrorMessage:@"'" @#argument @"' must not be nil"]; \
+    return; \
+}
+
+#define IF_NIL_COMPLETE(argument) \
+if (nil == argument) { \
+    NSError *error; \
+    [KIOUtil handleError:&error withErrorMessage:@"'" @#argument @"' must not be nil"]; \
+    completionHandler(nil, nil, error); \
+    return; \
+}

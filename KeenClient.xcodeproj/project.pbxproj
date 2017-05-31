@@ -122,6 +122,8 @@
 		48AC67E11E8348BA00E9C0A9 /* KIOUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */; };
 		48AC67E21E8348BA00E9C0A9 /* KIOUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */; };
 		48AC67E31E8348BA00E9C0A9 /* KIOUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */; };
+		48CAA1781ED60792003C2008 /* DatasetTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 48CAA1771ED60792003C2008 /* DatasetTests.m */; };
+		48CAA17A1ED609F8003C2008 /* DatasetResponseBody.json in Resources */ = {isa = PBXBuildFile; fileRef = 48CAA1791ED609F8003C2008 /* DatasetResponseBody.json */; };
 		48E9F0C61EC255D1009A1BF8 /* FileStoreMigrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E9F0C51EC255D1009A1BF8 /* FileStoreMigrationTests.m */; };
 		48E9F0C91EC2563F009A1BF8 /* GlobalPropertiesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E9F0C81EC2563F009A1BF8 /* GlobalPropertiesTests.m */; };
 		48E9F0CC1EC25719009A1BF8 /* SdkTrackingHeaderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 48E9F0CB1EC25719009A1BF8 /* SdkTrackingHeaderTests.m */; };
@@ -179,15 +181,9 @@
 		017EE13B14E30C96000F3868 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		017EE13D14E30C96000F3868 /* KeenClientTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenClientTests.h; sourceTree = "<group>"; };
 		017EE13E14E30C96000F3868 /* KeenClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KeenClientTests.m; sourceTree = "<group>"; };
-		01A9A34414FE953D0082AB22 /* index.markdown */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = index.markdown; path = docs/index.markdown; sourceTree = "<group>"; };
 		01BA1B0314E895BC00CF9F84 /* KeenConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenConstants.h; sourceTree = "<group>"; };
 		01BA1B0414E895BC00CF9F84 /* KeenConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenConstants.m; sourceTree = "<group>"; };
 		1296396319C10AD200B2B653 /* libKeenClient-Cocoa.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libKeenClient-Cocoa.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		1296396419C10AD200B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		1296396719C10AD200B2B653 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1296396819C10AD200B2B653 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		1296396919C10AD200B2B653 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		1296397519C10AD200B2B653 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		1296398C19C10B8500B2B653 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		3E1EA1D71C499BE000111153 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
 		3E1EA1D81C499BE000111153 /* OCMArg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
@@ -243,6 +239,9 @@
 		48AC67D51E833C2D00E9C0A9 /* KIONetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIONetwork.m; sourceTree = "<group>"; };
 		48AC67DC1E8348BA00E9C0A9 /* KIOUploader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOUploader.h; sourceTree = "<group>"; };
 		48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOUploader.m; sourceTree = "<group>"; };
+		48CAA1761ED60792003C2008 /* DatasetTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasetTests.h; sourceTree = "<group>"; };
+		48CAA1771ED60792003C2008 /* DatasetTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatasetTests.m; sourceTree = "<group>"; };
+		48CAA1791ED609F8003C2008 /* DatasetResponseBody.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = DatasetResponseBody.json; sourceTree = "<group>"; };
 		48E9F0C31EC24CA8009A1BF8 /* KIODBStoreTestable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KIODBStoreTestable.h; sourceTree = "<group>"; };
 		48E9F0C41EC255D1009A1BF8 /* FileStoreMigrationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileStoreMigrationTests.h; sourceTree = "<group>"; };
 		48E9F0C51EC255D1009A1BF8 /* FileStoreMigrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileStoreMigrationTests.m; sourceTree = "<group>"; };
@@ -258,7 +257,6 @@
 		CA6410D718E37E7C00E53E3C /* KIODBStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIODBStore.m; sourceTree = "<group>"; wrapsLines = 0; };
 		CA6410E018E39F3A00E53E3C /* KIODBStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIODBStoreTests.h; sourceTree = "<group>"; };
 		CA6410E118E39F3A00E53E3C /* KIODBStoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIODBStoreTests.m; sourceTree = "<group>"; };
-		CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		CACE78C918EA0CD800A4AB5B /* KIODBStorePrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KIODBStorePrivate.h; sourceTree = "<group>"; };
 		DE34F6F0197586EE00051390 /* keen_io_sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = keen_io_sqlite3.c; sourceTree = "<group>"; };
 		DE34F6F1197586EE00051390 /* keen_io_sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keen_io_sqlite3.h; sourceTree = "<group>"; };
@@ -343,7 +341,6 @@
 				017EE12314E30C96000F3868 /* KeenClient */,
 				3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */,
 				017EE13714E30C96000F3868 /* KeenClientTests */,
-				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE11F14E30C96000F3868 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -357,23 +354,6 @@
 				3EE9A72C1C59873F00B7B2D9 /* KeenClient.framework */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		017EE12014E30C96000F3868 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1296398C19C10B8500B2B653 /* Cocoa.framework */,
-				1296396419C10AD200B2B653 /* Cocoa.framework */,
-				012E8A5C1672BE860021F6FA /* CoreLocation.framework */,
-				017EE12114E30C96000F3868 /* Foundation.framework */,
-				CA795C4D18E32BAB00EBDFC4 /* libsqlite3.dylib */,
-				1296396619C10AD200B2B653 /* Other Frameworks */,
-				3EE5CAA11AF06A0700D6C48D /* SystemConfiguration.framework */,
-				F4D3B61D1A0D98B4000825FE /* SystemConfiguration.framework */,
-				017EE13114E30C96000F3868 /* UIKit.framework */,
-				1296397519C10AD200B2B653 /* XCTest.framework */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		017EE12314E30C96000F3868 /* KeenClient */ = {
@@ -436,14 +416,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		01A9A34314FE95210082AB22 /* docs */ = {
-			isa = PBXGroup;
-			children = (
-				01A9A34414FE953D0082AB22 /* index.markdown */,
-			);
-			name = docs;
-			sourceTree = "<group>";
-		};
 		01BA1AD414E77DC600CF9F84 /* Library */ = {
 			isa = PBXGroup;
 			children = (
@@ -453,16 +425,6 @@
 				3E1EA1E21C49A07000111153 /* libOCMock.a */,
 			);
 			path = Library;
-			sourceTree = "<group>";
-		};
-		1296396619C10AD200B2B653 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1296396719C10AD200B2B653 /* Foundation.framework */,
-				1296396819C10AD200B2B653 /* CoreData.framework */,
-				1296396919C10AD200B2B653 /* AppKit.framework */,
-			);
-			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
 		3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */ = {
@@ -508,6 +470,7 @@
 		48E9F0D11EC25A1D009A1BF8 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				48CAA1791ED609F8003C2008 /* DatasetResponseBody.json */,
 				48E9F0C41EC255D1009A1BF8 /* FileStoreMigrationTests.h */,
 				48E9F0C51EC255D1009A1BF8 /* FileStoreMigrationTests.m */,
 				48E9F0C71EC2563F009A1BF8 /* GlobalPropertiesTests.h */,
@@ -530,6 +493,8 @@
 				48E9F0CB1EC25719009A1BF8 /* SdkTrackingHeaderTests.m */,
 				481496EA1EC3832C00A9DEED /* SavedQueryTests.h */,
 				481496EB1EC3832C00A9DEED /* SavedQueryTests.m */,
+				48CAA1761ED60792003C2008 /* DatasetTests.h */,
+				48CAA1771ED60792003C2008 /* DatasetTests.m */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -749,6 +714,7 @@
 			files = (
 				017EE13C14E30C96000F3868 /* InfoPlist.strings in Resources */,
 				482CB31D1E552F5300FCFACF /* corrupt.sqlite in Resources */,
+				48CAA17A1ED609F8003C2008 /* DatasetResponseBody.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -807,6 +773,7 @@
 			files = (
 				CA6410E218E39F3A00E53E3C /* KIODBStoreTests.m in Sources */,
 				486B596E1EB29B0A00D5251D /* KeenTestCaseBase.m in Sources */,
+				48CAA1781ED60792003C2008 /* DatasetTests.m in Sources */,
 				48E9F0C61EC255D1009A1BF8 /* FileStoreMigrationTests.m in Sources */,
 				3E63D9F71AE7425000E57A17 /* KIOQueryTests.m in Sources */,
 				48E9F0CC1EC25719009A1BF8 /* SdkTrackingHeaderTests.m in Sources */,

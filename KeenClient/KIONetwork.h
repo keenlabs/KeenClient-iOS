@@ -39,6 +39,13 @@
                   config:(KeenClientConfig *)config
        completionHandler:(AnalysisCompletionBlock)completionHandler;
 
+// Run a dataset-based query request
+- (void)runDatasetQuery:(NSString *)datasetName
+             indexValue:(NSString *)indexValue
+              timeframe:(NSString *)timeframe
+                 config:(KeenClientConfig *)config
+      completionHandler:(AnalysisCompletionBlock)completionHandler;
+
 // The maximum number of times to try a query before stop attempting it.
 @property int maxQueryAttempts;
 

@@ -104,6 +104,19 @@
     NSString* savedQueryName = @"saved_count";
     [[KeenClient sharedClient] runAsyncSavedAnalysis:savedQueryName completionHandler:countQueryCompleted];
     */
+
+    // Dataset query example
+    /*
+    [[KeenClient sharedClient]
+        runAsyncDatasetQuery:@"dataset_name"
+                  indexValue:@"0"
+                   timeframe:@"this_7_days"
+           completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
+               NSDictionary *responseDictionary =
+                   [NSJSONSerialization JSONObjectWithData:responseData options:kNilOptions error:nil];
+               NSLog(@"Response:\n%@", [responseDictionary objectForKey:@"result"]);
+           }];
+     */
 }
 
 @end

@@ -369,6 +369,23 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 - (void)runAsyncSavedAnalysis:(NSString *)queryName completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
+ Gets results from a cached dataset query, which can be a single or multi-analysis query.
+
+ See detailed documentation here: https://keen.io/docs/api/?shell#retrieving-results-from-a-cached-dataset
+ and here: https://keen.io/docs/compute/cached-datasets/
+
+ Results will be grouped by the interval specified in the dataset definition.
+
+ @param datasetName The existing dataset resource name.
+ @param indexValue The required value in the index to retrieve results for.
+ @param timeframe The required timeframe to retrieve results for, which must be a subset of the timeframe specified in the dataset definition.
+ */
+- (void)runAsyncDatasetQuery:(NSString *)datasetName
+                  indexValue:(NSString *)indexValue
+                   timeframe:(NSString *)timeframe
+           completionHandler:(AnalysisCompletionBlock)completionHandler;
+
+/**
  Runs a synchronous query.
 
  This method is only used for testing.
@@ -376,7 +393,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  @param keenQuery The KIOQuery object containing the information about the query.
  @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
  the query results, and an NSURLResponse and NSError objects.
-  */
+ */
 - (void)runQuery:(KIOQuery *)keenQuery
     completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
