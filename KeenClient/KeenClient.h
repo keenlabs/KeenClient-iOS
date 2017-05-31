@@ -120,8 +120,8 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 /**
  The current proxy configuration, if set. To set the configuration, use setProxy:port:.
  */
-@property (nonatomic, getter=getProxyHost) NSString *proxyHost;
-@property (nonatomic, getter=getProxyPort) NSString *proxyPort;
+@property (nonatomic, readonly, getter=getProxyHost) NSString *proxyHost;
+@property (nonatomic, readonly, getter=getProxyPort) NSString *proxyPort;
 
 /**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
