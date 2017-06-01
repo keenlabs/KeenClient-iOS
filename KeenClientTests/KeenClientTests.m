@@ -147,27 +147,101 @@
 }
 
 - (void)testProxy {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:@"id" andWriteKey:@"wk" andReadKey:@"rk"];
+    NSString *proxyHost = @"127.0.0.1";
+    NSNumber *proxyPort = @(8888);
 
-    BOOL success = [client setProxy:@"127.0.0.1" port:@(8888)];
+    NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@""]
+                                                              statusCode:HTTPCode200OK
+                                                             HTTPVersion:nil
+                                                            headerFields:nil];
+    NSData *responseData = [@"{}" dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSURLSession *session =
+        [self mockUrlSessionWithResponse:response andResponseData:responseData andRequestValidator:nil];
+
+    KIODBStore *store = [[KIODBStore alloc] init];
+
+    // Build a session configuration as expected with the enabled proxy
+    NSURLSessionConfiguration *expectedConfiguration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    expectedConfiguration.connectionProxyDictionary = @{
+        @"HTTPEnable": @(YES),
+        (NSString *)kCFStreamPropertyHTTPProxyHost: proxyHost,
+        (NSString *)kCFStreamPropertyHTTPProxyPort: proxyPort,
+        @"HTTPSEnable": @(YES),
+        (NSString *)kCFStreamPropertyHTTPSProxyHost: proxyHost,
+        (NSString *)kCFStreamPropertyHTTPSProxyPort: proxyPort,
+    };
+
+    // Expect the correct configuration to be called
+    id mockSessionFactory = [OCMockObject mockForProtocol:@protocol(KIONSURLSessionFactory)];
+
+    [[[mockSessionFactory expect] andReturn:session]
+        sessionWithConfiguration:[OCMArg checkWithBlock:^BOOL(NSURLSessionConfiguration *configuration) {
+            XCTAssertEqualObjects(configuration.connectionProxyDictionary,
+                                  expectedConfiguration.connectionProxyDictionary);
+            return @(YES);
+        }]];
+
+    KIONetwork *network = [[KIONetwork alloc] initWithURLSessionFactory:mockSessionFactory andStore:store];
+
+    KIOUploader *uploader = [[KIOUploader alloc] initWithNetwork:network andStore:store];
+
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey
+                                                    andNetwork:network
+                                                      andStore:store
+                                                   andUploader:uploader];
+
+    BOOL success = [client setProxy:proxyHost port:proxyPort];
     XCTAssertTrue(success);
-    XCTAssertEqualObjects(client.proxyHost, @"127.0.0.1");
-    XCTAssertEqualObjects(client.proxyPort, @(8888));
+    XCTAssertEqualObjects(client.proxyHost, proxyHost);
+    XCTAssertEqualObjects(client.proxyPort, proxyPort);
+
+    // Add an event and upload it
+    NSError *error;
+    [client addEvent:@{ @"some_key": @"some_value" } toEventCollection:@"collection" error:&error];
+    XCTAssertNil(error);
+
+    XCTestExpectation *uploadFinished = [self expectationWithDescription:@"upload finished"];
+    [client uploadWithFinishedBlock:^{
+        [uploadFinished fulfill];
+    }];
+
+    // Wait for the upload to complete, with mock validating configuration parameter
+    [self waitForExpectations:@[uploadFinished] timeout:kTestExpectationTimeoutInterval];
 
     success = [client setProxy:nil port:nil];
     XCTAssertTrue(success);
     XCTAssertNil(client.proxyHost);
     XCTAssertNil(client.proxyPort);
 
-    success = [client setProxy:@"127.0.0.1" port:nil];
+    // Expect another call, but this time for the default session since no proxy is set
+    [[[mockSessionFactory expect] andReturn:session] session];
+    // Add an event and upload it
+    [client addEvent:@{ @"some_second_key": @"some_second_value" } toEventCollection:@"second_collection" error:&error];
+    XCTAssertNil(error);
+
+    XCTestExpectation *secondUploadFinished = [self expectationWithDescription:@"second upload finished"];
+    [client uploadWithFinishedBlock:^{
+        [secondUploadFinished fulfill];
+    }];
+
+    // Wait for the upload to complete, with mock validating configuration parameter
+    [self waitForExpectations:@[secondUploadFinished] timeout:kTestExpectationTimeoutInterval];
+
+    success = [client setProxy:proxyHost port:nil];
     XCTAssertFalse(success);
     XCTAssertNil(client.proxyHost);
     XCTAssertNil(client.proxyPort);
 
-    success = [client setProxy:nil port:@(8888)];
+    success = [client setProxy:nil port:proxyPort];
     XCTAssertFalse(success);
     XCTAssertNil(client.proxyHost);
     XCTAssertNil(client.proxyPort);
+
+    // Ensure all expected calls were made
+    [mockSessionFactory verify];
 }
 
 @end
