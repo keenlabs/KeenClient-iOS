@@ -25,7 +25,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
  @param response The response from the server.
  @param responseData The data returned from the server.
  @param query The query that was passed to the Keen API.
- @param the error returned with the response.
+ @param error The error returned with the response.
  */
 - (void)handleQueryAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
