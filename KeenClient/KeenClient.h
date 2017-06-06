@@ -384,7 +384,8 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 
  @param datasetName The existing dataset resource name.
  @param indexValue The required value in the index to retrieve results for.
- @param timeframe The required timeframe to retrieve results for, which must be a subset of the timeframe specified in the dataset definition.
+ @param timeframe The required timeframe to retrieve results for, which must be a subset of the timeframe specified in
+ the dataset definition.
  */
 - (void)runAsyncDatasetQuery:(NSString *)datasetName
                   indexValue:(NSString *)indexValue
@@ -399,7 +400,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  @param keenQuery The KIOQuery object containing the information about the query.
  @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
  the query results, and an NSURLResponse and NSError objects.
-  */
+ */
 - (void)runQuery:(KIOQuery *)keenQuery
     completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
@@ -413,7 +414,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  the event_collection property.
  @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
  the query results, and an NSURLResponse and NSError objects.
-  */
+ */
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
                   completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:completionHandler: instead.");
