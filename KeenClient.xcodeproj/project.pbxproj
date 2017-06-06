@@ -101,7 +101,6 @@
 		487715101EDF4FB400012B0B /* KeenLogSinkNSLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 481A9B7B1E5690950094B985 /* KeenLogSinkNSLog.m */; };
 		487715111EDF4FF100012B0B /* KeenLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 48583E061E58CDE2002CFD99 /* KeenLogger.m */; };
 		487715121EDF535D00012B0B /* KIODefaultNSURLSessionFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 487715091EDF474F00012B0B /* KIODefaultNSURLSessionFactory.m */; };
-		487715151EDF53E600012B0B /* KIOMockNSURLSessionFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 487715141EDF53E600012B0B /* KIOMockNSURLSessionFactory.m */; };
 		488892441EC12D06008C6024 /* KeenEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 488892431EC12D06008C6024 /* KeenEventTests.m */; };
 		4888924A1EC12E81008C6024 /* KeenGeoLocationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 488892491EC12E81008C6024 /* KeenGeoLocationTests.m */; };
 		4888924D1EC13C21008C6024 /* TestDatabaseRequirement.m in Sources */ = {isa = PBXBuildFile; fileRef = 4888924C1EC13C21008C6024 /* TestDatabaseRequirement.m */; };
@@ -230,8 +229,6 @@
 		487715091EDF474F00012B0B /* KIODefaultNSURLSessionFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIODefaultNSURLSessionFactory.m; sourceTree = "<group>"; };
 		4877150A1EDF474F00012B0B /* KIODefaultNSURLSessionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIODefaultNSURLSessionFactory.h; sourceTree = "<group>"; };
 		4877150B1EDF474F00012B0B /* KIONSURLSessionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIONSURLSessionFactory.h; sourceTree = "<group>"; };
-		487715131EDF53E600012B0B /* KIOMockNSURLSessionFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIOMockNSURLSessionFactory.h; sourceTree = "<group>"; };
-		487715141EDF53E600012B0B /* KIOMockNSURLSessionFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOMockNSURLSessionFactory.m; sourceTree = "<group>"; };
 		488892421EC12D06008C6024 /* KeenEventTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenEventTests.h; sourceTree = "<group>"; };
 		488892431EC12D06008C6024 /* KeenEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenEventTests.m; sourceTree = "<group>"; };
 		488892481EC12E81008C6024 /* KeenGeoLocationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenGeoLocationTests.h; sourceTree = "<group>"; };
@@ -503,8 +500,6 @@
 				481496EB1EC3832C00A9DEED /* SavedQueryTests.m */,
 				48CAA1761ED60792003C2008 /* DatasetTests.h */,
 				48CAA1771ED60792003C2008 /* DatasetTests.m */,
-				487715131EDF53E600012B0B /* KIOMockNSURLSessionFactory.h */,
-				487715141EDF53E600012B0B /* KIOMockNSURLSessionFactory.m */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -788,7 +783,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				487715151EDF53E600012B0B /* KIOMockNSURLSessionFactory.m in Sources */,
 				CA6410E218E39F3A00E53E3C /* KIODBStoreTests.m in Sources */,
 				486B596E1EB29B0A00D5251D /* KeenTestCaseBase.m in Sources */,
 				48CAA1781ED60792003C2008 /* DatasetTests.m in Sources */,

@@ -20,7 +20,6 @@
 #import "HTTPCodes.h"
 #import "TestDatabaseRequirement.h"
 #import "KIODBStoreTestable.h"
-#import "KIOMockNSURLSessionFactory.h"
 
 #import "KeenTestCaseBase.h"
 
@@ -169,13 +168,15 @@
     id mockSession =
         [self mockUrlSessionWithResponse:response andResponseData:serializedData andRequestValidator:requestValidator];
     
-    id<KIONSURLSessionFactory> sessionFactory = [[KIOMockNSURLSessionFactory alloc] initWithSession:mockSession];
-
+    id mockSessionFactory = OCMProtocolMock(@protocol(KIONSURLSessionFactory));
+    OCMStub([mockSessionFactory session]).andReturn(mockSession);
+    OCMStub([mockSessionFactory sessionWithConfiguration:[OCMArg any]]).andReturn(mockSession);
+    
     // Create/get store
     KIODBStore *store = KIODBStore.sharedInstance;
 
     // Create network
-    KIONetwork *network = [[KIONetwork alloc] initWithURLSessionFactory:sessionFactory andStore:store];
+    KIONetwork *network = [[KIONetwork alloc] initWithURLSessionFactory:mockSessionFactory andStore:store];
 
     // Create uploader
     KIOUploader *uploader = [[KIOUploader alloc] initWithNetwork:network andStore:store];
