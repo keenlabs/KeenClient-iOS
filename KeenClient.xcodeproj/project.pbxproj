@@ -110,6 +110,10 @@
 		48AC67E11E8348BA00E9C0A9 /* KIOUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */; };
 		48AC67E21E8348BA00E9C0A9 /* KIOUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */; };
 		48AC67E31E8348BA00E9C0A9 /* KIOUploader.m in Sources */ = {isa = PBXBuildFile; fileRef = 48AC67DD1E8348BA00E9C0A9 /* KIOUploader.m */; };
+		48D0C3D11EC61BAF00329D37 /* KeenLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 48583E051E58CDE2002CFD99 /* KeenLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		48D0C3D21EC61BB500329D37 /* KeenLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 48583E051E58CDE2002CFD99 /* KeenLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		48D0C3D51EC61DC800329D37 /* KeenLogSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 481A9B711E5687EA0094B985 /* KeenLogSink.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		48D0C3D61EC61DCC00329D37 /* KeenLogSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 481A9B711E5687EA0094B985 /* KeenLogSink.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */ = {isa = PBXBuildFile; fileRef = A51E31221B03C6EF00008248 /* HTTPCodes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A51E31251B03C6EF00008248 /* HTTPCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = A51E31231B03C6EF00008248 /* HTTPCodes.m */; };
 		CA6410D818E37E7C00E53E3C /* KIODBStore.h in Headers */ = {isa = PBXBuildFile; fileRef = CA6410D618E37E7C00E53E3C /* KIODBStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -480,15 +484,15 @@
 				480FEB711E846F7500641112 /* KIOUtil.h in Headers */,
 				48AC67CB1E83364100E9C0A9 /* KIOFileStore.h in Headers */,
 				0105EE9A14E9A9C80048D871 /* KeenClient.h in Headers */,
-				48583E071E58CDE2002CFD99 /* KeenLogger.h in Headers */,
 				48AC67DE1E8348BA00E9C0A9 /* KIOUploader.h in Headers */,
 				012E8A561672B9A90021F6FA /* KeenProperties.h in Headers */,
 				CA6410D818E37E7C00E53E3C /* KIODBStore.h in Headers */,
 				48AC67D61E833C2D00E9C0A9 /* KIONetwork.h in Headers */,
+				48583E071E58CDE2002CFD99 /* KeenLogger.h in Headers */,
+				481A9B7E1E5691270094B985 /* KeenLogSink.h in Headers */,
 				A51E31241B03C6EF00008248 /* HTTPCodes.h in Headers */,
 				F4D3B6021A0D8EB4000825FE /* KIOReachability.h in Headers */,
 				3E63D9F01AE7356C00E57A17 /* KIOQuery.h in Headers */,
-				481A9B7E1E5691270094B985 /* KeenLogSink.h in Headers */,
 				DE34F6F6197586EE00051390 /* keen_io_sqlite3.h in Headers */,
 				DE34F6F9197586EE00051390 /* keen_io_sqlite3ext.h in Headers */,
 				01BA1B0514E895BC00CF9F84 /* KeenConstants.h in Headers */,
@@ -507,6 +511,8 @@
 				1296399119C10D0000B2B653 /* KeenProperties.h in Headers */,
 				FA4A14EA1EC6298D0002E6CC /* KeenLogger.h in Headers */,
 				1296399319C10D0000B2B653 /* KIODBStore.h in Headers */,
+				48D0C3D11EC61BAF00329D37 /* KeenLogger.h in Headers */,
+				48D0C3D61EC61DCC00329D37 /* KeenLogSink.h in Headers */,
 				48AC67D71E833C2D00E9C0A9 /* KIONetwork.h in Headers */,
 				125D31A91B0E335300DFCC97 /* HTTPCodes.h in Headers */,
 				F4D3B6051A0D8EB4000825FE /* KIOReachability.h in Headers */,
@@ -531,6 +537,8 @@
 				FA4A14CD1EC623740002E6CC /* KeenLogSinkNSLog.h in Headers */,
 				48AC67CD1E83364100E9C0A9 /* KIOFileStore.h in Headers */,
 				3EE9A7441C5988F100B7B2D9 /* KeenProperties.h in Headers */,
+				48D0C3D21EC61BB500329D37 /* KeenLogger.h in Headers */,
+				48D0C3D51EC61DC800329D37 /* KeenLogSink.h in Headers */,
 				48AC67E01E8348BA00E9C0A9 /* KIOUploader.h in Headers */,
 				3EE9A7461C5988F100B7B2D9 /* KIODBStore.h in Headers */,
 				3EE9A7471C5988F100B7B2D9 /* KIOQuery.h in Headers */,
