@@ -167,12 +167,16 @@
     // Get mock NSURLSession
     id mockSession =
         [self mockUrlSessionWithResponse:response andResponseData:serializedData andRequestValidator:requestValidator];
-
+    
+    id mockSessionFactory = OCMProtocolMock(@protocol(KIONSURLSessionFactory));
+    OCMStub([mockSessionFactory session]).andReturn(mockSession);
+    OCMStub([mockSessionFactory sessionWithConfiguration:[OCMArg any]]).andReturn(mockSession);
+    
     // Create/get store
     KIODBStore *store = KIODBStore.sharedInstance;
 
     // Create network
-    KIONetwork *network = [[KIONetwork alloc] initWithURLSession:mockSession andStore:store];
+    KIONetwork *network = [[KIONetwork alloc] initWithURLSessionFactory:mockSessionFactory andStore:store];
 
     // Create uploader
     KIOUploader *uploader = [[KIOUploader alloc] initWithNetwork:network andStore:store];

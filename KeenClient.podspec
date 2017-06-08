@@ -21,8 +21,8 @@ Pod::Spec.new do |spec|
   spec.source       = { :git => 'https://github.com/keenlabs/KeenClient-iOS.git', :tag => spec.version.to_s }
   spec.source_files = 'KeenClient/*.{h,m}','Library/Reachability/*.{h,m}'
   spec.public_header_files = 'KeenClient/*.h'
-  spec.frameworks   = 'CoreLocation'
   spec.requires_arc = true
+  spec.frameworks = 'SystemConfiguration', 'CoreLocation', 'CFNetwork'
 
   spec.subspec 'keen_sqlite' do |ks|
     ks.source_files = 'Library/sqlite-amalgamation/*.{h,c}'

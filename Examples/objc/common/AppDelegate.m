@@ -16,9 +16,6 @@
 
 @implementation AppDelegate
 
-@synthesize window = _window;
-@synthesize tabBarController = _tabBarController;
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [KeenClient enableLogging];
     [KeenClient setIsNSLogEnabled:YES];
@@ -29,15 +26,14 @@
     };
     NSLog(@"KeenClient-iOS %@ [from class method]", [KeenClient sdkVersion]);
 
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     // Override point for customization after application launch.
     UIViewController *viewController1 = [[FirstViewController alloc] initWithNibName:@"FirstViewController" bundle:nil];
     UIViewController *viewController2 =
         [[SecondViewController alloc] initWithNibName:@"SecondViewController" bundle:nil];
     UIViewController *viewController3 = [[ThirdViewController alloc] initWithNibName:@"ThirdViewController" bundle:nil];
     self.tabBarController = [[UITabBarController alloc] init];
-    self.tabBarController.viewControllers =
-        [NSArray arrayWithObjects:viewController1, viewController2, viewController3, nil];
+    self.tabBarController.viewControllers = @[viewController1, viewController2, viewController3];
 
     self.window.rootViewController = self.tabBarController;
     [self.window makeKeyAndVisible];

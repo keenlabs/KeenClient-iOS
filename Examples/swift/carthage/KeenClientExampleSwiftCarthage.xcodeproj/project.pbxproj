@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		48C16EE11ED0E46100CFD269 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C16ED71ED0E46100CFD269 /* AppDelegate.swift */; };
-		48C16EE21ED0E46100CFD269 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48C16ED81ED0E46100CFD269 /* LaunchScreen.xib */; };
-		48C16EE31ED0E46100CFD269 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48C16EDA1ED0E46100CFD269 /* Main.storyboard */; };
 		48C16EE41ED0E46100CFD269 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C16EDC1ED0E46100CFD269 /* FirstViewController.swift */; };
 		48C16EE51ED0E46100CFD269 /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C16EDD1ED0E46100CFD269 /* SecondViewController.swift */; };
 		48C16EE61ED0E46100CFD269 /* ThirdViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C16EDE1ED0E46100CFD269 /* ThirdViewController.swift */; };
@@ -17,6 +15,8 @@
 		48C16EE81ED0E46100CFD269 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48C16EE01ED0E46100CFD269 /* Assets.xcassets */; };
 		48C16EEA1ED0E53E00CFD269 /* KeenClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 48C16EE91ED0E53E00CFD269 /* KeenClient.framework */; };
 		48C16EEB1ED0E53E00CFD269 /* KeenClient.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 48C16EE91ED0E53E00CFD269 /* KeenClient.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		48F2AB1B1EE62FA40044BDD0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 48F2AB171EE62FA40044BDD0 /* LaunchScreen.xib */; };
+		48F2AB1C1EE62FA40044BDD0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48F2AB191EE62FA40044BDD0 /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,15 +35,15 @@
 
 /* Begin PBXFileReference section */
 		48C16EBE1ED0E44600CFD269 /* KeenClientExampleSwiftCarthage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KeenClientExampleSwiftCarthage.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		48C16ED71ED0E46100CFD269 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../common/AppDelegate.swift; sourceTree = "<group>"; };
-		48C16ED91ED0E46100CFD269 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = ../../common/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		48C16EDB1ED0E46100CFD269 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../common/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		48C16EDC1ED0E46100CFD269 /* FirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FirstViewController.swift; path = ../../common/FirstViewController.swift; sourceTree = "<group>"; };
-		48C16EDD1ED0E46100CFD269 /* SecondViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SecondViewController.swift; path = ../../common/SecondViewController.swift; sourceTree = "<group>"; };
-		48C16EDE1ED0E46100CFD269 /* ThirdViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ThirdViewController.swift; path = ../../common/ThirdViewController.swift; sourceTree = "<group>"; };
-		48C16EDF1ED0E46100CFD269 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../../common/Info.plist; sourceTree = "<group>"; };
-		48C16EE01ED0E46100CFD269 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../common/Assets.xcassets; sourceTree = "<group>"; };
+		48C16ED71ED0E46100CFD269 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../common/AppDelegate.swift; sourceTree = SOURCE_ROOT; };
+		48C16EDC1ED0E46100CFD269 /* FirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FirstViewController.swift; path = ../common/FirstViewController.swift; sourceTree = SOURCE_ROOT; };
+		48C16EDD1ED0E46100CFD269 /* SecondViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SecondViewController.swift; path = ../common/SecondViewController.swift; sourceTree = SOURCE_ROOT; };
+		48C16EDE1ED0E46100CFD269 /* ThirdViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ThirdViewController.swift; path = ../common/ThirdViewController.swift; sourceTree = SOURCE_ROOT; };
+		48C16EDF1ED0E46100CFD269 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../common/Info.plist; sourceTree = SOURCE_ROOT; };
+		48C16EE01ED0E46100CFD269 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../common/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 		48C16EE91ED0E53E00CFD269 /* KeenClient.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = KeenClient.framework; path = Carthage/Build/iOS/KeenClient.framework; sourceTree = "<group>"; };
+		48F2AB181EE62FA40044BDD0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = ../../common/Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		48F2AB1A1EE62FA40044BDD0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ../../common/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,9 +78,9 @@
 		48C16EC01ED0E44600CFD269 /* KeenClientExampleSwiftCarthage */ = {
 			isa = PBXGroup;
 			children = (
+				48F2AB171EE62FA40044BDD0 /* LaunchScreen.xib */,
+				48F2AB191EE62FA40044BDD0 /* Main.storyboard */,
 				48C16ED71ED0E46100CFD269 /* AppDelegate.swift */,
-				48C16ED81ED0E46100CFD269 /* LaunchScreen.xib */,
-				48C16EDA1ED0E46100CFD269 /* Main.storyboard */,
 				48C16EDC1ED0E46100CFD269 /* FirstViewController.swift */,
 				48C16EDD1ED0E46100CFD269 /* SecondViewController.swift */,
 				48C16EDE1ED0E46100CFD269 /* ThirdViewController.swift */,
@@ -151,10 +151,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				48C16EE21ED0E46100CFD269 /* LaunchScreen.xib in Resources */,
-				48C16EE31ED0E46100CFD269 /* Main.storyboard in Resources */,
 				48C16EE81ED0E46100CFD269 /* Assets.xcassets in Resources */,
+				48F2AB1B1EE62FA40044BDD0 /* LaunchScreen.xib in Resources */,
 				48C16EE71ED0E46100CFD269 /* Info.plist in Resources */,
+				48F2AB1C1EE62FA40044BDD0 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -175,18 +175,18 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		48C16ED81ED0E46100CFD269 /* LaunchScreen.xib */ = {
+		48F2AB171EE62FA40044BDD0 /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				48C16ED91ED0E46100CFD269 /* Base */,
+				48F2AB181EE62FA40044BDD0 /* Base */,
 			);
 			name = LaunchScreen.xib;
 			sourceTree = "<group>";
 		};
-		48C16EDA1ED0E46100CFD269 /* Main.storyboard */ = {
+		48F2AB191EE62FA40044BDD0 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				48C16EDB1ED0E46100CFD269 /* Base */,
+				48F2AB1A1EE62FA40044BDD0 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -343,6 +343,7 @@
 				48C16ED61ED0E44700CFD269 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
