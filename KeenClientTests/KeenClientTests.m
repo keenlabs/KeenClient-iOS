@@ -17,6 +17,7 @@
 #import "KIOFileStore.h"
 #import "KIONetwork.h"
 #import "KIOUploader.h"
+#import "MockNSURLSession.h"
 
 NSString* kDefaultProjectID = @"id";
 NSString* kDefaultWriteKey = @"wk";
@@ -44,7 +45,9 @@ NSString* kDefaultReadKey = @"rk";
 @property (nonatomic, strong) NSString *writeKey;
 @property (nonatomic, strong) NSString *readKey;
 
-@property (nonatomic) KIONetwork* network;
+@property (nonatomic) KIONetwork *network;
+
+@property (nonatomic) KIODBStore *store;
 
 // If we're running tests.
 @property (nonatomic) BOOL isRunningTests;
@@ -502,21 +505,8 @@ NSString* kDefaultReadKey = @"rk";
                  andResponseData:(NSData*)responseData
              andRequestValidator:(BOOL (^)(id requestObject))requestValidator {
     // Mock the NSURLSession to be used for the request
-    id urlSessionMock = [OCMockObject partialMockForObject:[[NSURLSession alloc] init]];
-
-    // Set up fake response data and request validation
-    if (nil != requestValidator) {
-        // Set up validation of the request
-        [[urlSessionMock expect] dataTaskWithRequest:[OCMArg checkWithBlock:requestValidator]
-                                   completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
-    } else {
-        // We won't check that the request contained anything specific
-        [[urlSessionMock stub] dataTaskWithRequest:[OCMArg any]
-                                 completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
-
-    }
-
-    return urlSessionMock;
+    // If a validator is provided, it will check the actual request made
+    return [[MockNSURLSession alloc] initWithValidator:requestValidator data:responseData response:response error:nil];
 }
 
 - (id)createClientWithResponseData:(id)data
@@ -583,7 +573,7 @@ NSString* kDefaultReadKey = @"rk";
 
 -(void)testUploadWithNoEvents {
     XCTestExpectation* uploadFinishedBlockCalled = [self expectationWithDescription:@"Upload should finish."];
-    
+
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK];
 
     [mock uploadWithFinishedBlock:^{
@@ -881,6 +871,46 @@ NSString* kDefaultReadKey = @"rk";
         // make sure the events were deleted locally
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,  @"There should be no files after a successful upload.");
     }];
+}
+
+- (void)testUploadEventDoesntDuplicateWithMultipleCallsToUpload {
+    NSDictionary *eventResult = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
+    NSDictionary *result =
+        [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:eventResult, nil] forKey:@"foo"];
+
+    __block NSInteger requestCount = 0;
+    __block NSInteger uploadCallCount = 0;
+    const NSInteger totalUploadCallCount = 10;
+    KeenClient* client = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK andNetworkConnected:@YES andRequestValidator:^BOOL(id obj) {
+        requestCount++;
+        return @YES;
+    }];
+
+    // add an event
+    [client addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+
+    NSUInteger pendingEvents = [client.store getTotalEventCountWithProjectID:kDefaultProjectID];
+    XCTAssertEqual(pendingEvents, 1, @"There should be an event awaiting upload.");
+
+    // and "upload" it
+    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    for (int i = 0; i < totalUploadCallCount; ++i) {
+        [client uploadWithFinishedBlock:^{
+            uploadCallCount++;
+            if (uploadCallCount == totalUploadCallCount) {
+                [responseArrived fulfill];
+            }
+        }];
+    }
+
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval
+                                 handler:^(NSError *_Nullable error) {
+                                     // make sure the events were deleted locally
+                                     XCTAssertTrue([client.store getTotalEventCountWithProjectID:nil] == 0,
+                                                   @"There should be no files after a successful upload.");
+                                 }];
+
+    XCTAssertEqual(requestCount, 1, @"Only one request should have been made");
 }
 
 - (void)testUploadMultipleEventsSameCollectionSuccessInstanceClient {
@@ -1492,7 +1522,7 @@ NSString* kDefaultReadKey = @"rk";
     XCTestExpectation* uploadFinishedBlockCalled1 = [self expectationWithDescription:@"Upload 1 should run to completion."];
     XCTestExpectation* uploadFinishedBlockCalled2 = [self expectationWithDescription:@"Upload 2 should run to completion."];
     XCTestExpectation* uploadFinishedBlockCalled3 = [self expectationWithDescription:@"Upload 3 should run to completion."];
-    
+
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
@@ -1505,7 +1535,7 @@ NSString* kDefaultReadKey = @"rk";
     [client uploadWithFinishedBlock:^ {
         [uploadFinishedBlockCalled3 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:nil];
 }
 
@@ -1526,7 +1556,7 @@ NSString* kDefaultReadKey = @"rk";
     [client uploadWithFinishedBlock:^ {
         [uploadFinishedBlockCalled3 fulfill];
     }];
-    
+
     [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:nil];
 }
 
@@ -1946,90 +1976,93 @@ NSString* kDefaultReadKey = @"rk";
 }
 
 - (void)testSdkTrackingHeadersOnUpload {
+    XCTestExpectation *requestValidated = [self expectationWithDescription:@"request was validated"];
     // mock an empty response from the server
-
-    KeenClient* client = [self createClientWithRequestValidator:^BOOL(id obj) {
+    KeenClient *client = [self createClientWithRequestValidator:^BOOL(id obj) {
         [self validateSdkVersionHeaderFieldForRequest:obj];
+        [requestValidated fulfill];
         return @YES;
     }];
-
-    // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = client.network.urlSession;
 
     // add an event
     [client addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
 
-    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
     [client uploadWithFinishedBlock:^{
-        // Check for the sdk version header
-        [urlSessionMock verify];
-
         [responseArrived fulfill];
     }];
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertNil(error, @"Test should complete within expected interval.");
-    }];
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval
+                                 handler:^(NSError *_Nullable error) {
+                                     XCTAssertNil(error, @"Test should complete within expected interval.");
+                                 }];
 }
 
 - (void)testSdkTrackingHeadersOnQuery {
-    KeenClient* client = [self createClientWithResponseData:@{@"result": @10}
-                                              andStatusCode:HTTPCode200OK
-                                        andNetworkConnected:@YES
-                                        andRequestValidator:^BOOL(id obj) {
-        [self validateSdkVersionHeaderFieldForRequest:obj];
-        return @YES;
-    }];
+    XCTestExpectation *requestValidated = [self expectationWithDescription:@"request was validated"];
+    KeenClient *client = [self createClientWithResponseData:@{
+        @"result": @10
+    }
+        andStatusCode:HTTPCode200OK
+        andNetworkConnected:@YES
+        andRequestValidator:^BOOL(id obj) {
+            [self validateSdkVersionHeaderFieldForRequest:obj];
+            [requestValidated fulfill];
+            return @YES;
+        }];
 
-    // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = client.network.urlSession;
+    KIOQuery *query =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"event_collection"
+        }];
 
-    KIOQuery *query = [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
+    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [client runAsyncQuery:query
+                    block:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+            [responseArrived fulfill];
+        }];
 
-    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [client runQuery:query completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-        // Check for the sdk version header
-        [urlSessionMock verify];
-
-        [responseArrived fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertNil(error, @"Test should complete within expected interval.");
-    }];
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval
+                                 handler:^(NSError *_Nullable error) {
+                                     XCTAssertNil(error, @"Test should complete within expected interval.");
+                                 }];
 }
 
 - (void)testSdkTrackingHeadersOnMultiAnalysis {
-    KeenClient* client = [self createClientWithResponseData:@{@"result": @{@"query1": @10, @"query2": @1}}
-                                              andStatusCode:HTTPCode200OK
-                                        andNetworkConnected:@YES
-                                        andRequestValidator:^BOOL(id obj) {
-        [self validateSdkVersionHeaderFieldForRequest:obj];
-        return @YES;
-    }];
+    XCTestExpectation *requestValidated = [self expectationWithDescription:@"request was validated"];
+    KeenClient *client = [self createClientWithResponseData:@{
+        @"result": @{@"query1": @10, @"query2": @1}
+    }
+        andStatusCode:HTTPCode200OK
+        andNetworkConnected:@YES
+        andRequestValidator:^BOOL(id obj) {
+            [self validateSdkVersionHeaderFieldForRequest:obj];
+            [requestValidated fulfill];
+            return @YES;
+        }];
 
-    // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = client.network.urlSession;
+    KIOQuery *countQuery =
+        [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
+            @"event_collection": @"event_collection"
+        }];
 
-    KIOQuery* countQuery = [[KIOQuery alloc] initWithQuery:@"count"
-                                   andPropertiesDictionary:@{@"event_collection": @"event_collection"}];
+    KIOQuery *averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique"
+                                     andPropertiesDictionary:@{
+                                         @"event_collection": @"event_collection",
+                                         @"target_property": @"something"
+                                     }];
 
-    KIOQuery* averageQuery = [[KIOQuery alloc] initWithQuery:@"count_unique"
-                                     andPropertiesDictionary:@{@"event_collection": @"event_collection", @"target_property": @"something"}];
+    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    [client runAsyncMultiAnalysisWithQueries:@[countQuery, averageQuery]
+                                       block:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
+                               [responseArrived fulfill];
+                           }];
 
-    XCTestExpectation* responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [client runMultiAnalysisWithQueries:@[countQuery, averageQuery]
-                      completionHandler:^(NSData* queryResponseData, NSURLResponse* response, NSError* error) {
-        // Check for the sdk version header
-        [urlSessionMock verify];
-
-        [responseArrived fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval handler:^(NSError * _Nullable error) {
-        XCTAssertNil(error, @"Test should complete within expected interval.");
-    }];
+    [self waitForExpectationsWithTimeout:_asyncTimeInterval
+                                 handler:^(NSError *_Nullable error) {
+                                     XCTAssertNil(error, @"Test should complete within expected interval.");
+                                 }];
 }
 
 # pragma mark - test filesystem utility methods

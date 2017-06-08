@@ -40,6 +40,10 @@
 
 @property (nonatomic) KIONetwork *network;
 
+@property BOOL isUploading;
+
+@property NSCondition *isUploadingCondition;
+
 @end
 
 
@@ -73,6 +77,9 @@
         self.uploadQueue = dispatch_queue_create("io.keen.uploader", DISPATCH_QUEUE_SERIAL);
 
         self.maxEventUploadAttempts = 3;
+
+        self.isUploadingCondition = [NSCondition new];
+        self.isUploading = NO;
 
         self.network = network;
 
@@ -179,6 +186,10 @@
                 }
             }
 
+            [self.isUploadingCondition lock];
+            self.isUploading = YES;
+            [self.isUploadingCondition unlock];
+
             // then make an http request to the keen server.
             [self.network sendEvents:data
                        withProjectID:projectID
@@ -188,7 +199,20 @@
                 [self handleEventAPIResponse:response andData:data forEvents:eventIDs];
 
                 [self runUploadFinishedBlock:block];
+
+                [self.isUploadingCondition lock];
+                self.isUploading = NO;
+                [self.isUploadingCondition signal];
+                [self.isUploadingCondition unlock];
             }];
+
+            // Block the queue until uploading has finished.
+            // Otherwise we'll pick up events that are in flight and try to upload them again
+            [self.isUploadingCondition lock];
+            while (self.isUploading) {
+                [self.isUploadingCondition waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:60]];
+            }
+            [self.isUploadingCondition unlock];
         }
     });
 }
