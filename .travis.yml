@@ -44,7 +44,7 @@ matrix:
 
 before_install:
   - gem install bundler
-  - rvm use 2.3.0
+  - rvm use 2.4.1
 
 script: ./bin/test.sh
 
