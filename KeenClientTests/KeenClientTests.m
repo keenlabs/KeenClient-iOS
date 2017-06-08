@@ -335,6 +335,7 @@ NSString* kDefaultReadKey = @"rk";
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
     KeenClient *clientI = [[KeenClient alloc] initWithProjectID:kDefaultProjectID andWriteKey:kDefaultWriteKey andReadKey:kDefaultReadKey];
 
+    [KeenClient enableGeoLocation];
     CLLocation *location = [[CLLocation alloc] initWithLatitude:37.73 longitude:-122.47];
     client.currentLocation = location;
     clientI.currentLocation = location;
