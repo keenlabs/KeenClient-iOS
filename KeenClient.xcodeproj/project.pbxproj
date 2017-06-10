@@ -75,6 +75,7 @@
 		480FEB751E846F7500641112 /* KIOUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 480FEB701E846F7500641112 /* KIOUtil.m */; };
 		480FEB761E846F7500641112 /* KIOUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 480FEB701E846F7500641112 /* KIOUtil.m */; };
 		481496EC1EC3832C00A9DEED /* SavedQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 481496EB1EC3832C00A9DEED /* SavedQueryTests.m */; };
+		481794741EE8F66500586007 /* MockNSURLSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 481794731EE8F66500586007 /* MockNSURLSession.m */; };
 		481A9B7C1E5690950094B985 /* KeenLogSinkNSLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 481A9B7A1E5690950094B985 /* KeenLogSinkNSLog.h */; };
 		481A9B7D1E5690950094B985 /* KeenLogSinkNSLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 481A9B7B1E5690950094B985 /* KeenLogSinkNSLog.m */; };
 		481A9B7E1E5691270094B985 /* KeenLogSink.h in Headers */ = {isa = PBXBuildFile; fileRef = 481A9B711E5687EA0094B985 /* KeenLogSink.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -206,6 +207,8 @@
 		480FEB701E846F7500641112 /* KIOUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIOUtil.m; sourceTree = "<group>"; };
 		481496EA1EC3832C00A9DEED /* SavedQueryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SavedQueryTests.h; sourceTree = "<group>"; };
 		481496EB1EC3832C00A9DEED /* SavedQueryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SavedQueryTests.m; sourceTree = "<group>"; };
+		481794721EE8F66500586007 /* MockNSURLSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MockNSURLSession.h; sourceTree = "<group>"; };
+		481794731EE8F66500586007 /* MockNSURLSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MockNSURLSession.m; sourceTree = "<group>"; };
 		481A9B711E5687EA0094B985 /* KeenLogSink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeenLogSink.h; sourceTree = "<group>"; };
 		481A9B7A1E5690950094B985 /* KeenLogSinkNSLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeenLogSinkNSLog.h; sourceTree = "<group>"; };
 		481A9B7B1E5690950094B985 /* KeenLogSinkNSLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeenLogSinkNSLog.m; sourceTree = "<group>"; };
@@ -468,6 +471,8 @@
 				486B59711EB29C5200D5251D /* KIOUploaderTestable.h */,
 				4888924B1EC13C21008C6024 /* TestDatabaseRequirement.h */,
 				4888924C1EC13C21008C6024 /* TestDatabaseRequirement.m */,
+				481794721EE8F66500586007 /* MockNSURLSession.h */,
+				481794731EE8F66500586007 /* MockNSURLSession.m */,
 			);
 			name = Shared;
 			sourceTree = "<group>";
@@ -783,6 +788,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				481794741EE8F66500586007 /* MockNSURLSession.m in Sources */,
 				CA6410E218E39F3A00E53E3C /* KIODBStoreTests.m in Sources */,
 				486B596E1EB29B0A00D5251D /* KeenTestCaseBase.m in Sources */,
 				48CAA1781ED60792003C2008 /* DatasetTests.m in Sources */,
