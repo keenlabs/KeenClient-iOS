@@ -118,6 +118,12 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 @property int queryTTL;
 
 /**
+ The current proxy configuration, if set. To set the configuration, use setProxy:port:.
+ */
+@property (nonatomic, readonly, getter=getProxyHost) NSString *proxyHost;
+@property (nonatomic, readonly, getter=getProxyPort) NSNumber *proxyPort;
+
+/**
  Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
  to the given parameters.
 
@@ -369,6 +375,24 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 - (void)runAsyncSavedAnalysis:(NSString *)queryName completionHandler:(AnalysisCompletionBlock)completionHandler;
 
 /**
+ Gets results from a cached dataset query, which can be a single or multi-analysis query.
+
+ See detailed documentation here: https://keen.io/docs/api/?shell#retrieving-results-from-a-cached-dataset
+ and here: https://keen.io/docs/compute/cached-datasets/
+
+ Results will be grouped by the interval specified in the dataset definition.
+
+ @param datasetName The existing dataset resource name.
+ @param indexValue The required value in the index to retrieve results for.
+ @param timeframe The required timeframe to retrieve results for, which must be a subset of the timeframe specified in
+ the dataset definition.
+ */
+- (void)runAsyncDatasetQuery:(NSString *)datasetName
+                  indexValue:(NSString *)indexValue
+                   timeframe:(NSString *)timeframe
+           completionHandler:(AnalysisCompletionBlock)completionHandler;
+
+/**
  Runs a synchronous query.
 
  This method is only used for testing.
@@ -376,7 +400,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  @param keenQuery The KIOQuery object containing the information about the query.
  @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
  the query results, and an NSURLResponse and NSError objects.
-  */
+ */
 - (void)runQuery:(KIOQuery *)keenQuery
     completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncQuery:completionHandler: instead.");
@@ -390,10 +414,18 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  the event_collection property.
  @param completionHandler The block to be executed once querying is finished. It receives an NSData object containing
  the query results, and an NSURLResponse and NSError objects.
-  */
+ */
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
                   completionHandler:(AnalysisCompletionBlock)completionHandler
     DEPRECATED_MSG_ATTRIBUTE("use runAsyncMultiAnalysisWithQueries:completionHandler: instead.");
+
+/**
+ Sets an HTTP proxy server configuration for this client.
+ @param host The proxy hostname or IP address.
+ @param port The proxy port number.
+ @return YES on success, NO on failure
+ */
+- (BOOL)setProxy:(NSString *)host port:(NSNumber *)port;
 
 /**
  Call this to indiscriminately delete all queries.
@@ -420,7 +452,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 /**
  Returns whether or not logging is currently enabled.
 
- @return true if logging is enabled, false if disabled.
+ @return YES if logging is enabled, NO if disabled.
  */
 + (BOOL)isLoggingEnabled;
 

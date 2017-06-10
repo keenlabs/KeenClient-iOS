@@ -12,6 +12,9 @@
 #import "KIOFileStore.h"
 #import "KIODBStore.h"
 #import "HTTPCodes.h"
+#import "KIOUtil.h"
+#import "KIONSURLSessionFactory.h"
+#import "KIODefaultNSURLSessionFactory.h"
 
 typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMethodPost, KeenHTTPMethodGet };
 
@@ -22,17 +25,23 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
  @param response The response from the server.
  @param responseData The data returned from the server.
  @param query The query that was passed to the Keen API.
+ @param error The error returned with the response.
  */
 - (void)handleQueryAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
                       andQuery:(KIOQuery *)query
-                  andProjectID:(NSString *)projectID;
+                  andProjectID:(NSString *)projectID
+                      andError:(NSError *)error;
 
-@property (nonatomic, readwrite) NSURLSession *urlSession;
+- (NSString *)getProjectURL:(NSString *)projectID;
+
+@property (nonatomic, readwrite) id<KIONSURLSessionFactory> urlSessionFactory;
 
 @property (nonatomic) KIODBStore *store;
 
-- (NSString *)getProjectURL:(NSString *)projectID;
+// Internal read/write versions of proxy host and port
+@property (nonatomic, readwrite) NSString *proxyHost;
+@property (nonatomic, readwrite) NSNumber *proxyPort;
 
 @end
 
@@ -50,24 +59,46 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     // for the block to complete.
     static dispatch_once_t predicate = {0};
     dispatch_once(&predicate, ^{
-        s_sharedInstance =
-            [[KIONetwork alloc] initWithURLSession:[NSURLSession sharedSession] andStore:[KIODBStore sharedInstance]];
+        s_sharedInstance = [[KIONetwork alloc] initWithURLSessionFactory:[KIODefaultNSURLSessionFactory new]
+                                                                andStore:[KIODBStore sharedInstance]];
     });
 
     return s_sharedInstance;
 }
 
-- (instancetype)initWithURLSession:(NSURLSession *)urlSession andStore:(KIODBStore *)store {
+- (instancetype)initWithURLSessionFactory:(id<KIONSURLSessionFactory>)urlSessionFactory andStore:(KIODBStore *)store {
     self = [super init];
 
     if (self) {
         self.maxQueryAttempts = 10;
         self.queryTTL = 3600;
-        self.urlSession = urlSession;
+        self.urlSessionFactory = urlSessionFactory;
         self.store = store;
     }
 
     return self;
+}
+
+- (BOOL)setProxy:(NSString *)host port:(NSNumber *)port {
+    BOOL success = NO;
+
+    if ((nil == host) != (nil == port)) {
+        // host is nil, but port is set
+        // port is nil, but host is set
+        KCLogError(@"setProxy: host and port must both be nil or both be set");
+        success = NO;
+    } else {
+        if (!host || !port) {
+            self.proxyHost = nil;
+            self.proxyPort = nil;
+        } else {
+            self.proxyHost = host;
+            self.proxyPort = port;
+        }
+        success = YES;
+    }
+
+    return success;
 }
 
 - (NSMutableURLRequest *)createRequestWithUrl:(NSString *)urlString
@@ -104,7 +135,23 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 }
 
 - (void)executeRequest:(NSURLRequest *)request completionHandler:(AnalysisCompletionBlock)completionHandler {
-    NSURLSession *session = self.urlSession;
+    NSURLSession *session;
+    // Use proxy if one has been configured
+    if (self.proxyHost && self.proxyPort) {
+        // Create an NSURLSessionConfiguration that uses the proxy
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+        configuration.connectionProxyDictionary = @{
+            @"HTTPEnable": @(YES),
+            (NSString *)kCFStreamPropertyHTTPProxyHost: self.proxyHost,
+            (NSString *)kCFStreamPropertyHTTPProxyPort: self.proxyPort,
+            @"HTTPSEnable": @(YES),
+            (NSString *)kCFStreamPropertyHTTPSProxyHost: self.proxyHost,
+            (NSString *)kCFStreamPropertyHTTPSProxyPort: self.proxyPort,
+        };
+        session = [self.urlSessionFactory sessionWithConfiguration:configuration];
+    } else {
+        session = [self.urlSessionFactory session];
+    }
     [[session dataTaskWithRequest:request completionHandler:completionHandler] resume];
 }
 
@@ -126,6 +173,10 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 - (void)sendEvents:(NSData *)data
                config:(KeenClientConfig *)config
     completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.writeKey);
+    IF_NIL_COMPLETE(data);
+
     NSString *urlString = [NSString stringWithFormat:@"%@/events", [self getProjectURL:config.projectID]];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
@@ -138,6 +189,10 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 - (void)runQuery:(KIOQuery *)keenQuery
                config:(KeenClientConfig *)config
     completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.readKey);
+    IF_NIL_COMPLETE(keenQuery);
+
     BOOL hasQueryWithMaxAttempts = [self hasQueryReachedMaxAttempts:keenQuery withProjectID:config.projectID];
     if (hasQueryWithMaxAttempts) {
         KCLogWarn(@"Not running query because it failed over %d times", self.maxQueryAttempts);
@@ -156,18 +211,25 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     NSString *projectID = config.projectID;
     [self executeRequest:request
         completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-            [self handleQueryAPIResponse:response andData:data andQuery:keenQuery andProjectID:projectID];
-            completionHandler(data, response, error);
+            [self handleQueryAPIResponse:response
+                                 andData:data
+                                andQuery:keenQuery
+                            andProjectID:projectID
+                                andError:error];
+            if (nil != completionHandler) {
+                completionHandler(data, response, error);
+            }
         }];
 }
 
 - (void)handleQueryAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
                       andQuery:(KIOQuery *)query
-                  andProjectID:(NSString *)projectID {
+                  andProjectID:(NSString *)projectID
+                      andError:(NSError *)error {
     // Check if call to the Query API failed
-    if (!responseData) {
-        KCLogError(@"responseData was nil for some reason.  That's not great.");
+    if (nil == responseData || nil != error) {
+        KCLogError(@"Error reading response. error: %@\nresponse data: %@", error, responseData);
         KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse *)response)statusCode]);
         return;
     }
@@ -237,6 +299,10 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 - (void)runMultiAnalysisWithQueries:(NSArray *)keenQueries
                              config:(KeenClientConfig *)config
                   completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.readKey);
+    IF_NIL_COMPLETE(keenQueries);
+
     NSString *urlString =
         [NSString stringWithFormat:@"%@/queries/%@", [self getProjectURL:config.projectID], @"multi_analysis"];
     KCLogVerbose(@"Sending request to: %@", urlString);
@@ -265,12 +331,39 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     [self executeRequest:request completionHandler:completionHandler];
 }
 
-// Run a saved/cached query request
 - (void)runSavedAnalysis:(NSString *)queryName
                   config:(KeenClientConfig *)config
        completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.readKey);
+    IF_STRING_EMPTY_COMPLETE(queryName);
+
     NSString *urlString =
         [NSString stringWithFormat:@"%@/queries/saved/%@/result", [self getProjectURL:config.projectID], queryName];
+    KCLogVerbose(@"Sending request to: %@", urlString);
+
+    NSMutableURLRequest *request =
+        [self createRequestWithUrl:urlString andMethod:KeenHTTPMethodGet andBody:nil andKey:config.readKey];
+
+    [self executeRequest:request completionHandler:completionHandler];
+}
+
+- (void)runDatasetQuery:(NSString *)datasetName
+             indexValue:(NSString *)indexValue
+              timeframe:(NSString *)timeframe
+                 config:(KeenClientConfig *)config
+      completionHandler:(AnalysisCompletionBlock)completionHandler {
+    IF_STRING_EMPTY_COMPLETE(config.projectID);
+    IF_STRING_EMPTY_COMPLETE(config.readKey);
+    IF_STRING_EMPTY_COMPLETE(datasetName);
+    IF_STRING_EMPTY_COMPLETE(indexValue);
+    IF_STRING_EMPTY_COMPLETE(timeframe);
+
+    // Could use NSURLComponents and NSURLQueryItem for building this URL once we drop iOS 7- support
+    NSString *queryString = [[NSString stringWithFormat:@"index_by=%@&timeframe=%@", indexValue, timeframe]
+        stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
+    NSString *urlString = [NSString
+        stringWithFormat:@"%@/datasets/%@/results?%@", [self getProjectURL:config.projectID], datasetName, queryString];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest *request =

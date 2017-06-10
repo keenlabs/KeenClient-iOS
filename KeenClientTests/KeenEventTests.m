@@ -901,6 +901,46 @@
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
 }
 
+- (void)testUploadEventDoesntDuplicateWithMultipleCallsToUpload {
+    NSDictionary *eventResult = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
+    NSDictionary *result =
+        [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:eventResult, nil] forKey:@"foo"];
+
+    __block NSInteger requestCount = 0;
+    __block NSInteger uploadCallCount = 0;
+    const NSInteger totalUploadCallCount = 10;
+    KeenClient* client = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK andNetworkConnected:@YES andRequestValidator:^BOOL(id obj) {
+        requestCount++;
+        return @YES;
+    }];
+
+    // add an event
+    [client addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+
+    NSUInteger pendingEvents = [client.store getTotalEventCountWithProjectID:kDefaultProjectID];
+    XCTAssertEqual(pendingEvents, 1, @"There should be an event awaiting upload.");
+
+    // and "upload" it
+    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
+    for (int i = 0; i < totalUploadCallCount; ++i) {
+        [client uploadWithFinishedBlock:^{
+            uploadCallCount++;
+            if (uploadCallCount == totalUploadCallCount) {
+                [responseArrived fulfill];
+            }
+        }];
+    }
+
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
+                                 handler:^(NSError *_Nullable error) {
+                                     // make sure the events were deleted locally
+                                     XCTAssertTrue([client.store getTotalEventCountWithProjectID:nil] == 0,
+                                                   @"There should be no files after a successful upload.");
+                                 }];
+
+    XCTAssertEqual(requestCount, 1, @"Only one request should have been made");
+}
+
 - (void)testTooManyEventsCached {
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
                                                    andWriteKey:kDefaultWriteKey

@@ -20,6 +20,7 @@
 #import "HTTPCodes.h"
 #import "TestDatabaseRequirement.h"
 #import "KIODBStoreTestable.h"
+#import "MockNSURLSession.h"
 
 #import "KeenTestCaseBase.h"
 
@@ -126,26 +127,12 @@
                           andRequestValidator:nil];
 }
 
-- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse *)response
-                 andResponseData:(NSData *)responseData
+- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse*)response
+                 andResponseData:(NSData*)responseData
              andRequestValidator:(BOOL (^)(id requestObject))requestValidator {
     // Mock the NSURLSession to be used for the request
-    id urlSessionMock = [OCMockObject partialMockForObject:[[NSURLSession alloc] init]];
-
-    // Set up fake response data and request validation
-    if (nil != requestValidator) {
-        // Set up validation of the request
-        [[urlSessionMock expect]
-            dataTaskWithRequest:[OCMArg checkWithBlock:requestValidator]
-              completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
-    } else {
-        // We won't check that the request contained anything specific
-        [[urlSessionMock stub]
-            dataTaskWithRequest:[OCMArg any]
-              completionHandler:[OCMArg invokeBlockWithArgs:responseData, response, [NSNull null], nil]];
-    }
-
-    return urlSessionMock;
+    // If a validator is provided, it will check the actual request made
+    return [[MockNSURLSession alloc] initWithValidator:requestValidator data:responseData response:response error:nil];
 }
 
 - (id)createClientWithResponseData:(id)data
@@ -168,11 +155,15 @@
     id mockSession =
         [self mockUrlSessionWithResponse:response andResponseData:serializedData andRequestValidator:requestValidator];
 
+    id mockSessionFactory = OCMProtocolMock(@protocol(KIONSURLSessionFactory));
+    OCMStub([mockSessionFactory session]).andReturn(mockSession);
+    OCMStub([mockSessionFactory sessionWithConfiguration:[OCMArg any]]).andReturn(mockSession);
+
     // Create/get store
     KIODBStore *store = KIODBStore.sharedInstance;
 
     // Create network
-    KIONetwork *network = [[KIONetwork alloc] initWithURLSession:mockSession andStore:store];
+    KIONetwork *network = [[KIONetwork alloc] initWithURLSessionFactory:mockSessionFactory andStore:store];
 
     // Create uploader
     KIOUploader *uploader = [[KIOUploader alloc] initWithNetwork:network andStore:store];

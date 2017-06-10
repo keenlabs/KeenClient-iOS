@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'KeenClient'
-  spec.version      = '3.6.1'
+  spec.version      = '3.6.2'
   spec.license      = { :type => 'MIT' }
   spec.ios.deployment_target = '6.0'
   spec.osx.deployment_target = '10.9'
@@ -21,8 +21,8 @@ Pod::Spec.new do |spec|
   spec.source       = { :git => 'https://github.com/keenlabs/KeenClient-iOS.git', :tag => spec.version.to_s }
   spec.source_files = 'KeenClient/*.{h,m}','Library/Reachability/*.{h,m}'
   spec.public_header_files = 'KeenClient/*.h'
-  spec.frameworks   = 'CoreLocation'
   spec.requires_arc = true
+  spec.frameworks = 'SystemConfiguration', 'CoreLocation', 'CFNetwork'
 
   spec.subspec 'keen_sqlite' do |ks|
     ks.source_files = 'Library/sqlite-amalgamation/*.{h,c}'

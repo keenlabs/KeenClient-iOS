@@ -11,7 +11,7 @@
 
 @implementation ThirdViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         self.title = NSLocalizedString(@"Third", @"Third");
@@ -46,9 +46,9 @@
                 [NSJSONSerialization JSONObjectWithData:responseData options:kNilOptions error:nil];
 
             NSLog(@"response: %@", responseDictionary);
-            NSLog(@"error: %@", [error localizedDescription]);
+            NSLog(@"error: %@", error.localizedDescription);
 
-            NSNumber *result = [responseDictionary objectForKey:@"result"];
+            NSNumber *result = responseDictionary[@"result"];
 
             NSLog(@"result: %@", result);
 
@@ -56,20 +56,20 @@
             // NSNumber *resultValue = [[responseDictionary objectForKey:@"result"][0] objectForKey:@"result"];
             // NSLog(@"resultValue: %@", resultValue);
 
-            if (error || [responseDictionary objectForKey:@"error_code"]) {
+            if (error || responseDictionary[@"error_code"]) {
                 self.resultTextView.text = [NSString stringWithFormat:@"Failure! 😞 \n\n error: %@\n\n response: %@",
-                                                                      [error localizedDescription],
-                                                                      [responseDictionary description]];
+                                                                      error.localizedDescription,
+                                                                      responseDictionary.description];
             } else {
                 self.resultTextView.text =
-                    [NSString stringWithFormat:@"Success! 😄 \n\n response: %@", [responseDictionary description]];
+                    [NSString stringWithFormat:@"Success! 😄 \n\n response: %@", responseDictionary.description];
             }
         };
 
     // Async querying
     KIOQuery *countQuery = [[KIOQuery alloc] initWithQuery:@"count"
                                    andPropertiesDictionary:@{
-                                       @"event_collection": @"collection",
+                                       @"event_collection": @"tab_views",
                                        @"timeframe": @"this_7_days"
                                    }];
 
@@ -103,6 +103,19 @@
     /*
     NSString* savedQueryName = @"saved_count";
     [[KeenClient sharedClient] runAsyncSavedAnalysis:savedQueryName completionHandler:countQueryCompleted];
+    */
+
+    // Dataset query example
+    /*
+    [[KeenClient sharedClient]
+        runAsyncDatasetQuery:@"dataset_name"
+                  indexValue:@"0"
+                   timeframe:@"this_7_days"
+           completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
+               NSDictionary *responseDictionary =
+                   [NSJSONSerialization JSONObjectWithData:responseData options:kNilOptions error:nil];
+               NSLog(@"Response:\n%@", [responseDictionary objectForKey:@"result"]);
+           }];
     */
 }
 

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "KeenClientConfig.h"
+#import "KIONSURLSessionFactory.h"
 
 // Class for handling network operations
 @interface KIONetwork : NSObject
@@ -17,7 +18,10 @@
 
 // Initialize the object
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithURLSession:(NSURLSession *)urlSession andStore:(KIODBStore *)store;
+- (instancetype)initWithURLSessionFactory:(id<KIONSURLSessionFactory>)urlSessionFactory andStore:(KIODBStore *)store;
+
+// Configure a proxy server
+- (BOOL)setProxy:(NSString *)host port:(NSNumber *)port;
 
 // Upload events to keen
 - (void)sendEvents:(NSData *)data
@@ -39,6 +43,13 @@
                   config:(KeenClientConfig *)config
        completionHandler:(AnalysisCompletionBlock)completionHandler;
 
+// Run a dataset-based query request
+- (void)runDatasetQuery:(NSString *)datasetName
+             indexValue:(NSString *)indexValue
+              timeframe:(NSString *)timeframe
+                 config:(KeenClientConfig *)config
+      completionHandler:(AnalysisCompletionBlock)completionHandler;
+
 // The maximum number of times to try a query before stop attempting it.
 @property int maxQueryAttempts;
 
@@ -47,5 +58,9 @@
 
 // The NSURLSession instance to use for requests
 @property (nonatomic, readonly) NSURLSession *urlSession;
+
+// The current proxy configuration, if set. To set the configuration, use setProxy:port:.
+@property (nonatomic, readonly) NSString *proxyHost;
+@property (nonatomic, readonly) NSNumber *proxyPort;
 
 @end

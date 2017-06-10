@@ -1,0 +1,87 @@
+{
+    "result": [{
+        "timeframe": {
+            "start": "2017-05-15T00:00:00.000Z",
+            "end": "2017-05-16T00:00:00.000Z"
+        },
+        "value": 0
+    }, {
+        "timeframe": {
+            "start": "2017-05-16T00:00:00.000Z",
+            "end": "2017-05-17T00:00:00.000Z"
+        },
+        "value": 0
+    }, {
+        "timeframe": {
+            "start": "2017-05-17T00:00:00.000Z",
+            "end": "2017-05-18T00:00:00.000Z"
+        },
+        "value": 0
+    }, {
+        "timeframe": {
+            "start": "2017-05-18T00:00:00.000Z",
+            "end": "2017-05-19T00:00:00.000Z"
+        },
+        "value": 20
+    }, {
+        "timeframe": {
+            "start": "2017-05-19T00:00:00.000Z",
+            "end": "2017-05-20T00:00:00.000Z"
+        },
+        "value": 0
+    }, {
+        "timeframe": {
+            "start": "2017-05-20T00:00:00.000Z",
+            "end": "2017-05-21T00:00:00.000Z"
+        },
+        "value": 0
+    }, {
+        "timeframe": {
+            "start": "2017-05-21T00:00:00.000Z",
+            "end": "2017-05-22T00:00:00.000Z"
+        },
+        "value": 0
+    }, {
+        "timeframe": {
+            "start": "2017-05-22T00:00:00.000Z",
+            "end": "2017-05-23T00:00:00.000Z"
+        },
+        "value": 0
+    }, {
+        "timeframe": {
+            "start": "2017-05-23T00:00:00.000Z",
+            "end": "2017-05-24T00:00:00.000Z"
+        },
+        "value": 0
+    }, {
+        "timeframe": {
+            "start": "2017-05-24T00:00:00.000Z",
+            "end": "2017-05-25T00:00:00.000Z"
+        },
+        "value": 0
+    }],
+    "metadata": {
+        "dataset": {
+            "dataset_name": "test_dataset",
+            "display_name": "test_dataset",
+            "query": {
+                "project_id": "project_id",
+                "analysis_type": "count",
+                "event_collection": "test_dataset_collection",
+                "filters": [],
+                "timeframe": "this_100_days",
+                "timezone": null,
+                "interval": "daily",
+                "group_by": []
+            },
+            "index_by": ["user_id"],
+            "last_scheduled_date": "2017-05-24T17:56:07.510Z",
+            "latest_subtimeframe_available": "2017-05-25T00:00:00.000Z",
+            "milliseconds_behind": 0
+        },
+        "request": {
+            "index_by": ["0"],
+            "timeframe": "this_10_days"
+        }
+    }
+}

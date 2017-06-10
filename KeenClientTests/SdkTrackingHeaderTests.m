@@ -32,15 +32,13 @@
 }
 
 - (void)testSdkTrackingHeadersOnUpload {
+    XCTestExpectation *requestValidated = [self expectationWithDescription:@"request was validated"];
     // mock an empty response from the server
-
     KeenClient *client = [self createClientWithRequestValidator:^BOOL(id obj) {
         [self validateSdkVersionHeaderFieldForRequest:obj];
+        [requestValidated fulfill];
         return @YES;
     }];
-
-    // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = client.network.urlSession;
 
     // add an event
     [client addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -48,9 +46,6 @@
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
     [client uploadWithFinishedBlock:^{
-        // Check for the sdk version header
-        [urlSessionMock verify];
-
         [responseArrived fulfill];
     }];
 
@@ -61,6 +56,7 @@
 }
 
 - (void)testSdkTrackingHeadersOnQuery {
+    XCTestExpectation *requestValidated = [self expectationWithDescription:@"request was validated"];
     KeenClient *client = [self createClientWithResponseData:@{
         @"result": @10
     }
@@ -68,11 +64,9 @@
         andNetworkConnected:@YES
         andRequestValidator:^BOOL(id obj) {
             [self validateSdkVersionHeaderFieldForRequest:obj];
+            [requestValidated fulfill];
             return @YES;
         }];
-
-    // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = client.network.urlSession;
 
     KIOQuery *query =
         [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
@@ -82,9 +76,6 @@
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [client runAsyncQuery:query
         completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-            // Check for the sdk version header
-            [urlSessionMock verify];
-
             [responseArrived fulfill];
         }];
 
@@ -95,6 +86,7 @@
 }
 
 - (void)testSdkTrackingHeadersOnMultiAnalysis {
+    XCTestExpectation *requestValidated = [self expectationWithDescription:@"request was validated"];
     KeenClient *client = [self createClientWithResponseData:@{
         @"result": @{@"query1": @10, @"query2": @1}
     }
@@ -102,11 +94,9 @@
         andNetworkConnected:@YES
         andRequestValidator:^BOOL(id obj) {
             [self validateSdkVersionHeaderFieldForRequest:obj];
+            [requestValidated fulfill];
             return @YES;
         }];
-
-    // Get the mock url session. We'll check the request it gets passed by sendEvents for the version header
-    id urlSessionMock = client.network.urlSession;
 
     KIOQuery *countQuery =
         [[KIOQuery alloc] initWithQuery:@"count" andPropertiesDictionary:@{
@@ -122,9 +112,6 @@
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     [client runAsyncMultiAnalysisWithQueries:@[countQuery, averageQuery]
                            completionHandler:^(NSData *queryResponseData, NSURLResponse *response, NSError *error) {
-                               // Check for the sdk version header
-                               [urlSessionMock verify];
-
                                [responseArrived fulfill];
                            }];
 
