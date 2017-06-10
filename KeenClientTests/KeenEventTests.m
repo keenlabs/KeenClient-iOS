@@ -931,7 +931,7 @@
         }];
     }
 
-    [self waitForExpectationsWithTimeout:_asyncTimeInterval
+    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
                                  handler:^(NSError *_Nullable error) {
                                      // make sure the events were deleted locally
                                      XCTAssertTrue([client.store getTotalEventCountWithProjectID:nil] == 0,
