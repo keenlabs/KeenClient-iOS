@@ -60,12 +60,6 @@ static BOOL geoLocationRequestEnabled = YES;
 // Component for handling event uploads
 @property (nonatomic) KIOUploader *uploader;
 
-/**
- Initializes KeenClient without setting its project ID or API key.
- @returns An instance of KeenClient.
- */
-- (id)init;
-
 @end
 
 @implementation KeenClient
@@ -231,32 +225,20 @@ static BOOL geoLocationRequestEnabled = YES;
     return self;
 }
 
-- (id)initWithProjectID:(NSString *)projectID
-            andWriteKey:(NSString *)writeKey
-             andReadKey:(NSString *)readKey
-             andNetwork:(KIONetwork *)network
-               andStore:(KIODBStore *)store
-            andUploader:(KIOUploader *)uploader {
-    if (projectID == nil || projectID.length <= 0) {
-        KCLogError(@"You must provide a projectID.");
-        return nil;
-    }
-
-    if (writeKey && writeKey.length <= 0) {
-        KCLogError(@"Your writeKey cannot be an empty string.");
-        return nil;
-    }
-
-    if (readKey && readKey.length <= 0) {
-        KCLogError(@"Your readKey cannot be an empty string.");
-        return nil;
-    }
-
+- (instancetype)initWithProjectID:(NSString *)projectID
+                      andWriteKey:(NSString *)writeKey
+                       andReadKey:(NSString *)readKey
+                       andNetwork:(KIONetwork *)network
+                         andStore:(KIODBStore *)store
+                      andUploader:(KIOUploader *)uploader
+                  apiUrlAuthority:(NSString *)apiUrlAuthority {
     self = [self initWithNetwork:network andStore:store andUploader:uploader];
 
     if (self) {
-        KeenClientConfig *config =
-            [[KeenClientConfig alloc] initWithProjectID:projectID andWriteKey:writeKey andReadKey:readKey];
+        KeenClientConfig *config = [[KeenClientConfig alloc] initWithProjectID:projectID
+                                                                   andWriteKey:writeKey
+                                                                    andReadKey:readKey
+                                                               apiUrlAuthority:apiUrlAuthority];
         if (config) {
             self.config = config;
         } else {
@@ -273,13 +255,23 @@ static BOOL geoLocationRequestEnabled = YES;
                      andUploader:[KIOUploader sharedInstance]];
 }
 
-- (id)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey {
+- (instancetype)initWithProjectID:(NSString *)projectID
+                      andWriteKey:(NSString *)writeKey
+                       andReadKey:(NSString *)readKey {
+    return [self initWithProjectID:projectID andWriteKey:writeKey andReadKey:readKey apiUrlAuthority:nil];
+}
+
+- (instancetype)initWithProjectID:(NSString *)projectID
+                      andWriteKey:(NSString *)writeKey
+                       andReadKey:(NSString *)readKey
+                  apiUrlAuthority:(NSString *)apiUrlAuthority {
     return [self initWithProjectID:projectID
                        andWriteKey:writeKey
                         andReadKey:readKey
                         andNetwork:[KIONetwork sharedInstance]
                           andStore:[KIODBStore sharedInstance]
-                       andUploader:[KIOUploader sharedInstance]];
+                       andUploader:[KIOUploader sharedInstance]
+                   apiUrlAuthority:apiUrlAuthority];
 }
 
 #pragma mark - Get a shared client
@@ -287,10 +279,19 @@ static BOOL geoLocationRequestEnabled = YES;
 + (KeenClient *)sharedClientWithProjectID:(NSString *)projectID
                               andWriteKey:(NSString *)writeKey
                                andReadKey:(NSString *)readKey {
+    return [self sharedClientWithProjectID:projectID andWriteKey:writeKey andReadKey:readKey apiUrlAuthority:nil];
+}
+
++ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID
+                              andWriteKey:(NSString *)writeKey
+                               andReadKey:(NSString *)readKey
+                          apiUrlAuthority:(NSString *)apiUrlAuthority {
     KeenClient *client = nil;
 
-    self.sharedClient.config =
-        [[KeenClientConfig alloc] initWithProjectID:projectID andWriteKey:writeKey andReadKey:readKey];
+    self.sharedClient.config = [[KeenClientConfig alloc] initWithProjectID:projectID
+                                                               andWriteKey:writeKey
+                                                                andReadKey:readKey
+                                                           apiUrlAuthority:apiUrlAuthority];
     if (self.sharedClient.config) {
         client = self.sharedClient;
     }

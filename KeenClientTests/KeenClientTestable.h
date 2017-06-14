@@ -26,6 +26,7 @@
              andReadKey:(NSString *)readKey
              andNetwork:(KIONetwork *)network
                andStore:(KIODBStore *)store
-            andUploader:(KIOUploader *)uploader;
+            andUploader:(KIOUploader *)uploader
+        apiUrlAuthority:(NSString *)apiUrlAuthority;
 
 @end

@@ -72,11 +72,13 @@
     }
 
     // Ensure all db operations have finished
-    [[KeenClient sharedClient].store drainQueue];
+    // TODO: This doesn't actually consider other KeenClient instances if they aren't the shared instance
+    // Really should mock KIODBStore
+    [KIODBStore.sharedInstance drainQueue];
 
     // Ensure the sqlite database has been closed since we'll
     // likely be blowing it away and will need to open it again
-    [[KeenClient sharedClient].store closeDB];
+    [KIODBStore.sharedInstance closeDB];
 
     // Done with sqlite, free the lock on it
     [self.databaseRequirement unlock];
@@ -127,8 +129,8 @@
                           andRequestValidator:nil];
 }
 
-- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse*)response
-                 andResponseData:(NSData*)responseData
+- (id)mockUrlSessionWithResponse:(NSHTTPURLResponse *)response
+                 andResponseData:(NSData *)responseData
              andRequestValidator:(BOOL (^)(id requestObject))requestValidator {
     // Mock the NSURLSession to be used for the request
     // If a validator is provided, it will check the actual request made
@@ -178,7 +180,8 @@
                                                     andReadKey:kDefaultReadKey
                                                     andNetwork:network
                                                       andStore:store
-                                                   andUploader:mockUploader];
+                                                   andUploader:mockUploader
+                                               apiUrlAuthority:nil];
 
     client.isRunningTests = YES;
 

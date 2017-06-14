@@ -83,6 +83,36 @@
     XCTAssertEqualObjects(client, client2, @"sharedClient should return the same instance");
 }
 
+- (void)testInitWithApiUrlAuthority {
+    KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey];
+    XCTAssertEqualObjects(
+                          kKeenDefaultApiUrlAuthority, client.config.apiUrlAuthority, @"Should set default API URL authority");
+    
+    NSString *customAuthority = @"some.url.com";
+    KeenClient *client2 = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
+                                                    andWriteKey:kDefaultWriteKey
+                                                     andReadKey:kDefaultReadKey
+                                                apiUrlAuthority:customAuthority];
+    XCTAssertEqualObjects(customAuthority, client2.config.apiUrlAuthority, @"Should set custom API URL authority");
+}
+
+- (void)testSharedWithApiUrlAuthority {
+    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
+                                                   andWriteKey:kDefaultWriteKey
+                                                    andReadKey:kDefaultReadKey];
+    XCTAssertEqualObjects(
+                          kKeenDefaultApiUrlAuthority, client.config.apiUrlAuthority, @"Should set default API URL authority");
+    
+    NSString *customAuthority = @"some.url.com";
+    KeenClient *client2 = [KeenClient sharedClientWithProjectID:kDefaultProjectID
+                                                    andWriteKey:kDefaultWriteKey
+                                                     andReadKey:kDefaultReadKey
+                                                apiUrlAuthority:customAuthority];
+    XCTAssertEqualObjects(customAuthority, client2.config.apiUrlAuthority, @"Should set custom API URL authority");
+}
+
 - (void)testBasicAddon {
     KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
                                                    andWriteKey:kDefaultWriteKey
@@ -159,7 +189,7 @@
     NSURLSession *session =
         [self mockUrlSessionWithResponse:response andResponseData:responseData andRequestValidator:nil];
 
-    KIODBStore *store = [[KIODBStore alloc] init];
+    KIODBStore *store = KIODBStore.sharedInstance;
 
     // Build a session configuration as expected with the enabled proxy
     NSURLSessionConfiguration *expectedConfiguration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
@@ -191,7 +221,8 @@
                                                     andReadKey:kDefaultReadKey
                                                     andNetwork:network
                                                       andStore:store
-                                                   andUploader:uploader];
+                                                   andUploader:uploader
+                                               apiUrlAuthority:nil];
 
     BOOL success = [client setProxy:proxyHost port:proxyPort];
     XCTAssertTrue(success);

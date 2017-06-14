@@ -45,6 +45,8 @@
     NSString *dbPath = [self databaseFile];
     NSFileManager *fileManager = [NSFileManager defaultManager];
     XCTAssertTrue([fileManager fileExistsAtPath:dbPath], @"Database file exists.");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testClosedDB {
@@ -55,6 +57,8 @@
     XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"no pending if closed");
     [store resetPendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
     [store purgePendingEventsWithProjectID:projectID]; // This shouldn't crash. :P
+    [store drainQueue];
+    [store closeDB];
 }
 
 #pragma mark - Event Methods
@@ -64,6 +68,8 @@
     [store addEvent:[@"I AM AN EVENT" dataUsingEncoding:NSUTF8StringEncoding] collection:@"foo" projectID:projectID];
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 1, @"1 total event after add");
     XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after add");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testEventDelete {
@@ -84,6 +90,8 @@
 
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 0, @"0 total events after delete");
     XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after delete");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testEventGetPending {
@@ -108,6 +116,8 @@
           projectID:projectID];
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 3, @"3 total event after non-pending add");
     XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 2, @"2 pending event after add");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testEventCleanupOfPending {
@@ -135,6 +145,8 @@
     [store purgePendingEventsWithProjectID:projectID];
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 0, @"0 total event after add");
     XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"No pending events now!");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testEventResetOfPending {
@@ -166,6 +178,8 @@
     [store resetPendingEventsWithProjectID:projectID];
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 4, @"0 total event after add");
     XCTAssertFalse([store hasPendingEventsWithProjectID:projectID], @"No pending events now!");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testEventDeleteFromOffset {
@@ -181,6 +195,8 @@
     [store deleteEventsFromOffset:@2];
     XCTAssertTrue([store getTotalEventCountWithProjectID:projectID] == 2,
                   @"2 total events after deleteEventsFromOffset");
+    [store drainQueue];
+    [store closeDB];
 }
 
 #pragma mark - Query Methods
@@ -198,6 +214,8 @@
           projectID:projectID];
 
     XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 1, @"1 total event after add");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testQueryGet {
@@ -248,6 +266,8 @@
     XCTAssertEqualObjects(
         [query2 convertQueryToData], [returnedQuery2 objectForKey:@"queryData"], @"query data is the same");
     XCTAssertEqual([[returnedQuery2 objectForKey:@"attempts"] intValue], 0, @"attempts is 0");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testQueryUpdate {
@@ -289,6 +309,8 @@
     XCTAssertEqualObjects(
         [query convertQueryToData], [returnUpdateQuery objectForKey:@"queryData"], @"query data is the same");
     XCTAssertEqual([[returnUpdateQuery objectForKey:@"attempts"] intValue], 1, @"attempts is 1");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testQueryDeleteAll {
@@ -308,6 +330,8 @@
     [store deleteAllQueries];
 
     XCTAssertTrue([store getTotalQueryCountWithProjectID:projectID] == 0, @"0 total query after deleteAllQueries");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testHasQueryWithMaxAttempts {
@@ -367,6 +391,8 @@
                               queryTTL:1];
 
     XCTAssertTrue(hasQueryWithMaxAttempts, @"query found with attempts equal to or over 1");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testDeleteQueriesOlderThanXSeconds {
@@ -398,6 +424,8 @@
 
     totalQueries = [store getTotalQueryCountWithProjectID:projectID];
     XCTAssertTrue(totalQueries == 0, @"0 total query after trying to delete queries older than 1 seconds");
+    [store drainQueue];
+    [store closeDB];
 }
 
 - (void)testRecoverFromCorruptDb {
@@ -427,6 +455,8 @@
     }
 
     XCTAssertTrue([store getPendingEventCountWithProjectID:projectID] == 0, @"0 pending events after init");
+    [store drainQueue];
+    [store closeDB];
 }
 
 #pragma mark - Helper Methods
