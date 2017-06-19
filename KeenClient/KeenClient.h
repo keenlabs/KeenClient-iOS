@@ -124,27 +124,45 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 @property (nonatomic, readonly, getter=getProxyPort) NSNumber *proxyPort;
 
 /**
- Call this to retrieve the managed instance of KeenClient and set its project ID and Write/Read Keys
- to the given parameters.
+ Call this to initialize and retrieve the shared instance of KeenClient and set its project
+ ID and write/read keys to the given parameters.
 
- You'll generally want to call this the first time you ask for the shared client.  Once you've called
- this, you can simply call [KeenClient sharedClient] afterwards.
+ Call this the first time you ask for the shared client. Once you've called
+ this, you can simply call [KeenClient sharedClient].
 
  @param projectID Your Keen IO Project ID.
- @param writeKey Your Keen IO Write Key.
- @param readKey Your Keen IO Read Key.
- @return A managed instance of KeenClient, or nil if projectID is invalid.
+ @param writeKey Your Keen IO Write Key, Access Key with write permission, or nil if not doing writes.
+ @param readKey Your Keen IO Read Key, Access Key with read permission, or nil if not doing reads.
+ @return A shared instance of KeenClient, or nil if parameters aren't correctly provided.
  */
 + (KeenClient *)sharedClientWithProjectID:(NSString *)projectID
                               andWriteKey:(NSString *)writeKey
                                andReadKey:(NSString *)readKey;
 
 /**
- Call this to retrieve the managed instance of KeenClient.
+ Call this to initialize and retrieve the shared instance of KeenClient and set its project
+ ID and write/read keys to the given parameters.
+
+ Call this the first time you ask for the shared client. Once you've called
+ this, you can simply call [KeenClient sharedClient].
+
+ @param projectID Your Keen IO Project ID.
+ @param writeKey Your Keen IO Write Key, Access Key with write permission, or nil if not doing writes.
+ @param readKey Your Keen IO Read Key, Access Key with read permission, or nil if not doing reads.
+ @param apiUrlAuthority A custom URL authority for the Keen API, e.g. "api.keen.io:443"
+ @return A shared instance of KeenClient, or nil if parameters aren't correctly provided.
+ */
++ (KeenClient *)sharedClientWithProjectID:(NSString *)projectID
+                              andWriteKey:(NSString *)writeKey
+                               andReadKey:(NSString *)readKey
+                          apiUrlAuthority:(NSString *)apiUrlAuthority;
+
+/**
+ Call this to retrieve the shared instance of KeenClient.
 
  If you only have to use a single Keen project, just use this.
 
- @return A managed instance of KeenClient, or nil if you haven't called [KeenClient
+ @return A shared instance of KeenClient, or nil if you haven't called [KeenClient
  sharedClientWithProjectID:andWriteKey:andReadKey:].
  */
 + (KeenClient *)sharedClient;
@@ -212,17 +230,34 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
 - (KIODBStore *)getDBStore;
 
 /**
- Call this if your code needs to use more than one Keen project.  By convention, if you
+ Call this if your code needs to use more than one Keen project. By convention, if you
  call this, you're responsible for releasing the returned instance once you're finished with it.
 
  Otherwise, just use [KeenClient sharedClient].
 
  @param projectID Your Keen IO Project ID.
- @param writeKey Your Keen IO Write Key.
- @param readKey Your Keen IO Read Key.
+ @param writeKey Your Keen IO Write Key, Access Key with write permission, or nil if not doing writes.
+ @param readKey Your Keen IO Read Key, Access Key with read permission, or nil if not doing reads.
  @return An initialized instance of KeenClient.
  */
 - (instancetype)initWithProjectID:(NSString *)projectID andWriteKey:(NSString *)writeKey andReadKey:(NSString *)readKey;
+
+/**
+ Call this if your code needs to use more than one Keen project. By convention, if you
+ call this, you're responsible for releasing the returned instance once you're finished with it.
+
+ Otherwise, just use [KeenClient sharedClient].
+
+ @param projectID Your Keen IO Project ID.
+ @param writeKey Your Keen IO Write Key, Access Key with write permission, or nil if not doing writes.
+ @param readKey Your Keen IO Read Key, Access Key with read permission, or nil if not doing reads.
+ @param apiUrlAuthority A custom URL authority for the Keen API, e.g. "api.keen.io:443"
+ @return An initialized instance of KeenClient.
+ */
+- (instancetype)initWithProjectID:(NSString *)projectID
+                      andWriteKey:(NSString *)writeKey
+                       andReadKey:(NSString *)readKey
+                  apiUrlAuthority:(NSString *)apiUrlAuthority;
 
 /**
  Call this to set the global properties block for this instance of the KeenClient. The block is invoked

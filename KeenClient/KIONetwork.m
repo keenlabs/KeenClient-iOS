@@ -33,7 +33,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
                   andProjectID:(NSString *)projectID
                       andError:(NSError *)error;
 
-- (NSString *)getProjectURL:(NSString *)projectID;
+- (NSString *)getProjectURL:(KeenClientConfig *)config;
 
 @property (nonatomic, readwrite) id<KIONSURLSessionFactory> urlSessionFactory;
 
@@ -164,8 +164,12 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
                                       queryTTL:self.queryTTL];
 }
 
-- (NSString *)getProjectURL:(NSString *)projectID {
-    return [NSString stringWithFormat:@"%@/%@/projects/%@", kKeenServerAddress, kKeenApiVersion, projectID];
+- (NSString *)getProjectURL:(KeenClientConfig *)config {
+    return [NSString stringWithFormat:@"%@://%@/%@/projects/%@",
+                                      kKeenApiUrlScheme,
+                                      config.apiUrlAuthority,
+                                      kKeenApiVersion,
+                                      config.projectID];
 }
 
 #pragma mark Sync methods
@@ -177,7 +181,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     IF_STRING_EMPTY_COMPLETE(config.writeKey);
     IF_NIL_COMPLETE(data);
 
-    NSString *urlString = [NSString stringWithFormat:@"%@/events", [self getProjectURL:config.projectID]];
+    NSString *urlString = [NSString stringWithFormat:@"%@/events", [self getProjectURL:config]];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest *request =
@@ -200,7 +204,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     }
 
     NSString *urlString =
-        [NSString stringWithFormat:@"%@/queries/%@", [self getProjectURL:config.projectID], keenQuery.queryType];
+        [NSString stringWithFormat:@"%@/queries/%@", [self getProjectURL:config], keenQuery.queryType];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest *request = [self createRequestWithUrl:urlString
@@ -304,7 +308,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     IF_NIL_COMPLETE(keenQueries);
 
     NSString *urlString =
-        [NSString stringWithFormat:@"%@/queries/%@", [self getProjectURL:config.projectID], @"multi_analysis"];
+        [NSString stringWithFormat:@"%@/queries/%@", [self getProjectURL:config], @"multi_analysis"];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSDictionary *multiAnalysisDictionary = [self prepareQueriesDictionaryForMultiAnalysis:keenQueries];
@@ -339,7 +343,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     IF_STRING_EMPTY_COMPLETE(queryName);
 
     NSString *urlString =
-        [NSString stringWithFormat:@"%@/queries/saved/%@/result", [self getProjectURL:config.projectID], queryName];
+        [NSString stringWithFormat:@"%@/queries/saved/%@/result", [self getProjectURL:config], queryName];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest *request =
@@ -363,7 +367,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     NSString *queryString = [[NSString stringWithFormat:@"index_by=%@&timeframe=%@", indexValue, timeframe]
         stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     NSString *urlString = [NSString
-        stringWithFormat:@"%@/datasets/%@/results?%@", [self getProjectURL:config.projectID], datasetName, queryString];
+        stringWithFormat:@"%@/datasets/%@/results?%@", [self getProjectURL:config], datasetName, queryString];
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest *request =

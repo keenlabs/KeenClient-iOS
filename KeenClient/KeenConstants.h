@@ -10,7 +10,8 @@
 
 #define kKeenSdkVersion @"3.6.2"
 
-extern NSString * const kKeenServerAddress;
+extern NSString * const kKeenApiUrlScheme;
+extern NSString * const kKeenDefaultApiUrlAuthority;
 extern NSString * const kKeenApiVersion;
 
 extern NSString * const kKeenNameParam;

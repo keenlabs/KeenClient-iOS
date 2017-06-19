@@ -8,7 +8,8 @@
 
 #import "KeenConstants.h"
 
-NSString *const kKeenServerAddress = @"https://api.keen.io";
+NSString *const kKeenApiUrlScheme = @"https";
+NSString *const kKeenDefaultApiUrlAuthority = @"api.keen.io";
 NSString *const kKeenApiVersion = @"3.0";
 
 // Keen API constants

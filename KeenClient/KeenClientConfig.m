@@ -9,18 +9,24 @@
 #import "KeenClientConfig.h"
 #import "KIOUtil.h"
 #import "KeenClient.h"
+#import "KeenConstants.h"
 
 @implementation KeenClientConfig
-
-- (instancetype)init {
-    [NSException raise:@"Method not implemented." format:@"Method not implemented."];
-    return nil;
-}
 
 - (instancetype)initWithProjectID:(NSString *)projectID
                       andWriteKey:(NSString *)writeKey
                        andReadKey:(NSString *)readKey {
-    if (projectID == nil || projectID.length <= 0) {
+    return [self initWithProjectID:projectID
+                       andWriteKey:writeKey
+                        andReadKey:readKey
+                   apiUrlAuthority:nil];
+}
+
+- (instancetype)initWithProjectID:(NSString *)projectID
+                      andWriteKey:(NSString *)writeKey
+                       andReadKey:(NSString *)readKey
+                  apiUrlAuthority:(NSString *)apiUrlAuthority {
+    if (nil == projectID || projectID.length <= 0) {
         KCLogError(@"You must provide a projectID.");
         return nil;
     }
@@ -35,12 +41,22 @@
         return nil;
     }
 
+    if (nil != apiUrlAuthority && apiUrlAuthority.length <= 0) {
+        KCLogError(@"A URL authority for the API cannot be zero length.");
+        return nil;
+    }
+
+    if (nil == apiUrlAuthority) {
+        apiUrlAuthority = kKeenDefaultApiUrlAuthority;
+    }
+
     self = [super init];
 
     if (self) {
         self.projectID = projectID;
         self.writeKey = writeKey;
         self.readKey = readKey;
+        self.apiUrlAuthority = apiUrlAuthority;
     }
 
     return self;
