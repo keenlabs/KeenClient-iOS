@@ -14,37 +14,39 @@
     if (queryType == nil || queryType.length <= 0) {
         return nil;
     }
-    
+
     self = [super init];
-    
+
     if (self) {
         self.queryType = queryType;
         self.propertiesDictionary = propertiesDictionary;
     }
-    
+
     return self;
 }
 
-- (id)initWithQuery:(NSString *)queryType andQueryName:(NSString *)queryName andPropertiesDictionary:(NSDictionary *)propertiesDictionary {
+- (id)initWithQuery:(NSString *)queryType
+               andQueryName:(NSString *)queryName
+    andPropertiesDictionary:(NSDictionary *)propertiesDictionary {
     if (queryType == nil || queryType.length <= 0) {
         return nil;
     }
-    
+
     self = [super init];
-    
+
     if (self) {
         self.queryType = queryType;
         self.queryName = queryName;
         self.propertiesDictionary = propertiesDictionary;
     }
-    
+
     return self;
 }
 
 - (NSData *)convertQueryToData {
     NSError *error;
     NSData *data = [NSJSONSerialization dataWithJSONObject:self.propertiesDictionary options:0 error:&error];
-    
+
     return data;
 }
 

@@ -9,6 +9,7 @@
 #import "HTTPCodes.h"
 #import "KeenConstants.h"
 #import "KeenClient.h"
+#import "KeenClientConfig.h"
 #import "KIOReachability.h"
 #import "KIODBStore.h"
 #import "KIONetwork.h"
@@ -32,7 +33,6 @@
                        andData:(NSData *)responseData
                      forEvents:(NSDictionary *)eventIds;
 
-
 // A dispatch queue used for uploads.
 @property (nonatomic) dispatch_queue_t uploadQueue;
 
@@ -46,9 +46,7 @@
 
 @end
 
-
 @implementation KIOUploader
-
 
 + (instancetype)sharedInstance {
     static KIOUploader *s_sharedInstance;
@@ -62,15 +60,14 @@
     // for the block to complete.
     static dispatch_once_t predicate = {0};
     dispatch_once(&predicate, ^{
-        s_sharedInstance = [[KIOUploader alloc] initWithNetwork:KIONetwork.sharedInstance
-                                                       andStore:KIODBStore.sharedInstance];
+        s_sharedInstance =
+            [[KIOUploader alloc] initWithNetwork:KIONetwork.sharedInstance andStore:KIODBStore.sharedInstance];
     });
 
     return s_sharedInstance;
 }
 
-- (instancetype)initWithNetwork:(KIONetwork *)network
-                       andStore:(KIODBStore *)store {
+- (instancetype)initWithNetwork:(KIONetwork *)network andStore:(KIODBStore *)store {
     self = [super init];
     if (self) {
         // Create a serialized queue to handle all upload operations
@@ -88,7 +85,6 @@
     return self;
 }
 
-
 - (void)prepareJSONData:(NSData **)jsonData
             andEventIDs:(NSMutableDictionary **)eventIDs
            forProjectID:(NSString *)projectID {
@@ -99,8 +95,8 @@
     NSMutableDictionary *eventIDDict = [NSMutableDictionary dictionary];
 
     // get data for the API request we'll make
-    NSMutableDictionary *events = [self.store getEventsWithMaxAttempts:self.maxEventUploadAttempts
-                                                          andProjectID:projectID];
+    NSMutableDictionary *events =
+        [self.store getEventsWithMaxAttempts:self.maxEventUploadAttempts andProjectID:projectID];
 
     NSError *error;
     for (NSString *coll in events) {
@@ -111,9 +107,7 @@
 
         for (NSNumber *eid in collEvents) {
             NSData *ev = [collEvents objectForKey:eid];
-            NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev
-                                                                      options:0
-                                                                        error:&error];
+            NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev options:0 error:&error];
             if (error) {
                 KCLogError(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
                 continue;
@@ -122,7 +116,7 @@
             // add it to the array of events
             [eventsArray addObject:eventDict];
             if ([eventIDDict objectForKey:coll] == nil) {
-                [eventIDDict setObject: [NSMutableArray array] forKey:coll];
+                [eventIDDict setObject:[NSMutableArray array] forKey:coll];
             }
             [[eventIDDict objectForKey:coll] addObject:eid];
         }
@@ -139,7 +133,7 @@
     NSData *data = [NSJSONSerialization dataWithJSONObject:requestDict options:0 error:&error];
     if (error) {
         KCLogError(@"An error occurred when serializing the final request data back to JSON: %@",
-              [error localizedDescription]);
+                   [error localizedDescription]);
         // can't do much here.
         return;
     }
@@ -150,34 +144,31 @@
     KCLogVerbose(@"Uploading following events to Keen API: %@", requestDict);
 }
 
-
-# pragma mark - Uploading
+#pragma mark - Uploading
 
 - (BOOL)isNetworkConnected {
     KIOReachability *hostReachability = [KIOReachability KIOreachabilityForInternetConnection];
     return [hostReachability KIOcurrentReachabilityStatus] != NotReachable;
 }
 
-- (void)uploadEventsForProjectID:(NSString *)projectID
-                    withWriteKey:(NSString *)writeKey
-               withFinishedBlock:(void (^)())block {
+- (void)uploadEventsForConfig:(KeenClientConfig *)config completionHandler:(void (^)())completionHandler {
     dispatch_async(self.uploadQueue, ^{
         if (![self isNetworkConnected]) {
-            [self runUploadFinishedBlock:block];
+            [self runUploadFinishedBlock:completionHandler];
             return;
         }
 
         // Migrate data from old format if anything exists
         // for this project id.
-        [KIOFileStore maybeMigrateDataFromFileStore:projectID];
+        [KIOFileStore maybeMigrateDataFromFileStore:config.projectID];
 
         // get data for the API request we'll make
         NSData *data;
         NSMutableDictionary *eventIDs;
-        [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:projectID];
+        [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:config.projectID];
 
         if ([data length] == 0) {
-            [self runUploadFinishedBlock:block];
+            [self runUploadFinishedBlock:completionHandler];
         } else {
             // loop through events and increment their attempt count
             for (NSString *collectionName in eventIDs) {
@@ -192,19 +183,18 @@
 
             // then make an http request to the keen server.
             [self.network sendEvents:data
-                       withProjectID:projectID
-                        withWriteKey:writeKey
+                              config:config
                    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                // then parse the http response and deal with it appropriately
-                [self handleEventAPIResponse:response andData:data forEvents:eventIDs];
+                       // then parse the http response and deal with it appropriately
+                       [self handleEventAPIResponse:response andData:data forEvents:eventIDs];
 
-                [self runUploadFinishedBlock:block];
+                       [self runUploadFinishedBlock:completionHandler];
 
-                [self.isUploadingCondition lock];
-                self.isUploading = NO;
-                [self.isUploadingCondition signal];
-                [self.isUploadingCondition unlock];
-            }];
+                       [self.isUploadingCondition lock];
+                       self.isUploading = NO;
+                       [self.isUploadingCondition signal];
+                       [self.isUploadingCondition unlock];
+                   }];
 
             // Block the queue until uploading has finished.
             // Otherwise we'll pick up events that are in flight and try to upload them again
@@ -220,26 +210,21 @@
 - (void)runUploadFinishedBlock:(void (^)())block {
     if (block) {
         KCLogVerbose(@"Running user-specified block.");
-        @try {
-            block();
-        } @catch(NSException *exception) {
-            KCLogError(@"Error executing user-specified block. \nName: %@\nReason: %@", exception.name, exception.reason);
-        }
+        block();
     }
 }
 
-
-# pragma mark - HTTP request/response management
+#pragma mark - HTTP request/response management
 
 - (void)handleEventAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
                      forEvents:(NSDictionary *)eventIds {
     if (!responseData) {
         KCLogError(@"responseData was nil for some reason.  That's not great.");
-        KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse *) response) statusCode]);
+        KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse *)response)statusCode]);
         return;
     }
-    NSInteger responseCode = [((NSHTTPURLResponse *)response) statusCode];
+    NSInteger responseCode = [((NSHTTPURLResponse *)response)statusCode];
     if ([HTTPCodes httpCodeType:(responseCode)] != HTTPCode2XXSuccess) {
         // response code was NOT 2xx, which means something else happened. log this.
         KCLogError(@"Response code was NOT 2xx. It was: %ld", (long)responseCode);
@@ -251,9 +236,7 @@
     // if the request succeeded, dig into the response to figure out which events succeeded and which failed
     // deserialize the response
     NSError *error;
-    NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData
-                                                                 options:0
-                                                                   error:&error];
+    NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
     if (error) {
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
         KCLogError(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@",
@@ -284,7 +267,8 @@
                     deleteFile = YES;
                 } else {
                     KCLogError(@"The event could not be inserted for some reason.  Error name and description: %@, %@",
-                               errorCode, [errorDict objectForKey:kKeenDescriptionParam]);
+                               errorCode,
+                               [errorDict objectForKey:kKeenDescriptionParam]);
                     deleteFile = NO;
                 }
             }
@@ -300,6 +284,5 @@
         }
     }
 }
-
 
 @end

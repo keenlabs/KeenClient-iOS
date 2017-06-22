@@ -5,7 +5,8 @@ SCRIPTPATH=$(dirname $0)
 # Do a travis-like validation build and test
 
 gem install bundler
-rvm use 2.3.0
+rvm use 2.4.1
+bundle install
 
 export TRAVIS_XCODE_WORKSPACE="$SCRIPTPATH/../KeenClient.xcworkspace"
 export TRAVIS_XCODE_SDK=iphonesimulator10.3
@@ -17,9 +18,6 @@ export XCODEBUILD_ACTION=build
 BUILD_SCRIPT="$SCRIPTPATH/test.sh"
 
 export TRAVIS_XCODE_SCHEME=KeenClientFramework
-$BUILD_SCRIPT
-
-export TRAVIS_XCODE_SCHEME=KeenSwiftClientExample
 $BUILD_SCRIPT
 
 export TRAVIS_XCODE_SCHEME=KeenClient

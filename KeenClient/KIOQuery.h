@@ -15,7 +15,9 @@
 @property (nonatomic) NSDictionary *propertiesDictionary;
 
 - (id)initWithQuery:(NSString *)queryType andPropertiesDictionary:(NSDictionary *)propertiesDictionary;
-- (id)initWithQuery:(NSString *)queryType andQueryName:(NSString *)queryName andPropertiesDictionary:(NSDictionary *)propertiesDictionary;
+- (id)initWithQuery:(NSString *)queryType
+               andQueryName:(NSString *)queryName
+    andPropertiesDictionary:(NSDictionary *)propertiesDictionary;
 
 - (NSData *)convertQueryToData;
 

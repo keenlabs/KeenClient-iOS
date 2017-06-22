@@ -13,7 +13,7 @@
 
 @implementation KIOUtil
 
-+ (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError **) error {
++ (NSData *)serializeEventToJSON:(NSMutableDictionary *)event error:(NSError **)error {
     id fixed = [self handleInvalidJSONInObject:event];
 
     if (![NSJSONSerialization isValidJSONObject:fixed]) {
@@ -39,7 +39,7 @@
     } else if ([value isKindOfClass:[NSArray class]]) {
         // make sure the array is mutable and then recurse for every element
         NSMutableArray *mutArr = [value mutableCopy];
-        for (NSUInteger i=0; i<[mutArr count]; i++) {
+        for (NSUInteger i = 0; i < [mutArr count]; i++) {
             id arrVal = [mutArr objectAtIndex:i];
             arrVal = [self handleInvalidJSONInObject:arrVal];
             [mutArr setObject:arrVal atIndexedSubscript:i];
@@ -71,13 +71,13 @@
     }
 }
 
-+ (BOOL)handleError:(NSError**)error withErrorMessage:(NSString*)errorMessage {
++ (BOOL)handleError:(NSError **)error withErrorMessage:(NSString *)errorMessage {
     return [self handleError:error withErrorMessage:errorMessage underlyingError:nil];
 }
 
-+ (BOOL)handleError:(NSError**)error
-   withErrorMessage:(NSString*)errorMessage
-    underlyingError:(NSError *)underlyingError {
++ (BOOL)handleError:(NSError **)error
+    withErrorMessage:(NSString *)errorMessage
+     underlyingError:(NSError *)underlyingError {
     if (error) {
         const id<NSCopying> keys[] = {NSLocalizedDescriptionKey, NSUnderlyingErrorKey};
         const id objects[] = {errorMessage, underlyingError};
@@ -90,7 +90,7 @@
     return NO;
 }
 
-# pragma mark - NSDate => NSString
+#pragma mark - NSDate => NSString
 
 + (id)convertDate:(id)date {
     NSDateFormatter *dateFormatter = [NSDateFormatter new];

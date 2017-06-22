@@ -20,6 +20,9 @@ Gemfile.lock
 # VS Code
 .vscode/
 
+# Build logs
+xcodebuild*.log
+
 # CocoaPods
 Pods/
 

@@ -55,4 +55,4 @@ xcodebuild \
 	$BUILD_TARGET_ARGUMENTS \
 	-sdk $TRAVIS_XCODE_SDK \
 	-destination "$XCODEBUILD_DESTINATION" \
-	ONLY_ACTIVE_ARCH=NO clean $XCODEBUILD_ACTION | bundle exec xcpretty --color
+	ONLY_ACTIVE_ARCH=NO clean $XCODEBUILD_ACTION | tee xcodebuild-$TRAVIS_XCODE_SCHEME.log | bundle exec xcpretty --color
