@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define kKeenSdkVersion @"3.6.2"
+#define kKeenSdkVersion @"3.7.0"
 
 extern NSString * const kKeenApiUrlScheme;
 extern NSString * const kKeenDefaultApiUrlAuthority;
