@@ -22,7 +22,7 @@ While the name of this repo implies that this SDK is strictly for iOS, it can al
 * [Usage](#usage) - How to use `KeenClient`
 	* [Add Events](#add-events) - How to add an event
 	* [Global Properties](#global-properties) - How to set global properties
-	* [Geo Location](#geo-location) - How to use Geo Location
+	* [Geolocation](#geolocation) - How to use geolocation
 	* [Upload to Keen](#upload-events-to-keen-io) - How to upload all previously saved events
 	* [Add-ons](#add-ons) - How to use Keen's [Data Enrichment](https://keen.io/docs/data-collection/data-enrichment/#data-enrichment) features to enrich your data
 	* [Querying](#querying) - How to query and analyze your data
@@ -297,9 +297,21 @@ The block takes in a single string parameter which corresponds to the name of th
 
 > Another note - you can use _both_ the dictionary property and the block property at the same time. If there are conflicts between defined properties, the order of precedence is: user-defined event > block-defined event > dictionary-defined event. Meaning the properties you put in a single event will **always** show up, even if you define the same property in one of your globals.
 
-##### Geo Location
+##### Geolocation
 
-Like any good mobile-first service, Keen supports geo localization so you can track where events happened. This is enabled by default. Just use the client as you normally would and your users will be asked to allow geo location services. All events will be automatically tagged with the current location.
+Like any good mobile-first service, the Keen iOS SDK supports geolocation so you can track where events happened. This is enabled by default. Just use the client as you normally would and your users will be asked to allow geolocation services. All events will be automatically tagged with the current location.
+
+If you'd like to disable geolocation, call the following before initializing a `KeenClient` instance:
+
+Objective C
+```objc
+[KeenClient disableGeoLocation];
+```
+Swift
+```Swift
+KeenClient.disableGeoLocation()
+```
+
 
 If you want to control when you request authentication for location services, you can tell Keen not to request permissions automatically. You do this by calling:
 
@@ -312,9 +324,11 @@ Swift
 KeenClient.disableGeoLocationDefaultRequest()
 ```
 
+Then make a call to `CLLocationManager`'s `requestWhenInUseAuthorization` or `requestAlwaysAuthorization` before initializing a `KeenClient` instance. Doing so after initialization works, too, if you'll be manually refreshing the current location as described below.
+
 ###### Refreshing Current Location
 
-Every time the app is freshly loaded, the client will automatically ask the device for its current location. It won’t ask again in order to save battery life. You can tell the client to ask the device for location again. Simply call:
+When created and initialized, `KeenClient` will automatically ask the device for its current location if geolocation is enabled. It won’t ask again in order to save battery life. You can tell the client to ask the device for location again. Simply call:
 
 Objective C
 ```objc
