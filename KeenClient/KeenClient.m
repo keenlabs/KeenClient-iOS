@@ -22,6 +22,7 @@
 #import "KIOUploader.h"
 #import "KeenLogger.h"
 #import "KeenLogSinkNSLog.h"
+#import "SequenceCounter.h"
 
 static BOOL authorizedGeoLocationAlways = NO;
 static BOOL authorizedGeoLocationWhenInUse = NO;
@@ -504,6 +505,10 @@ static BOOL geoLocationRequestEnabled = YES;
             [newEvent addEntriesFromDictionary:globalProperties];
         }
     }
+    // Add a unique (until the counter wraps) sequence number to the event
+    [newEvent addEntriesFromDictionary:@{
+        @"sequence": @([SequenceCounter getSequence])
+    }];
     [newEvent addEntriesFromDictionary:event];
     event = newEvent;
 
