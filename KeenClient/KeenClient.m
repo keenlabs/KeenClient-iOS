@@ -505,6 +505,10 @@ static BOOL geoLocationRequestEnabled = YES;
         }
     }
     [newEvent addEntriesFromDictionary:event];
+    
+    // Tag the event with a UUID for diagnosing duplicates
+    [newEvent addEntriesFromDictionary:@{ @"SDK UUID": [[NSUUID UUID] UUIDString] }];
+    
     event = newEvent;
 
     // now make sure that we haven't hit the max number of events in this collection already
