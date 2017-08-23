@@ -88,8 +88,8 @@
                                                    andWriteKey:kDefaultWriteKey
                                                     andReadKey:kDefaultReadKey];
     XCTAssertEqualObjects(
-                          kKeenDefaultApiUrlAuthority, client.config.apiUrlAuthority, @"Should set default API URL authority");
-    
+        kKeenDefaultApiUrlAuthority, client.config.apiUrlAuthority, @"Should set default API URL authority");
+
     NSString *customAuthority = @"some.url.com";
     KeenClient *client2 = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
                                                     andWriteKey:kDefaultWriteKey
@@ -103,8 +103,8 @@
                                                    andWriteKey:kDefaultWriteKey
                                                     andReadKey:kDefaultReadKey];
     XCTAssertEqualObjects(
-                          kKeenDefaultApiUrlAuthority, client.config.apiUrlAuthority, @"Should set default API URL authority");
-    
+        kKeenDefaultApiUrlAuthority, client.config.apiUrlAuthority, @"Should set default API URL authority");
+
     NSString *customAuthority = @"some.url.com";
     KeenClient *client2 = [KeenClient sharedClientWithProjectID:kDefaultProjectID
                                                     andWriteKey:kDefaultWriteKey
@@ -122,7 +122,7 @@
                                                      andReadKey:kDefaultReadKey];
 
     NSDictionary *theEvent = @{
-        @"keen": @{
+        kKeenEventKeenDataKey: @{
             @"addons": @[@{
                 @"name": @"addon:name",
                 @"input": @{@"param_name": @"property_that_contains_param"},
@@ -143,10 +143,10 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"foo"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
-    NSDictionary *deserializedAddon = deserializedDict[@"keen"][@"addons"][0];
+    NSDictionary *deserializedAddon = deserializedDict[kKeenEventKeenDataKey][@"addons"][0];
     XCTAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
@@ -235,7 +235,8 @@
     XCTAssertNil(error);
 
     XCTestExpectation *uploadFinished = [self expectationWithDescription:@"upload finished"];
-    [client uploadWithFinishedBlock:^{
+    [client uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [uploadFinished fulfill];
     }];
 
@@ -254,7 +255,8 @@
     XCTAssertNil(error);
 
     XCTestExpectation *secondUploadFinished = [self expectationWithDescription:@"second upload finished"];
-    [client uploadWithFinishedBlock:^{
+    [client uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [secondUploadFinished fulfill];
     }];
 

@@ -19,6 +19,9 @@ typedef NSDictionary * (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 // Block type for analysis/query completion
 typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *response, NSError *error);
 
+// Block type for upload completion
+typedef void (^UploadCompletionBlock)(NSError *error);
+
 /**
  KeenClient has class methods to return managed instances of itself and instance methods
  to collect new events and upload them through the Keen IO API.
@@ -30,7 +33,11 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
                                andReadKey:@"my_read_key"];
     NSDictionary *myEvent = [NSDictionary dictionary];
     [[KeenClient sharedClient] addEvent:myEvent toEventCollection:@"purchases"];
-    [[KeenClient sharedClient] uploadWithFinishedBlock:nil];
+    [[KeenClient sharedClient] uploadWithCompletionHandler:^(NSError *error) {
+        if (error) {
+            // Upload failed, check error for details
+        }
+    }];
  */
 @interface KeenClient : NSObject <CLLocationManagerDelegate>
 
@@ -327,7 +334,30 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  @param block The block to be executed once uploading is finished, regardless of whether or not the upload succeeded.
  The block is also called when no upload was necessary because no events were captured.
  */
-- (void)uploadWithFinishedBlock:(void (^)())block;
+- (void)uploadWithFinishedBlock:(void (^)())block DEPRECATED_MSG_ATTRIBUTE("use uploadWithCompletionHandler:");
+
+/**
+ Upload all the events captured so far by addEvent. This will asynchronously upload all events that have been cached.
+
+ If an upload fails, the events will be saved for a later attempt. It is possible that connectivity loss will cause
+ events to be successfully recorded, but the client will fail to read the server response. In this case, events will be
+ uploaded again as a duplicate event.
+
+ If a particular event is invalid, the event will be dropped from the queue and the failure message
+ will be logged.
+
+ @param completionHandler The block to be executed once uploading is finished, regardless of whether or not the upload
+ succeeded. The block is also called when no upload was necessary because no events were captured. If an error occured,
+ the error parameter passed to the block will be non-null with a keen-specific error domain and error code. In the case
+ where an error is returned to the SDK from a system API, the underlying NSError can be found in
+ error.userInfo[kKeenErrorInnerErrorKey]. If specific events fail to upload, error.code will be
+ KeenErrorCodeEventUploadError and the corresponding failures can be accessed as an NSArray of NSError through
+ error.userInfo[kKeenErrorInnerErrorArrayKey]. If a HTTP status other than 2XX is read, error.code will be
+ KeenErrorCodeResponseError and the status code will be available as error.userInfo[kKeenErrorHttpStatus].
+ KeenErrorCodeResponseError is also reported for other errors when reading a response. An error.code of
+ KeenErrorCodeNetworkDisconnected indicates that no network connection was available, and so nothing was uploaded.
+ */
+- (void)uploadWithCompletionHandler:(UploadCompletionBlock)completionHandler;
 
 /**
  Refresh the current geo location. The Keen Client only gets geo at the beginning of each session (i.e. when the client

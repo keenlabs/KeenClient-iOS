@@ -10,6 +10,7 @@
 #import "KIODBStore.h"
 #import "KIODBStorePrivate.h"
 #import "keen_io_sqlite3.h"
+#import "KeenConstants.h"
 
 @interface KIODBStore ()
 
@@ -555,12 +556,16 @@
             // Fetch data out the statement
             long long eventId = keen_io_sqlite3_column_int64(find_event_stmt, 0);
 
-            NSString *coll = [NSString stringWithUTF8String:(char *)keen_io_sqlite3_column_text(find_event_stmt, 1)];
+            NSString *collection =
+                [NSString stringWithUTF8String:(char *)keen_io_sqlite3_column_text(find_event_stmt, 1)];
 
             const void *dataPtr = keen_io_sqlite3_column_blob(find_event_stmt, 2);
             int dataSize = keen_io_sqlite3_column_bytes(find_event_stmt, 2);
 
             NSData *data = [[NSData alloc] initWithBytes:dataPtr length:dataSize];
+
+            // Get number of upload attempts
+            NSNumber *attempts = [NSNumber numberWithUnsignedLong:keen_io_sqlite3_column_int(find_event_stmt, 3)];
 
             // Bind and mark the event pending.
             if (keen_io_sqlite3_bind_int64(make_pending_event_stmt, 1, eventId) != SQLITE_OK) {
@@ -575,13 +580,14 @@
             // Reset the pendifier
             [self resetSQLiteStatement:make_pending_event_stmt];
 
-            if ([events objectForKey:coll] == nil) {
+            if ([events objectForKey:collection] == nil) {
                 // We don't have an entry in the dictionary yet for this collection
                 // so create one.
-                [events setObject:[NSMutableDictionary dictionary] forKey:coll];
+                [events setObject:[NSMutableDictionary dictionary] forKey:collection];
             }
+            NSMutableDictionary *collectionData = events[collection];
 
-            [[events objectForKey:coll] setObject:data forKey:[NSNumber numberWithUnsignedLongLong:eventId]];
+            collectionData[@(eventId)] = @{ @"data": data, kKeenEventKeenDataAttemptsKey: attempts };
         }
 
         [self resetSQLiteStatement:find_event_stmt];
@@ -1106,11 +1112,10 @@
         return NO;
 
     // This statement finds non-pending events in the table.
-    if (![self
-            prepareSQLStatement:&find_event_stmt
-                       sqlQuery:
-                           "SELECT id, collection, eventData FROM events WHERE pending=0 AND projectID=? AND attempts<?"
-                 failureMessage:@"prepare find non-pending events statement"])
+    if (![self prepareSQLStatement:&find_event_stmt
+                          sqlQuery:"SELECT id, collection, eventData, attempts FROM events WHERE pending=0 AND "
+                                   "projectID=? AND attempts<?"
+                    failureMessage:@"prepare find non-pending events statement"])
         return NO;
 
     // This statement counts the total number of events (pending or not)

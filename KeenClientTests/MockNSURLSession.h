@@ -10,12 +10,13 @@
 
 @interface MockNSURLSession : NSObject
 
-- (instancetype)initWithValidator:(BOOL (^)(id requestObject))validator data:(NSData *)data response:(NSURLResponse *)response error:(NSError *)error;
+- (instancetype)initWithValidator:(BOOL (^)(id requestObject))validator
+                             data:(NSData *)data
+                         response:(NSURLResponse *)response
+                            error:(NSError *)error;
 
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request
-                            completionHandler:(void (^)(NSData *_Nullable data,
-                                                        NSURLResponse *_Nullable response,
-                                                        NSError *_Nullable error))completionHandler;
+                            completionHandler:
+                                (void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
 
 @end
-

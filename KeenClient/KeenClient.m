@@ -428,7 +428,7 @@ static BOOL geoLocationRequestEnabled = YES;
             errorMessage = @"You must specify a non-null, non-empty event.";
             return [KIOUtil handleError:anError withErrorMessage:errorMessage];
         }
-        id keenObject = [event objectForKey:@"keen"];
+        id keenObject = event[kKeenEventKeenDataKey];
         if (keenObject && ![keenObject isKindOfClass:[NSDictionary class]]) {
             errorMessage = @"An event's root-level property named 'keen' must be a dictionary.";
             return [KIOUtil handleError:anError withErrorMessage:errorMessage];
@@ -530,15 +530,15 @@ static BOOL geoLocationRequestEnabled = YES;
     NSMutableDictionary *eventToWrite = [NSMutableDictionary dictionaryWithDictionary:event];
 
     // either set "keen" only from keen properties or merge in
-    NSDictionary *originalKeenDict = [eventToWrite objectForKey:@"keen"];
+    NSDictionary *originalKeenDict = eventToWrite[kKeenEventKeenDataKey];
     if (originalKeenDict) {
         // have to merge
         NSMutableDictionary *keenDict = [KIOUtil handleInvalidJSONInObject:keenProperties];
         [keenDict addEntriesFromDictionary:originalKeenDict];
-        [eventToWrite setObject:keenDict forKey:@"keen"];
+        eventToWrite[kKeenEventKeenDataKey] = keenDict;
     } else {
         // just set it directly
-        [eventToWrite setObject:keenProperties forKey:@"keen"];
+        eventToWrite[kKeenEventKeenDataKey] = keenProperties;
     }
 
     NSError *serializationError;
@@ -565,6 +565,10 @@ static BOOL geoLocationRequestEnabled = YES;
 
 - (void)uploadWithFinishedBlock:(void (^)())block {
     [self.uploader uploadEventsForConfig:self.config completionHandler:block];
+}
+
+- (void)uploadWithCompletionHandler:(UploadCompletionBlock)completionHandler {
+    [self.uploader uploadEventsForConfig:self.config completionHandler:completionHandler];
 }
 
 #pragma mark - Querying

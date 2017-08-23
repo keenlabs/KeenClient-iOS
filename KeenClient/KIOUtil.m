@@ -83,7 +83,7 @@
         const id objects[] = {errorMessage, underlyingError};
         NSUInteger count = underlyingError ? 2 : 1;
         NSDictionary *userInfo = [NSDictionary dictionaryWithObjects:objects forKeys:keys count:count];
-        *error = [NSError errorWithDomain:kKeenErrorDomain code:1 userInfo:userInfo];
+        *error = [NSError errorWithDomain:kKeenErrorDomain code:KeenErrorCodeGeneral userInfo:userInfo];
         KCLogError(@"%@", *error);
     }
 

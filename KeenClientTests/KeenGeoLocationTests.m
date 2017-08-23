@@ -10,6 +10,7 @@
 #import "KeenClientTestable.h"
 #import "KeenTestConstants.h"
 #import "KeenGeoLocationTests.h"
+#import "KeenConstants.h"
 
 @implementation KeenGeoLocationTests
 
@@ -33,11 +34,11 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"foo"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSError *error = nil;
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
-    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    NSDictionary *deserializedLocation = deserializedDict[kKeenEventKeenDataKey][@"location"];
     NSArray *deserializedCoords = deserializedLocation[@"coordinates"];
     XCTAssertEqualObjects(@-122.47, deserializedCoords[0], @"Longitude was incorrect.");
     XCTAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
@@ -63,11 +64,11 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"bar"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSError *error = nil;
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
-    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    NSDictionary *deserializedLocation = deserializedDict[kKeenEventKeenDataKey][@"location"];
     XCTAssertNil(deserializedLocation, @"No location should have been saved.");
 }
 
@@ -91,11 +92,11 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"bar"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSError *error = nil;
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
-    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    NSDictionary *deserializedLocation = deserializedDict[kKeenEventKeenDataKey][@"location"];
     XCTAssertNil(deserializedLocation, @"No location should have been saved.");
 
     // To properly test this, you want to make sure that this triggers a real location authentication request,
