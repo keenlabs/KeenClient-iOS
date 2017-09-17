@@ -42,7 +42,7 @@ extern NSString *const kKeenErrorDomain;
 
 // Error codes for NSError
 // clang-format off
-NS_ENUM(NSInteger, KeenErrorCode) {
+typedef NS_ENUM(NSInteger, KeenErrorCode) {
     KeenErrorCodeGeneral = 1,
     KeenErrorCodeNetworkDisconnected = 2,
     KeenErrorCodeSerialization = 3,
