@@ -197,13 +197,15 @@
             KCLogInfo(@"No data available for upload.");
             [self runUploadFinishedBlock:completionHandler error:nil];
         } else {
-            KCLogInfo(@"Uploading %@ events...", @([eventIDs count]));
+            NSUInteger eventCount = 0;
             // loop through events and increment their attempt count
             for (NSString *collectionName in eventIDs) {
                 for (NSNumber *eid in eventIDs[collectionName]) {
                     [self.store incrementEventUploadAttempts:eid];
                 }
+                eventCount += [eventIDs[collectionName] count];
             }
+            KCLogInfo(@"Uploading %@ events...", @(eventCount));
 
             [self.isUploadingCondition lock];
             self.isUploading = YES;
