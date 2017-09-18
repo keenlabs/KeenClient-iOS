@@ -23,7 +23,7 @@ NSString *const kKeenInvalidPropertyValueError = @"InvalidPropertyValueError";
 
 NSString *const kKeenEventKeenDataKey = @"keen";
 
-NSString *const kKeenEventKeenDataAttemptsKey = @"prior_attempts";
+NSString *const kKeenEventKeenDataAttemptsKey = @"keen_prior_upload_attempts";
 
 NSUInteger const kKeenMaxEventsPerCollection = 10000;
 

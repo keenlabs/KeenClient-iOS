@@ -125,14 +125,8 @@
                 return;
             }
 
-            // Get a mutable copy of dictionary with keen properties
-            NSMutableDictionary *keenDictionary = [eventDict[kKeenEventKeenDataKey] mutableCopy];
-
             // Add information about the attempt count
-            [keenDictionary addEntriesFromDictionary:@{kKeenEventKeenDataAttemptsKey: eventAttempts}];
-
-            // Replace the existing dictionary with the new one including upload attempts
-            eventDict[kKeenEventKeenDataKey] = keenDictionary;
+            [eventDict addEntriesFromDictionary:@{kKeenEventKeenDataAttemptsKey: eventAttempts}];
 
             // add it to the array of events
             [eventsArray addObject:eventDict];
@@ -197,10 +191,13 @@
         NSMutableDictionary *eventIDs;
         [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:config.projectID error:&error];
         if (error != nil) {
+            KCLogInfo(@"Error preparing JSON data for upload: %@", error);
             [self runUploadFinishedBlock:completionHandler error:error];
         } else if ([data length] == 0) {
+            KCLogInfo(@"No data available for upload.");
             [self runUploadFinishedBlock:completionHandler error:nil];
         } else {
+            KCLogInfo(@"Uploading %@ events...", @([eventIDs count]));
             // loop through events and increment their attempt count
             for (NSString *collectionName in eventIDs) {
                 for (NSNumber *eid in eventIDs[collectionName]) {
@@ -246,6 +243,9 @@
 - (void)runUploadFinishedBlock:(UploadCompletionBlock)completionBlock error:(NSError *)error {
     if (completionBlock) {
         KCLogVerbose(@"Running user-specified block.");
+        if (nil != error) {
+            KCLogError(@"Error uploading events: %@", error);
+        }
         completionBlock(error);
     }
 }
