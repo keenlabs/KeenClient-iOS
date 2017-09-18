@@ -216,6 +216,7 @@
                               config:config
                    completionHandler:^(NSData *data, NSURLResponse *response, NSError *responseError) {
                        NSError *localError;
+                       KCLogInfo(@"Got upload completion callback.");
                        // then parse the http response and deal with it appropriately
                        [self handleEventAPIResponse:response
                                             andData:data
