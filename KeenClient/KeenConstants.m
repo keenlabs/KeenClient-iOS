@@ -12,31 +12,35 @@ NSString *const kKeenApiUrlScheme = @"https";
 NSString *const kKeenDefaultApiUrlAuthority = @"api.keen.io";
 NSString *const kKeenApiVersion = @"3.0";
 
-// Keen API constants
-
-NSString *const kKeenNameParam = @"name";
-NSString *const kKeenDescriptionParam = @"description";
+NSString *const kKeenResponseErrorNameKey = @"name";
+NSString *const kKeenResponseErrorDescriptionKey = @"description";
 NSString *const kKeenSuccessParam = @"success";
-NSString *const kKeenErrorParam = @"error";
+NSString *const kKeenResponseErrorDictionaryKey = @"error";
 NSString *const kKeenErrorCodeParam = @"error_code";
 NSString *const kKeenInvalidCollectionNameError = @"InvalidCollectionNameError";
 NSString *const kKeenInvalidPropertyNameError = @"InvalidPropertyNameError";
 NSString *const kKeenInvalidPropertyValueError = @"InvalidPropertyValueError";
 
-// Keen constants related to how much data we'll cache on the device before aging it out
+NSString *const kKeenEventKeenDataKey = @"keen";
 
-// how many events can be stored for a single collection before aging them out
+NSString *const kKeenEventKeenDataAttemptsKey = @"keen_prior_upload_attempts";
+
 NSUInteger const kKeenMaxEventsPerCollection = 10000;
-// how many events to drop when aging out
+
 NSUInteger const kKeenNumberEventsToForget = 100;
 
-// custom domain for NSErrors
 NSString *const kKeenErrorDomain = @"io.keen";
 
-// Name of header that provides SDK version info
+NSString *const kKeenErrorInnerErrorKey = @"InnerError";
+
+NSString *const kKeenErrorInnerErrorArrayKey = @"InnerErrorArray";
+
+NSString *const kKeenErrorDescriptionKey = @"Description";
+
+NSString *const kKeenErrorHttpStatus = @"HTTPStatus";
+
 NSString *const kKeenSdkVersionHeader = @"Keen-Sdk";
-// The SDK version info header content.
+
 NSString *const kKeenSdkVersionWithPlatform = @"ios-" kKeenSdkVersion;
 
-// User settings key indicating that a file store import has already been done.
 NSString *const kKeenFileStoreImportedKey = @"didFSImport";

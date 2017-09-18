@@ -15,12 +15,13 @@
 #import "KIONetwork.h"
 #import "KIOFileStore.h"
 #import "KIOUploader.h"
+#import "KIOUtil.h"
 
 @interface KIOUploader ()
 
 - (BOOL)isNetworkConnected;
 
-- (void)runUploadFinishedBlock:(void (^)())block;
+- (void)runUploadFinishedBlock:(UploadCompletionBlock)completionBlock error:(NSError *)error;
 
 /**
  Handles the HTTP response from the Keen Event API.  This involves deserializing the JSON response
@@ -31,7 +32,9 @@
  */
 - (void)handleEventAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
-                     forEvents:(NSDictionary *)eventIds;
+                     forEvents:(NSDictionary *)eventIds
+                 responseError:(NSError *)responseError
+                         error:(NSError **)error;
 
 // A dispatch queue used for uploads.
 @property (nonatomic) dispatch_queue_t uploadQueue;
@@ -87,7 +90,10 @@
 
 - (void)prepareJSONData:(NSData **)jsonData
             andEventIDs:(NSMutableDictionary **)eventIDs
-           forProjectID:(NSString *)projectID {
+           forProjectID:(NSString *)projectID
+                  error:(NSError **)ppError {
+    NSError *error;
+
     // set up the request dictionary we'll send out.
     NSMutableDictionary *requestDict = [NSMutableDictionary dictionary];
 
@@ -98,31 +104,40 @@
     NSMutableDictionary *events =
         [self.store getEventsWithMaxAttempts:self.maxEventUploadAttempts andProjectID:projectID];
 
-    NSError *error;
-    for (NSString *coll in events) {
-        NSDictionary *collEvents = [events objectForKey:coll];
+    for (NSString *collection in events) {
+        NSDictionary *collectionEvents = events[collection];
 
         // create a separate array for event data so our dictionary serializes properly
         NSMutableArray *eventsArray = [NSMutableArray array];
 
-        for (NSNumber *eid in collEvents) {
-            NSData *ev = [collEvents objectForKey:eid];
-            NSDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:ev options:0 error:&error];
+        for (NSNumber *eventId in collectionEvents) {
+            NSDictionary *eventDictionary = collectionEvents[eventId];
+            NSData *eventData = eventDictionary[@"data"];
+            NSNumber *eventAttempts = eventDictionary[kKeenEventKeenDataAttemptsKey];
+
+            NSMutableDictionary *eventDict =
+                [[NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error] mutableCopy];
             if (error) {
                 KCLogError(@"An error occurred when deserializing a saved event: %@", [error localizedDescription]);
-                continue;
+                *ppError = [NSError errorWithDomain:kKeenErrorDomain
+                                               code:KeenErrorCodeSerialization
+                                           userInfo:@{kKeenErrorInnerErrorKey: error}];
+                return;
             }
+
+            // Add information about the attempt count
+            [eventDict addEntriesFromDictionary:@{kKeenEventKeenDataAttemptsKey: eventAttempts}];
 
             // add it to the array of events
             [eventsArray addObject:eventDict];
-            if ([eventIDDict objectForKey:coll] == nil) {
-                [eventIDDict setObject:[NSMutableArray array] forKey:coll];
+            if (eventIDDict[collection] == nil) {
+                eventIDDict[collection] = [NSMutableArray array];
             }
-            [[eventIDDict objectForKey:coll] addObject:eid];
+            [eventIDDict[collection] addObject:eventId];
         }
 
         // add the array of events to the request
-        [requestDict setObject:eventsArray forKey:coll];
+        requestDict[collection] = eventsArray;
     }
 
     if ([requestDict count] == 0) {
@@ -134,7 +149,9 @@
     if (error) {
         KCLogError(@"An error occurred when serializing the final request data back to JSON: %@",
                    [error localizedDescription]);
-        // can't do much here.
+        *ppError = [NSError errorWithDomain:kKeenErrorDomain
+                                       code:KeenErrorCodeSerialization
+                                   userInfo:@{kKeenErrorInnerErrorKey: error}];
         return;
     }
 
@@ -151,10 +168,17 @@
     return [hostReachability KIOcurrentReachabilityStatus] != NotReachable;
 }
 
-- (void)uploadEventsForConfig:(KeenClientConfig *)config completionHandler:(void (^)())completionHandler {
+- (void)uploadEventsForConfig:(KeenClientConfig *)config completionHandler:(UploadCompletionBlock)completionHandler {
     dispatch_async(self.uploadQueue, ^{
+        NSError *error;
+
         if (![self isNetworkConnected]) {
-            [self runUploadFinishedBlock:completionHandler];
+            error = [NSError errorWithDomain:kKeenErrorDomain
+                                        code:KeenErrorCodeNetworkDisconnected
+                                    userInfo:@{
+                                        kKeenErrorDescriptionKey: @"Network is disconnected"
+                                    }];
+            [self runUploadFinishedBlock:completionHandler error:error];
             return;
         }
 
@@ -165,17 +189,23 @@
         // get data for the API request we'll make
         NSData *data;
         NSMutableDictionary *eventIDs;
-        [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:config.projectID];
-
-        if ([data length] == 0) {
-            [self runUploadFinishedBlock:completionHandler];
+        [self prepareJSONData:&data andEventIDs:&eventIDs forProjectID:config.projectID error:&error];
+        if (error != nil) {
+            KCLogInfo(@"Error preparing JSON data for upload: %@", error);
+            [self runUploadFinishedBlock:completionHandler error:error];
+        } else if ([data length] == 0) {
+            KCLogInfo(@"No data available for upload.");
+            [self runUploadFinishedBlock:completionHandler error:nil];
         } else {
+            NSUInteger eventCount = 0;
             // loop through events and increment their attempt count
             for (NSString *collectionName in eventIDs) {
                 for (NSNumber *eid in eventIDs[collectionName]) {
                     [self.store incrementEventUploadAttempts:eid];
                 }
+                eventCount += [eventIDs[collectionName] count];
             }
+            KCLogInfo(@"Uploading %@ events...", @(eventCount));
 
             [self.isUploadingCondition lock];
             self.isUploading = YES;
@@ -184,11 +214,17 @@
             // then make an http request to the keen server.
             [self.network sendEvents:data
                               config:config
-                   completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                   completionHandler:^(NSData *data, NSURLResponse *response, NSError *responseError) {
+                       NSError *localError;
+                       KCLogInfo(@"Got upload completion callback.");
                        // then parse the http response and deal with it appropriately
-                       [self handleEventAPIResponse:response andData:data forEvents:eventIDs];
+                       [self handleEventAPIResponse:response
+                                            andData:data
+                                          forEvents:eventIDs
+                                      responseError:responseError
+                                              error:&localError];
 
-                       [self runUploadFinishedBlock:completionHandler];
+                       [self runUploadFinishedBlock:completionHandler error:localError];
 
                        [self.isUploadingCondition lock];
                        self.isUploading = NO;
@@ -207,10 +243,13 @@
     });
 }
 
-- (void)runUploadFinishedBlock:(void (^)())block {
-    if (block) {
+- (void)runUploadFinishedBlock:(UploadCompletionBlock)completionBlock error:(NSError *)error {
+    if (completionBlock) {
         KCLogVerbose(@"Running user-specified block.");
-        block();
+        if (nil != error) {
+            KCLogError(@"Error uploading events: %@", error);
+        }
+        completionBlock(error);
     }
 }
 
@@ -218,33 +257,70 @@
 
 - (void)handleEventAPIResponse:(NSURLResponse *)response
                        andData:(NSData *)responseData
-                     forEvents:(NSDictionary *)eventIds {
-    if (!responseData) {
-        KCLogError(@"responseData was nil for some reason.  That's not great.");
-        KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse *)response)statusCode]);
+                     forEvents:(NSDictionary *)eventIds
+                 responseError:(NSError *)responseError
+                         error:(NSError **)ppError {
+    NSError *error;
+
+    // If there was a response error, return it
+    if (nil != responseError) {
+        *ppError = [NSError errorWithDomain:kKeenErrorDomain
+                                       code:KeenErrorCodeResponseError
+                                   userInfo:@{kKeenErrorInnerErrorKey: responseError}];
         return;
     }
+
     NSInteger responseCode = [((NSHTTPURLResponse *)response)statusCode];
     if ([HTTPCodes httpCodeType:(responseCode)] != HTTPCode2XXSuccess) {
         // response code was NOT 2xx, which means something else happened. log this.
-        KCLogError(@"Response code was NOT 2xx. It was: %ld", (long)responseCode);
-        NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        KCLogError(@"Response body was: %@", responseString);
+        NSString *responseString =
+            responseData ? [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding] : @"";
+        NSString *errorDescription =
+            [NSString stringWithFormat:@"Response returned non-success code: %@\nResponse body was: %@",
+                                       @(responseCode),
+                                       responseString];
+        KCLogError(@"%@", errorDescription);
+        *ppError = [NSError errorWithDomain:kKeenErrorDomain
+                                       code:KeenErrorCodeResponseError
+                                   userInfo:@{
+                                       kKeenErrorDescriptionKey: errorDescription,
+                                       kKeenErrorHttpStatus: @(responseCode)
+                                   }];
+        return;
+    }
+
+    // If for some reason there was no response body and no error, generate an error and return it
+    if (!responseData) {
+        KCLogError(@"responseData was nil for some reason.  That's not great.");
+        KCLogError(@"response status code: %ld", (long)[((NSHTTPURLResponse *)response)statusCode]);
+        *ppError = [NSError errorWithDomain:kKeenErrorDomain
+                                       code:KeenErrorCodeResponseError
+                                   userInfo:@{
+                                       kKeenErrorDescriptionKey: @"Response body was empty"
+                                   }];
         return;
     }
 
     // if the request succeeded, dig into the response to figure out which events succeeded and which failed
     // deserialize the response
-    NSError *error;
     NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&error];
     if (error) {
         NSString *responseString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        KCLogError(@"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@",
-                   [error localizedDescription],
-                   responseString);
+        NSString *errorDescription = [NSString
+            stringWithFormat:
+                @"An error occurred when deserializing HTTP response JSON into dictionary.\nError: %@\nResponse: %@",
+                [error localizedDescription],
+                responseString];
+        KCLogError(@"%@", errorDescription);
+        *ppError = [NSError errorWithDomain:kKeenErrorDomain
+                                       code:KeenErrorCodeSerialization
+                                   userInfo:@{kKeenErrorDescriptionKey: errorDescription}];
+
         return;
     }
+
     // now iterate through the keys of the response, which represent collection names
+    NSMutableArray *errors = [NSMutableArray array];
     NSArray *collectionNames = [responseDict allKeys];
     for (NSString *collectionName in collectionNames) {
         // grab the results for this collection
@@ -253,35 +329,59 @@
         // (making sure to keep any failures due to server error)
         NSUInteger count = 0;
         for (NSDictionary *result in results) {
-            BOOL deleteFile = YES;
+            BOOL deleteEvent = YES;
             BOOL success = [[result objectForKey:kKeenSuccessParam] boolValue];
             if (!success) {
                 // grab error code and description
-                NSDictionary *errorDict = [result objectForKey:kKeenErrorParam];
-                NSString *errorCode = [errorDict objectForKey:kKeenNameParam];
-                if ([errorCode isEqualToString:kKeenInvalidCollectionNameError] ||
-                    [errorCode isEqualToString:kKeenInvalidPropertyNameError] ||
-                    [errorCode isEqualToString:kKeenInvalidPropertyValueError]) {
-                    KCLogError(@"An invalid event was found.  Deleting it.  Error: %@",
-                               [errorDict objectForKey:kKeenDescriptionParam]);
-                    deleteFile = YES;
+                NSString *errorDescription;
+                NSDictionary *errorDict = result[kKeenResponseErrorDictionaryKey];
+                NSString *errorName = errorDict[kKeenResponseErrorNameKey];
+
+                if ([errorName isEqualToString:kKeenInvalidCollectionNameError] ||
+                    [errorName isEqualToString:kKeenInvalidPropertyNameError] ||
+                    [errorName isEqualToString:kKeenInvalidPropertyValueError]) {
+                    errorDescription = [NSString
+                        stringWithFormat:@"An invalid event was found. Deleting it. Error name and description: %@, %@",
+                                         errorName,
+                                         errorDict[kKeenResponseErrorDescriptionKey]];
+                    deleteEvent = YES;
                 } else {
-                    KCLogError(@"The event could not be inserted for some reason.  Error name and description: %@, %@",
-                               errorCode,
-                               [errorDict objectForKey:kKeenDescriptionParam]);
-                    deleteFile = NO;
+                    errorDescription =
+                        [NSString stringWithFormat:@"The event could not be inserted for some reason. Will retry "
+                                                   @"during next upload if max attempts haven't been reached. Error "
+                                                   @"name and description: %@, %@",
+                                                   errorName,
+                                                   errorDict[kKeenResponseErrorDescriptionKey]];
+                    deleteEvent = NO;
                 }
+
+                KCLogError(@"%@", errorDescription);
+                [errors addObject:[NSError errorWithDomain:kKeenErrorDomain
+                                                      code:KeenErrorCodeEventUploadError
+                                                  userInfo:@{
+                                                      kKeenErrorDescriptionKey: errorDescription,
+                                                      kKeenResponseErrorNameKey: errorName,
+                                                      kKeenResponseErrorDictionaryKey: errorDict
+                                                  }]];
             }
 
             NSNumber *eid = [[eventIds objectForKey:collectionName] objectAtIndex:count];
 
             // delete the file if we need to
-            if (deleteFile) {
+            if (deleteEvent) {
                 [self.store deleteEvent:eid];
                 KCLogVerbose(@"Successfully deleted event: %@", eid);
             }
             count++;
         }
+    }
+
+    // Report any errors that occured
+    if (errors.count > 0) {
+        KCLogError(@"%@ errors while trying to upload events", @(errors.count));
+        *ppError = [NSError errorWithDomain:kKeenErrorDomain
+                                       code:KeenErrorCodeEventUploadError
+                                   userInfo:@{kKeenErrorInnerErrorArrayKey: errors}];
     }
 }
 

@@ -45,7 +45,8 @@
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
-    [client uploadWithFinishedBlock:^{
+    [client uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [responseArrived fulfill];
     }];
 

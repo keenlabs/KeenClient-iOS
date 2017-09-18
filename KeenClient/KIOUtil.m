@@ -83,7 +83,7 @@
         const id objects[] = {errorMessage, underlyingError};
         NSUInteger count = underlyingError ? 2 : 1;
         NSDictionary *userInfo = [NSDictionary dictionaryWithObjects:objects forKeys:keys count:count];
-        *error = [NSError errorWithDomain:kKeenErrorDomain code:1 userInfo:userInfo];
+        *error = [NSError errorWithDomain:kKeenErrorDomain code:KeenErrorCodeGeneral userInfo:userInfo];
         KCLogError(@"%@", *error);
     }
 
@@ -96,7 +96,7 @@
     NSDateFormatter *dateFormatter = [NSDateFormatter new];
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
     [dateFormatter setLocale:enUSPOSIXLocale];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"];
 
     NSString *iso8601String = [dateFormatter stringFromDate:date];
     return iso8601String;

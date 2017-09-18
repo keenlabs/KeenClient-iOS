@@ -14,6 +14,7 @@
 #import "KeenTestConstants.h"
 #import "KeenTestCaseBase.h"
 #import "KeenEventTests.h"
+#import "KeenConstants.h"
 
 @implementation KeenEventTests
 
@@ -81,7 +82,7 @@
 
     // dict with root keen prop should do nothing
     badValue = [[NSError alloc] init];
-    event = @{ @"a": @"apple", @"keen": @"bapple" };
+    event = @{ @"a": @"apple", kKeenEventKeenDataKey: @"bapple" };
     XCTAssertFalse([client addEvent:event toEventCollection:@"foo" error:&error], @"addEvent should fail");
     XCTAssertNotNil(error, @"");
     error = nil;
@@ -92,7 +93,7 @@
 
     // dict with non-root keen prop should work
     error = nil;
-    event = @{ @"nested": @{@"keen": @"whatever"} };
+    event = @{ @"nested": @{kKeenEventKeenDataKey: @"whatever"} };
     XCTAssertTrue([client addEvent:event toEventCollection:@"foo" error:nil], @"addEvent should succeed");
     XCTAssertNil(error, @"no error should be returned");
     XCTAssertTrue([clientI addEvent:event toEventCollection:@"foo" error:nil], @"addEvent should succeed");
@@ -128,11 +129,11 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"foo"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSError *error = nil;
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
-    NSString *deserializedDate = deserializedDict[@"keen"][@"timestamp"];
+    NSString *deserializedDate = deserializedDict[kKeenEventKeenDataKey][@"timestamp"];
     NSString *originalDate = [KIOUtil convertDate:date];
     XCTAssertEqualObjects(originalDate, deserializedDate, @"If a timestamp is specified it should be used.");
     originalDate = [KIOUtil convertDate:date];
@@ -157,11 +158,11 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"foo"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSError *error = nil;
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
-    NSDictionary *deserializedLocation = deserializedDict[@"keen"][@"location"];
+    NSDictionary *deserializedLocation = deserializedDict[kKeenEventKeenDataKey][@"location"];
     NSArray *deserializedCoords = deserializedLocation[@"coordinates"];
     XCTAssertEqualObjects(@-122.47, deserializedCoords[0], @"Longitude was incorrect.");
     XCTAssertEqualObjects(@37.73, deserializedCoords[1], @"Latitude was incorrect.");
@@ -185,7 +186,7 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"foo"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSError *error = nil;
     NSDictionary *deserializedDict = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
@@ -202,19 +203,19 @@
                                                     andWriteKey:kDefaultWriteKey
                                                      andReadKey:kDefaultReadKey];
 
-    NSDictionary *theEvent = @{ @"keen": @"abc" };
+    NSDictionary *theEvent = @{ kKeenEventKeenDataKey: @"abc" };
     NSError *error = nil;
     [client addEvent:theEvent toEventCollection:@"foo" error:&error];
     [clientI addEvent:theEvent toEventCollection:@"foo" error:&error];
     XCTAssertNotNil(error, @"an event with a non-dict value for 'keen' should error");
 }
 
-- (void)addSimpleEventAndUploadWithMock:(id)mock andFinishedBlock:(void (^)())finishedBlock {
++ (void)addSimpleEventAndUploadWithMock:(id)mock andCompletionHandler:(UploadCompletionBlock)completionHandler {
     // add an event
     [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
 
     // and "upload" it
-    [mock uploadWithFinishedBlock:finishedBlock];
+    [mock uploadWithCompletionHandler:completionHandler];
 }
 
 #pragma mark - test upload
@@ -224,7 +225,8 @@
 
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK];
 
-    [mock uploadWithFinishedBlock:^{
+    [mock uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [uploadFinishedBlockCalled fulfill];
     }];
 
@@ -241,28 +243,11 @@
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode2XXSuccess];
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     XCTAssertTrue([KIODBStore.sharedInstance
-                                                       getTotalEventCountWithProjectID:[mock config].projectID] == 0,
-                                                   @"There should be no files after a successful upload.");
-                                 }];
-}
-
-- (void)testUploadSuccessInstanceClient {
-    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode2XXSuccess];
-
-    // make sure the event was deleted from the store
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
+    [KeenEventTests addSimpleEventAndUploadWithMock:mock
+                               andCompletionHandler:^(NSError *error) {
+                                   XCTAssertNil(error);
+                                   [responseArrived fulfill];
+                               }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
                                  handler:^(NSError *_Nullable error) {
@@ -276,28 +261,15 @@
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode500InternalServerError];
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the file wasn't deleted from the store
-                                     XCTAssertTrue([KIODBStore.sharedInstance
-                                                       getTotalEventCountWithProjectID:[mock config].projectID] == 1,
-                                                   @"There should be one file after a failed upload.");
-                                 }];
-}
-
-- (void)testUploadFailedServerDownInstanceClient {
-    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode500InternalServerError];
-
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
+    [KeenEventTests
+        addSimpleEventAndUploadWithMock:mock
+                   andCompletionHandler:^(NSError *error) {
+                       XCTAssertNotNil(error);
+                       XCTAssertEqual(error.domain, kKeenErrorDomain);
+                       XCTAssertEqual(error.code, KeenErrorCodeResponseError);
+                       XCTAssertEqualObjects(error.userInfo[kKeenErrorHttpStatus], @(HTTPCode500InternalServerError));
+                       [responseArrived fulfill];
+                   }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
                                  handler:^(NSError *_Nullable error) {
@@ -312,28 +284,15 @@
     id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode500InternalServerError];
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the file wasn't deleted locally
-                                     XCTAssertTrue([KIODBStore.sharedInstance
-                                                       getTotalEventCountWithProjectID:[mock config].projectID] == 1,
-                                                   @"There should be one file after a failed upload.");
-                                 }];
-}
-
-- (void)testUploadFailedServerDownNonJsonResponseInstanceClient {
-    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode500InternalServerError];
-
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
+    [KeenEventTests
+        addSimpleEventAndUploadWithMock:mock
+                   andCompletionHandler:^(NSError *error) {
+                       XCTAssertNotNil(error);
+                       XCTAssertEqual(error.domain, kKeenErrorDomain);
+                       XCTAssertEqual(error.code, KeenErrorCodeResponseError);
+                       XCTAssertEqualObjects(error.userInfo[kKeenErrorHttpStatus], @(HTTPCode500InternalServerError));
+                       [responseArrived fulfill];
+                   }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
                                  handler:^(NSError *_Nullable error) {
@@ -345,33 +304,85 @@
 }
 
 - (void)testDeleteAfterMaxAttempts {
-    id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode500InternalServerError];
-
+    NSString *firstEventCollection = @"foo";
+    NSString *secondEventCollection = @"bar";
+    NSInteger maxAttempts = 3;
+    __block NSNumber *firstEventPriorAttempts = @(0);
+    id mock = [self
+        createClientWithResponseData:nil
+                       andStatusCode:HTTPCode500InternalServerError
+                 andNetworkConnected:@YES
+                 andRequestValidator:^BOOL(id requestObject) {
+                     XCTAssertTrue([requestObject isKindOfClass:[NSMutableURLRequest class]]);
+                     NSMutableURLRequest *request = requestObject;
+                     NSError *serializationError;
+                     NSDictionary *requestDictionary = [NSJSONSerialization JSONObjectWithData:request.HTTPBody
+                                                                                       options:nil
+                                                                                         error:&serializationError];
+                     XCTAssertNil(serializationError);
+                     // If the event has fewer than the max attempts we allow, ensure it contains
+                     // the correct number of prior attempts under keen.prior_attempts
+                     if (firstEventPriorAttempts.integerValue < maxAttempts) {
+                         NSArray *collectionEvents = requestDictionary[firstEventCollection];
+                         NSDictionary *eventDictionary = (NSDictionary *)collectionEvents.firstObject;
+                         XCTAssertEqualObjects(
+                             (NSNumber *)eventDictionary[kKeenEventKeenDataKey][kKeenEventKeenDataAttemptsKey],
+                             firstEventPriorAttempts);
+                     }
+                     return @YES;
+                 }];
     // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
+    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"]
+        toEventCollection:firstEventCollection
+                    error:nil];
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
-    [mock uploadWithFinishedBlock:^{
+    [mock uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.domain, kKeenErrorDomain);
+        XCTAssertEqual(error.code, KeenErrorCodeResponseError);
+        XCTAssertEqualObjects(error.userInfo[kKeenErrorHttpStatus], @(HTTPCode500InternalServerError));
         // make sure the file wasn't deleted from the store
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1,
                       @"There should be one file after an unsuccessful attempts.");
 
+        firstEventPriorAttempts = @([firstEventPriorAttempts integerValue] + 1);
         // add another event
-        [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-        [mock uploadWithFinishedBlock:^{
+        [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"]
+            toEventCollection:secondEventCollection
+                        error:nil];
+        [mock uploadWithCompletionHandler:^(NSError *error) {
+            XCTAssertNotNil(error);
+            XCTAssertEqual(error.domain, kKeenErrorDomain);
+            XCTAssertEqual(error.code, KeenErrorCodeResponseError);
+            XCTAssertEqualObjects(error.userInfo[kKeenErrorHttpStatus], @(HTTPCode500InternalServerError));
+
             // make sure both files weren't deleted from the store
             XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 2,
                           @"There should be two files after 2 unsuccessful attempts.");
 
-            [mock uploadWithFinishedBlock:^{
+            firstEventPriorAttempts = @([firstEventPriorAttempts integerValue] + 1);
+            [mock uploadWithCompletionHandler:^(NSError *error) {
+                XCTAssertNotNil(error);
+                XCTAssertEqual(error.domain, kKeenErrorDomain);
+                XCTAssertEqual(error.code, KeenErrorCodeResponseError);
+                XCTAssertEqualObjects(error.userInfo[kKeenErrorHttpStatus], @(HTTPCode500InternalServerError));
+
                 // make sure the first file was deleted from the store, but the second one remains
-                XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:3
+                XCTAssertTrue([[KIODBStore.sharedInstance getEventsWithMaxAttempts:maxAttempts
                                                                       andProjectID:[mock config].projectID] allKeys]
                                       .count == 1,
                               @"There should be one file after 3 unsuccessful attempts.");
 
-                [mock uploadWithFinishedBlock:^{
+                firstEventPriorAttempts = @([firstEventPriorAttempts integerValue] + 1);
+
+                [mock uploadWithCompletionHandler:^(NSError *error) {
+                    XCTAssertNotNil(error);
+                    XCTAssertEqual(error.domain, kKeenErrorDomain);
+                    XCTAssertEqual(error.code, KeenErrorCodeResponseError);
+                    XCTAssertEqualObjects(error.userInfo[kKeenErrorHttpStatus], @(HTTPCode500InternalServerError));
+
                     [responseArrived fulfill];
                 }];
             }];
@@ -398,18 +409,21 @@
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     // and "upload" it
-    [mock uploadWithFinishedBlock:^{
+    [mock uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         // make sure the file wasn't deleted from the store
         XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1,
                       @"There should be one event after an unsuccessful attempt.");
 
         // add another event
-        [mock uploadWithFinishedBlock:^{
+        [mock uploadWithCompletionHandler:^(NSError *error) {
+            XCTAssertNil(error);
             // make sure both files weren't deleted from the store
             XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:[mock config].projectID] == 1,
                           @"There should be one event after 2 unsuccessful attempts.");
 
-            [mock uploadWithFinishedBlock:^{
+            [mock uploadWithCompletionHandler:^(NSError *error) {
+                XCTAssertNil(error);
                 [responseArrived fulfill];
             }];
         }];
@@ -439,31 +453,13 @@
                                    andStatusCode:HTTPCode200OK];
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the file was deleted locally
-                                     // make sure the event was deleted from the store
-                                     XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,
-                                                   @"An invalid event should be deleted after an upload attempt.");
-                                 }];
-}
-
-- (void)testUploadFailedBadRequestInstanceClient {
-    id mock = [self createClientWithResponseData:[self buildResponseJsonWithSuccess:NO
-                                                                       AndErrorCode:@"InvalidCollectionNameError"
-                                                                     AndDescription:@"anything"]
-                                   andStatusCode:HTTPCode200OK];
-
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
+    [KeenEventTests addSimpleEventAndUploadWithMock:mock
+                               andCompletionHandler:^(NSError *error) {
+                                   XCTAssertNotNil(error);
+                                   XCTAssertEqual(error.domain, kKeenErrorDomain);
+                                   XCTAssertEqual(error.code, KeenErrorCodeEventUploadError);
+                                   [responseArrived fulfill];
+                               }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
                                  handler:^(NSError *_Nullable error) {
@@ -478,29 +474,15 @@
     id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode400BadRequest];
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the file wasn't deleted locally
-                                     XCTAssertTrue(
-                                         [KIODBStore.sharedInstance
-                                             getTotalEventCountWithProjectID:[mock config].projectID] == 1,
-                                         @"An upload that results in an unexpected error should not delete the event.");
-                                 }];
-}
-
-- (void)testUploadFailedBadRequestUnknownErrorInstanceClient {
-    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode400BadRequest];
-
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
+    [KeenEventTests
+        addSimpleEventAndUploadWithMock:mock
+                   andCompletionHandler:^(NSError *error) {
+                       XCTAssertNotNil(error);
+                       XCTAssertEqual(error.domain, kKeenErrorDomain);
+                       XCTAssertEqual(error.code, KeenErrorCodeResponseError);
+                       XCTAssertEqualObjects(error.userInfo[kKeenErrorHttpStatus], @(HTTPCode400BadRequest));
+                       [responseArrived fulfill];
+                   }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
                                  handler:^(NSError *_Nullable error) {
@@ -516,29 +498,15 @@
     id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode300MultipleChoices];
 
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the file wasn't deleted locally
-                                     XCTAssertTrue(
-                                         [KIODBStore.sharedInstance
-                                             getTotalEventCountWithProjectID:[mock config].projectID] == 1,
-                                         @"An upload that results in an unexpected error should not delete the event.");
-                                 }];
-}
-
-- (void)testUploadFailedRedirectionStatusInstanceClient {
-    id mock = [self createClientWithResponseData:@{} andStatusCode:HTTPCode300MultipleChoices];
-
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [responseArrived fulfill];
-                         }];
+    [KeenEventTests
+        addSimpleEventAndUploadWithMock:mock
+                   andCompletionHandler:^(NSError *error) {
+                       XCTAssertNotNil(error);
+                       XCTAssertEqual(error.domain, kKeenErrorDomain);
+                       XCTAssertEqual(error.code, KeenErrorCodeResponseError);
+                       XCTAssertEqualObjects(error.userInfo[kKeenErrorHttpStatus], @(HTTPCode300MultipleChoices));
+                       [responseArrived fulfill];
+                   }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
                                  handler:^(NSError *_Nullable error) {
@@ -556,10 +524,13 @@
 
     id mock = [self createClientWithResponseData:nil andStatusCode:HTTPCode200OK andNetworkConnected:@NO];
 
-    [self addSimpleEventAndUploadWithMock:mock
-                         andFinishedBlock:^{
-                             [uploadFinishedBlockCalled fulfill];
-                         }];
+    [KeenEventTests addSimpleEventAndUploadWithMock:mock
+                               andCompletionHandler:^(NSError *error) {
+                                   XCTAssertNotNil(error);
+                                   XCTAssertEqual(error.domain, kKeenErrorDomain);
+                                   XCTAssertEqual(error.code, KeenErrorCodeNetworkDisconnected);
+                                   [uploadFinishedBlockCalled fulfill];
+                               }];
 
     [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
                                  handler:^(NSError *_Nullable error) {
@@ -584,32 +555,8 @@
 
     // and "upload" it
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
-        [responseArrived fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the events were deleted locally
-                                     XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,
-                                                   @"There should be no files after a successful upload.");
-                                 }];
-}
-
-- (void)testUploadMultipleEventsSameCollectionSuccessInstanceClient {
-    NSDictionary *result1 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result2 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result =
-        [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil] forKey:@"foo"];
-    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
-
-    // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
-
-    // and "upload" it
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
+    [mock uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [responseArrived fulfill];
     }];
 
@@ -637,35 +584,8 @@
 
     // and "upload" it
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
-        [responseArrived fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the files were deleted locally
-                                     XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:nil] == 0,
-                                                   @"There should be no events after a successful upload.");
-                                 }];
-}
-
-- (void)testUploadMultipleEventsDifferentCollectionSuccessInstanceClient {
-    NSDictionary *result1 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result2 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObject:result1],
-                                                                      @"foo",
-                                                                      [NSArray arrayWithObject:result2],
-                                                                      @"bar",
-                                                                      nil];
-    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
-
-    // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
-
-    // and "upload" it
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
+    [mock uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [responseArrived fulfill];
     }];
 
@@ -678,9 +598,10 @@
 }
 
 - (void)testUploadMultipleEventsSameCollectionOneFails {
+    NSString *errorName = @"InvalidCollectionNameError";
+    NSString *errorDescription = @"This is an error description";
     NSDictionary *result1 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result2 =
-        [self buildResultWithSuccess:NO andErrorCode:@"InvalidCollectionNameError" andDescription:@"something"];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO andErrorCode:errorName andDescription:errorDescription];
     NSDictionary *result =
         [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil] forKey:@"foo"];
     id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
@@ -691,34 +612,14 @@
 
     // and "upload" it
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
-        [responseArrived fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the file were deleted locally
-                                     XCTAssertTrue([KIODBStore.sharedInstance
-                                                       getTotalEventCountWithProjectID:[mock config].projectID] == 0,
-                                                   @"There should be no events after a successful upload.");
-                                 }];
-}
-
-- (void)testUploadMultipleEventsSameCollectionOneFailsInstanceClient {
-    NSDictionary *result1 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result2 =
-        [self buildResultWithSuccess:NO andErrorCode:@"InvalidCollectionNameError" andDescription:@"something"];
-    NSDictionary *result =
-        [NSDictionary dictionaryWithObject:[NSArray arrayWithObjects:result1, result2, nil] forKey:@"foo"];
-    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
-
-    // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple2" forKey:@"a"] toEventCollection:@"foo" error:nil];
-
-    // and "upload" it
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
+    [mock uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNotNil(error);
+        NSArray *errors = error.userInfo[kKeenErrorInnerErrorArrayKey];
+        XCTAssertEqual(errors.count, 1);
+        NSError *itemError = errors.firstObject;
+        XCTAssertEqualObjects(itemError.userInfo[kKeenResponseErrorNameKey], errorName);
+        NSDictionary *itemErrorDiectionary = itemError.userInfo[kKeenResponseErrorDictionaryKey];
+        XCTAssertEqualObjects(itemErrorDiectionary[kKeenResponseErrorDescriptionKey], errorDescription);
         [responseArrived fulfill];
     }];
 
@@ -732,9 +633,10 @@
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFails {
+    NSString *errorName = @"InvalidCollectionNameError";
+    NSString *errorDescription = @"This is an error description";
     NSDictionary *result1 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result2 =
-        [self buildResultWithSuccess:NO andErrorCode:@"InvalidCollectionNameError" andDescription:@"something"];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO andErrorCode:errorName andDescription:errorDescription];
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObject:result1],
                                                                       @"foo",
                                                                       [NSArray arrayWithObject:result2],
@@ -748,37 +650,14 @@
 
     // and "upload" it
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
-        [responseArrived fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the files were deleted locally
-                                     XCTAssertTrue([KIODBStore.sharedInstance
-                                                       getTotalEventCountWithProjectID:[mock config].projectID] == 0,
-                                                   @"There should be no events after a successful upload.");
-                                 }];
-}
-
-- (void)testUploadMultipleEventsDifferentCollectionsOneFailsInstanceClient {
-    NSDictionary *result1 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result2 =
-        [self buildResultWithSuccess:NO andErrorCode:@"InvalidCollectionNameError" andDescription:@"something"];
-    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObject:result1],
-                                                                      @"foo",
-                                                                      [NSArray arrayWithObject:result2],
-                                                                      @"bar",
-                                                                      nil];
-    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
-
-    // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
-
-    // and "upload" it
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
+    [mock uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNotNil(error);
+        NSArray *errors = error.userInfo[kKeenErrorInnerErrorArrayKey];
+        XCTAssertEqual(errors.count, 1);
+        NSError *itemError = errors.firstObject;
+        XCTAssertEqualObjects(itemError.userInfo[kKeenResponseErrorNameKey], errorName);
+        NSDictionary *itemErrorDiectionary = itemError.userInfo[kKeenResponseErrorDictionaryKey];
+        XCTAssertEqualObjects(itemErrorDiectionary[kKeenResponseErrorDescriptionKey], errorDescription);
         [responseArrived fulfill];
     }];
 
@@ -792,8 +671,10 @@
 }
 
 - (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReason {
+    NSString *errorName = @"barf";
+    NSString *errorDescription = @"This is an error description";
     NSDictionary *result1 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result2 = [self buildResultWithSuccess:NO andErrorCode:@"barf" andDescription:@"something"];
+    NSDictionary *result2 = [self buildResultWithSuccess:NO andErrorCode:errorName andDescription:errorDescription];
     NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObject:result1],
                                                                       @"foo",
                                                                       [NSArray arrayWithObject:result2],
@@ -807,7 +688,14 @@
 
     // and "upload" it
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
+    [mock uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNotNil(error);
+        NSArray *errors = error.userInfo[kKeenErrorInnerErrorArrayKey];
+        XCTAssertEqual(errors.count, 1);
+        NSError *itemError = errors.firstObject;
+        XCTAssertEqualObjects(itemError.userInfo[kKeenResponseErrorNameKey], errorName);
+        NSDictionary *itemErrorDiectionary = itemError.userInfo[kKeenResponseErrorDictionaryKey];
+        XCTAssertEqualObjects(itemErrorDiectionary[kKeenResponseErrorDescriptionKey], errorDescription);
         [responseArrived fulfill];
     }];
 
@@ -820,62 +708,7 @@
                                  }];
 }
 
-- (void)testUploadMultipleEventsDifferentCollectionsOneFailsForServerReasonInstanceClient {
-    NSDictionary *result1 = [self buildResultWithSuccess:YES andErrorCode:nil andDescription:nil];
-    NSDictionary *result2 = [self buildResultWithSuccess:NO andErrorCode:@"barf" andDescription:@"something"];
-    NSDictionary *result = [NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObject:result1],
-                                                                      @"foo",
-                                                                      [NSArray arrayWithObject:result2],
-                                                                      @"bar",
-                                                                      nil];
-    id mock = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK];
-
-    // add an event
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
-    [mock addEvent:[NSDictionary dictionaryWithObject:@"bapple" forKey:@"b"] toEventCollection:@"bar" error:nil];
-
-    // and "upload" it
-    XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
-    [mock uploadWithFinishedBlock:^{
-        [responseArrived fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval
-                                 handler:^(NSError *_Nullable error) {
-                                     // make sure the files were deleted locally
-                                     XCTAssertTrue([KIODBStore.sharedInstance
-                                                       getTotalEventCountWithProjectID:[mock config].projectID] == 1,
-                                                   @"There should be 1 event after a partial upload.");
-                                 }];
-}
-
 - (void)testUploadMultipleTimes {
-    XCTestExpectation *uploadFinishedBlockCalled1 =
-        [self expectationWithDescription:@"Upload 1 should run to completion."];
-    XCTestExpectation *uploadFinishedBlockCalled2 =
-        [self expectationWithDescription:@"Upload 2 should run to completion."];
-    XCTestExpectation *uploadFinishedBlockCalled3 =
-        [self expectationWithDescription:@"Upload 3 should run to completion."];
-
-    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
-                                                   andWriteKey:kDefaultWriteKey
-                                                    andReadKey:kDefaultReadKey];
-    client.isRunningTests = YES;
-
-    [client uploadWithFinishedBlock:^{
-        [uploadFinishedBlockCalled1 fulfill];
-    }];
-    [client uploadWithFinishedBlock:^{
-        [uploadFinishedBlockCalled2 fulfill];
-    }];
-    [client uploadWithFinishedBlock:^{
-        [uploadFinishedBlockCalled3 fulfill];
-    }];
-
-    [self waitForExpectationsWithTimeout:kTestExpectationTimeoutInterval handler:nil];
-}
-
-- (void)testUploadMultipleTimesInstanceClient {
     XCTestExpectation *uploadFinishedBlockCalled1 =
         [self expectationWithDescription:@"Upload 1 should run to completion."];
     XCTestExpectation *uploadFinishedBlockCalled2 =
@@ -888,13 +721,16 @@
                                                     andReadKey:kDefaultReadKey];
     client.isRunningTests = YES;
 
-    [client uploadWithFinishedBlock:^{
+    [client uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [uploadFinishedBlockCalled1 fulfill];
     }];
-    [client uploadWithFinishedBlock:^{
+    [client uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [uploadFinishedBlockCalled2 fulfill];
     }];
-    [client uploadWithFinishedBlock:^{
+    [client uploadWithCompletionHandler:^(NSError *error) {
+        XCTAssertNil(error);
         [uploadFinishedBlockCalled3 fulfill];
     }];
 
@@ -909,10 +745,13 @@
     __block NSInteger requestCount = 0;
     __block NSInteger uploadCallCount = 0;
     const NSInteger totalUploadCallCount = 10;
-    KeenClient* client = [self createClientWithResponseData:result andStatusCode:HTTPCode200OK andNetworkConnected:@YES andRequestValidator:^BOOL(id obj) {
-        requestCount++;
-        return @YES;
-    }];
+    KeenClient *client = [self createClientWithResponseData:result
+                                              andStatusCode:HTTPCode200OK
+                                        andNetworkConnected:@YES
+                                        andRequestValidator:^BOOL(id obj) {
+                                            requestCount++;
+                                            return @YES;
+                                        }];
 
     // add an event
     [client addEvent:[NSDictionary dictionaryWithObject:@"apple" forKey:@"a"] toEventCollection:@"foo" error:nil];
@@ -923,7 +762,8 @@
     // and "upload" it
     XCTestExpectation *responseArrived = [self expectationWithDescription:@"response of async request has arrived"];
     for (int i = 0; i < totalUploadCallCount; ++i) {
-        [client uploadWithFinishedBlock:^{
+        [client uploadWithCompletionHandler:^(NSError *error) {
+            XCTAssertNil(error);
             uploadCallCount++;
             if (uploadCallCount == totalUploadCallCount) {
                 [responseArrived fulfill];
@@ -942,25 +782,6 @@
 }
 
 - (void)testTooManyEventsCached {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
-                                                   andWriteKey:kDefaultWriteKey
-                                                    andReadKey:kDefaultReadKey];
-    client.isRunningTests = YES;
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@"bar", @"foo", nil];
-    // create 5 events
-    for (int i = 0; i < 5; i++) {
-        [client addEvent:event toEventCollection:@"something" error:nil];
-    }
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID] == 5,
-                  @"There should be exactly five events.");
-    // now do one more, should age out 1 old ones
-    [client addEvent:event toEventCollection:@"something" error:nil];
-    // so now there should be 4 left (5 - 2 + 1)
-    XCTAssertTrue([KIODBStore.sharedInstance getTotalEventCountWithProjectID:client.config.projectID] == 4,
-                  @"There should be exactly four events.");
-}
-
-- (void)testTooManyEventsCachedInstanceClient {
     KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
                                                    andWriteKey:kDefaultWriteKey
                                                     andReadKey:kDefaultReadKey];
@@ -980,28 +801,6 @@
 }
 
 - (void)testInvalidEventCollection {
-    KeenClient *client = [KeenClient sharedClientWithProjectID:kDefaultProjectID
-                                                   andWriteKey:kDefaultWriteKey
-                                                    andReadKey:kDefaultReadKey];
-    client.isRunningTests = YES;
-
-    NSDictionary *event = @{ @"a": @"b" };
-    // collection can't start with $
-    NSError *error = nil;
-    [client addEvent:event toEventCollection:@"$asd" error:&error];
-    XCTAssertNotNil(error, @"collection can't start with $");
-    error = nil;
-
-    // collection can't be over 256 chars
-    NSMutableString *longString = [NSMutableString stringWithCapacity:257];
-    for (int i = 0; i < 257; i++) {
-        [longString appendString:@"a"];
-    }
-    [client addEvent:event toEventCollection:@"$asd" error:&error];
-    XCTAssertNotNil(error, @"collection can't be longer than 256 chars");
-}
-
-- (void)testInvalidEventCollectionInstanceClient {
     KeenClient *client = [[KeenClient alloc] initWithProjectID:kDefaultProjectID
                                                    andWriteKey:kDefaultWriteKey
                                                     andReadKey:kDefaultReadKey];

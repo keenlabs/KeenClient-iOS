@@ -9,6 +9,7 @@
 #import "KeenClient.h"
 
 #import "KeenTestConstants.h"
+#import "KeenConstants.h"
 #import "KeenClientTestable.h"
 
 #import "GlobalPropertiesTests.h"
@@ -31,7 +32,7 @@
                 [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
                     objectForKey:eventCollectionName];
             // Grab the first event we get back
-            NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+            NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
             NSError *error = nil;
             NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
@@ -56,7 +57,7 @@
 
     // a dictionary that contains an addon should be okay
     NSDictionary *theEvent = @{
-        @"keen": @{
+        kKeenEventKeenDataKey: @{
             @"addons": @[@{
                 @"name": @"addon:name",
                 @"input": @{@"param_name": @"property_that_contains_param"},
@@ -66,7 +67,7 @@
         @"a": @"b"
     };
     storedEvent = RunTest(theEvent, 2);
-    NSDictionary *deserializedAddon = storedEvent[@"keen"][@"addons"][0];
+    NSDictionary *deserializedAddon = storedEvent[kKeenEventKeenDataKey][@"addons"][0];
     XCTAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
@@ -86,7 +87,7 @@
                 [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
                     objectForKey:eventCollectionName];
             // Grab the first event we get back
-            NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+            NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
             NSError *error = nil;
             NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
@@ -111,7 +112,7 @@
 
     // a dictionary that contains an addon should be okay
     NSDictionary *theEvent = @{
-        @"keen": @{
+        kKeenEventKeenDataKey: @{
             @"addons": @[@{
                 @"name": @"addon:name",
                 @"input": @{@"param_name": @"property_that_contains_param"},
@@ -121,7 +122,7 @@
         @"a": @"b"
     };
     storedEvent = RunTest(theEvent, 2);
-    NSDictionary *deserializedAddon = storedEvent[@"keen"][@"addons"][0];
+    NSDictionary *deserializedAddon = storedEvent[kKeenEventKeenDataKey][@"addons"][0];
     XCTAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
@@ -142,7 +143,7 @@
                 [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
                     objectForKey:eventCollectionName];
             // Grab the first event we get back
-            NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+            NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
             NSError *error = nil;
             NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
@@ -178,7 +179,7 @@
 
     // a dictionary that contains an addon should be okay
     NSDictionary *theEvent = @{
-        @"keen": @{
+        kKeenEventKeenDataKey: @{
             @"addons": @[@{
                 @"name": @"addon:name",
                 @"input": @{@"param_name": @"property_that_contains_param"},
@@ -192,7 +193,7 @@
             return theEvent;
         },
         2);
-    NSDictionary *deserializedAddon = storedEvent[@"keen"][@"addons"][0];
+    NSDictionary *deserializedAddon = storedEvent[kKeenEventKeenDataKey][@"addons"][0];
     XCTAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
@@ -213,7 +214,7 @@
                 [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
                     objectForKey:eventCollectionName];
             // Grab the first event we get back
-            NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+            NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
             NSError *error = nil;
             NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
@@ -249,7 +250,7 @@
 
     // a dictionary that contains an addon should be okay
     NSDictionary *theEvent = @{
-        @"keen": @{
+        kKeenEventKeenDataKey: @{
             @"addons": @[@{
                 @"name": @"addon:name",
                 @"input": @{@"param_name": @"property_that_contains_param"},
@@ -263,7 +264,7 @@
             return theEvent;
         },
         2);
-    NSDictionary *deserializedAddon = storedEvent[@"keen"][@"addons"][0];
+    NSDictionary *deserializedAddon = storedEvent[kKeenEventKeenDataKey][@"addons"][0];
     XCTAssertEqualObjects(@"addon:name", deserializedAddon[@"name"], @"Addon name should be right");
 }
 
@@ -285,7 +286,7 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"apples"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSError *error = nil;
     NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
@@ -312,7 +313,7 @@
         [[KIODBStore.sharedInstance getEventsWithMaxAttempts:3 andProjectID:client.config.projectID]
             objectForKey:@"apples"];
     // Grab the first event we get back
-    NSData *eventData = [eventsForCollection objectForKey:[[eventsForCollection allKeys] objectAtIndex:0]];
+    NSData *eventData = eventsForCollection[[eventsForCollection allKeys][0]][@"data"];
     NSError *error = nil;
     NSDictionary *storedEvent = [NSJSONSerialization JSONObjectWithData:eventData options:0 error:&error];
 
