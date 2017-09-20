@@ -205,7 +205,7 @@
                 }
                 eventCount += [eventIDs[collectionName] count];
             }
-            KCLogInfo(@"Uploading %@ events...", @(eventCount));
+            KCLogInfo(@"Uploading %@ events in %@ bytes...", @(eventCount), @(data.length));
 
             [self.isUploadingCondition lock];
             self.isUploading = YES;
