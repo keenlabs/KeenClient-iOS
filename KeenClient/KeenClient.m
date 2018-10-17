@@ -563,7 +563,7 @@ static BOOL geoLocationRequestEnabled = YES;
     [KIOFileStore importFileDataWithProjectID:self.config.projectID];
 }
 
-- (void)uploadWithFinishedBlock:(void (^)())block {
+- (void)uploadWithFinishedBlock:(void (^)(void))block {
     [self.uploader uploadEventsForConfig:self.config completionHandler:block];
 }
 

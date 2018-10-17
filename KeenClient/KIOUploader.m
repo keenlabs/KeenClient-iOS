@@ -20,7 +20,7 @@
 
 - (BOOL)isNetworkConnected;
 
-- (void)runUploadFinishedBlock:(void (^)())block;
+- (void)runUploadFinishedBlock:(void (^)(void))block;
 
 /**
  Handles the HTTP response from the Keen Event API.  This involves deserializing the JSON response
@@ -151,7 +151,7 @@
     return [hostReachability KIOcurrentReachabilityStatus] != NotReachable;
 }
 
-- (void)uploadEventsForConfig:(KeenClientConfig *)config completionHandler:(void (^)())completionHandler {
+- (void)uploadEventsForConfig:(KeenClientConfig *)config completionHandler:(void (^)(void))completionHandler {
     dispatch_async(self.uploadQueue, ^{
         if (![self isNetworkConnected]) {
             [self runUploadFinishedBlock:completionHandler];
@@ -207,7 +207,7 @@
     });
 }
 
-- (void)runUploadFinishedBlock:(void (^)())block {
+- (void)runUploadFinishedBlock:(void (^)(void))block {
     if (block) {
         KCLogVerbose(@"Running user-specified block.");
         block();

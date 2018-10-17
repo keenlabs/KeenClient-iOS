@@ -327,7 +327,7 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  @param block The block to be executed once uploading is finished, regardless of whether or not the upload succeeded.
  The block is also called when no upload was necessary because no events were captured.
  */
-- (void)uploadWithFinishedBlock:(void (^)())block;
+- (void)uploadWithFinishedBlock:(void (^)(void))block;
 
 /**
  Refresh the current geo location. The Keen Client only gets geo at the beginning of each session (i.e. when the client
