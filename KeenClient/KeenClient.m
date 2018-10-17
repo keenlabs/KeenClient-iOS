@@ -340,7 +340,7 @@ static BOOL geoLocationRequestEnabled = YES;
         if ([KeenClient isLocationAuthorized:clAuthStatus]) {
             [self startMonitoringLocation];
         }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+#if TARGET_OS_IPHONE
         // Else, try and request permission for that.
         else if (geoLocationRequestEnabled &&
                  [self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
@@ -378,8 +378,8 @@ static BOOL geoLocationRequestEnabled = YES;
 
 // Delegate method from the CLLocationManagerDelegate protocol.
 - (void)locationManager:(CLLocationManager *)manager
-    didUpdateToLocation:(CLLocation *)newLocation
-           fromLocation:(CLLocation *)oldLocation {
+     didUpdateLocations:(NSArray<CLLocation *> *)locations {
+    CLLocation *newLocation = locations.lastObject;
     // If it's a relatively recent event, turn off updates to save power
     NSDate *eventDate = newLocation.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
@@ -563,7 +563,7 @@ static BOOL geoLocationRequestEnabled = YES;
     [KIOFileStore importFileDataWithProjectID:self.config.projectID];
 }
 
-- (void)uploadWithFinishedBlock:(void (^)())block {
+- (void)uploadWithFinishedBlock:(void (^)(void))block {
     [self.uploader uploadEventsForConfig:self.config completionHandler:block];
 }
 

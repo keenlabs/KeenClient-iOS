@@ -2,7 +2,7 @@ Pod::Spec.new do |spec|
   spec.name         = 'KeenClient'
   spec.version      = '3.7.0'
   spec.license      = { :type => 'MIT' }
-  spec.ios.deployment_target = '6.0'
+  spec.ios.deployment_target = '8.0'
   spec.osx.deployment_target = '10.9'
   spec.homepage     = 'https://github.com/keenlabs/KeenClient-iOS'
 
@@ -23,6 +23,9 @@ Pod::Spec.new do |spec|
   spec.public_header_files = 'KeenClient/*.h'
   spec.requires_arc = true
   spec.frameworks = 'SystemConfiguration', 'CoreLocation', 'CFNetwork'
+  spec.pod_target_xcconfig = {
+    'CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF' => 'NO',
+  }
 
   spec.subspec 'keen_sqlite' do |ks|
     ks.source_files = 'Library/sqlite-amalgamation/*.{h,c}'

@@ -23,6 +23,6 @@
 - (instancetype)initWithNetwork:(KIONetwork *)network andStore:(KIODBStore *)store;
 
 // Upload events in the store for a given project
-- (void)uploadEventsForConfig:(KeenClientConfig *)config completionHandler:(void (^)())completionHandler;
+- (void)uploadEventsForConfig:(KeenClientConfig *)config completionHandler:(void (^)(void))completionHandler;
 
 @end
