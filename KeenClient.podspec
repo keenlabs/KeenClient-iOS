@@ -23,6 +23,9 @@ Pod::Spec.new do |spec|
   spec.public_header_files = 'KeenClient/*.h'
   spec.requires_arc = true
   spec.frameworks = 'SystemConfiguration', 'CoreLocation', 'CFNetwork'
+  spec.pod_target_xcconfig = {
+    'CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF' => 'NO',
+  }
 
   spec.subspec 'keen_sqlite' do |ks|
     ks.source_files = 'Library/sqlite-amalgamation/*.{h,c}'
