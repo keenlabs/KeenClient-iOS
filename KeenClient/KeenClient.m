@@ -340,7 +340,7 @@ static BOOL geoLocationRequestEnabled = YES;
         if ([KeenClient isLocationAuthorized:clAuthStatus]) {
             [self startMonitoringLocation];
         }
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+#if TARGET_OS_IPHONE
         // Else, try and request permission for that.
         else if (geoLocationRequestEnabled &&
                  [self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
