@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol KeenBrokerAuthenticationDelegate <NSObject>
+- (void)authenticateSessionWithCompletionHandler:(void (^)(NSError *error))completionHandler;
+@end
+
+
 @interface KeenClientConfig : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -30,5 +35,8 @@
 
 // The URL authority for the API, e.g. "api.keen.io:443"
 @property (nonatomic) NSString *apiUrlAuthority;
+
+@property (nonatomic, copy) NSString *meridianBrokerURL;
+@property (nonatomic, weak) id<KeenBrokerAuthenticationDelegate> authenticationDelegate;
 
 @end

@@ -30,9 +30,6 @@ static BOOL geoLocationRequestEnabled = YES;
 
 @interface KeenClient ()
 
-// Configuration for the client, including project id and authorization
-@property KeenClientConfig *config;
-
 // NSLocationManager
 @property (nonatomic) CLLocationManager *locationManager;
 

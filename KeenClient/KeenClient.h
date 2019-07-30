@@ -13,6 +13,8 @@
 #import "KeenProperties.h"
 #import "KeenLogger.h"
 
+@class KeenClientConfig;
+
 // defines a type for the block we'll use with our global properties
 typedef NSDictionary * (^KeenGlobalPropertiesBlock)(NSString *eventCollection);
 
@@ -116,6 +118,11 @@ typedef void (^AnalysisCompletionBlock)(NSData *responseData, NSURLResponse *res
  The number of seconds before deleting a failed query from the database.
  */
 @property int queryTTL;
+
+/**
+  Configuration for the client, including project id and authorization (and Meridian broker necessities)
+ */
+@property KeenClientConfig *config;
 
 /**
  The current proxy configuration, if set. To set the configuration, use setProxy:port:.

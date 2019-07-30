@@ -181,13 +181,28 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     IF_STRING_EMPTY_COMPLETE(config.writeKey);
     IF_NIL_COMPLETE(data);
 
-    NSString *urlString = [NSString stringWithFormat:@"%@/events", [self getProjectURL:config]];
+    NSString *urlString;
+    if (config.meridianBrokerURL) {
+       urlString = config.meridianBrokerURL;
+    } else {
+        urlString = [NSString stringWithFormat:@"%@/events", [self getProjectURL:config]];
+    }
     KCLogVerbose(@"Sending request to: %@", urlString);
 
     NSMutableURLRequest *request =
         [self createRequestWithUrl:urlString andMethod:KeenHTTPMethodPost andBody:data andKey:config.writeKey];
 
-    [self executeRequest:request completionHandler:completionHandler];
+    [self executeRequest:request completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
+        // If we get a 401, attempt to reauth
+        if (((NSHTTPURLResponse *)response).statusCode == 401 && config.authenticationDelegate) {
+            [config.authenticationDelegate authenticateSessionWithCompletionHandler:^(NSError *error) {
+                // For now just send back the original response (Keen will retry later because of the error)
+                completionHandler(responseData, response, error);
+            }];
+        } else {
+            completionHandler(responseData, response, error);
+        }
+    }];
 }
 
 - (void)runQuery:(KIOQuery *)keenQuery
