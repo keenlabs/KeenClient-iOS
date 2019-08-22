@@ -67,28 +67,12 @@
 #endif
 
 // Functions
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
 #ifndef keen_io_sqlite3_compileoption_used
 #define keen_io_sqlite3_compileoption_used __NS_SYMBOL(keen_io_sqlite3_compileoption_used)
 #endif
 
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
 #ifndef keen_io_sqlite3_strnicmp
 #define keen_io_sqlite3_strnicmp __NS_SYMBOL(keen_io_sqlite3_strnicmp)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
 #endif
 
 #ifndef keen_io_sqlite3_compileoption_get
@@ -103,48 +87,8 @@
 #define keen_io_sqlite3_db_status __NS_SYMBOL(keen_io_sqlite3_db_status)
 #endif
 
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
-#ifndef __copy_helper_block_e8_32s40s48r
-#define __copy_helper_block_e8_32s40s48r __NS_SYMBOL(__copy_helper_block_e8_32s40s48r)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s48r
-#define __destroy_helper_block_e8_32s40s48r __NS_SYMBOL(__destroy_helper_block_e8_32s40s48r)
-#endif
-
-#ifndef __copy_helper_block_e8_32s
-#define __copy_helper_block_e8_32s __NS_SYMBOL(__copy_helper_block_e8_32s)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s
-#define __destroy_helper_block_e8_32s __NS_SYMBOL(__destroy_helper_block_e8_32s)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
-#ifndef __copy_helper_block_e8_32s40s
-#define __copy_helper_block_e8_32s40s __NS_SYMBOL(__copy_helper_block_e8_32s40s)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s
-#define __destroy_helper_block_e8_32s40s __NS_SYMBOL(__destroy_helper_block_e8_32s40s)
-#endif
-
 #ifndef keen_io_sqlite3_mutex_enter
 #define keen_io_sqlite3_mutex_enter __NS_SYMBOL(keen_io_sqlite3_mutex_enter)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
 #endif
 
 #ifndef keen_io_sqlite3_mutex_leave
@@ -159,24 +103,8 @@
 #define keen_io_sqlite3_initialize __NS_SYMBOL(keen_io_sqlite3_initialize)
 #endif
 
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
-#ifndef __copy_helper_block_e8_32s40r
-#define __copy_helper_block_e8_32s40r __NS_SYMBOL(__copy_helper_block_e8_32s40r)
-#endif
-
 #ifndef keen_io_sqlite3_vfs_register
 #define keen_io_sqlite3_vfs_register __NS_SYMBOL(keen_io_sqlite3_vfs_register)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40r
-#define __destroy_helper_block_e8_32s40r __NS_SYMBOL(__destroy_helper_block_e8_32s40r)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
 #endif
 
 #ifndef keen_io_sqlite3_vfs_unregister
@@ -195,10 +123,6 @@
 #define keen_io_sqlite3_mutex_try __NS_SYMBOL(keen_io_sqlite3_mutex_try)
 #endif
 
-#ifndef __copy_helper_block_e8_32s40s48b
-#define __copy_helper_block_e8_32s40s48b __NS_SYMBOL(__copy_helper_block_e8_32s40s48b)
-#endif
-
 #ifndef keen_io_sqlite3_release_memory
 #define keen_io_sqlite3_release_memory __NS_SYMBOL(keen_io_sqlite3_release_memory)
 #endif
@@ -207,32 +131,8 @@
 #define keen_io_sqlite3_memory_alarm __NS_SYMBOL(keen_io_sqlite3_memory_alarm)
 #endif
 
-#ifndef __destroy_helper_block_e8_32s40s48s
-#define __destroy_helper_block_e8_32s40s48s __NS_SYMBOL(__destroy_helper_block_e8_32s40s48s)
-#endif
-
-#ifndef __copy_helper_block_e8_32b40s48s
-#define __copy_helper_block_e8_32b40s48s __NS_SYMBOL(__copy_helper_block_e8_32b40s48s)
-#endif
-
-#ifndef __copy_helper_block_e8_32s40b48s
-#define __copy_helper_block_e8_32s40b48s __NS_SYMBOL(__copy_helper_block_e8_32s40b48s)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s48s
-#define __destroy_helper_block_e8_32s40s48s __NS_SYMBOL(__destroy_helper_block_e8_32s40s48s)
-#endif
-
 #ifndef keen_io_sqlite3_soft_heap_limit64
 #define keen_io_sqlite3_soft_heap_limit64 __NS_SYMBOL(keen_io_sqlite3_soft_heap_limit64)
-#endif
-
-#ifndef __copy_helper_block_e8_32s40b
-#define __copy_helper_block_e8_32s40b __NS_SYMBOL(__copy_helper_block_e8_32s40b)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s
-#define __destroy_helper_block_e8_32s40s __NS_SYMBOL(__destroy_helper_block_e8_32s40s)
 #endif
 
 #ifndef keen_io_sqlite3_memory_used
@@ -263,72 +163,8 @@
 #define keen_io_sqlite3_vmprintf __NS_SYMBOL(keen_io_sqlite3_vmprintf)
 #endif
 
-#ifndef __copy_helper_block_e8_32s40s48s56b
-#define __copy_helper_block_e8_32s40s48s56b __NS_SYMBOL(__copy_helper_block_e8_32s40s48s56b)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s48s56s
-#define __destroy_helper_block_e8_32s40s48s56s __NS_SYMBOL(__destroy_helper_block_e8_32s40s48s56s)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
-#ifndef __copy_helper_block_e8_32s
-#define __copy_helper_block_e8_32s __NS_SYMBOL(__copy_helper_block_e8_32s)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s
-#define __destroy_helper_block_e8_32s __NS_SYMBOL(__destroy_helper_block_e8_32s)
-#endif
-
-#ifndef __copy_helper_block_e8_32s40s
-#define __copy_helper_block_e8_32s40s __NS_SYMBOL(__copy_helper_block_e8_32s40s)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s
-#define __destroy_helper_block_e8_32s40s __NS_SYMBOL(__destroy_helper_block_e8_32s40s)
-#endif
-
-#ifndef __copy_helper_block_e8_32b40s48s56s
-#define __copy_helper_block_e8_32b40s48s56s __NS_SYMBOL(__copy_helper_block_e8_32b40s48s56s)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s48s56s
-#define __destroy_helper_block_e8_32s40s48s56s __NS_SYMBOL(__destroy_helper_block_e8_32s40s48s56s)
-#endif
-
-#ifndef __copy_helper_block_e8_32b
-#define __copy_helper_block_e8_32b __NS_SYMBOL(__copy_helper_block_e8_32b)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s
-#define __destroy_helper_block_e8_32s __NS_SYMBOL(__destroy_helper_block_e8_32s)
-#endif
-
-#ifndef __copy_helper_block_e8_32s40s48b
-#define __copy_helper_block_e8_32s40s48b __NS_SYMBOL(__copy_helper_block_e8_32s40s48b)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s48s
-#define __destroy_helper_block_e8_32s40s48s __NS_SYMBOL(__destroy_helper_block_e8_32s40s48s)
-#endif
-
-#ifndef __copy_helper_block_e8_32s40s48s56s64b
-#define __copy_helper_block_e8_32s40s48s56s64b __NS_SYMBOL(__copy_helper_block_e8_32s40s48s56s64b)
-#endif
-
-#ifndef __destroy_helper_block_e8_32s40s48s56s64s
-#define __destroy_helper_block_e8_32s40s48s56s64s __NS_SYMBOL(__destroy_helper_block_e8_32s40s48s56s64s)
-#endif
-
 #ifndef keen_io_sqlite3_mprintf
 #define keen_io_sqlite3_mprintf __NS_SYMBOL(keen_io_sqlite3_mprintf)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
 #endif
 
 #ifndef keen_io_sqlite3_vsnprintf
@@ -345,10 +181,6 @@
 
 #ifndef keen_io_sqlite3_randomness
 #define keen_io_sqlite3_randomness __NS_SYMBOL(keen_io_sqlite3_randomness)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
 #endif
 
 #ifndef keen_io_sqlite3_stricmp
@@ -369,10 +201,6 @@
 
 #ifndef keen_io_sqlite3_backup_init
 #define keen_io_sqlite3_backup_init __NS_SYMBOL(keen_io_sqlite3_backup_init)
-#endif
-
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
 #endif
 
 #ifndef keen_io_sqlite3_backup_step
@@ -1023,25 +851,9 @@
 #define keen_io_sqlite3_db_readonly __NS_SYMBOL(keen_io_sqlite3_db_readonly)
 #endif
 
-#ifndef __llvm_profile_runtime_user
-#define __llvm_profile_runtime_user __NS_SYMBOL(__llvm_profile_runtime_user)
-#endif
-
 // Externs
-#ifndef _OBJC_PROTOCOL_$_KeenLogSink
-#define _OBJC_PROTOCOL_$_KeenLogSink __NS_SYMBOL(_OBJC_PROTOCOL_$_KeenLogSink)
-#endif
-
-#ifndef _OBJC_PROTOCOL_$_KIONSURLSessionFactory
-#define _OBJC_PROTOCOL_$_KIONSURLSessionFactory __NS_SYMBOL(_OBJC_PROTOCOL_$_KIONSURLSessionFactory)
-#endif
-
 #ifndef KIOkReachabilityChangedNotification
 #define KIOkReachabilityChangedNotification __NS_SYMBOL(KIOkReachabilityChangedNotification)
-#endif
-
-#ifndef _OBJC_PROTOCOL_$_CLLocationManagerDelegate
-#define _OBJC_PROTOCOL_$_CLLocationManagerDelegate __NS_SYMBOL(_OBJC_PROTOCOL_$_CLLocationManagerDelegate)
 #endif
 
 #ifndef kKeenApiUrlScheme
