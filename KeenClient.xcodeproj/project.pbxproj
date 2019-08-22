@@ -242,6 +242,7 @@
 		48E9F0CE1EC257BC009A1BF8 /* QueryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryTests.m; sourceTree = "<group>"; };
 		A51E31221B03C6EF00008248 /* HTTPCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPCodes.h; sourceTree = "<group>"; };
 		A51E31231B03C6EF00008248 /* HTTPCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPCodes.m; sourceTree = "<group>"; };
+		C9F42465230CF4E500D1FE84 /* NamespacedDependencies.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NamespacedDependencies.h; sourceTree = "<group>"; };
 		CA6410D618E37E7C00E53E3C /* KIODBStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIODBStore.h; sourceTree = "<group>"; };
 		CA6410D718E37E7C00E53E3C /* KIODBStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KIODBStore.m; sourceTree = "<group>"; wrapsLines = 0; };
 		CA6410E018E39F3A00E53E3C /* KIODBStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KIODBStoreTests.h; sourceTree = "<group>"; };
@@ -317,6 +318,7 @@
 		017EE11314E30C95000F3868 = {
 			isa = PBXGroup;
 			children = (
+				C9F42465230CF4E500D1FE84 /* NamespacedDependencies.h */,
 				01BA1AD414E77DC600CF9F84 /* Library */,
 				017EE12314E30C96000F3868 /* KeenClient */,
 				3EE9A72D1C59873F00B7B2D9 /* KeenClientFramework */,
@@ -579,6 +581,7 @@
 			buildPhases = (
 				017EE11A14E30C96000F3868 /* Sources */,
 				017EE11B14E30C96000F3868 /* Frameworks */,
+				C9F42466230CF5A800D1FE84 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -717,6 +720,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# define output folder\nexport UNIVERSAL_OUTPUT_FOLDER=${BUILD_DIR}/${CONFIGURATION}-universal\nexport UNIVERSAL_OUTPUT_FOLDER_IOS=${UNIVERSAL_OUTPUT_FOLDER}/iOS\nexport UNIVERSAL_OUTPUT_FOLDER_COCOA=${UNIVERSAL_OUTPUT_FOLDER}/Cocoa\n\n# clean previous output, if any\nrm -rf ${UNIVERSAL_OUTPUT_FOLDER}\n\n# make sure the output folder exists\nmkdir -p ${UNIVERSAL_OUTPUT_FOLDER_IOS}\nmkdir -p ${UNIVERSAL_OUTPUT_FOLDER_COCOA}\n\n# build for device and simulator\nxcodebuild -target KeenClient ONLY_ACTIVE_ARCH=NO OTHER_CFLAGS=\"-fembed-bitcode-marker\" -configuration ${CONFIGURATION} -sdk iphonesimulator BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\"\n\nxcodebuild -target KeenClient ONLY_ACTIVE_ARCH=NO OTHER_CFLAGS=\"-fembed-bitcode\" -configuration ${CONFIGURATION} -sdk iphoneos BUILD_DIR=\"${BUILD_DIR}\" BUILD_ROOT=\"${BUILD_ROOT}\"\n\n# create universal/fat binary\nlipo -create \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphonesimulator/libKeenClient.a\" \"${BUILT_PRODUCTS_DIR}/../${CONFIGURATION}-iphoneos/libKeenClient.a\" -output \"${UNIVERSAL_OUTPUT_FOLDER_IOS}/lib${PROJECT_NAME}-Aggregate.a\"\n\n# copy Cocoa binary\ncp -r \"${BUILD_DIR}/${CONFIGURATION}/libKeenClient-Cocoa.a\" ${UNIVERSAL_OUTPUT_FOLDER_COCOA}\n\n# copy the header files\nmkdir -p ${UNIVERSAL_OUTPUT_FOLDER_IOS}/include\nrsync -r --exclude=\"/keen_io_sqlite*\" ${BUILT_PRODUCTS_DIR}/usr/local/include/ ${UNIVERSAL_OUTPUT_FOLDER_IOS}/include\n\nmkdir -p ${UNIVERSAL_OUTPUT_FOLDER_COCOA}/include\nrsync -r --exclude=\"/keen_io_sqlite*\" ${BUILT_PRODUCTS_DIR}/usr/local/include/ ${UNIVERSAL_OUTPUT_FOLDER_COCOA}/include\n\n# zip everything up\ncd ${UNIVERSAL_OUTPUT_FOLDER_IOS}\nzip -r \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}.zip\" *\n\ncd ${UNIVERSAL_OUTPUT_FOLDER_COCOA}\nzip -r \"${UNIVERSAL_OUTPUT_FOLDER}/${PROJECT_NAME}-Cocoa.zip\" *";
+		};
+		C9F42466230CF5A800D1FE84 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Uncomment and build once with this script to update the NamespacedDependencies file that obfuscates the KeenClient symbols\n# ./generate_namespace_header.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -904,6 +924,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = YES;
 				DSTROOT = /tmp/KeenClient.dst;
 				GCC_GENERATE_TEST_COVERAGE_FILES = NO;
 				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = NO;
@@ -921,6 +942,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
 			};
 			name = Debug;
 		};
@@ -941,6 +963,7 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
 			};
 			name = Release;
 		};
