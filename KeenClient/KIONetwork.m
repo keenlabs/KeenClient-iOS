@@ -191,11 +191,16 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
 
     NSMutableURLRequest *request =
         [self createRequestWithUrl:urlString andMethod:KeenHTTPMethodPost andBody:data andKey:config.writeKey];
+    
+    // Allow our delegate to make updates to the outgoing request
+    if (config.networkDelegate) {
+        [config.networkDelegate updateCollectionRequest:request];
+    }
 
     [self executeRequest:request completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
         // If we get a 401, attempt to reauth
-        if (((NSHTTPURLResponse *)response).statusCode == 401 && config.authenticationDelegate) {
-            [config.authenticationDelegate authenticateSessionWithCompletionHandler:^(NSError *error) {
+        if (((NSHTTPURLResponse *)response).statusCode == 401 && config.networkDelegate) {
+            [config.networkDelegate authenticateSessionWithCompletionHandler:^(NSError *error) {
                 // For now just send back the original response (Keen will retry later because of the error)
                 completionHandler(responseData, response, error);
             }];

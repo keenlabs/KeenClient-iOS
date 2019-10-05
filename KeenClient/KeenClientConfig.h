@@ -8,8 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol KeenBrokerAuthenticationDelegate <NSObject>
+@protocol KeenBrokerNetworkDelegate <NSObject>
 - (void)authenticateSessionWithCompletionHandler:(void (^)(NSError *error))completionHandler;
+- (void)updateCollectionRequest:(NSMutableURLRequest *)request;
 @end
 
 
@@ -37,6 +38,6 @@
 @property (nonatomic) NSString *apiUrlAuthority;
 
 @property (nonatomic, copy) NSString *meridianBrokerURL;
-@property (nonatomic, weak) id<KeenBrokerAuthenticationDelegate> authenticationDelegate;
+@property (nonatomic, weak) id<KeenBrokerNetworkDelegate> networkDelegate;
 
 @end
