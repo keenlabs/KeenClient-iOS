@@ -373,10 +373,10 @@ static BOOL geoLocationRequestEnabled = YES;
     return NO;
 }
 
-// Delegate method from the CLLocationManagerDelegate protocol.
 - (void)locationManager:(CLLocationManager *)manager
-    didUpdateToLocation:(CLLocation *)newLocation
-           fromLocation:(CLLocation *)oldLocation {
+     didUpdateLocations:(NSArray<CLLocation *> *)locations API_AVAILABLE(ios(6.0), macos(10.9)) {
+    // newest Location is last item in the locations array
+    CLLocation *newLocation = [locations lastObject];
     // If it's a relatively recent event, turn off updates to save power
     NSDate *eventDate = newLocation.timestamp;
     NSTimeInterval howRecent = [eventDate timeIntervalSinceNow];
@@ -560,7 +560,7 @@ static BOOL geoLocationRequestEnabled = YES;
     [KIOFileStore importFileDataWithProjectID:self.config.projectID];
 }
 
-- (void)uploadWithFinishedBlock:(void (^)())block {
+- (void)uploadWithFinishedBlock:(void (^)(void))block {
     [self.uploader uploadEventsForConfig:self.config completionHandler:block];
 }
 

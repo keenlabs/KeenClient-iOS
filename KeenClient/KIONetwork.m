@@ -123,7 +123,7 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
             break;
         }
         default: {
-            KCLogError(@"Inavlid eHttpMethod: %@", [NSNumber numberWithInt:eHttpMethod]);
+            KCLogError(@"Inavlid eHttpMethod: %@", [NSNumber numberWithInt:(int)eHttpMethod]);
             return nil;
         }
     }
@@ -140,13 +140,17 @@ typedef NS_ENUM(NSInteger, KeenHTTPMethod) { KeenHTTPMethodUnknown, KeenHTTPMeth
     if (self.proxyHost && self.proxyPort) {
         // Create an NSURLSessionConfiguration that uses the proxy
         NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-        configuration.connectionProxyDictionary = @{
-            @"HTTPEnable": @(YES),
-            (NSString *)kCFStreamPropertyHTTPProxyHost: self.proxyHost,
-            (NSString *)kCFStreamPropertyHTTPProxyPort: self.proxyPort,
-            @"HTTPSEnable": @(YES),
-            (NSString *)kCFStreamPropertyHTTPSProxyHost: self.proxyHost,
-            (NSString *)kCFStreamPropertyHTTPSProxyPort: self.proxyPort,
+         configuration.connectionProxyDictionary = @{
+            (NSString *)kCFNetworkProxiesHTTPEnable: [NSNumber numberWithInt:1],
+            (NSString *)kCFNetworkProxiesHTTPProxy: self.proxyHost,
+            (NSString *)kCFNetworkProxiesHTTPPort: self.proxyPort,
+            // There is some discussion on the stackOverflow that HTTPS variations don't need to be added here,
+            //    and which is why kCFNetworkProxiesHTTPS(Enable|Proxy|Port) aren't available on iOS in the first place
+            // But there are also (stale?) reports of things not working and needing to be explicitly added anyhow.
+            // So here they are just to be safe ....
+            @"HTTPSEnable":[NSNumber numberWithInt:1],
+            @"HTTPSProxy":self.proxyHost,
+            @"HTTPSPort":self.proxyPort
         };
         session = [self.urlSessionFactory sessionWithConfiguration:configuration];
     } else {

@@ -597,16 +597,16 @@
 
     const char *projectIDUTF8 = projectID.UTF8String;
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(reset_pending_events_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(self->reset_pending_events_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to reset pending statement"];
             return;
         }
-        if (keen_io_sqlite3_step(reset_pending_events_stmt) != SQLITE_DONE) {
+        if (keen_io_sqlite3_step(self->reset_pending_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"reset pending events"];
             return;
         }
 
-        [self resetSQLiteStatement:reset_pending_events_stmt];
+        [self resetSQLiteStatement:self->reset_pending_events_stmt];
     });
 }
 
@@ -685,16 +685,16 @@
     }
 
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_int64(delete_event_stmt, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_int64(self->delete_event_stmt, 1, [eventId unsignedLongLongValue]) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind eventid to delete statement"];
             return;
         }
-        if (keen_io_sqlite3_step(delete_event_stmt) != SQLITE_DONE) {
+        if (keen_io_sqlite3_step(self->delete_event_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete event"];
             return;
         };
 
-        [self resetSQLiteStatement:delete_event_stmt];
+        [self resetSQLiteStatement:self->delete_event_stmt];
     });
 }
 
@@ -704,12 +704,12 @@
     }
 
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_step(delete_all_events_stmt) != SQLITE_DONE) {
+        if (keen_io_sqlite3_step(self->delete_all_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete all events"];
             return;
         };
 
-        [self resetSQLiteStatement:delete_all_events_stmt];
+        [self resetSQLiteStatement:self->delete_all_events_stmt];
     });
 }
 
@@ -719,16 +719,16 @@
     }
 
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_int64(age_out_events_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_int64(self->age_out_events_stmt, 1, [offset unsignedLongLongValue]) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind offset to ageOut statement"];
             return;
         }
-        if (keen_io_sqlite3_step(age_out_events_stmt) != SQLITE_DONE) {
+        if (keen_io_sqlite3_step(self->age_out_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete all events"];
             return;
         };
 
-        [self resetSQLiteStatement:age_out_events_stmt];
+        [self resetSQLiteStatement:self->age_out_events_stmt];
     });
 }
 
@@ -738,17 +738,17 @@
     }
 
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_int64(increment_event_attempts_statement, 1, [eventId unsignedLongLongValue]) !=
+        if (keen_io_sqlite3_bind_int64(self->increment_event_attempts_statement, 1, [eventId unsignedLongLongValue]) !=
             SQLITE_OK) {
             [self handleSQLiteFailure:@"bind eventid to increment attempts statement"];
             return;
         }
-        if (keen_io_sqlite3_step(increment_event_attempts_statement) != SQLITE_DONE) {
+        if (keen_io_sqlite3_step(self->increment_event_attempts_statement) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"increment attempts"];
             return;
         };
 
-        [self resetSQLiteStatement:increment_event_attempts_statement];
+        [self resetSQLiteStatement:self->increment_event_attempts_statement];
     });
 }
 
@@ -759,16 +759,16 @@
 
     const char *projectIDUTF8 = [projectID UTF8String];
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_bind_text(purge_events_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
+        if (keen_io_sqlite3_bind_text(self->purge_events_stmt, 1, projectIDUTF8, -1, SQLITE_STATIC) != SQLITE_OK) {
             [self handleSQLiteFailure:@"bind pid to purge statement"];
             return;
         }
-        if (keen_io_sqlite3_step(purge_events_stmt) != SQLITE_DONE) {
+        if (keen_io_sqlite3_step(self->purge_events_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"purge pending events"];
             return;
         };
 
-        [self resetSQLiteStatement:purge_events_stmt];
+        [self resetSQLiteStatement:self->purge_events_stmt];
     });
 }
 
@@ -1039,12 +1039,12 @@
     }
 
     dispatch_async(self.dbQueue, ^{
-        if (keen_io_sqlite3_step(delete_all_queries_stmt) != SQLITE_DONE) {
+        if (keen_io_sqlite3_step(self->delete_all_queries_stmt) != SQLITE_DONE) {
             [self handleSQLiteFailure:@"delete all queries"];
             return;
         };
 
-        [self resetSQLiteStatement:delete_all_queries_stmt];
+        [self resetSQLiteStatement:self->delete_all_queries_stmt];
     });
 }
 
